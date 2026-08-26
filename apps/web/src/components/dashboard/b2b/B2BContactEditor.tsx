@@ -19,9 +19,9 @@ import {
 } from "@/components/dashboard/ui";
 
 const SECTIONS: EditorSectionItem[] = [
-  { id: "header", label: "1. Header & Inquiries" },
-  { id: "rfp-ctas", label: "2. CTAs & Opportunity Cards" },
-  { id: "seo", label: "3. SEO Metadata" },
+  { id: "header", label: "1. Header & Inquiries", labelAr: "1. قسم العنوان والاستفسارات" },
+  { id: "rfp-ctas", label: "2. CTAs & Opportunity Cards", labelAr: "2. بطاقات الفرص وطلبات العروض" },
+  { id: "seo", label: "3. SEO Metadata", labelAr: "3. بيانات محركات البحث (SEO)" },
 ];
 
 export function B2BContactEditor({ initialData }: { initialData: any }) {

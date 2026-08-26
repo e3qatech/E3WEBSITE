@@ -23,14 +23,14 @@ import {
 } from "@/components/dashboard/ui"
 
 const SECTIONS: EditorSectionItem[] = [
-  { id: "hero", label: "1. Hero Section" },
-  { id: "stats", label: "2. Key Metrics & Stats" },
-  { id: "wowAndHow", label: "3. The Wow & How" },
-  { id: "capabilities", label: "4. Strategic Capabilities" },
-  { id: "caseStudies", label: "5. Case Studies Portfolio" },
-  { id: "deliveryProcess", label: "6. Delivery Process" },
-  { id: "partnerRibbon", label: "7. Partner Ribbon" },
-  { id: "seo", label: "8. SEO Metadata" },
+  { id: "hero", label: "1. Hero Section", labelAr: "1. قسم البداية والواجهة" },
+  { id: "stats", label: "2. Key Metrics & Stats", labelAr: "2. المؤشرات والأرقام الرئيسية" },
+  { id: "wowAndHow", label: "3. The Wow & How", labelAr: "3. قسم الإبهار والتنفيذ" },
+  { id: "capabilities", label: "4. Strategic Capabilities", labelAr: "4. القدرات والحلول الاستراتيجية" },
+  { id: "caseStudies", label: "5. Case Studies Portfolio", labelAr: "5. معرض دراسات الحالة" },
+  { id: "deliveryProcess", label: "6. Delivery Process", labelAr: "6. مراحل وآلية التنفيذ" },
+  { id: "partnerRibbon", label: "7. Partner Ribbon", labelAr: "7. شريط الشركاء والعملاء" },
+  { id: "seo", label: "8. SEO Metadata", labelAr: "8. بيانات محركات البحث (SEO)" },
 ]
 
 export function B2BHomeEditor({ 

@@ -193,7 +193,7 @@ const sidebarConfig: NavGroupItem[] = [
     capability: "settings.general.manage",
     subItems: [
       { label: "Global General", labelAr: "الإعدادات العامة للشركة", href: "/dashboard/settings/general", capability: "settings.general.manage" },
-      { label: "Gateway Customization", labelAr: "تخصيص بوابة الدفع والواجهات", href: "/dashboard/settings/gateway", capability: "settings.gateway.manage" },
+      { label: "Gateway Customization", labelAr: "تخصيص بوابة الدخول (B2B / B2C)", href: "/dashboard/settings/gateway", capability: "settings.gateway.manage" },
       { label: "Pulse Orbit Hub", labelAr: "مركز نبض الأنظمة", href: "/dashboard/settings/pulse-orbit", capability: "settings.general.manage" },
       { label: "Users & RBAC Roles", labelAr: "المستخدمون وصلاحيات الأدوار", href: "/dashboard/settings/users", capability: "rbac.manage" },
       { label: "Workflow Approvals", labelAr: "موافقات سير العمل والاعتمادات", href: "/dashboard/settings/approvals", capability: "settings.approvals.manage" },

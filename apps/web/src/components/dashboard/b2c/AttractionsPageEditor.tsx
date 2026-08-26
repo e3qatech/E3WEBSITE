@@ -20,11 +20,11 @@ import {
 import { E3LivingHeroEditor } from "@/components/dashboard/b2c/E3LivingHeroEditor";
 
 const SECTIONS: EditorSectionItem[] = [
-  { id: "titles", label: "1. Hero Titles & Copy" },
-  { id: "display", label: "2. Display & Search Controls" },
-  { id: "hero-media", label: "3. Hero Media" },
-  { id: "footer-media", label: "4. Footer Media" },
-  { id: "seo", label: "5. SEO Metadata" },
+  { id: "titles", label: "1. Hero Titles & Copy", labelAr: "1. العناوين والنصوص الترويجية" },
+  { id: "display", label: "2. Display & Search Controls", labelAr: "2. عناصر العرض والبحث والفرز" },
+  { id: "hero-media", label: "3. Hero Media", labelAr: "3. وسائط وخلفية البداية" },
+  { id: "footer-media", label: "4. Footer Media", labelAr: "4. وسائط وخلفية التذييل" },
+  { id: "seo", label: "5. SEO Metadata", labelAr: "5. بيانات محركات البحث (SEO)" },
 ];
 
 export function AttractionsPageEditor() {

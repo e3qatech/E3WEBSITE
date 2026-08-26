@@ -10,6 +10,7 @@ import {
   AdminButton,
 } from "@/components/dashboard/ui"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 type Lead = {
   id: string
@@ -24,12 +25,12 @@ type Lead = {
 }
 
 const COLUMNS = [
-  { id: "NEW", title: "New", color: "bg-blue-500", borderColor: "border-blue-500/30" },
-  { id: "CONTACTED", title: "Contacted", color: "bg-amber-500", borderColor: "border-amber-500/30" },
-  { id: "QUALIFIED", title: "Qualified", color: "bg-purple-500", borderColor: "border-purple-500/30" },
-  { id: "PROPOSAL", title: "Proposal", color: "bg-indigo-500", borderColor: "border-indigo-500/30" },
-  { id: "WON", title: "Won", color: "bg-emerald-500", borderColor: "border-emerald-500/30" },
-  { id: "LOST", title: "Lost", color: "bg-red-500", borderColor: "border-red-500/30" }
+  { id: "NEW", title: "New", color: "bg-blue-500", topBorder: "border-t-blue-500" },
+  { id: "CONTACTED", title: "Contacted", color: "bg-amber-500", topBorder: "border-t-amber-500" },
+  { id: "QUALIFIED", title: "Qualified", color: "bg-purple-500", topBorder: "border-t-purple-500" },
+  { id: "PROPOSAL", title: "Proposal", color: "bg-indigo-500", topBorder: "border-t-indigo-500" },
+  { id: "WON", title: "Won", color: "bg-emerald-500", topBorder: "border-t-emerald-500" },
+  { id: "LOST", title: "Lost", color: "bg-rose-500", topBorder: "border-t-rose-500" }
 ]
 
 export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
@@ -206,8 +207,10 @@ export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
           return (
             <div 
               key={col.id} 
-              className={`w-[320px] shrink-0 flex flex-col bg-surface-default rounded-2xl border-t-[3px] border-x border-b border-border-default shadow-sm overflow-hidden`}
-              style={{ borderTopColor: `var(--${col.color.split('-')[1]}-500, currentColor)` }}
+              className={cn(
+                "w-[320px] shrink-0 flex flex-col bg-surface-default rounded-2xl border-t-[3px] border-x border-b border-border-default shadow-sm overflow-hidden",
+                col.topBorder
+              )}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, col.id)}
             >

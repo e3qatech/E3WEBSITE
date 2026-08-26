@@ -13,9 +13,9 @@ import {
 } from "@/components/dashboard/ui"
 
 const SECTIONS: EditorSectionItem[] = [
-  { id: "HERO", label: "1. Hero & Media Settings" },
-  { id: "FAQS", label: "2. General FAQs" },
-  { id: "SEO", label: "3. SEO Metadata" },
+  { id: "HERO", label: "1. Hero & Media Settings", labelAr: "1. إعدادات قسم البداية والوسائط" },
+  { id: "FAQS", label: "2. General FAQs", labelAr: "2. الأسئلة الشائعة العامة" },
+  { id: "SEO", label: "3. SEO Metadata", labelAr: "3. بيانات محركات البحث (SEO)" },
 ];
 
 type PageSettings = {

@@ -18,18 +18,18 @@ import {
 } from "@/components/dashboard/ui"
 
 const SECTIONS: EditorSectionItem[] = [
-  { id: "hero", label: "1. Hero Section" },
-  { id: "showreel", label: "2. Master Showreel" },
-  { id: "factStream", label: "3. Fact Stream" },
-  { id: "featuredCases", label: "4. Featured Cases" },
-  { id: "archive", label: "5. Projects Archive" },
-  { id: "teamStories", label: "6. Team Stories" },
-  { id: "timeline", label: "7. Production Timeline" },
-  { id: "transformations", label: "8. Transformations" },
-  { id: "impactOverview", label: "9. ROI & Impact" },
-  { id: "servicesSection", label: "10. Linked Services" },
-  { id: "cta", label: "11. RFP CTA" },
-  { id: "seo", label: "12. SEO Settings" },
+  { id: "hero", label: "1. Hero Section", labelAr: "1. قسم البداية والواجهة" },
+  { id: "showreel", label: "2. Master Showreel", labelAr: "2. فيديو العرض الرئيسي (Showreel)" },
+  { id: "factStream", label: "3. Fact Stream", labelAr: "3. شريط الحقائق والمؤشرات" },
+  { id: "featuredCases", label: "4. Featured Cases", labelAr: "4. المشاريع المميزة" },
+  { id: "archive", label: "5. Projects Archive", labelAr: "5. أرشيف المشاريع الكامل" },
+  { id: "teamStories", label: "6. Team Stories", labelAr: "6. قصص الكوادر وفريق العمل" },
+  { id: "timeline", label: "7. Production Timeline", labelAr: "7. الخط الزمني للإنتاج" },
+  { id: "transformations", label: "8. Transformations", labelAr: "8. قصص التحول والإنجاز" },
+  { id: "impactOverview", label: "9. ROI & Impact", labelAr: "9. العائد على الاستثمار والأثر" },
+  { id: "servicesSection", label: "10. Linked Services", labelAr: "10. الخدمات والحلول المرتبطة" },
+  { id: "cta", label: "11. RFP CTA", labelAr: "11. دعوة طلب العروض (CTA)" },
+  { id: "seo", label: "12. SEO Settings", labelAr: "12. بيانات محركات البحث (SEO)" },
 ]
 
 export function B2BCasesEditor({ 
