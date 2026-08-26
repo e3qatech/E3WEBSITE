@@ -1283,27 +1283,171 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
 
               <div className="h-px bg-[var(--border-default)] w-full" />
 
-              {/* General Partners */}
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-black">General Partners</h2>
-                  <Button type="button" onClick={() => setPartners([...partners, { id: Date.now(), name: "", tagline: "", logo: "" }])} variant="outline" size="sm" className="gap-2 rounded-xl">
-                    <Plus className="w-4 h-4" /> Add Partner
+              {/* General Partners & Sponsors */}
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-black text-[var(--text-primary)]">Partners & Sponsors</h2>
+                    <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                      Add official partners and sponsor logos. If left empty, the partners section on the public microsite will be hidden automatically.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      setPartners([
+                        ...partners,
+                        {
+                          id: `partner-${Date.now()}`,
+                          nameEn: "",
+                          nameAr: "",
+                          name: "",
+                          logoUrl: "",
+                          logo: "",
+                          websiteUrl: "",
+                        },
+                      ])
+                    }
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 rounded-xl shrink-0"
+                  >
+                    <Plus className="w-4 h-4" /> Add Partner Logo
                   </Button>
                 </div>
+
                 <div className="space-y-4">
-                  {partners.map((partner, index) => (
-                    <div key={partner.id || index} className="p-4 border border-[var(--border-default)] rounded-xl bg-[var(--surface-subtle)] relative flex gap-4 pe-10">
-                      <button type="button" onClick={() => setPartners(partners.filter((_, i) => i !== index))} className="absolute top-4 end-4 p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                      <input type="text" placeholder="Name (e.g. Visit Qatar)" value={partner.name} onChange={e => updateArrayItem(setPartners, partners, index, "name", e.target.value)} className="w-1/3 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
-                      <input type="text" placeholder="Tagline (e.g. Official Tourism Partner)" value={partner.tagline} onChange={e => updateArrayItem(setPartners, partners, index, "tagline", e.target.value)} className="w-1/3 bg-[var(--surface-default)] border border-[var(--border-default)] rounded-lg px-3 py-2 text-sm" />
-                      <div className="w-1/3">
-                        <MediaUploader value={partner.logo} onChange={val => updateArrayItem(setPartners, partners, index, "logo", val)} placeholder="Logo URL" />
+                  {partners.map((partner, index) => {
+                    const currentLogo = partner.logoUrl || partner.logo || "";
+                    const partnerName = partner.nameEn || partner.name || "";
+
+                    return (
+                      <div
+                        key={partner.id || index}
+                        className="p-5 border border-[var(--border-default)] rounded-2xl bg-[var(--surface-subtle)] relative space-y-4"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setPartners(partners.filter((_, i) => i !== index))}
+                          className="absolute top-4 end-4 p-1.5 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+                          title="Remove Partner"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pe-8">
+                          <div>
+                            <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1 block">
+                              Partner Name (EN) *
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="e.g. Qatar Airways, City Center Doha"
+                              value={partner.nameEn || partner.name || ""}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                const updated = [...partners];
+                                updated[index] = { ...updated[index], nameEn: val, name: val };
+                                setPartners(updated);
+                              }}
+                              className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3.5 py-2 text-xs focus:border-[var(--color-primary)] focus:outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1 block text-right">
+                              اسم الشريك (بالعربية)
+                            </label>
+                            <input
+                              type="text"
+                              dir="rtl"
+                              placeholder="مثال: الخطوط الجوية القطرية"
+                              value={partner.nameAr || ""}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                const updated = [...partners];
+                                updated[index] = { ...updated[index], nameAr: val };
+                                setPartners(updated);
+                              }}
+                              className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3.5 py-2 text-xs focus:border-[var(--color-primary)] focus:outline-none text-right"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1 block">
+                              Partner Website URL (Optional)
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="https://..."
+                              value={partner.websiteUrl || ""}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                const updated = [...partners];
+                                updated[index] = { ...updated[index], websiteUrl: val };
+                                setPartners(updated);
+                              }}
+                              className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3.5 py-2 text-xs font-mono focus:border-[var(--color-primary)] focus:outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1 block">
+                              Partner Logo URL (PNG / SVG / WebP) *
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="https://... or /logo.png"
+                              value={currentLogo}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                const updated = [...partners];
+                                updated[index] = { ...updated[index], logoUrl: val, logo: val };
+                                setPartners(updated);
+                              }}
+                              className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3.5 py-2 text-xs font-mono focus:border-[var(--color-primary)] focus:outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Media Upload and Live Logo Preview */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-2 border-t border-[var(--border-default)]">
+                          <div className="flex-1">
+                            <MediaUploader
+                              value={currentLogo}
+                              onChange={(val) => {
+                                const updated = [...partners];
+                                updated[index] = { ...updated[index], logoUrl: val, logo: val };
+                                setPartners(updated);
+                              }}
+                              placeholder="Upload Logo File"
+                            />
+                          </div>
+
+                          {currentLogo && (
+                            <div className="h-16 w-36 rounded-xl bg-white/5 border border-[var(--border-default)] p-2 flex items-center justify-center shrink-0">
+                              <img
+                                src={currentLogo}
+                                alt={partnerName || "Logo Preview"}
+                                className="max-h-12 max-w-full object-contain"
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
+                    );
+                  })}
+
+                  {partners.length === 0 && (
+                    <div className="p-8 border-2 border-dashed border-[var(--border-default)] rounded-2xl text-center space-y-2">
+                      <p className="text-xs font-semibold text-[var(--text-secondary)]">
+                        No partner logos added yet.
+                      </p>
+                      <p className="text-[11px] text-[var(--text-tertiary)]">
+                        The &ldquo;Our Partners&rdquo; section will remain hidden on this attraction&apos;s page until logos are added.
+                      </p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
 
