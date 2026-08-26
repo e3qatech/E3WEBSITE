@@ -218,10 +218,10 @@ export function CalendarPageManager({
   };
 
   const SECTIONS: EditorSectionItem[] = [
-    { id: "HERO", label: isAr ? "١. عناوين ونصوص الهيرو" : "1. Hero Titles & Copy" },
-    { id: "MEDIA", label: isAr ? "٢. وسائط الهيرو" : "2. Hero Media" },
-    { id: "DISCOUNTS", label: isAr ? "٣. العروض والخصومات" : "3. Promo Discounts" },
-    { id: "SEO", label: isAr ? "٤. محركات البحث والميتا" : "4. SEO Metadata" },
+    { id: "HERO", label: "1. Hero Titles & Copy", labelAr: "١. عناوين ونصوص الهيرو" },
+    { id: "MEDIA", label: "2. Hero Media", labelAr: "٢. وسائط الهيرو" },
+    { id: "DISCOUNTS", label: "3. Promo Discounts", labelAr: "٣. العروض والخصومات" },
+    { id: "SEO", label: "4. SEO Metadata", labelAr: "٤. محركات البحث والميتا" },
   ];
 
   if (loading) {

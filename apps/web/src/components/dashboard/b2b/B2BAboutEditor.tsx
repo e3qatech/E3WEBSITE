@@ -20,10 +20,10 @@ import {
 } from "@/components/dashboard/ui";
 
 const SECTIONS: EditorSectionItem[] = [
-  { id: "header", label: "1. Hero Header" },
-  { id: "story", label: "2. Corporate Story" },
-  { id: "values", label: "3. Corporate Values" },
-  { id: "seo", label: "4. SEO Metadata" },
+  { id: "header", label: "1. Hero Header", labelAr: "1. قسم البداية والواجهة" },
+  { id: "story", label: "2. Corporate Story", labelAr: "2. قصة الشركة والتأسيس" },
+  { id: "values", label: "3. Corporate Values", labelAr: "3. قيم ومبادئ الشركة" },
+  { id: "seo", label: "4. SEO Metadata", labelAr: "4. بيانات محركات البحث (SEO)" },
 ];
 
 export function B2BAboutEditor({ initialData }: { initialData: any }) {

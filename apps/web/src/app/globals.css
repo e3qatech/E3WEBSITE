@@ -13,10 +13,13 @@
 
 @theme {
   --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
   --color-primary-foreground: var(--accent-primary-foreground);
   --color-secondary: var(--color-secondary);
+  --color-secondary-hover: var(--color-secondary-hover);
   --color-secondary-foreground: var(--accent-secondary-foreground);
   --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
   --color-error: var(--color-error);
@@ -24,6 +27,17 @@
 
   --color-bg-base: var(--bg-level-1);
   --color-bg-surface: var(--surface-default);
+  --color-bg-level-1: var(--bg-level-1);
+  --color-bg-level-2: var(--bg-level-2);
+  --color-bg-level-3: var(--bg-level-3);
+  --color-bg-level-4: var(--bg-level-4);
+  --color-bg-level-5: var(--bg-level-5);
+
+  --color-surface-default: var(--surface-default);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+  --color-surface-selected: var(--surface-selected);
+  --color-surface-subtle: var(--bg-level-2);
   
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
@@ -33,6 +47,9 @@
   --color-border-subtle: var(--border-level-1);
   --color-border-default: var(--border-level-2);
   --color-border-strong: var(--border-level-3);
+  --color-border-level-1: var(--border-level-1);
+  --color-border-level-2: var(--border-level-2);
+  --color-border-level-3: var(--border-level-3);
   
   --font-sans: var(--font-manrope), 'Manrope', system-ui, sans-serif;
   --font-arabic: var(--font-ibm-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif;

@@ -18,16 +18,16 @@ import {
 } from "@/components/dashboard/ui"
 
 const SECTIONS: EditorSectionItem[] = [
-  { id: "hero", label: "1. Hero Section" },
-  { id: "capabilityCount", label: "2. Capability Metrics" },
-  { id: "philosophy", label: "3. WOW & HOW" },
-  { id: "navigator", label: "4. Bento Navigator" },
-  { id: "spotlights", label: "5. Spotlights" },
-  { id: "methodology", label: "6. Methodology" },
-  { id: "caseStudies", label: "7. Case Studies" },
-  { id: "partnerRibbon", label: "8. Partner Ribbon" },
-  { id: "cta", label: "9. RFP Gateway" },
-  { id: "seo", label: "10. SEO Metadata" },
+  { id: "hero", label: "1. Hero Section", labelAr: "1. قسم البداية والواجهة" },
+  { id: "capabilityCount", label: "2. Capability Metrics", labelAr: "2. مؤشرات القدرات التشغيلية" },
+  { id: "philosophy", label: "3. WOW & HOW", labelAr: "3. فلسفة الإبهار والتنفيذ" },
+  { id: "navigator", label: "4. Bento Navigator", labelAr: "4. متصفح الخدمات (Bento)" },
+  { id: "spotlights", label: "5. Spotlights", labelAr: "5. الخدمات المميزة والمسلط عليها الضوء" },
+  { id: "methodology", label: "6. Methodology", labelAr: "6. منهجية وسير العمل" },
+  { id: "caseStudies", label: "7. Case Studies", labelAr: "7. المشاريع ودراسات الحالة" },
+  { id: "partnerRibbon", label: "8. Partner Ribbon", labelAr: "8. شريط الشركاء" },
+  { id: "cta", label: "9. RFP Gateway", labelAr: "9. بوابة طلب العروض والشراكة" },
+  { id: "seo", label: "10. SEO Metadata", labelAr: "10. بيانات محركات البحث (SEO)" },
 ]
 
 export function B2BServicesEditor({ 
