@@ -177,26 +177,9 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
         onSelectSection={setActiveTab}
       />
 
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Sidebar Nav */}
-        <div className="w-full md:w-64 shrink-0 flex flex-col gap-2">
-          {["general", "hero", "narrative", "metrics", "team", "testimonials", "gallery", "seo"].map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`text-left px-4 py-3 rounded-xl font-bold text-sm transition-colors ${
-                activeTab === tab 
-                  ? "bg-accent text-white shadow-lg" 
-                  : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
-              }`}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </div>
-
+      <div className="mt-4">
         {/* Content Area */}
-        <div className="flex-1 bg-surface-default rounded-2xl border border-border-default p-6 md:p-8 min-h-[500px]">
+        <div className="bg-surface-default rounded-2xl border border-border-default p-6 md:p-8 min-h-[500px]">
           
           {/* GENERAL TAB */}
           {activeTab === "general" && (

@@ -52,6 +52,11 @@ const mocks = vi.hoisted(() => ({
     brand: {
       findMany: vi.fn(),
     },
+    pages: {
+      findUnique: vi.fn().mockResolvedValue(null),
+      findMany: vi.fn().mockResolvedValue([]),
+      findFirst: vi.fn().mockResolvedValue(null),
+    },
   },
   redis: {
     get: vi.fn().mockResolvedValue(null),
@@ -431,24 +436,22 @@ describe('QF-25-B — ADMIN RBAC & HARD SERVER-ONLY INTEGRATION BOUNDARY', () =>
       (mocks.db.siteSettings.findMany as any).mockResolvedValue(records);
 
       // B2B Contact EN & AR
-      const contactEn = React.createElement(B2BContactPage);
+      const contactEn = await (B2BContactPage as any)({ params: Promise.resolve({ locale: 'en' }) });
       const markupContactEn = renderToStaticMarkup(contactEn);
       expect(markupContactEn).not.toContain(SENSITIVE_FIXTURES.BOOKINGQUBE_KEY);
       expect(markupContactEn).not.toContain('bookingQubeApiKey');
 
-      const contactAr = React.createElement(B2BContactPage);
+      const contactAr = await (B2BContactPage as any)({ params: Promise.resolve({ locale: 'ar' }) });
       const markupContactAr = renderToStaticMarkup(contactAr);
       expect(markupContactAr).not.toContain(SENSITIVE_FIXTURES.BOOKINGQUBE_KEY);
       expect(markupContactAr).not.toContain('bookingQubeApiKey');
 
       // B2B Feedback EN & AR
-      const feedbackEn = React.createElement(B2BFeedbackPage);
-      const markupFeedbackEn = renderToStaticMarkup(feedbackEn);
+      const markupFeedbackEn = renderToStaticMarkup(React.createElement(B2BFeedbackPage));
       expect(markupFeedbackEn).not.toContain(SENSITIVE_FIXTURES.BOOKINGQUBE_KEY);
       expect(markupFeedbackEn).not.toContain('bookingQubeApiKey');
 
-      const feedbackAr = React.createElement(B2BFeedbackPage);
-      const markupFeedbackAr = renderToStaticMarkup(feedbackAr);
+      const markupFeedbackAr = renderToStaticMarkup(React.createElement(B2BFeedbackPage));
       expect(markupFeedbackAr).not.toContain(SENSITIVE_FIXTURES.BOOKINGQUBE_KEY);
       expect(markupFeedbackAr).not.toContain('bookingQubeApiKey');
     });

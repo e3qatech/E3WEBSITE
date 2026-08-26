@@ -1,31 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Save,
-  CheckCircle2,
   Building,
   Mail,
   Share2,
   Key,
-  Image as ImageIcon,
   LayoutTemplate,
-  ArrowRight,
-  Sparkles,
-  ExternalLink,
-  Phone,
-  Clock,
-  MapPin,
+  CheckCircle2,
   Send,
   Loader2,
+  ImageIcon,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { PackageMediaUploader } from "@/components/dashboard/b2c/PackageMediaUploader";
 import {
   DashboardPageShell,
   DashboardPageHeader,
   DashboardSectionNavigator,
+  DashboardSectionCard,
   DashboardStickyActions,
   DashboardUnsavedChangesGuard,
   EditorSectionItem,
@@ -34,14 +31,14 @@ import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/layout/LocaleProvider";
 
 const SECTIONS: EditorSectionItem[] = [
-  { id: "identity", label: "Site Identity", labelAr: "هوية المنصة" },
-  { id: "branding", label: "Logos & Favicon", labelAr: "الشعارات والأيقونة" },
-  { id: "contact", label: "Contact Details", labelAr: "بيانات التواصل" },
-  { id: "social", label: "Social Channels", labelAr: "قنوات التواصل" },
-  { id: "tickets", label: "Ticket CTA Bar", labelAr: "شريط حجز التذاكر" },
-  { id: "integrations", label: "API Gateways", labelAr: "بوابات الربط البرمجي" },
-  { id: "gateway", label: "Gateway Customization", labelAr: "تخصيص بوابة الدخول" },
-  { id: "emails", label: "Email Templates", labelAr: "قوالب البريد التلقائية" },
+  { id: "identity", label: "1. Site Identity", labelAr: "١. هوية المنصة" },
+  { id: "branding", label: "2. Logos & Favicon", labelAr: "٢. الشعارات والأيقونة" },
+  { id: "contact", label: "3. Contact Details", labelAr: "٣. بيانات التواصل" },
+  { id: "social", label: "4. Social Channels", labelAr: "٤. قنوات التواصل" },
+  { id: "tickets", label: "5. Ticket CTA Bar", labelAr: "٥. شريط حجز التذاكر" },
+  { id: "integrations", label: "6. API Gateways", labelAr: "٦. بوابات الربط البرمجي" },
+  { id: "gateway", label: "7. Gateway Customization", labelAr: "٧. تخصيص بوابة الدخول" },
+  { id: "emails", label: "8. Email Templates", labelAr: "٨. قوالب البريد التلقائية" },
 ];
 
 export function GeneralSettingsView({ initialSettings }: { initialSettings: Record<string, any> }) {
@@ -68,35 +65,27 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
     socialInstagram: initialSettings.socialInstagram || "https://www.instagram.com/e3qatar/?hl=en",
     socialTwitter: initialSettings.socialTwitter || "https://x.com/e3QatarOfficial",
     socialLinkedin: initialSettings.socialLinkedin || "https://www.linkedin.com/company/e3qatar",
-    socialYoutube: initialSettings.socialYoutube || "https://www.youtube.com/@e3qatar",
-    socialSnapchat: initialSettings.socialSnapchat || "https://snapchat.com/e3qatar",
-    socialFacebook: initialSettings.socialFacebook || "",
-    bookingqubeWebsite: initialSettings.bookingqubeWebsite || "",
+    socialYoutube: initialSettings.socialYoutube || "https://youtube.com/@e3qatar",
+    socialSnapchat: initialSettings.socialSnapchat || "https://snapchat.com/add/e3qatar",
+    socialFacebook: initialSettings.socialFacebook || "https://facebook.com/e3qatar",
+    bookingqubeWebsite: initialSettings.bookingqubeWebsite || "https://bookingqube.com",
     bookingQubeApiKey: initialSettings.bookingQubeApiKey || "",
     mapsApiKey: initialSettings.mapsApiKey || "",
     emailGatewayKey: initialSettings.emailGatewayKey || "",
-    lightLogoUrl: initialSettings.lightLogoUrl || "",
-    darkLogoUrl: initialSettings.darkLogoUrl || "",
-    faviconUrl: initialSettings.faviconUrl || "",
+    emailSupportGreetingEn: initialSettings.emailSupportGreetingEn || "Thank you for reaching out to E3 Customer Support. Your inquiry has been received.",
+    emailSupportGreetingAr: initialSettings.emailSupportGreetingAr || "شكراً لتواصلكم مع خدمة عملاء إي ثري. لقد تم استلام استفساركم بنجاح.",
+    emailResponseTimeEn: initialSettings.emailResponseTimeEn || "Our team typically replies within 2-4 business hours.",
+    emailResponseTimeAr: initialSettings.emailResponseTimeAr || "يقوم فريقنا بالرد عادةً خلال ٢ إلى ٤ ساعات عمل.",
+    emailB2BMessageEn: initialSettings.emailB2BMessageEn || "Thank you for submitting your project brief. A senior enterprise consultant will review your specifications.",
+    emailB2BMessageAr: initialSettings.emailB2BMessageAr || "شكراً لتقديم تفاصيل مشروعكم. سيقوم مستشار أعمال مختص بمراجعة المتطلبات والتواصل معكم.",
+    lightLogoUrl: initialSettings.lightLogoUrl || "/logo-dark.png",
+    darkLogoUrl: initialSettings.darkLogoUrl || "/logo-white.png",
+    faviconUrl: initialSettings.faviconUrl || "/favicon.ico",
     bookTicketsUrl: initialSettings.bookTicketsUrl || "/b2c/tickets",
     bookTicketsLabelEn: initialSettings.bookTicketsLabelEn || "BOOK TICKETS",
     bookTicketsLabelAr: initialSettings.bookTicketsLabelAr || "احجز التذاكر",
-    bookTicketsEnabled: initialSettings.bookTicketsEnabled ?? "true",
-    bookTicketsExternal: initialSettings.bookTicketsExternal ?? "false",
-    emailSupportGreetingEn:
-      initialSettings.emailSupportGreetingEn ||
-      "Thank you for reaching out to E3 Qatar Support. Your inquiry has been securely registered in our operations queue and assigned to our guest relations team.",
-    emailSupportGreetingAr:
-      initialSettings.emailSupportGreetingAr ||
-      "شكراً لتواصلك مع فريق الدعم في إي ثري قطر. تم تسجيل طلبك بأمان وتوجيهه إلى فريق خدمة الضيوف.",
-    emailResponseTimeEn: initialSettings.emailResponseTimeEn || "Within 24 Business Hours",
-    emailResponseTimeAr: initialSettings.emailResponseTimeAr || "خلال 24 ساعة عمل",
-    emailB2BMessageEn:
-      initialSettings.emailB2BMessageEn ||
-      "Thank you for engaging with E3 Qatar. We have received your project inquiry and our Business Development & Event Engineering leadership is reviewing your specifications.",
-    emailB2BMessageAr:
-      initialSettings.emailB2BMessageAr ||
-      "شكراً لاهتمامكم بالتعاون مع إي ثري قطر. لقد استلمنا تفاصيل مشروعكم ويقوم فريق هندسة الفعاليات وتطوير الأعمال بمراجعتها.",
+    bookTicketsEnabled: initialSettings.bookTicketsEnabled !== undefined ? String(initialSettings.bookTicketsEnabled) : "true",
+    bookTicketsExternal: initialSettings.bookTicketsExternal !== undefined ? String(initialSettings.bookTicketsExternal) : "false",
   });
 
   const handleChange = (field: string, value: string) => {
@@ -118,10 +107,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
       setIsDirty(false);
       setLastSaved(new Date());
       setToast(true);
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("e3_general_settings_updated", { detail: data }));
-      }
-      setTimeout(() => setToast(false), 3000);
+      setTimeout(() => setToast(false), 4000);
       router.refresh();
     } catch (error) {
       console.error("Failed to save settings", error);
@@ -134,29 +120,28 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
     setIsTestingEmail(true);
     setTestEmailMsg(null);
     try {
-      const res = await fetch("/api/admin/email/test", {
+      const res = await fetch("/api/settings/test-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          to: data.contactEmail,
+          apiKey: data.emailGatewayKey,
+        }),
       });
       const json = await res.json();
-      if (res.ok && json.success) {
-        setTestEmailMsg({
-          success: true,
-          text: isAr
-            ? `تم إرسال البريد الاختباري بنجاح عبر ${json.provider || "Resend"}.`
-            : `Test email dispatched via ${json.provider || "Resend"}.`,
-        });
-      } else {
-        setTestEmailMsg({
-          success: false,
-          text: json.error || (isAr ? "فشل إرسال البريد الاختباري." : "Failed to dispatch test email."),
-        });
+      if (!res.ok) {
+        throw new Error(json.error || "Failed to send test email.");
       }
-    } catch {
+      setTestEmailMsg({
+        success: true,
+        text: isAr
+          ? `تم إرسال بريد الاختبار بنجاح إلى (${data.contactEmail})!`
+          : `Test email sent successfully to (${data.contactEmail})!`,
+      });
+    } catch (err: any) {
       setTestEmailMsg({
         success: false,
-        text: isAr ? "خطأ في الاتصال بالخادم." : "Network error connecting to test endpoint.",
+        text: err.message || (isAr ? "فشل إرسال بريد الاختبار. يرجى التحقق من المفتاح." : "Failed to send test email. Verify the API Key."),
       });
     } finally {
       setIsTestingEmail(false);
@@ -167,15 +152,16 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
     <DashboardPageShell variant="focused">
       <DashboardUnsavedChangesGuard isDirty={isDirty} />
 
-      {/* Standard Header */}
+      {/* Page Header */}
       <DashboardPageHeader
         title={isAr ? "الإعدادات العامة للمنصة" : "General Platform Settings"}
         description={
           isAr
-            ? "إدارة هوية المنصة العامة، وشعارات العلامة التجارية، وبيانات التواصل، وروابط التواصل الاجتماعي، وبوابات الربط البرمجي."
+            ? "إدارة هوية الموقع، الشعارات، بيانات التواصل، قنوات التواصل الاجتماعي، وروابط البوابات الخارجية."
             : "Manage global site identity, brand logos, contact information, social links, and external API gateways."
         }
         breadcrumbs={[
+          { label: isAr ? "لوحة التحكم" : "Dashboard", href: "/dashboard" },
           { label: isAr ? "الإعدادات" : "Settings", href: "/dashboard/settings/general" },
           { label: isAr ? "الإعدادات العامة" : "General Settings" },
         ]}
@@ -204,133 +190,148 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        {/* Left Column */}
-        <div className="space-y-6">
-          {/* 1. Site Identity */}
-          <div id="identity" className="bg-[var(--surface-default)] rounded-3xl border border-[var(--border-default)] p-6 shadow-xs space-y-4">
-            <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center border-b border-[var(--border-default)] pb-3">
-              <Building className="w-4 h-4 me-2 text-blue-500" />
-              <span>{isAr ? "١. هوية المنصة والمسميات" : "1. Site Identity"}</span>
-            </h2>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                  {isAr ? "اسم الموقع (الإنجليزية)" : "Site Name (English)"}
-                </label>
-                <input
-                  type="text"
-                  value={data.siteNameEn}
-                  onChange={(e) => handleChange("siteNameEn", e.target.value)}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                  {isAr ? "اسم الموقع (العربية)" : "Site Name (Arabic)"}
-                </label>
-                <input
-                  type="text"
-                  dir="rtl"
-                  value={data.siteNameAr}
-                  onChange={(e) => handleChange("siteNameAr", e.target.value)}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-arabic text-right"
-                />
-              </div>
+      {/* 1. Site Identity */}
+      <div id="identity" className={cn("space-y-6", activeSectionId === "identity" ? "block" : "hidden")}>
+        <DashboardSectionCard
+          title={isAr ? "١. هوية المنصة والمسميات" : "1. Site Identity"}
+          description={
+            isAr
+              ? "الاسم الرسمي المعتمد للمنصة باللغتين العربية والإنجليزية عبر جميع البوابات."
+              : "Official approved platform name in English and Arabic rendered across all public headers and footers."
+          }
+          icon={<Building className="w-5 h-5 text-blue-500" />}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                {isAr ? "اسم الموقع (الإنجليزية)" : "Site Name (English)"}
+              </label>
+              <input
+                type="text"
+                value={data.siteNameEn}
+                onChange={(e) => handleChange("siteNameEn", e.target.value)}
+                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
             </div>
-          </div>
-
-          {/* 2. Logos & Favicon */}
-          <div id="branding" className="bg-[var(--surface-default)] rounded-3xl border border-[var(--border-default)] p-6 shadow-xs space-y-4">
-            <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center border-b border-[var(--border-default)] pb-3">
-              <ImageIcon className="w-4 h-4 me-2 text-purple-500" />
-              <span>{isAr ? "٢. الشعارات والأيقونة" : "2. Brand Logos & Favicon"}</span>
-            </h3>
-            <div className="space-y-4">
-              <PackageMediaUploader
-                label={isAr ? "شعار النمط الفاتح (Light Mode Logo)" : "Light Mode Logo (Dark Vector/PNG for Light BG)"}
-                value={data.lightLogoUrl}
-                onChange={(val) => handleChange("lightLogoUrl", val)}
-                context="settings/logos"
-                recommendedSize="SVG, PNG, or WebP (Recommended height: 60-80px)"
-                isAr={isAr}
-              />
-              <PackageMediaUploader
-                label={isAr ? "شعار النمط الداكن (Dark Mode Logo)" : "Dark Mode Logo (White Vector/PNG for Dark BG)"}
-                value={data.darkLogoUrl}
-                onChange={(val) => handleChange("darkLogoUrl", val)}
-                context="settings/logos"
-                recommendedSize="SVG, PNG, or WebP (Recommended height: 60-80px)"
-                isAr={isAr}
-              />
-              <PackageMediaUploader
-                label={isAr ? "أيقونة المتصفح (Favicon)" : "Browser Favicon"}
-                value={data.faviconUrl}
-                onChange={(val) => handleChange("faviconUrl", val)}
-                context="settings/favicon"
-                recommendedSize="ICO, PNG, or SVG (32x32px or 64x64px)"
-                isAr={isAr}
+            <div>
+              <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                {isAr ? "اسم الموقع (العربية)" : "Site Name (Arabic)"}
+              </label>
+              <input
+                type="text"
+                dir="rtl"
+                value={data.siteNameAr}
+                onChange={(e) => handleChange("siteNameAr", e.target.value)}
+                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-arabic text-right"
               />
             </div>
           </div>
+        </DashboardSectionCard>
+      </div>
 
-          {/* 3. Contact Details */}
-          <div id="contact" className="bg-[var(--surface-default)] rounded-3xl border border-[var(--border-default)] p-6 shadow-xs space-y-4">
-            <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center border-b border-[var(--border-default)] pb-3">
-              <Mail className="w-4 h-4 me-2 text-amber-500" />
-              <span>{isAr ? "٣. بيانات التواصل والمقر" : "3. Contact Details"}</span>
-            </h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                    {isAr ? "البريد الإلكتروني العام" : "Public Email"}
-                  </label>
-                  <input
-                    type="email"
-                    value={data.contactEmail}
-                    onChange={(e) => handleChange("contactEmail", e.target.value)}
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                    {isAr ? "رقم الهاتف العام" : "Public Phone"}
-                  </label>
-                  <input
-                    type="text"
-                    value={data.contactPhone}
-                    onChange={(e) => handleChange("contactPhone", e.target.value)}
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
-                  />
-                </div>
+      {/* 2. Logos & Favicon */}
+      <div id="branding" className={cn("space-y-6", activeSectionId === "branding" ? "block" : "hidden")}>
+        <DashboardSectionCard
+          title={isAr ? "٢. الشعارات والأيقونة" : "2. Brand Logos & Favicon"}
+          description={
+            isAr
+              ? "تحميل شعارات العلامة التجارية المعتمدة للنمطين الفاتح والداكن، وأيقونة المتصفح (Favicon)."
+              : "Upload approved vectors and assets for Light Mode, Dark Mode, and browser tab Favicon."
+          }
+          icon={<ImageIcon className="w-5 h-5 text-purple-500" />}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <PackageMediaUploader
+              label={isAr ? "شعار النمط الفاتح (Light Mode Logo)" : "Light Mode Logo"}
+              value={data.lightLogoUrl}
+              onChange={(val) => handleChange("lightLogoUrl", val)}
+              context="settings/logos"
+              recommendedSize="SVG or PNG (Recommended height: 60-80px)"
+              isAr={isAr}
+            />
+            <PackageMediaUploader
+              label={isAr ? "شعار النمط الداكن (Dark Mode Logo)" : "Dark Mode Logo"}
+              value={data.darkLogoUrl}
+              onChange={(val) => handleChange("darkLogoUrl", val)}
+              context="settings/logos"
+              recommendedSize="SVG or PNG (Recommended height: 60-80px)"
+              isAr={isAr}
+            />
+            <PackageMediaUploader
+              label={isAr ? "أيقونة المتصفح (Favicon)" : "Browser Favicon"}
+              value={data.faviconUrl}
+              onChange={(val) => handleChange("faviconUrl", val)}
+              context="settings/favicon"
+              recommendedSize="ICO, PNG, or SVG (32x32px or 64x64px)"
+              isAr={isAr}
+            />
+          </div>
+        </DashboardSectionCard>
+      </div>
+
+      {/* 3. Contact Details */}
+      <div id="contact" className={cn("space-y-6", activeSectionId === "contact" ? "block" : "hidden")}>
+        <DashboardSectionCard
+          title={isAr ? "٣. بيانات التواصل والمقر" : "3. Contact Details"}
+          description={
+            isAr
+              ? "قنوات الاتصال الرسمية، العناوين الجغرافية للمقر، وساعات العمل المعروضة على الفوتر وصفحات الاتصال."
+              : "Public contact channels, office addresses, and official working hours."
+          }
+          icon={<Mail className="w-5 h-5 text-amber-500" />}
+        >
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                  {isAr ? "البريد الإلكتروني العام" : "Public Email"}
+                </label>
+                <input
+                  type="email"
+                  value={data.contactEmail}
+                  onChange={(e) => handleChange("contactEmail", e.target.value)}
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                />
               </div>
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                  {isAr ? "رقم الواتساب للاستفسارات" : "WhatsApp Inquiries Number"}
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                  {isAr ? "رقم الهاتف العام" : "Public Phone"}
+                </label>
+                <input
+                  type="text"
+                  value={data.contactPhone}
+                  onChange={(e) => handleChange("contactPhone", e.target.value)}
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                  {isAr ? "رقم الواتساب للاستفسارات" : "WhatsApp Number"}
                 </label>
                 <input
                   type="text"
                   value={data.contactWhatsapp}
                   onChange={(e) => handleChange("contactWhatsapp", e.target.value)}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
                   placeholder="+974..."
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
                   {isAr ? "عنوان المكتب (الإنجليزية)" : "Office Address (English)"}
                 </label>
                 <textarea
                   rows={2}
                   value={data.addressEn}
                   onChange={(e) => handleChange("addressEn", e.target.value)}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
                   {isAr ? "عنوان المكتب (العربية)" : "Office Address (Arabic)"}
                 </label>
                 <textarea
@@ -338,331 +339,347 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
                   dir="rtl"
                   value={data.addressAr}
                   onChange={(e) => handleChange("addressAr", e.target.value)}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none font-arabic text-right"
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none font-arabic text-right"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                {isAr ? "ساعات العمل الرسمية" : "Working Hours"}
+              </label>
+              <input
+                type="text"
+                value={data.workingHours}
+                onChange={(e) => handleChange("workingHours", e.target.value)}
+                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+            </div>
+          </div>
+        </DashboardSectionCard>
+      </div>
+
+      {/* 4. Social Channels */}
+      <div id="social" className={cn("space-y-6", activeSectionId === "social" ? "block" : "hidden")}>
+        <DashboardSectionCard
+          title={isAr ? "٤. قنوات التواصل الاجتماعي" : "4. Social Media Links"}
+          description={
+            isAr
+              ? "روابط الحسابات الرسمية على شبكات التواصل الاجتماعي المعروضة في ترويسة وتذييل الموقع."
+              : "Hyperlinks for verified brand social network channels in headers and footers."
+          }
+          icon={<Share2 className="w-5 h-5 text-pink-500" />}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              { field: "socialInstagram", label: "Instagram URL", placeholder: "https://instagram.com/..." },
+              { field: "socialTwitter", label: "Twitter / X URL", placeholder: "https://x.com/..." },
+              { field: "socialLinkedin", label: "LinkedIn URL", placeholder: "https://linkedin.com/company/..." },
+              { field: "socialYoutube", label: "YouTube URL", placeholder: "https://youtube.com/@..." },
+              { field: "socialSnapchat", label: "Snapchat URL", placeholder: "https://snapchat.com/..." },
+              { field: "socialFacebook", label: "Facebook URL", placeholder: "https://facebook.com/..." },
+              { field: "bookingqubeWebsite", label: "BookingQube Website URL", placeholder: "https://bookingqube.com/..." },
+            ].map((item) => (
+              <div key={item.field}>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                  {item.label}
+                </label>
+                <input
+                  type="url"
+                  value={(data as any)[item.field]}
+                  onChange={(e) => handleChange(item.field, e.target.value)}
+                  placeholder={item.placeholder}
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                />
+              </div>
+            ))}
+          </div>
+        </DashboardSectionCard>
+      </div>
+
+      {/* 5. Ticket CTA Bar */}
+      <div id="tickets" className={cn("space-y-6", activeSectionId === "tickets" ? "block" : "hidden")}>
+        <DashboardSectionCard
+          title={isAr ? "٥. شريط زر حجز التذاكر في الهيدر" : "5. Header 'Book Tickets' CTA"}
+          description={
+            isAr
+              ? "تخصيص مسار الرابط، ونص الزر باللغتين، وخيار فتح الرابط في نافذة جديدة لشريط حجز التذاكر العلوي."
+              : "Configure the target hyperlink URL, custom button label, and window target for the top header 'Book Tickets' CTA tab."
+          }
+          icon={<LayoutTemplate className="w-5 h-5 text-emerald-500" />}
+        >
+          <div className="space-y-6">
+            <div>
+              <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                {isAr ? "رابط التوجيه (Target Hyperlink URL)" : "Target Hyperlink URL"}
+              </label>
+              <input
+                type="text"
+                value={data.bookTicketsUrl}
+                onChange={(e) => handleChange("bookTicketsUrl", e.target.value)}
+                placeholder="e.g. /b2c/tickets or https://tickets.e3.qa"
+                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                  {isAr ? "ساعات العمل الرسمية" : "Working Hours"}
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                  {isAr ? "نص الزر (الإنجليزية)" : "Label (English)"}
                 </label>
                 <input
                   type="text"
-                  value={data.workingHours}
-                  onChange={(e) => handleChange("workingHours", e.target.value)}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  value={data.bookTicketsLabelEn}
+                  onChange={(e) => handleChange("bookTicketsLabelEn", e.target.value)}
+                  placeholder="BOOK TICKETS"
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                 />
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column */}
-        <div className="space-y-6">
-          {/* 4. Social Channels */}
-          <div id="social" className="bg-[var(--surface-default)] rounded-3xl border border-[var(--border-default)] p-6 shadow-xs space-y-4">
-            <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center border-b border-[var(--border-default)] pb-3">
-              <Share2 className="w-4 h-4 me-2 text-pink-500" />
-              <span>{isAr ? "٤. قنوات التواصل الاجتماعي" : "4. Social Media Links"}</span>
-            </h2>
-            <div className="space-y-3">
-              {[
-                { field: "socialInstagram", label: "Instagram URL", placeholder: "https://instagram.com/..." },
-                { field: "socialTwitter", label: "Twitter / X URL", placeholder: "https://x.com/..." },
-                { field: "socialLinkedin", label: "LinkedIn URL", placeholder: "https://linkedin.com/company/..." },
-                { field: "socialYoutube", label: "YouTube URL", placeholder: "https://youtube.com/@..." },
-                { field: "socialSnapchat", label: "Snapchat URL", placeholder: "https://snapchat.com/..." },
-                { field: "socialFacebook", label: "Facebook URL", placeholder: "https://facebook.com/..." },
-                { field: "bookingqubeWebsite", label: "BookingQube Website URL", placeholder: "https://bookingqube.com/..." },
-              ].map((item) => (
-                <div key={item.field}>
-                  <label className="block text-[11px] font-bold text-[var(--text-secondary)] mb-1">{item.label}</label>
-                  <input
-                    type="url"
-                    value={(data as any)[item.field]}
-                    onChange={(e) => handleChange(item.field, e.target.value)}
-                    placeholder={item.placeholder}
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 5. Ticket CTA Bar */}
-          <div id="tickets" className="bg-[var(--surface-default)] rounded-3xl border border-[var(--border-default)] p-6 shadow-xs space-y-4">
-            <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center border-b border-[var(--border-default)] pb-3">
-              <LayoutTemplate className="w-4 h-4 me-2 text-emerald-500" />
-              <span>{isAr ? "٥. شريط زر حجز التذاكر في الهيدر" : "5. Header 'Book Tickets' CTA"}</span>
-            </h3>
-            <p className="text-xs text-[var(--text-secondary)]">
-              {isAr
-                ? "تخصيص مسار الرابط، ونص الزر باللغتين، وخيار فتح الرابط في نافذة جديدة لشريط حجز التذاكر العلوي."
-                : "Configure the target hyperlink URL, custom button label, and window target for the top header 'Book Tickets' CTA tab."}
-            </p>
-
-            <div className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                  {isAr ? "رابط التوجيه (Target Hyperlink URL)" : "Target Hyperlink URL"}
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                  {isAr ? "نص الزر (العربية)" : "Label (Arabic)"}
                 </label>
                 <input
                   type="text"
-                  value={data.bookTicketsUrl}
-                  onChange={(e) => handleChange("bookTicketsUrl", e.target.value)}
-                  placeholder="e.g. /b2c/tickets or https://tickets.e3.qa"
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                  dir="rtl"
+                  value={data.bookTicketsLabelAr}
+                  onChange={(e) => handleChange("bookTicketsLabelAr", e.target.value)}
+                  placeholder="احجز التذاكر"
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-arabic text-right"
                 />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                    {isAr ? "نص الزر (الإنجليزية)" : "Label (English)"}
-                  </label>
-                  <input
-                    type="text"
-                    value={data.bookTicketsLabelEn}
-                    onChange={(e) => handleChange("bookTicketsLabelEn", e.target.value)}
-                    placeholder="BOOK TICKETS"
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                    {isAr ? "نص الزر (العربية)" : "Label (Arabic)"}
-                  </label>
-                  <input
-                    type="text"
-                    dir="rtl"
-                    value={data.bookTicketsLabelAr}
-                    onChange={(e) => handleChange("bookTicketsLabelAr", e.target.value)}
-                    placeholder="احجز التذاكر"
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-arabic text-right"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-6 pt-2">
-                <label className="flex items-center gap-2 text-xs font-bold text-[var(--text-primary)] cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={data.bookTicketsEnabled === "true"}
-                    onChange={(e) => handleChange("bookTicketsEnabled", e.target.checked ? "true" : "false")}
-                    className="rounded border-[var(--border-default)] text-[var(--color-primary)] w-4 h-4 cursor-pointer"
-                  />
-                  <span>{isAr ? "إظهار زر الحجز في الهيدر" : "Show CTA Button in Header"}</span>
-                </label>
-
-                <label className="flex items-center gap-2 text-xs font-bold text-[var(--text-primary)] cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={data.bookTicketsExternal === "true"}
-                    onChange={(e) => handleChange("bookTicketsExternal", e.target.checked ? "true" : "false")}
-                    className="rounded border-[var(--border-default)] text-[var(--color-primary)] w-4 h-4 cursor-pointer"
-                  />
-                  <span>{isAr ? "فتح في علامة تبويب جديدة (_blank)" : "Open in New Tab (_blank)"}</span>
-                </label>
               </div>
             </div>
-          </div>
 
-          {/* 6. API Gateways */}
-          <div id="integrations" className="bg-[var(--surface-default)] rounded-3xl border border-[var(--border-default)] p-6 shadow-xs space-y-4">
-            <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center border-b border-[var(--border-default)] pb-3">
-              <Key className="w-4 h-4 me-2 text-cyan-500" />
-              <span>{isAr ? "٦. بوابات الربط والمفاتيح البرمجية" : "6. API Integrations & Gateways"}</span>
-            </h3>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-              {isAr
-                ? "إدارة المفاتيح السرية للبوابات والربط البرمجي. يتم إخفاء القيم السرية الحالية لحمايتها."
-                : "Manage server integration API credentials. Stored secrets are write-only and masked for security."}
-            </p>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">BookingQube API Key</label>
+            <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-[var(--border-default)]">
+              <label className="flex items-center gap-3 text-xs font-bold text-[var(--text-primary)] cursor-pointer select-none">
                 <input
-                  type="password"
-                  value={data.bookingQubeApiKey}
-                  onChange={(e) => handleChange("bookingQubeApiKey", e.target.value)}
-                  placeholder={data.bookingQubeApiKey ? "•••••••••••••••• (Leave unchanged to preserve)" : "Enter new API key"}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                  type="checkbox"
+                  checked={data.bookTicketsEnabled === "true"}
+                  onChange={(e) => handleChange("bookTicketsEnabled", e.target.checked ? "true" : "false")}
+                  className="rounded border-[var(--border-default)] text-[var(--color-primary)] w-4 h-4 cursor-pointer"
                 />
-              </div>
+                <span>{isAr ? "إظهار زر الحجز في الهيدر" : "Show CTA Button in Header"}</span>
+              </label>
 
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Maps API Key</label>
+              <label className="flex items-center gap-3 text-xs font-bold text-[var(--text-primary)] cursor-pointer select-none">
                 <input
-                  type="password"
-                  value={data.mapsApiKey}
-                  onChange={(e) => handleChange("mapsApiKey", e.target.value)}
-                  placeholder={data.mapsApiKey ? "•••••••••••••••• (Leave unchanged to preserve)" : "Enter new API key"}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                  type="checkbox"
+                  checked={data.bookTicketsExternal === "true"}
+                  onChange={(e) => handleChange("bookTicketsExternal", e.target.checked ? "true" : "false")}
+                  className="rounded border-[var(--border-default)] text-[var(--color-primary)] w-4 h-4 cursor-pointer"
                 />
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-bold text-[var(--text-secondary)]">
-                    {isAr ? "مفتاح الربط البرمجي لـ Resend Email" : "Resend Outbound Email API Key"}
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleTestEmail}
-                    disabled={isTestingEmail}
-                    className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline disabled:opacity-50 cursor-pointer transition-colors flex items-center gap-1"
-                  >
-                    {isTestingEmail ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
-                    <span>{isTestingEmail ? (isAr ? "جارٍ الفحص..." : "Testing...") : (isAr ? "اختبار الإرسال" : "Send Test Email")}</span>
-                  </button>
-                </div>
-                <input
-                  type="password"
-                  value={data.emailGatewayKey}
-                  onChange={(e) => handleChange("emailGatewayKey", e.target.value)}
-                  placeholder={data.emailGatewayKey ? "•••••••••••••••• (Leave unchanged to preserve)" : "re_... (Resend API Key)"}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
-                />
-                {testEmailMsg && (
-                  <p className={cn("text-xs mt-1.5 font-medium", testEmailMsg.success ? "text-emerald-500" : "text-rose-500")}>
-                    {testEmailMsg.text}
-                  </p>
-                )}
-              </div>
+                <span>{isAr ? "فتح في علامة تبويب جديدة (_blank)" : "Open in New Tab (_blank)"}</span>
+              </label>
             </div>
           </div>
+        </DashboardSectionCard>
+      </div>
 
-          {/* 7. Gateway Customization */}
-          <div id="gateway" className="bg-[var(--surface-default)] rounded-3xl border border-[var(--border-default)] p-6 shadow-xs space-y-4">
-            <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center border-b border-[var(--border-default)] pb-3">
-              <LayoutTemplate className="w-4 h-4 me-2 text-indigo-500" />
-              <span>{isAr ? "٧. تخصيص بوابة الدخول 50/50" : "7. 50/50 Portal Gateway Customization"}</span>
-            </h3>
-            <div className="space-y-4">
-              <div className="rounded-2xl bg-purple-500/10 border border-purple-500/20 p-4">
-                <div className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-purple-500 shrink-0 mt-0.5" />
-                  <div className="text-xs space-y-1">
-                    <p className="font-bold text-[var(--text-primary)]">
-                      {isAr ? "المحرر المتخصص لبوابة الدخول المركزية" : "Dedicated Gateway Customization CMS"}
-                    </p>
-                    <p className="text-[var(--text-secondary)] leading-relaxed">
-                      {isAr
-                        ? "تتم إدارة نصوص البوابة، والوسائط المتعددة 3D/فيديو، والشعارات بحسب النمط (فاتح/داكن)، وتأثيرات التقسيم 50/50 في المحرر المخصص."
-                        : "Bilingual portal copy, universal 3D/video/image media holders, theme-specific logos, and 50/50 interactive split physics are managed in the specialized Gateway CMS."}
-                    </p>
-                  </div>
-                </div>
-              </div>
+      {/* 6. API Gateways */}
+      <div id="integrations" className={cn("space-y-6", activeSectionId === "integrations" ? "block" : "hidden")}>
+        <DashboardSectionCard
+          title={isAr ? "٦. بوابات الربط والمفاتيح البرمجية" : "6. API Integrations & Gateways"}
+          description={
+            isAr
+              ? "إدارة المفاتيح السرية للبوابات والربط البرمجي. يتم إخفاء القيم السرية لحمايتها."
+              : "Manage server integration API credentials and outbound email providers securely."
+          }
+          icon={<Key className="w-5 h-5 text-cyan-500" />}
+        >
+          <div className="space-y-6">
+            <div>
+              <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                BookingQube API Key
+              </label>
+              <input
+                type="password"
+                value={data.bookingQubeApiKey}
+                onChange={(e) => handleChange("bookingQubeApiKey", e.target.value)}
+                placeholder={data.bookingQubeApiKey ? "•••••••••••••••• (Leave unchanged to preserve)" : "Enter new API key"}
+                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+              />
+            </div>
 
-              <div className="flex items-center justify-between pt-2">
-                <span className="text-xs text-[var(--text-secondary)] font-medium">
-                  {isAr ? "الانتقال إلى مدير بوابة الدخول:" : "Access Canonical Gateway Editor:"}
-                </span>
-                <Link
-                  href={`/${locale}/dashboard/settings/gateway`}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold shadow-xs hover:opacity-90 transition-all"
+            <div>
+              <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                Google Maps API Key
+              </label>
+              <input
+                type="password"
+                value={data.mapsApiKey}
+                onChange={(e) => handleChange("mapsApiKey", e.target.value)}
+                placeholder={data.mapsApiKey ? "•••••••••••••••• (Leave unchanged to preserve)" : "Enter new API key"}
+                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+                  {isAr ? "مفتاح الربط البرمجي لـ Resend Email" : "Resend Outbound Email API Key"}
+                </label>
+                <button
+                  type="button"
+                  onClick={handleTestEmail}
+                  disabled={isTestingEmail}
+                  className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline disabled:opacity-50 cursor-pointer transition-colors flex items-center gap-1.5"
                 >
-                  <span>{isAr ? "فتح محرر بوابة الدخول" : "Open Gateway Editor"}</span>
-                  <ArrowRight className={cn("w-3.5 h-3.5", isAr && "rotate-180")} />
-                </Link>
+                  {isTestingEmail ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                  <span>{isTestingEmail ? (isAr ? "جارٍ الفحص..." : "Testing...") : (isAr ? "اختبار الإرسال" : "Send Test Email")}</span>
+                </button>
               </div>
+              <input
+                type="password"
+                value={data.emailGatewayKey}
+                onChange={(e) => handleChange("emailGatewayKey", e.target.value)}
+                placeholder={data.emailGatewayKey ? "•••••••••••••••• (Leave unchanged to preserve)" : "re_... (Resend API Key)"}
+                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+              />
+              {testEmailMsg && (
+                <p className={cn("text-xs mt-2 font-medium", testEmailMsg.success ? "text-emerald-500" : "text-rose-500")}>
+                  {testEmailMsg.text}
+                </p>
+              )}
             </div>
           </div>
+        </DashboardSectionCard>
+      </div>
 
-          {/* 8. Automated Email Templates */}
-          <div id="emails" className="bg-[var(--surface-default)] rounded-3xl border border-[var(--border-default)] p-6 shadow-xs space-y-4">
-            <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center border-b border-[var(--border-default)] pb-3">
-              <Mail className="w-4 h-4 me-2 text-emerald-500" />
-              <span>{isAr ? "٨. قوالب البريد ورسائل المتابعة التلقائية" : "8. Automated Email Templates & Messaging"}</span>
-            </h3>
-            <div className="space-y-4">
-              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                {isAr
-                  ? "تخصيص نصوص رسائل التأكيد التلقائية المرسلة للعملاء والضيوف عند تقديم طلبات الدعم واستفسارات B2B."
-                  : "Customize the automated confirmation copy delivered to guests and corporate clients when submitting support tickets or B2B project briefs."}
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                    {isAr ? "رسالة تأكيد الدعم (EN)" : "B2C Support Greeting (EN)"}
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={data.emailSupportGreetingEn}
-                    onChange={(e) => handleChange("emailSupportGreetingEn", e.target.value)}
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] leading-relaxed resize-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                    {isAr ? "رسالة تأكيد الدعم (AR)" : "B2C Support Greeting (AR)"}
-                  </label>
-                  <textarea
-                    rows={3}
-                    dir="rtl"
-                    value={data.emailSupportGreetingAr}
-                    onChange={(e) => handleChange("emailSupportGreetingAr", e.target.value)}
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] leading-relaxed resize-none font-arabic text-right"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                    {isAr ? "وقت الاستجابة المتوقع (EN)" : "Response Target Window (EN)"}
-                  </label>
-                  <input
-                    type="text"
-                    value={data.emailResponseTimeEn}
-                    onChange={(e) => handleChange("emailResponseTimeEn", e.target.value)}
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                    {isAr ? "وقت الاستجابة المتوقع (AR)" : "Response Target Window (AR)"}
-                  </label>
-                  <input
-                    type="text"
-                    dir="rtl"
-                    value={data.emailResponseTimeAr}
-                    onChange={(e) => handleChange("emailResponseTimeAr", e.target.value)}
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-arabic text-right"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                    {isAr ? "رسالة تأكيد مشاريع B2B (EN)" : "B2B Project Brief Confirmation (EN)"}
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={data.emailB2BMessageEn}
-                    onChange={(e) => handleChange("emailB2BMessageEn", e.target.value)}
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] leading-relaxed resize-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-                    {isAr ? "رسالة تأكيد مشاريع B2B (AR)" : "B2B Project Brief Confirmation (AR)"}
-                  </label>
-                  <textarea
-                    rows={3}
-                    dir="rtl"
-                    value={data.emailB2BMessageAr}
-                    onChange={(e) => handleChange("emailB2BMessageAr", e.target.value)}
-                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3.5 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] leading-relaxed resize-none font-arabic text-right"
-                  />
+      {/* 7. Gateway Customization */}
+      <div id="gateway" className={cn("space-y-6", activeSectionId === "gateway" ? "block" : "hidden")}>
+        <DashboardSectionCard
+          title={isAr ? "٧. تخصيص بوابة الدخول 50/50" : "7. 50/50 Portal Gateway Customization"}
+          description={
+            isAr
+              ? "تخصيص البوابة الرئيسية الثنائية الفاصلة بين عالم B2C للفعاليات وعالم B2B للشركات."
+              : "Manage copy, universal media, theme-specific logos, and split physics for the landing portal."
+          }
+          icon={<LayoutTemplate className="w-5 h-5 text-indigo-500" />}
+        >
+          <div className="space-y-6">
+            <div className="rounded-2xl bg-purple-500/10 border border-purple-500/20 p-5">
+              <div className="flex items-start gap-3.5">
+                <Sparkles className="w-5 h-5 text-purple-500 shrink-0 mt-0.5" />
+                <div className="text-xs space-y-1.5">
+                  <p className="font-bold text-[var(--text-primary)] text-sm">
+                    {isAr ? "المحرر المتخصص لبوابة الدخول المركزية" : "Dedicated Gateway Customization CMS"}
+                  </p>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    {isAr
+                      ? "تتم إدارة نصوص البوابة، والوسائط المتعددة 3D/فيديو، والشعارات بحسب النمط (فاتح/داكن)، وتأثيرات التقسيم 50/50 في المحرر المخصص."
+                      : "Bilingual portal copy, universal 3D/video/image media holders, theme-specific logos, and 50/50 interactive split physics are managed in the specialized Gateway CMS."}
+                  </p>
                 </div>
               </div>
             </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-xs text-[var(--text-secondary)] font-medium">
+                {isAr ? "الانتقال إلى مدير بوابة الدخول:" : "Access Canonical Gateway Editor:"}
+              </span>
+              <Link
+                href={`/${locale}/dashboard/settings/gateway`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold shadow-xs hover:opacity-90 transition-all cursor-pointer"
+              >
+                <span>{isAr ? "فتح محرر بوابة الدخول" : "Open Gateway Editor"}</span>
+                <ArrowRight className={cn("w-3.5 h-3.5", isAr && "rotate-180")} />
+              </Link>
+            </div>
           </div>
-        </div>
+        </DashboardSectionCard>
+      </div>
+
+      {/* 8. Automated Email Templates */}
+      <div id="emails" className={cn("space-y-6", activeSectionId === "emails" ? "block" : "hidden")}>
+        <DashboardSectionCard
+          title={isAr ? "٨. قوالب البريد ورسائل المتابعة التلقائية" : "8. Automated Email Templates & Messaging"}
+          description={
+            isAr
+              ? "تخصيص نصوص رسائل التأكيد التلقائية المرسلة للعملاء والضيوف عند تقديم طلبات الدعم واستفسارات B2B."
+              : "Customize the automated confirmation copy delivered to guests and corporate clients upon ticket/inquiry submission."
+          }
+          icon={<Mail className="w-5 h-5 text-emerald-500" />}
+        >
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                  {isAr ? "رسالة تأكيد الدعم (EN)" : "B2C Support Greeting (EN)"}
+                </label>
+                <textarea
+                  rows={3}
+                  value={data.emailSupportGreetingEn}
+                  onChange={(e) => handleChange("emailSupportGreetingEn", e.target.value)}
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] leading-relaxed resize-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                  {isAr ? "رسالة تأكيد الدعم (AR)" : "B2C Support Greeting (AR)"}
+                </label>
+                <textarea
+                  rows={3}
+                  dir="rtl"
+                  value={data.emailSupportGreetingAr}
+                  onChange={(e) => handleChange("emailSupportGreetingAr", e.target.value)}
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] leading-relaxed resize-none font-arabic text-right"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                  {isAr ? "وقت الاستجابة المتوقع (EN)" : "Response Target Window (EN)"}
+                </label>
+                <input
+                  type="text"
+                  value={data.emailResponseTimeEn}
+                  onChange={(e) => handleChange("emailResponseTimeEn", e.target.value)}
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                  {isAr ? "وقت الاستجابة المتوقع (AR)" : "Response Target Window (AR)"}
+                </label>
+                <input
+                  type="text"
+                  dir="rtl"
+                  value={data.emailResponseTimeAr}
+                  onChange={(e) => handleChange("emailResponseTimeAr", e.target.value)}
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-arabic text-right"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                  {isAr ? "رسالة تأكيد مشاريع B2B (EN)" : "B2B Project Brief Confirmation (EN)"}
+                </label>
+                <textarea
+                  rows={3}
+                  value={data.emailB2BMessageEn}
+                  onChange={(e) => handleChange("emailB2BMessageEn", e.target.value)}
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] leading-relaxed resize-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                  {isAr ? "رسالة تأكيد مشاريع B2B (AR)" : "B2B Project Brief Confirmation (AR)"}
+                </label>
+                <textarea
+                  rows={3}
+                  dir="rtl"
+                  value={data.emailB2BMessageAr}
+                  onChange={(e) => handleChange("emailB2BMessageAr", e.target.value)}
+                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] leading-relaxed resize-none font-arabic text-right"
+                />
+              </div>
+            </div>
+          </div>
+        </DashboardSectionCard>
       </div>
 
       <DashboardStickyActions
