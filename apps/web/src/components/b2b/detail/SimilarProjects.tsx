@@ -37,7 +37,7 @@ export function SimilarProjects({ projects, locale }: SimilarProjectsProps) {
             </p>
           </div>
           <Button asChild variant="outline" className="hidden md:inline-flex">
-            <Link href={`/${locale}/b2b/case-studies`}>
+            <Link href={`/${locale}/b2b/cases`}>
               {locale === 'ar' ? 'عرض جميع المشاريع' : 'View All Projects'}
             </Link>
           </Button>
@@ -55,7 +55,7 @@ export function SimilarProjects({ projects, locale }: SimilarProjectsProps) {
             >
               {/* Wrapper link or div depending on if slug exists */}
               <Link 
-                href={project.slug ? `/${locale}/b2b/case-studies/${project.slug}` : `/${locale}/b2b/case-studies`}
+                href={project.slug ? `/${locale}/b2b/cases/${project.slug}` : `/${locale}/b2b/cases`}
                 className="block"
               >
                 <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-[var(--surface-hover)] border border-[var(--border-default)] mb-4 relative">
@@ -88,7 +88,7 @@ export function SimilarProjects({ projects, locale }: SimilarProjectsProps) {
         {/* Mobile View All Button */}
         <div className="mt-12 md:hidden">
           <Button asChild variant="outline" className="w-full">
-            <Link href={`/${locale}/b2b/case-studies`}>
+            <Link href={`/${locale}/b2b/cases`}>
               {locale === 'ar' ? 'عرض جميع المشاريع' : 'View All Projects'}
             </Link>
           </Button>

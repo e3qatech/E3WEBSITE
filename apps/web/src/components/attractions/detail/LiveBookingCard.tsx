@@ -1,13 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Navigation, Ticket, Clock, Calendar, Phone, Sparkles, Compass, Car, ExternalLink } from 'lucide-react';
+import { MapPin, Navigation, Ticket, Calendar, Phone, Sparkles, Compass, Car } from 'lucide-react';
 import Link from 'next/link';
 import { formatLocalizedText, cn } from '@/lib/utils';
 import { localizeHref, isExternalUrl, normalizeExternalUrl } from '@/lib/url-helper';
 import { AttractionMapCanvas } from '@/components/map/AttractionMapCanvas';
 import { MapGeoJSONCollection } from '@/components/map/map-types';
+import { calculateQatarOperatingStatus, getScheduleGroupRows } from '@/lib/operating-schedule-helper';
 
 interface LiveBookingCardProps {
   attractionId: string;
@@ -19,6 +20,8 @@ interface LiveBookingCardProps {
   locationAddress?: any;
   schedule?: any;
   operations?: any;
+  temporalStatus?: any;
+  primaryLocation?: any;
   mapImageFallback?: string | null;
   locale?: string;
 }
@@ -32,17 +35,38 @@ export function LiveBookingCard({
   longitude,
   locationAddress,
   operations,
+  temporalStatus,
+  primaryLocation,
   mapImageFallback,
   locale = 'en'
 }: LiveBookingCardProps) {
   const isAr = locale === 'ar';
-  const formattedAddress = formatLocalizedText(locationAddress, locale) || (isAr ? "الدوحة، قطر" : "Doha, Qatar");
+  
+  // Real database-resolved location venue and address
+  const venueTitle = isAr
+    ? (primaryLocation?.venueAr || primaryLocation?.nameAr || formatLocalizedText(name, locale))
+    : (primaryLocation?.venueEn || primaryLocation?.nameEn || formatLocalizedText(name, locale));
+
+  const formattedAddress = isAr
+    ? (primaryLocation?.addressAr || primaryLocation?.venueAr || formatLocalizedText(locationAddress, locale) || "الدوحة، قطر")
+    : (primaryLocation?.addressEn || primaryLocation?.venueEn || formatLocalizedText(locationAddress, locale) || "Doha, Qatar");
+
   const formattedName = formatLocalizedText(name, locale) || (isAr ? "الوجهة" : "Attraction");
 
-  const lat = latitude || 25.3214;
-  const lng = longitude || 51.5284;
+  const lat = Number(latitude || primaryLocation?.latitude || 25.2810);
+  const lng = Number(longitude || primaryLocation?.longitude || 51.5230);
 
-  // Single Attraction GeoJSON feature for our Location GIS Map Engine
+  // Dynamic Qatar Operating Status calculation using catalog data
+  const statusData = useMemo(() => {
+    return calculateQatarOperatingStatus(temporalStatus || operations);
+  }, [temporalStatus, operations]);
+
+  // Dynamic Schedule Group Rows directly from Attraction Catalog 7-day matrix
+  const scheduleRows = useMemo(() => {
+    return getScheduleGroupRows(temporalStatus || operations, isAr);
+  }, [temporalStatus, operations, isAr]);
+
+  // Single Attraction GeoJSON feature for GIS Map
   const singleLocationGeoJson: MapGeoJSONCollection = {
     type: "FeatureCollection",
     features: [
@@ -68,7 +92,7 @@ export function LiveBookingCard({
           latitude: lat,
           longitude: lng,
           locationType: "PERMANENT_ATTRACTION",
-          status: "OPEN",
+          status: statusData.isOpen ? "OPEN" : "CLOSED",
           pinColorToken: "CYAN",
           pinBadgeText: "E3 ATTRACTION",
           accentColor: "#10b981",
@@ -78,10 +102,6 @@ export function LiveBookingCard({
       }
     ]
   };
-
-  const weekdaysTiming = operations?.hoursWeekdays || operations?.openingHours || (isAr ? "10:00 صباحاً - 10:00 مساءً" : "10:00 AM - 10:00 PM");
-  const weekendsTiming = operations?.hoursWeekends || (isAr ? "10:00 صباحاً - 12:00 منتصف الليل" : "10:00 AM - 12:00 AM");
-  const isOpen = operations?.isOpen !== false;
 
   const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
   const wazeUrl = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
@@ -152,7 +172,7 @@ export function LiveBookingCard({
             className="lg:col-span-5 bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-[2.5rem] p-7 md:p-8 flex flex-col justify-between space-y-6 shadow-xl"
           >
             <div className="space-y-6">
-              {/* Status Banner */}
+              {/* Live Operational Status Banner */}
               <div className="flex items-center justify-between gap-3 pb-5 border-b border-[var(--border-level-2)]">
                 <div>
                   <span className="text-[10px] font-mono font-bold text-[var(--text-tertiary)] uppercase tracking-wider block mb-1">
@@ -163,26 +183,26 @@ export function LiveBookingCard({
                   </h3>
                 </div>
 
-                {isOpen ? (
+                {statusData.isOpen ? (
                   <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/40 flex items-center gap-2 shadow-sm shrink-0">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>{isAr ? "مفتوح الآن" : "OPEN NOW"}</span>
+                    <span>{isAr ? statusData.statusTextAr || "مفتوح الآن" : statusData.statusTextEn || "OPEN NOW"}</span>
                   </span>
                 ) : (
                   <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/40 flex items-center gap-2 shrink-0">
                     <span className="w-2 h-2 rounded-full bg-rose-500" />
-                    <span>{isAr ? "مغلق حالياً" : "CLOSED NOW"}</span>
+                    <span>{isAr ? statusData.statusTextAr || "مغلق حالياً" : statusData.statusTextEn || "CLOSED NOW"}</span>
                   </span>
                 )}
               </div>
 
-              {/* Exact Location & Mall Floor Card */}
+              {/* Exact Location & Venue Card from Database */}
               <div className="p-4 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] space-y-2">
                 <div className="flex items-start gap-3">
                   <MapPin className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                   <div className="space-y-1">
                     <span className="text-xs font-bold text-[var(--text-primary)] block">
-                      {formattedAddress}
+                      {venueTitle && venueTitle !== formattedName ? `${venueTitle}, ` : ""}{formattedAddress}
                     </span>
                     <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--text-secondary)]">
                       <span>GPS: {lat.toFixed(4)}° N, {lng.toFixed(4)}° E</span>
@@ -191,35 +211,37 @@ export function LiveBookingCard({
                 </div>
               </div>
 
-              {/* Weekly Operating Hours Table */}
+              {/* Weekly Operating Hours from Attraction Catalog Studio */}
               <div className="space-y-2.5">
                 <span className="text-[10px] font-mono font-bold text-[var(--text-tertiary)] uppercase tracking-wider block">
                   {isAr ? "جدول المواعيد الأسبوعية" : "WEEKLY SCHEDULE"}
                 </span>
 
-                <div className="p-3.5 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <Calendar className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className="text-xs font-bold text-[var(--text-primary)]">
-                      {isAr ? "السبت – الأربعاء" : "Saturday – Wednesday"}
+                {scheduleRows.map((row, rIdx) => (
+                  <div 
+                    key={rIdx}
+                    className="p-3.5 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-between gap-3"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      {rIdx % 2 === 0 ? (
+                        <Calendar className="w-4 h-4 text-emerald-500 shrink-0" />
+                      ) : (
+                        <Sparkles className="w-4 h-4 text-purple-500 shrink-0" />
+                      )}
+                      <span className="text-xs font-bold text-[var(--text-primary)]">
+                        {row.label}
+                      </span>
+                    </div>
+                    <span className={cn(
+                      "text-xs font-mono font-bold px-2.5 py-1 rounded-lg shrink-0",
+                      row.isOpen
+                        ? (rIdx % 2 === 0 ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10" : "text-purple-600 dark:text-purple-400 bg-purple-500/10")
+                        : "text-neutral-400 bg-neutral-500/10"
+                    )}>
+                      {row.timing}
                     </span>
                   </div>
-                  <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg">
-                    {weekdaysTiming}
-                  </span>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <Sparkles className="w-4 h-4 text-purple-500 shrink-0" />
-                    <span className="text-xs font-bold text-[var(--text-primary)]">
-                      {isAr ? "الخميس والجمعة" : "Thursday & Friday"}
-                    </span>
-                  </div>
-                  <span className="text-xs font-mono font-bold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-lg">
-                    {weekendsTiming}
-                  </span>
-                </div>
+                ))}
               </div>
             </div>
 
@@ -261,7 +283,7 @@ export function LiveBookingCard({
             </div>
           </motion.div>
 
-          {/* Right Column: High-Performance Vector GIS Map Canvas (7 Cols) */}
+          {/* Right Column: GIS Map Canvas (7 Cols) */}
           <motion.div 
             initial={{ opacity: 0, x: isAr ? -30 : 30 }}
             whileInView={{ opacity: 1, x: 0 }}

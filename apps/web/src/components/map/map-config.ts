@@ -11,13 +11,7 @@ export const ALLOWED_MAP_STYLE_ORIGINS = [
   'tile.openstreetmap.org'
 ];
 
-// Pristine OpenFreeMap Dark Style (100% free, zero watermark, hardware accelerated vector tiles)
-export const OPENFREEMAP_DARK_STYLE = 'https://tiles.openfreemap.org/styles/dark';
-
-// Pristine OpenFreeMap Bright Style
-export const OPENFREEMAP_BRIGHT_STYLE = 'https://tiles.openfreemap.org/styles/bright';
-
-// Fallback Dark Raster Spec (OpenStreetMap Carto tiles)
+// Dark Matter Map Style (Direct inlined StyleSpecification for instant 0ms load without network JSON blocking)
 export const CARTO_DARK_MAP_STYLE: StyleSpecification = {
   version: 8,
   sources: {
@@ -26,8 +20,7 @@ export const CARTO_DARK_MAP_STYLE: StyleSpecification = {
       tiles: [
         'https://a.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png',
         'https://b.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png',
-        'https://d.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png'
+        'https://c.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png'
       ],
       tileSize: 256,
       attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
@@ -44,7 +37,7 @@ export const CARTO_DARK_MAP_STYLE: StyleSpecification = {
   ]
 };
 
-// Fallback Bright Raster Spec
+// High-contrast Light Map Style
 export const VOYAGER_ENGLISH_MAP_STYLE: StyleSpecification = {
   version: 8,
   sources: {
@@ -53,8 +46,7 @@ export const VOYAGER_ENGLISH_MAP_STYLE: StyleSpecification = {
       tiles: [
         'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
         'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'
+        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'
       ],
       tileSize: 256,
       attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
@@ -71,8 +63,8 @@ export const VOYAGER_ENGLISH_MAP_STYLE: StyleSpecification = {
   ]
 };
 
-export const DARK_MAP_STYLE = OPENFREEMAP_DARK_STYLE;
-export const LIGHT_MAP_STYLE = OPENFREEMAP_BRIGHT_STYLE;
+export const DARK_MAP_STYLE = CARTO_DARK_MAP_STYLE;
+export const LIGHT_MAP_STYLE = VOYAGER_ENGLISH_MAP_STYLE;
 
 export function validateMapStyleUrl(url?: string): string | StyleSpecification {
   if (!url) return DARK_MAP_STYLE;

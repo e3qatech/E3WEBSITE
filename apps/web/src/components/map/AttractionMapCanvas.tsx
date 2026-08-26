@@ -155,7 +155,16 @@ export function AttractionMapCanvas({
           'bottom-right'
         );
 
+        const safetyTimer = setTimeout(() => {
+          if (isMountedRef.current && mapInstance) {
+            mapInstanceRef.current = mapInstance;
+            setLifecycleState('ready');
+            try { mapInstance.resize(); } catch (_) {}
+          }
+        }, 1200);
+
         mapInstance.on('load', () => {
+          clearTimeout(safetyTimer);
           if (!isMountedRef.current) {
             try {
               mapInstance.remove();

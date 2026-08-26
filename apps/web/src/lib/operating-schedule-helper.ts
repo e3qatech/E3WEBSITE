@@ -205,6 +205,80 @@ export function generateBilingualScheduleSummary(schedule: Record<DayKey, DayOfW
   };
 }
 
+export interface ScheduleGroupRow {
+  label: string;
+  timing: string;
+  isOpen: boolean;
+}
+
+export function getScheduleGroupRows(
+  temporalStatus: any,
+  isAr: boolean = false
+): ScheduleGroupRow[] {
+  if (!temporalStatus) {
+    return [
+      {
+        label: isAr ? "يومياً" : "Daily",
+        timing: isAr ? "10:00 ص – 10:00 م" : "10:00 AM – 10:00 PM",
+        isOpen: true,
+      }
+    ];
+  }
+
+  const weekly = temporalStatus.weeklySchedule;
+  if (!weekly || typeof weekly !== 'object') {
+    const open = temporalStatus.openTime || "10:00";
+    const close = temporalStatus.closeTime || "22:00";
+    const timing = `${formatTime12h(open, isAr)} – ${formatTime12h(close, isAr)}`;
+    return [
+      {
+        label: isAr ? "أوقات العمل اليومية" : "Daily Operating Hours",
+        timing,
+        isOpen: true,
+      }
+    ];
+  }
+
+  const formattedDays: Record<DayKey, { str: string; isOpen: boolean }> = {} as any;
+
+  DAYS_ORDER.forEach(day => {
+    const d = weekly[day];
+    if (!d || !d.isOpen || !d.slots || d.slots.length === 0) {
+      formattedDays[day] = { str: isAr ? 'مغلق' : 'Closed', isOpen: false };
+    } else {
+      const slotsStr = d.slots.map((s: any) => `${formatTime12h(s.openTime, isAr)} – ${formatTime12h(s.closeTime, isAr)}`).join(isAr ? ' و ' : ' & ');
+      formattedDays[day] = { str: slotsStr, isOpen: true };
+    }
+  });
+
+  const groups: Array<{ startDay: DayKey; endDay: DayKey; str: string; isOpen: boolean }> = [];
+
+  DAYS_ORDER.forEach((day) => {
+    const current = formattedDays[day];
+    if (groups.length === 0) {
+      groups.push({ startDay: day, endDay: day, str: current.str, isOpen: current.isOpen });
+    } else {
+      const last = groups[groups.length - 1];
+      if (last.str === current.str && last.isOpen === current.isOpen) {
+        last.endDay = day;
+      } else {
+        groups.push({ startDay: day, endDay: day, str: current.str, isOpen: current.isOpen });
+      }
+    }
+  });
+
+  return groups.map(g => {
+    const dayLabel = g.startDay === g.endDay
+      ? (isAr ? DAY_LABELS[g.startDay].ar : DAY_LABELS[g.startDay].en)
+      : `${isAr ? DAY_LABELS[g.startDay].ar : DAY_LABELS[g.startDay].en} – ${isAr ? DAY_LABELS[g.endDay].ar : DAY_LABELS[g.endDay].en}`;
+    return {
+      label: dayLabel,
+      timing: g.str,
+      isOpen: g.isOpen,
+    };
+  });
+}
+
 export function calculateQatarOperatingStatus(
   temporalStatus?: AdvancedTemporalStatus | any | null,
   dateOverride?: Date
