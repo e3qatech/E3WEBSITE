@@ -30,11 +30,17 @@ export function BehindTheBuildTeam({
   if (config?.enabled === false) return null;
 
   // Build public presentation list from stories or canonical case study team members
-  const teamStories = Array.isArray(config?.stories) ? config.stories : [];
+  const rawTeamStories = Array.isArray(config?.stories) ? config.stories : [];
+  const validTeamStories = rawTeamStories.filter(
+    (s: any) =>
+      (s.teamMemberName && s.teamMemberName.trim().length > 0 && s.teamMemberName !== "E3 Execution Specialist") ||
+      (s.employeeProfileId && s.employeeProfileId.trim().length > 0) ||
+      (s.storyTitleEn && s.storyTitleEn !== "Behind the Build Story" && s.storyTitleEn.trim().length > 0)
+  );
 
-  // If no stories are explicitly set in CMS, derive from published case studies' team assignments
+  // If no valid stories are explicitly set in CMS, derive from published case studies' team assignments
   const derivedAssignments: any[] = [];
-  if (teamStories.length === 0) {
+  if (validTeamStories.length === 0) {
     caseStudies.forEach((cs) => {
       const members = Array.isArray(cs.teamMembers) ? cs.teamMembers : [];
       members.forEach((tm: any) => {
@@ -60,9 +66,27 @@ export function BehindTheBuildTeam({
         }
       });
     });
+
+    if (derivedAssignments.length === 0 && employeeProfiles.length > 0) {
+      employeeProfiles.slice(0, 4).forEach((ep) => {
+        derivedAssignments.push({
+          employeeProfileId: ep.id,
+          teamMemberName: `${ep.firstName || ""} ${ep.lastName || ""}`.trim(),
+          roleEn: ep.designation || "Project Lead",
+          roleAr: ep.designation || "مسؤول المشروع",
+          storyTitleEn: `Turnkey Experience Delivery`,
+          storyTitleAr: `تنفيذ وإدارة التجارب الاستثنائية`,
+          quoteEn: `Delivering seamless live operations, crowd safety protocols, and immersive guest experiences.`,
+          quoteAr: `تنفيذ عمليات حية متكاملة وبروتوكولات سلامة الحشود وتجارب ضيوف استثنائية.`,
+          profileImage: ep.profileImage,
+          department: ep.department,
+          designation: ep.designation,
+        });
+      });
+    }
   }
 
-  const displayList = teamStories.length > 0 ? teamStories : derivedAssignments.slice(0, 4);
+  const displayList = validTeamStories.length > 0 ? validTeamStories : derivedAssignments.slice(0, 4);
   if (displayList.length === 0) return null;
 
   const eyebrow = isAr

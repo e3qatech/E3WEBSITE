@@ -36,6 +36,7 @@ export default defineConfig({
   test: {
     testTimeout: 30000,
     hookTimeout: 30000,
+    exclude: ['**/node_modules/**', '**/.next/**', '**/dist/**'],
     alias: {
       '@': path.resolve(__dirname, './src'),
       'server-only': path.resolve(__dirname, './src/lib/server-only-stub.ts'),

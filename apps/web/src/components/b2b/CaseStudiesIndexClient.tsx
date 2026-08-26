@@ -62,9 +62,42 @@ export function CaseStudiesIndexClient({
     return featured || eligibleCases[0] || null;
   }, [eligibleCases, featuredCasesConfig]);
 
-  // Extract Fact Stream Items from published case studies' metrics
+  // Extract Fact Stream Items from published case studies' metrics or CMS curated facts
   const extractedFacts: ImpactStoryItem[] = useMemo(() => {
     if (factStream.enabled === false) return [];
+
+    // 1. If CMS provides curated facts with real content, use them
+    if (
+      factStream.sourceMode === "CURATED" &&
+      Array.isArray(factStream.facts) &&
+      factStream.facts.length > 0
+    ) {
+      const validCurated = factStream.facts
+        .filter((f: any) => f && f.value && (f.headlineEn || f.headlineAr || f.descEn || f.descAr))
+        .map((f: any, idx: number) => {
+          const linkedCase = f.caseStudyId
+            ? eligibleCases.find((c) => c.id === f.caseStudyId || c.slug === f.caseStudyId)
+            : null;
+          return {
+            id: f.id || `curated_fact_${idx}`,
+            caseStudyId: linkedCase?.id || f.caseStudyId || "",
+            caseStudyTitleEn: linkedCase?.titleEn || f.caseStudyTitleEn || "",
+            caseStudyTitleAr: linkedCase?.titleAr || linkedCase?.titleEn || f.caseStudyTitleAr || f.caseStudyTitleEn || "",
+            caseStudySlug: linkedCase?.slug || f.caseStudySlug || (eligibleCases[0]?.slug ?? ""),
+            caseStudyMedia: f.mediaUrl || linkedCase?.heroImageUrl || linkedCase?.thumbnailUrl || "",
+            value: String(f.value),
+            prefix: f.prefix || "",
+            suffix: f.suffix || "",
+            headlineEn: f.headlineEn || f.value || "",
+            headlineAr: f.headlineAr || f.headlineEn || f.value || "",
+            descEn: f.descEn || "",
+            descAr: f.descAr || f.descEn || "",
+          };
+        });
+      if (validCurated.length > 0) {
+        return validCurated.slice(0, Number(factStream.maxFacts) || 8);
+      }
+    }
 
     let pool = [...eligibleCases];
 
@@ -85,7 +118,18 @@ export function CaseStudiesIndexClient({
     const factsList: ImpactStoryItem[] = [];
 
     pool.forEach((cs) => {
-      const metricsArr = Array.isArray(cs.metrics) ? cs.metrics : [];
+      let metricsArr: any[] = [];
+      if (Array.isArray(cs.metrics)) {
+        metricsArr = cs.metrics;
+      } else if (cs.metrics && typeof cs.metrics === "object") {
+        metricsArr = Object.entries(cs.metrics).map(([key, val]) => ({
+          labelEn: key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
+          labelAr: key,
+          valueEn: String(val),
+          valueAr: String(val),
+        }));
+      }
+
       metricsArr.forEach((m: any, idx: number) => {
         const val = m.valueEn || m.value || m.val || "";
         const labelEn = m.labelEn || m.label || "";
@@ -104,8 +148,8 @@ export function CaseStudiesIndexClient({
             suffix: m.suffix || "",
             headlineEn: labelEn,
             headlineAr: labelAr,
-            descEn: m.descEn || m.descriptionEn || cs.titleEn,
-            descAr: m.descAr || m.descriptionAr || cs.titleAr || cs.titleEn,
+            descEn: m.descEn || m.descriptionEn || cs.challengeEn || cs.titleEn,
+            descAr: m.descAr || m.descriptionAr || cs.challengeAr || cs.titleAr || cs.titleEn,
           });
         }
       });

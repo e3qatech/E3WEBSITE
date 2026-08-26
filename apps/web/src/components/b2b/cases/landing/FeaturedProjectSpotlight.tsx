@@ -64,8 +64,16 @@ export function FeaturedProjectSpotlight({
     : featuredProject.resultEn;
 
   // Extract up to 3 impact metrics
-  const metrics: any[] = Array.isArray(featuredProject.metrics)
-    ? featuredProject.metrics.slice(0, 3)
+  const rawMetrics = featuredProject.metrics;
+  const metrics: any[] = Array.isArray(rawMetrics)
+    ? rawMetrics.slice(0, 3)
+    : rawMetrics && typeof rawMetrics === "object"
+    ? Object.entries(rawMetrics).slice(0, 3).map(([key, val]) => ({
+        labelEn: key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
+        labelAr: key,
+        valueEn: String(val),
+        valueAr: String(val),
+      }))
     : [];
 
   const ctaText = isAr

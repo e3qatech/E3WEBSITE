@@ -21,8 +21,15 @@ export interface CaseStudyCardItem {
   heroMediaType?: string;
   thumbnailMediaType?: string;
   clientLogoUrl?: string;
+  challengeEn?: string;
+  challengeAr?: string;
+  solutionEn?: string;
+  solutionAr?: string;
+  resultEn?: string;
+  resultAr?: string;
   metrics?: any;
   servicesUsed?: any;
+  [key: string]: any;
 }
 
 export interface CaseStudyArchiveGridProps {
@@ -206,8 +213,15 @@ export function CaseStudyArchiveGrid({
               const mediaType =
                 cs.thumbnailMediaType || cs.heroMediaType || "IMAGE";
               const firstMetric =
-                cs.metrics && cs.metrics.length > 0
+                Array.isArray(cs.metrics) && cs.metrics.length > 0
                   ? cs.metrics[0]
+                  : cs.metrics && typeof cs.metrics === "object"
+                  ? Object.entries(cs.metrics).map(([k, v]) => ({
+                      labelEn: k.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
+                      labelAr: k,
+                      valueEn: String(v),
+                      valueAr: String(v),
+                    }))[0]
                   : null;
 
               return (

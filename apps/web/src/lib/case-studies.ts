@@ -37,6 +37,11 @@ export function isCaseStudyEligible(cs: CaseStudyLike | null | undefined): boole
   if (cs.isHidden === true) return false;
   if (cs.isVisible === false) return false;
 
+  // QF-13: Archived duplicate records marked in SEO must never appear on public index
+  if (cs.seo?.isArchived === true) {
+    return false;
+  }
+
   if (typeof cs.status === "string") {
     const statusUpper = cs.status.trim().toUpperCase();
     if (["DRAFT", "ARCHIVED", "UNPUBLISHED", "HIDDEN", "DELETED"].includes(statusUpper)) {
@@ -435,9 +440,19 @@ export function enrichCaseStudyWithDefaults(rawCase: any): any {
     }
   }
 
-  const rawMetrics = Array.isArray(rawCase.metrics) && rawCase.metrics.length > 0
-    ? rawCase.metrics
-    : (fallback.metrics || []);
+  let rawMetrics: any[] = [];
+  if (Array.isArray(rawCase.metrics) && rawCase.metrics.length > 0) {
+    rawMetrics = rawCase.metrics;
+  } else if (rawCase.metrics && typeof rawCase.metrics === "object" && Object.keys(rawCase.metrics).length > 0) {
+    rawMetrics = Object.entries(rawCase.metrics).map(([key, val]) => ({
+      labelEn: key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
+      labelAr: key,
+      valueEn: String(val),
+      valueAr: String(val),
+    }));
+  } else {
+    rawMetrics = fallback.metrics || [];
+  }
 
   const rawGallery = Array.isArray(rawCase.gallery) && rawCase.gallery.length > 0
     ? rawCase.gallery

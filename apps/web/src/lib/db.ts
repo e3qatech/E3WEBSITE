@@ -73,11 +73,6 @@ const prismaClientSingleton = () => {
   try {
     if (finalUrl.startsWith('postgres://') || finalUrl.startsWith('postgresql://')) {
       const parsedUrl = new URL(finalUrl);
-      if (parsedUrl.hostname.endsWith('.neon.tech') && !parsedUrl.hostname.includes('-pooler')) {
-        const parts = parsedUrl.hostname.split('.');
-        parts[0] = parts[0] + '-pooler';
-        parsedUrl.hostname = parts.join('.');
-      }
       if (parsedUrl.hostname.includes('-pooler')) {
         parsedUrl.searchParams.set('pgbouncer', 'true');
       }

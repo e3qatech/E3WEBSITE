@@ -264,8 +264,8 @@ export function BeforeAfterTransformationStage({
             <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] shadow-md overflow-x-auto max-w-full no-scrollbar py-1.5">
               {items.map((item, idx) => {
                 const tabTitle = isAr
-                  ? item.titleAr || item.titleEn || `مشروع ${idx + 1}`
-                  : item.titleEn || `Project ${idx + 1}`;
+                  ? item.titleAr || item.titleEn || item.afterLabelAr || item.afterLabelEn || `مشروع ${idx + 1}`
+                  : item.titleEn || item.afterLabelEn || item.afterLabelAr || `Project ${idx + 1}`;
                 const isSelected = idx === activeProjectIdx;
 
                 return (

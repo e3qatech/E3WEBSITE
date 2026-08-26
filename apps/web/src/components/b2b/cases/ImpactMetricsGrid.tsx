@@ -81,7 +81,19 @@ export function ImpactMetricsGrid({
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
 
-  if (!metrics || !Array.isArray(metrics) || metrics.length === 0) {
+  let normalizedMetrics: MetricItem[] = [];
+  if (Array.isArray(metrics)) {
+    normalizedMetrics = metrics;
+  } else if (metrics && typeof metrics === "object") {
+    normalizedMetrics = Object.entries(metrics).map(([key, val]) => ({
+      labelEn: key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
+      labelAr: key,
+      valueEn: String(val),
+      valueAr: String(val),
+    }));
+  }
+
+  if (normalizedMetrics.length === 0) {
     return null;
   }
 
@@ -107,7 +119,7 @@ export function ImpactMetricsGrid({
 
         {/* 4-column desktop, 2-column mobile results grid */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
-          {metrics.map((metric, i) => {
+          {normalizedMetrics.map((metric, i) => {
             const rawValue = isAr
               ? metric.valueAr || metric.valueEn || metric.value || ""
               : metric.valueEn || metric.value || "";
