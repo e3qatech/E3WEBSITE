@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
-import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
-import { formatLocalizedText } from '@/lib/utils';
+import { ChevronDown, ChevronUp, Sparkles, Plus, Minus, ArrowUpRight } from 'lucide-react';
+import { formatLocalizedText, cn } from '@/lib/utils';
 
 interface Feature {
   id?: string;
@@ -81,6 +81,7 @@ export const getStoryTrackLabel = (track?: { slug?: string; titleEn?: string; ti
 export function WhatsInside({ description, features, imageUrl, locale = 'en' }: WhatsInsideProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedTrackSlug, setSelectedTrackSlug] = useState<string>('ALL');
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
   const isAr = locale === 'ar';
 
   const fullText = formatLocalizedText(description, locale) || '';
@@ -97,8 +98,7 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
     const trackMap = new Map<string, { slug: string; titleEn: string; titleAr: string; color?: string }>();
 
     features.forEach(f => {
-      // 1. Relational or expanded storyTypes array
-      if (Array.isArray(f.storyTypes)) {
+      if (Array.isArray(f.storyTypes) && f.storyTypes.length > 0) {
         f.storyTypes.forEach(st => {
           if (st && st.slug && !trackMap.has(st.slug)) {
             trackMap.set(st.slug, {
@@ -110,25 +110,12 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
           }
         });
       }
-      // 2. Direct slug fields
       if (f.primaryStoryTrackSlug && !trackMap.has(f.primaryStoryTrackSlug)) {
         trackMap.set(f.primaryStoryTrackSlug, {
           slug: f.primaryStoryTrackSlug,
-          titleEn: f.primaryStoryTrackSlug.toUpperCase(),
+          titleEn: f.primaryStoryTrackSlug,
           titleAr: f.primaryStoryTrackSlug,
-          color: '#8b5cf6'
-        });
-      }
-      if (Array.isArray(f.secondaryStoryTrackSlugs)) {
-        f.secondaryStoryTrackSlugs.forEach((slug: string) => {
-          if (slug && !trackMap.has(slug)) {
-            trackMap.set(slug, {
-              slug,
-              titleEn: slug.toUpperCase(),
-              titleAr: slug,
-              color: '#3b82f6'
-            });
-          }
+          color: '#10b981'
         });
       }
     });
@@ -136,35 +123,21 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
     return Array.from(trackMap.values());
   }, [features]);
 
+  // Filter features based on active category
   const filteredFeatures = React.useMemo(() => {
     if (!Array.isArray(features)) return [];
     if (selectedTrackSlug === 'ALL') return features;
 
     return features.filter(f => {
-      const types = f.storyTypes || [];
-      const hasInTypes = types.some(st => st.slug === selectedTrackSlug);
-      const hasInPrimary = f.primaryStoryTrackSlug === selectedTrackSlug || f.primaryStoryTypeId === selectedTrackSlug;
-      const hasInSecondary = Array.isArray(f.secondaryStoryTrackSlugs) && f.secondaryStoryTrackSlugs.includes(selectedTrackSlug);
-      const hasInIds = Array.isArray(f.storyTypeIds) && f.storyTypeIds.includes(selectedTrackSlug);
-      return hasInTypes || hasInPrimary || hasInSecondary || hasInIds;
+      const inTypes = Array.isArray(f.storyTypes) && f.storyTypes.some(st => st.slug === selectedTrackSlug);
+      const inPrimarySlug = f.primaryStoryTrackSlug === selectedTrackSlug;
+      const inSecondarySlugs = Array.isArray(f.secondaryStoryTrackSlugs) && f.secondaryStoryTrackSlugs.includes(selectedTrackSlug);
+      return inTypes || inPrimarySlug || inSecondarySlugs;
     });
   }, [features, selectedTrackSlug]);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08, delayChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 25 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }
-    }
+  const toggleCard = (id: string) => {
+    setExpandedCardId(prev => (prev === id ? null : id));
   };
 
   return (
@@ -223,7 +196,7 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
           )}
         </div>
 
-        {/* Experience Paths Filter Bar (Only active tracks for this attraction) */}
+        {/* Experience Paths Filter Bar */}
         {activeStoryTracks.length > 0 && (
           <div className="space-y-3 pt-4 border-t border-[var(--border-level-2)]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -280,20 +253,17 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
           </div>
         )}
 
-        {/* Features Bento Grid */}
+        {/* Features Interactive Expandable Bento Grid */}
         {Array.isArray(filteredFeatures) && filteredFeatures.length > 0 && (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredFeatures.map((feature, idx) => {
               if (!feature) return null;
 
+              const cardId = feature.id || `card-${idx}`;
+              const isCardExpanded = expandedCardId === cardId;
+
               const iconName = feature.icon || 'Sparkles';
               const IconComponent = (LucideIcons as any)[iconName] || LucideIcons.Sparkles;
-              const isLarge = idx === 0 && filteredFeatures.length % 2 !== 0 && selectedTrackSlug === 'ALL';
 
               const titleVal = isAr 
                 ? (feature.nameAr || feature.titleAr || feature.nameEn || feature.titleEn || feature.title || feature.name || '')
@@ -313,72 +283,124 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
                 (Array.isArray(feature.secondaryStoryTrackSlugs) ? feature.secondaryStoryTrackSlugs.filter(s => s !== primaryTrack?.slug).map((s: string) => ({ slug: s, titleEn: s })) : [])).slice(0, 2);
 
               return (
-                <motion.div
-                  key={feature.id || idx}
-                  variants={itemVariants}
-                  className={`relative overflow-hidden group bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-[2rem] flex flex-col justify-between min-h-[320px] p-8 transition-all duration-700 hover:bg-[var(--surface-hover)] hover:border-emerald-500/40 hover:shadow-2xl ${isLarge ? 'md:col-span-2' : ''} shadow-md`}
+                <div
+                  key={cardId}
+                  onClick={() => toggleCard(cardId)}
+                  className={cn(
+                    "relative overflow-hidden group bg-[var(--surface-default)] border rounded-[2rem] flex flex-col justify-between transition-all duration-500 shadow-lg cursor-pointer select-none",
+                    isCardExpanded
+                      ? "border-emerald-500 shadow-2xl ring-2 ring-emerald-500/20 bg-[var(--surface-hover)]"
+                      : "border-[var(--border-level-2)] hover:border-emerald-500/50 hover:shadow-2xl hover:bg-[var(--surface-hover)]"
+                  )}
+                  style={{ minHeight: "340px" }}
                 >
+                  {/* Clean Visual Background Image (Overlay fade removed on hover/active for full image clarity) */}
                   {feature.imageUrl ? (
-                    <div className="absolute inset-0">
-                      <img src={feature.imageUrl} alt={formattedTitle} className="w-full h-full object-cover opacity-25 group-hover:opacity-45 group-hover:scale-105 transition-all duration-1000 ease-out" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-[var(--surface-default)]/80 to-transparent" />
+                    <div className="absolute inset-0 z-0">
+                      <img
+                        src={feature.imageUrl}
+                        alt={formattedTitle}
+                        className={cn(
+                          "w-full h-full object-cover transition-all duration-700 ease-out",
+                          isCardExpanded
+                            ? "opacity-90 scale-105 filter-none"
+                            : "opacity-75 group-hover:opacity-100 group-hover:scale-105"
+                        )}
+                      />
+                      {/* Gradient scrim - subtle at top, dynamic at bottom for text contrast */}
+                      <div
+                        className={cn(
+                          "absolute inset-0 transition-opacity duration-500 pointer-events-none",
+                          isCardExpanded
+                            ? "bg-gradient-to-t from-neutral-950/95 via-neutral-950/70 to-black/20"
+                            : "bg-gradient-to-t from-neutral-950/90 via-neutral-950/40 to-black/20 group-hover:from-neutral-950/95 group-hover:via-neutral-950/60"
+                        )}
+                      />
                     </div>
-                  ) : null}
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/30 via-[var(--surface-default)] to-purple-950/20 z-0" />
+                  )}
 
-                  <div className="relative z-10 flex-1 flex flex-col justify-between space-y-8">
-                    {/* Header Icon, Highlight Badge & Story Track Badges */}
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="p-3 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-emerald-600 dark:text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/50 transition-all duration-500 ease-out shadow-sm">
-                        {feature.iconUrl ? (
-                          <img src={feature.iconUrl} alt={formattedTitle} className="w-5 h-5 object-contain" />
-                        ) : (
-                          <IconComponent className="w-5 h-5" />
-                        )}
-                      </div>
+                  {/* Top Bar: Icon, Badges & Expand Indicator */}
+                  <div className="relative z-10 p-6 sm:p-7 flex items-center justify-between gap-3">
+                    <div className="p-2.5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 text-emerald-400 group-hover:scale-110 group-hover:border-emerald-500/50 transition-all duration-300 shadow-sm shrink-0">
+                      {feature.iconUrl ? (
+                        <img src={feature.iconUrl} alt={formattedTitle} className="w-5 h-5 object-contain" />
+                      ) : (
+                        <IconComponent className="w-5 h-5" />
+                      )}
+                    </div>
 
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        {/* Primary Story Track Badge */}
-                        {primaryTrack && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-purple-500/15 border border-purple-500/40 text-purple-600 dark:text-purple-300 shadow-sm">
-                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: (primaryTrack as any).color || (primaryTrack as any).accentColor || '#a855f7' }} />
-                            <span>{getStoryTrackLabel(primaryTrack, isAr)}</span>
-                          </span>
-                        )}
-
-                        {/* Secondary Supporting Track Chips (Max 2) */}
-                        {secondaryTracks.map((st: any, sIdx: number) => (
-                          <span
-                            key={st.slug || sIdx}
-                            className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-mono bg-purple-500/10 text-purple-600 dark:text-purple-300/80 border border-purple-500/20"
-                          >
-                            {getStoryTrackLabel(st, isAr)}
-                          </span>
-                        ))}
-
-                        {/* Activity Type Badge */}
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[var(--surface-hover)] border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 shadow-sm">
-                          {getActivityTypeLabel(highlightType, isAr)}
+                    <div className="flex flex-wrap items-center gap-1.5 justify-end">
+                      {/* Primary Story Track Badge */}
+                      {primaryTrack && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-black/50 backdrop-blur-md border border-purple-500/40 text-purple-300 shadow-sm">
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: (primaryTrack as any).color || (primaryTrack as any).accentColor || '#a855f7' }} />
+                          <span>{getStoryTrackLabel(primaryTrack, isAr)}</span>
                         </span>
+                      )}
+
+                      {/* Activity Type Badge */}
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-black/50 backdrop-blur-md border border-emerald-500/40 text-emerald-300 shadow-sm">
+                        {getActivityTypeLabel(highlightType, isAr)}
+                      </span>
+
+                      {/* Expand Indicator Chevron Pill */}
+                      <div className="p-1.5 rounded-full bg-black/50 backdrop-blur-md border border-white/15 text-white/80 group-hover:text-white transition-colors">
+                        {isCardExpanded ? <Minus className="w-3.5 h-3.5 text-emerald-400" /> : <Plus className="w-3.5 h-3.5" />}
                       </div>
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="transform group-hover:-translate-y-1 transition-transform duration-500 ease-out">
-                      <h3 className="text-2xl font-bold mb-3 tracking-tight text-[var(--text-primary)] group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors">
-                        {formattedTitle}
-                      </h3>
-                      <p className="text-[var(--text-secondary)] text-sm leading-relaxed font-normal group-hover:text-[var(--text-primary)] transition-colors duration-500">
-                        {formattedDesc}
-                      </p>
                     </div>
                   </div>
 
-                  {/* Hover effect gradient */}
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-20" />
-                </motion.div>
+                  {/* Bottom Content Area: Title (Always Visible) & Description (Revealed on Hover/Click) */}
+                  <div className="relative z-10 p-6 sm:p-7 pt-0 mt-auto">
+                    <div className="bg-black/60 backdrop-blur-xl rounded-2xl p-5 border border-white/10 group-hover:border-emerald-500/40 transition-all duration-500 space-y-2.5">
+                      {/* Image Header / Title */}
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white group-hover:text-emerald-300 transition-colors leading-snug">
+                          {formattedTitle}
+                        </h3>
+                        <span className="text-[10px] font-mono font-bold text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline-flex items-center gap-0.5">
+                          <span>{isCardExpanded ? (isAr ? "إغلاق" : "Close") : (isAr ? "تفاصيل" : "Details")}</span>
+                          <ArrowUpRight className="w-3 h-3 ms-0.5" />
+                        </span>
+                      </div>
+
+                      {/* Expandable Details Body (Shows on Click OR Hover) */}
+                      <div
+                        className={cn(
+                          "transition-all duration-500 ease-out",
+                          isCardExpanded
+                            ? "max-h-96 opacity-100 mt-3 pt-3 border-t border-white/10 block"
+                            : "max-h-0 opacity-0 overflow-hidden group-hover:max-h-96 group-hover:opacity-100 group-hover:mt-3 group-hover:pt-3 group-hover:border-t group-hover:border-white/10"
+                        )}
+                      >
+                        {formattedDesc && (
+                          <p className="text-sm text-neutral-200 leading-relaxed font-normal">
+                            {formattedDesc}
+                          </p>
+                        )}
+
+                        {secondaryTracks.length > 0 && (
+                          <div className="flex flex-wrap items-center gap-1.5 pt-3">
+                            <span className="text-[10px] text-neutral-400 uppercase font-mono">{isAr ? "مسارات إضافية:" : "Additional Tracks:"}</span>
+                            {secondaryTracks.map((st: any, sIdx: number) => (
+                              <span
+                                key={st.slug || sIdx}
+                                className="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                              >
+                                {getStoryTrackLabel(st, isAr)}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               );
             })}
-          </motion.div>
+          </div>
         )}
       </div>
     </section>

@@ -15,7 +15,7 @@ import { LiveBookingCard } from "@/components/attractions/detail/LiveBookingCard
 import { FaqAccordion } from "@/components/attractions/detail/FaqAccordion"
 import { PartnersSection } from "@/components/attractions/detail/PartnersSection"
 import { SocialNewsSection } from "@/components/attractions/detail/SocialNewsSection"
-import { RelatedProjects } from "@/components/attractions/detail/RelatedProjects"
+import { ExploreAttractionsSection } from "@/components/attractions/detail/ExploreAttractionsSection"
 import { AttractionFeedbackContactSection } from "@/components/attractions/detail/AttractionFeedbackContactSection"
 
 import { db } from "@/lib/db"
@@ -143,18 +143,34 @@ async function getAttractionData(slug: string) {
     ...((attraction.operations as any) || {})
   }
 
-  const projects = await getPublicCaseStudies({
-    attractionId: attraction.id,
+  // Query Sister Active Attractions for the Explore Section
+  const sisterAttractions = await db.attraction.findMany({
+    where: {
+      isPublished: true,
+      isHidden: false,
+      NOT: {
+        id: attraction.id,
+      },
+    },
     select: {
       id: true,
       slug: true,
-      titleEn: true,
-      titleAr: true,
-      challengeEn: true,
-      challengeAr: true,
-      thumbnailUrl: true,
-      heroImageUrl: true
-    }
+      nameEn: true,
+      nameAr: true,
+      taglineEn: true,
+      taglineAr: true,
+      heroThumbnailUrl: true,
+      heroMediaUrl: true,
+      heroFallbackUrl: true,
+      experienceFormat: true,
+      entityType: true,
+      isFeatured: true,
+    },
+    orderBy: [
+      { isFeatured: "desc" },
+      { updatedAt: "desc" },
+    ],
+    take: 6,
   })
 
   // Extract Coordinates and Canonical Location
@@ -220,7 +236,7 @@ async function getAttractionData(slug: string) {
     faq: resolvedFaqs, 
     schedule: null, 
     operations: sanitizedOperations,
-    projects,
+    sisterAttractions,
     brandPlacements: sanitizedBrandPlacements,
     coordinates: { lat, lng },
     primaryLocation,
@@ -315,7 +331,7 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
     redirect(`/${locale}/b2c/attractions/urban-arena`)
   }
 
-  const { attraction, features, pricing, gallery, faq, schedule, projects, brandPlacements, coordinates, operations, primaryLocation } = data
+  const { attraction, features, pricing, gallery, faq, schedule, sisterAttractions, brandPlacements, coordinates, operations, primaryLocation } = data
   const displayName = formatLocalizedText(locale === "ar" ? (attraction.nameAr || attraction.nameEn) : (attraction.nameEn || attraction.nameAr), locale)
   const displayDesc = formatLocalizedText(locale === "ar" ? (attraction.descriptionAr || attraction.descriptionEn) : (attraction.descriptionEn || attraction.descriptionAr), locale)
 
@@ -403,10 +419,12 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
         locale={locale} 
       />
 
-      {/* Projects Section: Only rendered if published case studies exist */}
-      {Array.isArray(projects) && projects.length > 0 && (
-        <RelatedProjects projects={projects} locale={locale} />
-      )}
+      {/* Explore Sister Attractions Section */}
+      <ExploreAttractionsSection 
+        currentSlug={attraction.slug || slug}
+        attractions={sisterAttractions || []}
+        locale={locale}
+      />
 
       {/* 5. Pricing & Tickets */}
       <div id="pricing">
