@@ -288,9 +288,8 @@ export function E3LivingHeroEditor({
       {/* 1. TWO-LINE HEADLINE COMPOSER & ANIMATION SUITE               */}
       {/* ============================================================ */}
       <DashboardSectionCard
-        title={title || "Two-Line Living Hero Headline Composer"}
-        description={description || "Compose semantic 2-line headlines with inline animated tokens, space reservation, physical alignments, and visual animation presets."}
-        badge="UX-02B-B Composer"
+        title={title || "Living Hero Headline & Media"}
+        description={description || "Configure the headline, rotating animated tokens, atmospheric media, and action CTAs."}
       >
         <div className="space-y-6">
           {/* Language Mode Selector for Headline Composer */}
