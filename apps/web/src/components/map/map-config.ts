@@ -3,66 +3,75 @@ import type { StyleSpecification } from 'maplibre-gl';
 export const ALLOWED_MAP_STYLE_ORIGINS = [
   'tiles.openfreemap.org',
   'demotiles.maplibre.org',
+  'server.arcgisonline.com',
+  'services.arcgisonline.com',
+  'tile.openstreetmap.org',
   'basemaps.cartocdn.com',
   'a.basemaps.cartocdn.com',
   'b.basemaps.cartocdn.com',
   'c.basemaps.cartocdn.com',
-  'd.basemaps.cartocdn.com',
-  'tile.openstreetmap.org'
+  'd.basemaps.cartocdn.com'
 ];
 
-// Dark Matter Map Style (Direct inlined StyleSpecification for instant 0ms load without network JSON blocking)
-export const CARTO_DARK_MAP_STYLE: StyleSpecification = {
+// Pristine OpenFreeMap Dark Style (100% Free, Zero API Key, Zero Watermark, Hardware Accelerated Vector Tiles)
+export const OPENFREEMAP_DARK_STYLE = 'https://tiles.openfreemap.org/styles/dark';
+
+// Pristine OpenFreeMap Bright Style (100% Free, Zero API Key, Zero Watermark)
+export const OPENFREEMAP_BRIGHT_STYLE = 'https://tiles.openfreemap.org/styles/bright';
+
+// ESRI Dark Gray Canvas Raster Spec (100% Free Public CDN, Zero Watermark, Zero API Key)
+export const ESRI_DARK_GRAY_MAP_STYLE: StyleSpecification = {
   version: 8,
   sources: {
-    'carto-dark': {
+    'esri-dark': {
       type: 'raster',
       tiles: [
-        'https://a.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png'
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
       ],
       tileSize: 256,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+      attribution: '&copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors'
     }
   },
   layers: [
     {
-      id: 'carto-dark-layer',
+      id: 'esri-dark-layer',
       type: 'raster',
-      source: 'carto-dark',
+      source: 'esri-dark',
       minzoom: 0,
       maxzoom: 22
     }
   ]
 };
 
-// High-contrast Light Map Style
-export const VOYAGER_ENGLISH_MAP_STYLE: StyleSpecification = {
+// OpenStreetMap Standard Raster Spec (100% Free, Zero Watermark, Zero API Key)
+export const OSM_STANDARD_MAP_STYLE: StyleSpecification = {
   version: 8,
   sources: {
-    'carto-voyager': {
+    'osm-standard': {
       type: 'raster',
       tiles: [
-        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'
+        'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
       ],
       tileSize: 256,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+      attribution: '&copy; OpenStreetMap contributors'
     }
   },
   layers: [
     {
-      id: 'carto-voyager-layer',
+      id: 'osm-standard-layer',
       type: 'raster',
-      source: 'carto-voyager',
+      source: 'osm-standard',
       minzoom: 0,
       maxzoom: 22
     }
   ]
 };
 
+// Backward-compatible style aliases pointing to clean, non-watermarked providers
+export const CARTO_DARK_MAP_STYLE = ESRI_DARK_GRAY_MAP_STYLE;
+export const VOYAGER_ENGLISH_MAP_STYLE = OSM_STANDARD_MAP_STYLE;
+
+// Default dark and light map styles (Inlined StyleSpecification for 0ms instant render & zero watermark)
 export const DARK_MAP_STYLE = CARTO_DARK_MAP_STYLE;
 export const LIGHT_MAP_STYLE = VOYAGER_ENGLISH_MAP_STYLE;
 
