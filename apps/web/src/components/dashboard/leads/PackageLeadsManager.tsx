@@ -117,14 +117,14 @@ export function PackageLeadsManager({
 
       {/* Filter Toolbar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        <div className="flex items-center gap-1.5 p-1 bg-slate-900 rounded-2xl border border-slate-800 overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-1.5 p-1 bg-[var(--surface-default)] rounded-2xl border border-[var(--border-level-1)] overflow-x-auto scrollbar-none">
           {["ALL", "NEW", "CONTACTED", "QUALIFIED", "QUOTATION_SENT", "CONFIRMED", "COMPLETED", "LOST"].map(s => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
               className={cn(
                 "px-3 py-1.5 text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer",
-                statusFilter === s ? "bg-emerald-500 text-slate-950 shadow-sm" : "text-slate-400 hover:text-white"
+                statusFilter === s ? "bg-[var(--color-primary)] text-white shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
               )}
             >
               {s.replace(/_/g, " ")}
@@ -133,74 +133,74 @@ export function PackageLeadsManager({
         </div>
 
         <div className="relative flex-1 md:w-64">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
           <input 
             type="text" 
             placeholder="Search by ref, name, email..." 
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-900 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-emerald-500"
+            className="w-full ps-9 pe-4 py-2 text-xs bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
           />
         </div>
       </div>
 
       {/* Grid */}
       {loading ? (
-        <div className="text-center py-16 bg-slate-900/40 rounded-3xl border border-slate-800 text-slate-400 animate-pulse">
+        <div className="text-center py-16 bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-1)] text-[var(--text-secondary)] animate-pulse">
           Loading Package Inquiries...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 bg-slate-900/40 rounded-3xl border border-slate-800 space-y-3">
-          <FileText className="w-10 h-10 mx-auto text-slate-600" />
-          <p className="text-sm font-bold text-white">No inquiries found matching criteria</p>
+        <div className="text-center py-16 bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-1)] space-y-3">
+          <FileText className="w-10 h-10 mx-auto text-[var(--text-tertiary)]" />
+          <p className="text-sm font-bold text-[var(--text-primary)]">No inquiries found matching criteria</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map(item => (
-            <div key={item.id} className="bg-slate-900/70 rounded-3xl border border-slate-800 p-5 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between space-y-4">
+            <div key={item.id} className="bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-1)] p-5 hover:border-[var(--color-primary)]/50 transition-all shadow-sm flex flex-col justify-between space-y-4">
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="font-mono text-[11px] font-bold text-emerald-400">
+                  <span className="font-mono text-[11px] font-bold text-[var(--color-primary)]">
                     {item.referenceNumber || item.id.slice(0, 8)}
                   </span>
                   <span className={cn(
                     "px-2.5 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider",
-                    item.status === "CONFIRMED" ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" :
-                    item.status === "NEW" ? "bg-sky-500/15 text-sky-400 border border-sky-500/30" : "bg-slate-800 text-slate-400"
+                    item.status === "CONFIRMED" ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30" :
+                    item.status === "NEW" ? "bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30" : "bg-[var(--surface-active)] text-[var(--text-secondary)] border border-[var(--border-level-1)]"
                   )}>
                     {item.status}
                   </span>
                 </div>
 
-                <h3 className="font-bold text-base text-white">
+                <h3 className="font-bold text-base text-[var(--text-primary)] truncate">
                   {item.customerName}
                 </h3>
                 {item.companyOrOrg && (
-                  <p className="text-xs text-slate-400 font-medium">
+                  <p className="text-xs text-[var(--text-secondary)] font-medium truncate">
                     {item.companyOrOrg}
                   </p>
                 )}
 
                 {item.package && (
-                  <p className="text-xs font-bold text-emerald-400 mt-1">
+                  <p className="text-xs font-bold text-[var(--color-primary)] mt-1 truncate">
                     Pkg: {item.package.titleEn}
                   </p>
                 )}
 
-                <div className="space-y-1 mt-3 pt-3 border-t border-slate-800/80 text-xs text-slate-400 font-mono">
-                  {item.phone && <div className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-slate-500" /> {item.phone}</div>}
-                  {item.email && <div className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-slate-500" /> {item.email}</div>}
-                  <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-slate-500" /> {item.expectedGuests} Guests</div>
-                  {item.preferredDate && <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-slate-500" /> {new Date(item.preferredDate).toLocaleDateString()}</div>}
-                  {item.couponCode && <div className="flex items-center gap-1.5 text-emerald-400"><Tag className="w-3.5 h-3.5" /> Code: {item.couponCode}</div>}
+                <div className="space-y-1 mt-3 pt-3 border-t border-[var(--border-level-1)] text-xs text-[var(--text-secondary)] font-mono">
+                  {item.phone && <div className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-[var(--text-tertiary)]" /> {item.phone}</div>}
+                  {item.email && <div className="flex items-center gap-1.5 truncate"><Mail className="w-3.5 h-3.5 text-[var(--text-tertiary)] shrink-0" /> <span className="truncate">{item.email}</span></div>}
+                  <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-[var(--text-tertiary)]" /> {item.expectedGuests} Guests</div>
+                  {item.preferredDate && <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-[var(--text-tertiary)]" /> {new Date(item.preferredDate).toLocaleDateString()}</div>}
+                  {item.couponCode && <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400"><Tag className="w-3.5 h-3.5" /> Code: {item.couponCode}</div>}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-slate-800 text-xs gap-2">
+              <div className="flex items-center justify-between pt-3 border-t border-[var(--border-level-1)] text-xs gap-2">
                 <select
                   value={item.status}
                   onChange={e => handleStatusChange(item.id, e.target.value)}
-                  className="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1 text-[11px] font-bold text-slate-300 focus:outline-none"
+                  className="bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-2.5 py-1 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none cursor-pointer"
                 >
                   <option value="NEW">NEW</option>
                   <option value="CONTACTED">CONTACTED</option>
@@ -219,13 +219,13 @@ export function PackageLeadsManager({
                       className="h-7 px-2.5 text-[11px] gap-1 font-bold"
                       title="Build Quotation for Lead"
                     >
-                      <PlusCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      <PlusCircle className="w-3.5 h-3.5 text-[var(--color-primary)]" />
                       Quote
                     </Button>
                   )}
                   <button
                     onClick={() => handleDelete(item.id)}
-                    className="p-1.5 text-slate-500 hover:text-rose-400 rounded-lg cursor-pointer transition-colors"
+                    className="p-1.5 text-[var(--text-tertiary)] hover:text-rose-500 rounded-lg cursor-pointer transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="w-4 h-4" />

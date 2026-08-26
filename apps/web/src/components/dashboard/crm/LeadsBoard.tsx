@@ -199,7 +199,7 @@ export function LeadsBoard({ initialLeads }: { initialLeads: Lead[] }) {
         </div>
       )}
 
-      <div className="flex-1 flex gap-4 overflow-x-auto px-8 pb-8 custom-scrollbar">
+      <div className="flex-1 flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
         {COLUMNS.map(col => {
           const columnLeads = filteredLeads.filter(l => l.status === col.id)
           const totalValue = columnLeads.reduce((acc, l) => acc + (l.value || 0), 0)

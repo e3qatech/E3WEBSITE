@@ -117,14 +117,14 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
 
       <div className="bg-surface-default border border-border-default rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm whitespace-nowrap">
+          <table className="w-full text-start text-sm whitespace-nowrap">
             <thead className="bg-surface-hover border-b border-border-default text-text-secondary">
               <tr>
-                <th className="px-6 py-4 font-medium">Contact</th>
-                <th className="px-6 py-4 font-medium">Verification</th>
-                <th className="px-6 py-4 font-medium">Preferences</th>
-                <th className="px-6 py-4 font-medium">Subscribed On</th>
-                <th className="px-6 py-4 font-medium text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-start">Contact</th>
+                <th className="px-6 py-4 font-medium text-start">Verification</th>
+                <th className="px-6 py-4 font-medium text-start">Preferences</th>
+                <th className="px-6 py-4 font-medium text-start">Subscribed On</th>
+                <th className="px-6 py-4 font-medium text-end">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-default">
@@ -167,7 +167,7 @@ export function SubscribersList({ initialSubscribers }: { initialSubscribers: Su
                     <td className="px-6 py-4 text-text-secondary">
                       {new Date(s.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-end">
                       <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)} className="text-red-500 hover:text-red-600 hover:bg-red-500/10">
                         <Trash2 className="w-4 h-4" />
                       </Button>

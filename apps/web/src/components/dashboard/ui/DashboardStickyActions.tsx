@@ -47,7 +47,7 @@ export function DashboardStickyActions({
   return (
     <div
       className={cn(
-        "fixed bottom-0 inset-x-0 z-40 bg-[var(--surface-default)]/95 backdrop-blur-xl border-t border-[var(--border-level-1)] p-3 sm:p-4 shadow-2xl transition-all",
+        "sticky bottom-4 z-30 mx-auto w-full max-w-5xl rounded-2xl border border-[var(--border-level-2)] bg-[var(--surface-default)]/95 backdrop-blur-xl p-3 sm:p-4 shadow-2xl transition-all mt-8 mb-4",
         className
       )}
     >

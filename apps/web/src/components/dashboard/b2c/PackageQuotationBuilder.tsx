@@ -145,47 +145,47 @@ export function PackageQuotationBuilder({
 
       {/* Create Quote Form */}
       {isCreating && (
-        <form onSubmit={handleSaveQuote} className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-            <h4 className="text-sm font-bold text-white">New E3 Package Quotation</h4>
-            <span className="text-xs font-mono font-bold text-emerald-400">Auto-calculated</span>
+        <form onSubmit={handleSaveQuote} className="p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-1)] space-y-6 shadow-sm">
+          <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
+            <h4 className="text-sm font-bold text-[var(--text-primary)]">New E3 Package Quotation</h4>
+            <span className="text-xs font-mono font-bold text-[var(--color-primary)]">Auto-calculated</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="text-[11px] font-bold text-slate-400 block mb-1">Customer Name *</label>
+              <label className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1">Customer Name *</label>
               <input
                 type="text"
                 required
                 value={quoteForm.customerName}
                 onChange={e => setQuoteForm({ ...quoteForm, customerName: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
+                className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
               />
             </div>
             <div>
-              <label className="text-[11px] font-bold text-slate-400 block mb-1">Company / School</label>
+              <label className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1">Company / School</label>
               <input
                 type="text"
                 value={quoteForm.companyOrOrg}
                 onChange={e => setQuoteForm({ ...quoteForm, companyOrOrg: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
+                className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
               />
             </div>
             <div>
-              <label className="text-[11px] font-bold text-slate-400 block mb-1">Customer Email</label>
+              <label className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1">Customer Email</label>
               <input
                 type="email"
                 value={quoteForm.customerEmail}
                 onChange={e => setQuoteForm({ ...quoteForm, customerEmail: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
+                className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
               />
             </div>
             <div>
-              <label className="text-[11px] font-bold text-slate-400 block mb-1">Base Package</label>
+              <label className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1">Base Package</label>
               <select
                 value={quoteForm.packageId}
                 onChange={e => setQuoteForm({ ...quoteForm, packageId: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
+                className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
               >
                 <option value="">Custom Package (No fixed base)</option>
                 {packages.map(p => (
@@ -194,21 +194,21 @@ export function PackageQuotationBuilder({
               </select>
             </div>
             <div>
-              <label className="text-[11px] font-bold text-slate-400 block mb-1">Validity (Days)</label>
+              <label className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1">Validity (Days)</label>
               <input
                 type="number"
                 value={quoteForm.validDays}
                 onChange={e => setQuoteForm({ ...quoteForm, validDays: parseInt(e.target.value) || 7 })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white"
+                className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
               />
             </div>
             <div>
-              <label className="text-[11px] font-bold text-slate-400 block mb-1">Discount Amount (QAR)</label>
+              <label className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1">Discount Amount (QAR)</label>
               <input
                 type="number"
                 value={quoteForm.discountAmount}
                 onChange={e => setQuoteForm({ ...quoteForm, discountAmount: parseFloat(e.target.value) || 0 })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-emerald-400"
+                className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs font-mono text-emerald-600 dark:text-emerald-400 focus:outline-none focus:border-[var(--color-primary)] font-bold"
               />
             </div>
           </div>
@@ -216,7 +216,7 @@ export function PackageQuotationBuilder({
           {/* Line Items Table */}
           <div className="space-y-3 pt-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-white">Quotation Line Items</span>
+              <span className="text-xs font-bold text-[var(--text-primary)]">Quotation Line Items</span>
               <Button type="button" size="sm" variant="outline" onClick={addItem} className="text-xs h-7 gap-1">
                 <Plus className="w-3 h-3" />
                 Add Line Item
@@ -225,7 +225,7 @@ export function PackageQuotationBuilder({
 
             <div className="space-y-2">
               {quoteForm.items.map((it, idx) => (
-                <div key={idx} className="p-3 rounded-2xl bg-slate-950 border border-slate-800 grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                <div key={idx} className="p-3 rounded-2xl bg-[var(--bg-level-1)] border border-[var(--border-level-1)] grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
                   <div className="sm:col-span-5">
                     <input
                       type="text"
@@ -235,7 +235,7 @@ export function PackageQuotationBuilder({
                         next[idx].titleEn = e.target.value
                         setQuoteForm({ ...quoteForm, items: next })
                       }}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white"
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                       placeholder="Item description"
                     />
                   </div>
@@ -248,7 +248,7 @@ export function PackageQuotationBuilder({
                         next[idx].quantity = parseInt(e.target.value) || 1
                         setQuoteForm({ ...quoteForm, items: next })
                       }}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white"
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                       placeholder="Qty"
                     />
                   </div>
@@ -261,18 +261,18 @@ export function PackageQuotationBuilder({
                         next[idx].unitPrice = parseFloat(e.target.value) || 0
                         setQuoteForm({ ...quoteForm, items: next })
                       }}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-mono text-emerald-400 font-bold"
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-1.5 text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold focus:outline-none focus:border-[var(--color-primary)]"
                       placeholder="Unit Price"
                     />
                   </div>
                   <div className="sm:col-span-2 flex items-center justify-between">
-                    <span className="text-xs font-mono font-bold text-white">
+                    <span className="text-xs font-mono font-bold text-[var(--text-primary)]">
                       {(it.quantity * it.unitPrice).toLocaleString()} QAR
                     </span>
                     <button
                       type="button"
                       onClick={() => removeItem(idx)}
-                      className="text-slate-500 hover:text-rose-400"
+                      className="p-1 text-[var(--text-tertiary)] hover:text-rose-500 rounded-lg cursor-pointer transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -283,15 +283,15 @@ export function PackageQuotationBuilder({
           </div>
 
           {/* Quotation Summary Card */}
-          <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-xs space-y-1 text-slate-400">
-              <div>Subtotal: <span className="font-mono text-white">{subtotal.toLocaleString()} QAR</span></div>
-              <div>Discount: <span className="font-mono text-rose-400">-{quoteForm.discountAmount.toLocaleString()} QAR</span></div>
-              <div>Required Deposit ({quoteForm.depositPercentage}%): <span className="font-mono text-amber-400 font-bold">{deposit.toLocaleString()} QAR</span></div>
+          <div className="p-4 rounded-2xl bg-[var(--bg-level-1)] border border-[var(--border-level-1)] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-xs space-y-1 text-[var(--text-secondary)]">
+              <div>Subtotal: <span className="font-mono text-[var(--text-primary)] font-bold">{subtotal.toLocaleString()} QAR</span></div>
+              <div>Discount: <span className="font-mono text-rose-500 font-bold">-{quoteForm.discountAmount.toLocaleString()} QAR</span></div>
+              <div>Required Deposit ({quoteForm.depositPercentage}%): <span className="font-mono text-amber-500 font-bold">{deposit.toLocaleString()} QAR</span></div>
             </div>
             <div className="text-end">
-              <span className="text-[10px] text-slate-500 block uppercase font-mono">Grand Total</span>
-              <span className="text-2xl font-black font-mono text-emerald-400">{total.toLocaleString()} QAR</span>
+              <span className="text-[10px] text-[var(--text-tertiary)] block uppercase font-mono">Grand Total</span>
+              <span className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400">{total.toLocaleString()} QAR</span>
             </div>
           </div>
 
@@ -299,7 +299,7 @@ export function PackageQuotationBuilder({
             <Button type="button" variant="outline" size="sm" onClick={() => setIsCreating(false)} className="text-xs">
               Cancel
             </Button>
-            <Button type="submit" size="sm" className="text-xs font-bold bg-emerald-500 text-slate-950">
+            <Button type="submit" size="sm" className="text-xs font-bold bg-[var(--color-primary)] text-white shadow-sm">
               Generate & Save Quotation
             </Button>
           </div>
@@ -307,10 +307,10 @@ export function PackageQuotationBuilder({
       )}
 
       {/* Quotations Table */}
-      <div className="rounded-3xl border border-slate-800 bg-slate-900/60 overflow-hidden">
+      <div className="rounded-3xl border border-[var(--border-level-1)] bg-[var(--surface-default)] overflow-hidden shadow-sm">
         <table className="w-full text-start text-xs border-collapse">
           <thead>
-            <tr className="border-b border-slate-800 text-slate-400 font-mono uppercase text-[10px]">
+            <tr className="border-b border-[var(--border-level-1)] text-[var(--text-secondary)] font-mono uppercase text-[10px] bg-[var(--surface-hover)]/50">
               <th className="p-4 text-start">Quote Ref</th>
               <th className="p-4 text-start">Customer / Organization</th>
               <th className="p-4 text-start">Total Amount</th>
@@ -319,25 +319,25 @@ export function PackageQuotationBuilder({
               <th className="p-4 text-end">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-[var(--border-level-1)]">
             {quotations.map(quote => (
-              <tr key={quote.id} className="hover:bg-slate-800/40 transition-colors">
-                <td className="p-4 font-mono font-bold text-emerald-400">{quote.referenceNumber}</td>
+              <tr key={quote.id} className="hover:bg-[var(--surface-hover)] transition-colors">
+                <td className="p-4 font-mono font-bold text-[var(--color-primary)]">{quote.referenceNumber}</td>
                 <td className="p-4">
-                  <div className="font-bold text-white">{quote.customerName}</div>
-                  <div className="text-[11px] text-slate-400">{quote.companyOrOrg || quote.customerEmail}</div>
+                  <div className="font-bold text-[var(--text-primary)]">{quote.customerName}</div>
+                  <div className="text-[11px] text-[var(--text-tertiary)]">{quote.companyOrOrg || quote.customerEmail}</div>
                 </td>
-                <td className="p-4 font-mono font-bold text-white text-sm">
+                <td className="p-4 font-mono font-bold text-[var(--text-primary)] text-sm">
                   {quote.currency} {quote.totalAmount.toLocaleString()}
                 </td>
-                <td className="p-4 text-slate-400 font-mono">
+                <td className="p-4 text-[var(--text-secondary)] font-mono">
                   {new Date(quote.validUntil).toLocaleDateString()}
                 </td>
                 <td className="p-4">
                   <span className={cn(
                     "px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase",
-                    quote.status === "SENT" ? "bg-sky-500/15 text-sky-400" :
-                    quote.status === "ACCEPTED" ? "bg-emerald-500/15 text-emerald-400" : "bg-slate-800 text-slate-400"
+                    quote.status === "SENT" ? "bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30" :
+                    quote.status === "ACCEPTED" ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30" : "bg-[var(--surface-active)] text-[var(--text-secondary)] border border-[var(--border-level-1)]"
                   )}>
                     {quote.status}
                   </span>
@@ -345,7 +345,7 @@ export function PackageQuotationBuilder({
                 <td className="p-4 text-end">
                   <button
                     onClick={() => setViewingQuote(quote)}
-                    className="p-1.5 text-slate-400 hover:text-white"
+                    className="p-1.5 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] rounded-lg cursor-pointer transition-colors"
                     title="View Quotation"
                   >
                     <Eye className="w-4 h-4" />
@@ -359,60 +359,60 @@ export function PackageQuotationBuilder({
 
       {/* Quote Preview Modal */}
       {viewingQuote && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-          <div className="relative w-full max-w-2xl bg-slate-900 rounded-3xl border border-slate-800 p-8 text-white space-y-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-1)] p-6 sm:p-8 text-[var(--text-primary)] space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[var(--border-level-1)] pb-4">
               <div>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase">E3 Qatar Experience Quotation</span>
+                <span className="text-[10px] font-mono text-[var(--color-primary)] font-bold uppercase">E3 Qatar Experience Quotation</span>
                 <h3 className="text-xl font-bold">{viewingQuote.title}</h3>
-                <span className="font-mono text-xs text-slate-400">{viewingQuote.referenceNumber}</span>
+                <span className="font-mono text-xs text-[var(--text-tertiary)]">{viewingQuote.referenceNumber}</span>
               </div>
-              <button onClick={() => setViewingQuote(null)} className="p-2 text-slate-400 hover:text-white">✕</button>
+              <button onClick={() => setViewingQuote(null)} className="p-2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] rounded-xl cursor-pointer">✕</button>
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-xs">
               <div>
-                <span className="text-slate-500 block">Recipient</span>
-                <span className="font-bold text-white">{viewingQuote.customerName}</span>
-                <div className="text-slate-400">{viewingQuote.companyOrOrg}</div>
+                <span className="text-[var(--text-tertiary)] block">Recipient</span>
+                <span className="font-bold text-[var(--text-primary)]">{viewingQuote.customerName}</span>
+                <div className="text-[var(--text-secondary)]">{viewingQuote.companyOrOrg}</div>
               </div>
               <div className="text-end">
-                <span className="text-slate-500 block">Date Issued</span>
-                <span className="font-mono text-white">{new Date(viewingQuote.createdAt).toLocaleDateString()}</span>
+                <span className="text-[var(--text-tertiary)] block">Date Issued</span>
+                <span className="font-mono text-[var(--text-primary)]">{new Date(viewingQuote.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
 
             {/* Items */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden">
+            <div className="rounded-2xl border border-[var(--border-level-1)] bg-[var(--bg-level-1)] overflow-hidden">
               <table className="w-full text-start text-xs">
                 <thead>
-                  <tr className="border-b border-slate-800 text-slate-500 font-mono text-[10px]">
+                  <tr className="border-b border-[var(--border-level-1)] text-[var(--text-tertiary)] font-mono text-[10px] bg-[var(--surface-hover)]/40">
                     <th className="p-3 text-start">Item</th>
                     <th className="p-3 text-start">Qty</th>
                     <th className="p-3 text-start">Unit Price</th>
                     <th className="p-3 text-end">Line Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
+                <tbody className="divide-y divide-[var(--border-level-1)]">
                   {viewingQuote.items?.map((it: any) => (
                     <tr key={it.id}>
-                      <td className="p-3 text-white font-semibold">{it.titleEn}</td>
+                      <td className="p-3 text-[var(--text-primary)] font-semibold">{it.titleEn}</td>
                       <td className="p-3 font-mono">{it.quantity}</td>
                       <td className="p-3 font-mono">{it.unitPrice.toLocaleString()} QAR</td>
-                      <td className="p-3 font-mono text-end font-bold text-emerald-400">{it.lineTotal.toLocaleString()} QAR</td>
+                      <td className="p-3 font-mono text-end font-bold text-emerald-600 dark:text-emerald-400">{it.lineTotal.toLocaleString()} QAR</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-400">Total Proposal Value:</span>
-              <span className="text-xl font-black font-mono text-emerald-400">{viewingQuote.totalAmount.toLocaleString()} QAR</span>
+            <div className="p-4 rounded-2xl bg-[var(--bg-level-1)] border border-[var(--border-level-1)] flex items-center justify-between">
+              <span className="text-xs font-bold text-[var(--text-secondary)]">Total Proposal Value:</span>
+              <span className="text-xl font-black font-mono text-emerald-600 dark:text-emerald-400">{viewingQuote.totalAmount.toLocaleString()} QAR</span>
             </div>
 
             <div className="flex justify-end pt-2">
-              <Button onClick={() => setViewingQuote(null)} className="text-xs bg-slate-800 text-white">
+              <Button onClick={() => setViewingQuote(null)} variant="outline" className="text-xs">
                 Close Preview
               </Button>
             </div>

@@ -212,7 +212,25 @@ export function resolveAvailabilityStatus(attraction: any): ResolvedAvailability
  * Resolves canonical booking URL across CTAs, cards, tickets, and microsites
  */
 export function resolveBookingUrl(attraction: any, locale: string = 'en'): string {
-  const directUrl = (attraction?.ticketingUrl || attraction?.bookingUrl || '').trim()
+  const mode: BookingMode = attraction?.bookingMode || (attraction?.bookingProductId ? 'BOOKINGQUBE_PRODUCT' : (attraction?.ticketingUrl || attraction?.bookingUrl) ? 'EXTERNAL_URL' : 'INTERNAL_ROUTE')
+  
+  if (mode === 'BOOKINGQUBE_PRODUCT' && attraction?.bookingProductId) {
+    return `/${locale}/b2c/tickets?product=${encodeURIComponent(attraction.bookingProductId)}`
+  }
+  
+  if (mode === 'CONTACT') {
+    return `/${locale}/b2c/contact?subject=${encodeURIComponent(attraction?.nameEn || 'Booking Inquiry')}`
+  }
+
+  if (mode === 'INTERNAL_ROUTE') {
+    const canonicalSlug = (attraction?.slug === 'urban-arena-doha-mall' ? 'urban-arena' : attraction?.slug) || 'urban-arena'
+    return `/${locale}/b2c/attractions/${canonicalSlug}#pricing`
+  }
+
+  let directUrl = (attraction?.ticketingUrl || attraction?.bookingUrl || '').trim()
+  if (directUrl.includes('urban-arena-doha-mall')) {
+    directUrl = directUrl.replace('urban-arena-doha-mall', 'urban-arena')
+  }
 
   if (directUrl) {
     if (directUrl.startsWith('http://') || directUrl.startsWith('https://')) {
@@ -224,16 +242,6 @@ export function resolveBookingUrl(attraction: any, locale: string = 'en'): strin
     if (directUrl.startsWith('#')) {
       return directUrl
     }
-  }
-
-  const mode: BookingMode = attraction?.bookingMode || (attraction?.bookingProductId ? 'BOOKINGQUBE_PRODUCT' : directUrl ? 'EXTERNAL_URL' : 'INTERNAL_ROUTE')
-  
-  if (mode === 'BOOKINGQUBE_PRODUCT' && attraction?.bookingProductId) {
-    return `/${locale}/b2c/tickets?product=${encodeURIComponent(attraction.bookingProductId)}`
-  }
-  
-  if (mode === 'CONTACT') {
-    return `/${locale}/b2c/contact?subject=${encodeURIComponent(attraction?.nameEn || 'Booking Inquiry')}`
   }
 
   const canonicalSlug = (attraction?.slug === 'urban-arena-doha-mall' ? 'urban-arena' : attraction?.slug) || 'urban-arena'

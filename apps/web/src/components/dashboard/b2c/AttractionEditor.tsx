@@ -825,7 +825,7 @@ export function AttractionEditor({ initialData }: { initialData?: any }) {
                     max="100"
                     value={particleDensity}
                     onChange={e => setParticleDensity(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-[var(--surface-active)] rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]"
                   />
                 </div>
               </div>

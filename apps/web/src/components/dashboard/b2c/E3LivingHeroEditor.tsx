@@ -771,7 +771,7 @@ export function E3LivingHeroEditor({
                 step={100}
                 value={data.animationSpeed || 2800}
                 onChange={(e) => handleUpdate((p) => ({ ...p, animationSpeed: Number(e.target.value) }))}
-                className="w-full accent-emerald-400 cursor-pointer"
+                className="w-full h-2 bg-[var(--surface-active)] rounded-lg appearance-none cursor-pointer accent-emerald-400"
               />
             </div>
 
@@ -791,7 +791,7 @@ export function E3LivingHeroEditor({
                 step={50}
                 value={data.animationDuration || 600}
                 onChange={(e) => handleUpdate((p) => ({ ...p, animationDuration: Number(e.target.value) }))}
-                className="w-full accent-cyan-400 cursor-pointer"
+                className="w-full h-2 bg-[var(--surface-active)] rounded-lg appearance-none cursor-pointer accent-cyan-400"
               />
             </div>
           </div>
@@ -1048,7 +1048,7 @@ export function E3LivingHeroEditor({
                   ...p,
                   media: { ...(p.media || {}), overlayOpacity: Number(e.target.value) }
                 }))}
-                className="w-full accent-[var(--color-primary)]"
+                className="w-full h-2 bg-[var(--surface-active)] rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]"
               />
             </div>
           </div>
