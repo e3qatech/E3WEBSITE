@@ -166,9 +166,16 @@ export function LiveBookingCard({
                 <MapPin className="w-3.5 h-3.5" />
                 <span>{isAr ? "عنوان الوجهة" : "VENUE ADDRESS"}</span>
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">
-                {isAr ? "مفتوح الآن" : "OPEN NOW"}
-              </span>
+              {operations?.isOpen ? (
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{isAr ? "مفتوح الآن" : "OPEN NOW"}</span>
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30">
+                  {isAr ? "مغلق حالياً" : "CLOSED NOW"}
+                </span>
+              )}
             </div>
 
             <h3 className="font-bold text-lg text-[var(--text-primary)] leading-snug">

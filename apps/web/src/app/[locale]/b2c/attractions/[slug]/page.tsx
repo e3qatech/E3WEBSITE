@@ -6,6 +6,7 @@ import { repairUrbanArenaCanonicalSlug } from "@/lib/canonical-urban-arena-repai
 
 // Component Imports
 import { HeroViewer } from "@/components/attractions/detail/HeroViewer"
+import { AttractionStickyNav } from "@/components/attractions/detail/AttractionStickyNav"
 import { WhatsInside } from "@/components/attractions/detail/WhatsInside"
 import { BrandPlacementShowcase } from "@/components/attractions/detail/BrandPlacementShowcase"
 import { PricingCards } from "@/components/attractions/detail/PricingCards"
@@ -356,31 +357,44 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       {faqJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />}
 
       {/* 1. Hero Viewer (100vh) */}
-      <HeroViewer 
-        title={displayName} 
-        tagline={displayDesc?.substring(0, 120)}
-        mediaType={attraction.heroMediaType || "IMAGE"}
-        mediaUrl={attraction.heroMediaUrl}
-        fallbackUrl={attraction.heroFallbackUrl}
-        status={attraction.isFeatured ? (locale === 'ar' ? "تجربة متميزة" : "Featured Experience") : undefined}
+      <div id="overview">
+        <HeroViewer 
+          title={displayName} 
+          tagline={displayDesc?.substring(0, 120)}
+          mediaType={attraction.heroMediaType || "IMAGE"}
+          mediaUrl={attraction.heroMediaUrl}
+          fallbackUrl={attraction.heroFallbackUrl}
+          status={attraction.isFeatured ? (locale === 'ar' ? "تجربة متميزة" : "Featured Experience") : undefined}
+          logoUrl={attraction.logoUrl}
+          ctaText={locale === 'ar' ? "احجز التذاكر" : "Get Tickets"}
+          ctaLink={resolveBookingUrl(attraction, locale)}
+          motionPreset={(attraction as any).motionPreset || "MEDIA_CINEMATIC"}
+          rotatingWordsEn={(attraction as any).rotatingWordsEn || (attraction as any).rotatingPhrasesEn || []}
+          rotatingWordsAr={(attraction as any).rotatingWordsAr || (attraction as any).rotatingPhrasesAr || []}
+          accentColor={(attraction as any).accentColor || (attraction as any).brandColor || "#10b981"}
+          locale={locale}
+        />
+      </div>
+
+      {/* Sticky Experience Navigation Bar */}
+      <AttractionStickyNav
+        name={displayName}
         logoUrl={attraction.logoUrl}
-        ctaText={locale === 'ar' ? "احجز التذاكر" : "Get Tickets"}
-        ctaLink={resolveBookingUrl(attraction, locale)}
-        motionPreset={(attraction as any).motionPreset || "MEDIA_CINEMATIC"}
-        rotatingWordsEn={(attraction as any).rotatingWordsEn || (attraction as any).rotatingPhrasesEn || []}
-        rotatingWordsAr={(attraction as any).rotatingWordsAr || (attraction as any).rotatingPhrasesAr || []}
-        accentColor={(attraction as any).accentColor || (attraction as any).brandColor || "#10b981"}
+        isOpen={operations?.isOpen !== false}
+        bookingUrl={resolveBookingUrl(attraction, locale)}
         locale={locale}
       />
 
       {/* 2 & 3. Intro + What's Inside */}
       {displayDesc && (
-        <WhatsInside 
-          description={displayDesc} 
-          features={features || []}
-          imageUrl={attraction.heroThumbnailUrl || attraction.heroFallbackUrl}
-          locale={locale}
-        />
+        <div id="whats-inside">
+          <WhatsInside 
+            description={displayDesc} 
+            features={features || []}
+            imageUrl={attraction.heroThumbnailUrl || attraction.heroFallbackUrl}
+            locale={locale}
+          />
+        </div>
       )}
 
       {/* 4. Powered By E3 Brands & IP Showcase */}
@@ -395,14 +409,16 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       )}
 
       {/* 5. Pricing & Tickets */}
-      <PricingCards 
-        pricing={pricing}
-        offers={attraction.offers || []}
-        bookingUrl={resolveBookingUrl(attraction, locale)}
-        pricingNoteEn={(operations as any)?.pricingNoteEn}
-        pricingNoteAr={(operations as any)?.pricingNoteAr}
-        locale={locale}
-      />
+      <div id="pricing">
+        <PricingCards 
+          pricing={pricing}
+          offers={attraction.offers || []}
+          bookingUrl={resolveBookingUrl(attraction, locale)}
+          pricingNoteEn={(operations as any)?.pricingNoteEn}
+          pricingNoteAr={(operations as any)?.pricingNoteAr}
+          locale={locale}
+        />
+      </div>
 
       {/* 6. Partners */}
       <PartnersSection 
@@ -411,12 +427,14 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       />
 
       {/* 7. Social & What People Say ("Everyone is Talking") */}
-      <SocialNewsSection 
-        socialPreviews={(attraction.socialPreviews as any) || []}
-        testimonials={(attraction.testimonials as any) || []}
-        newsCoverage={(attraction.newsCoverage as any) || []}
-        locale={locale}
-      />
+      <div id="social-reviews">
+        <SocialNewsSection 
+          socialPreviews={(attraction.socialPreviews as any) || []}
+          testimonials={(attraction.testimonials as any) || []}
+          newsCoverage={(attraction.newsCoverage as any) || []}
+          locale={locale}
+        />
+      </div>
 
       {/* 8. Gallery Lightbox */}
       <GalleryLightbox 
@@ -425,19 +443,21 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       />
 
       {/* 9. Live GIS Location Map */}
-      <LiveBookingCard 
-        attractionId={attraction.id}
-        name={displayName}
-        latitude={coordinates.lat}
-        longitude={coordinates.lng}
-        locationAddress={resolvedLocationAddress}
-        mapUrl={attraction.mapUrl}
-        mapImageFallback={attraction.heroThumbnailUrl || attraction.heroFallbackUrl}
-        schedule={schedule}
-        operations={operations}
-        bookingUrl={resolveBookingUrl(attraction, locale)}
-        locale={locale}
-      />
+      <div id="location">
+        <LiveBookingCard 
+          attractionId={attraction.id}
+          name={displayName}
+          latitude={coordinates.lat}
+          longitude={coordinates.lng}
+          locationAddress={resolvedLocationAddress}
+          mapUrl={attraction.mapUrl}
+          mapImageFallback={attraction.heroThumbnailUrl || attraction.heroFallbackUrl}
+          schedule={schedule}
+          operations={operations}
+          bookingUrl={resolveBookingUrl(attraction, locale)}
+          locale={locale}
+        />
+      </div>
 
       {/* 10. Visitor Feedback & Contact Form */}
       <AttractionFeedbackContactSection
@@ -447,10 +467,12 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
       />
 
       {/* 11. FAQ Accordion */}
-      <FaqAccordion 
-        faqs={faq}
-        locale={locale}
-      />
+      <div id="faq">
+        <FaqAccordion 
+          faqs={faq}
+          locale={locale}
+        />
+      </div>
 
       {/* 12. Footer CTA */}
       <section className="relative w-full bg-[var(--surface-default)] py-32 text-center overflow-hidden border-t border-[var(--border-level-2)]">
