@@ -12,21 +12,60 @@ import {
   MapPin,
   Clock,
   ShieldCheck,
-  FileText,
   Briefcase,
-  Layers,
   Sparkles,
 } from "lucide-react";
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 import { cn } from "@/lib/utils";
-import { localizeHref, normalizeExternalUrl } from "@/lib/url-helper";
+import { localizeHref, normalizeExternalUrl, isExternalUrl } from "@/lib/url-helper";
+
+interface FooterLinkItem {
+  labelEn: string;
+  labelAr?: string;
+  href: string;
+}
 
 interface B2BGlobalFooterProps {
-  settings?: Record<string, string>;
+  settings?: Record<string, any>;
+}
+
+// Default Fallback Solutions Links
+const DEFAULT_SOLUTIONS_LINKS: FooterLinkItem[] = [
+  { labelEn: "Turnkey Attraction Engineering", labelAr: "هندسة الوجهات الترفيهية المتكاملة", href: "/b2b/services" },
+  { labelEn: "Live Event Production & Rigging", labelAr: "إنتاج الفعاليات الكبرى والمسارح", href: "/b2b/services" },
+  { labelEn: "Spatial & Kinetic Staging", labelAr: "العروض الحركية والمؤثرات البصرية", href: "/b2b/services" },
+  { labelEn: "Immersive AV & Projection Mapping", labelAr: "أنظمة الصوت والضوء والخرائط الضوئية", href: "/b2b/services" },
+  { labelEn: "Landmark Case Studies", labelAr: "سجل الإنجازات والمشاريع الكبرى", href: "/b2b/cases" },
+  { labelEn: "Strategic Clients & Partners", labelAr: "شركاء النجاح والعملاء الاستراتيجيين", href: "/b2b/clients" },
+];
+
+// Default Fallback Company Links
+const DEFAULT_COMPANY_LINKS: FooterLinkItem[] = [
+  { labelEn: "About E3 Enterprise", labelAr: "عن شركة إي ثري", href: "/b2b/about" },
+  { labelEn: "Executive Leadership & Founders", labelAr: "القيادة التنفيذية والمؤسسون", href: "/b2b/leadership" },
+  { labelEn: "Careers & Engineering Roles", labelAr: "الوظائف والفرص الهندسية", href: "/b2b/careers" },
+  { labelEn: "Vendor & Supplier Intake", labelAr: "تسجيل الموردين والمقاولين", href: "/b2b/contact" },
+  { labelEn: "Feedback & Quality Assurance", labelAr: "تقييم الجودة والملاحظات", href: "/b2b/feedback" },
+  { labelEn: "Frequently Asked Questions", labelAr: "الأسئلة الشائعة للشركات", href: "/b2b/faqs" },
+];
+
+// Helper to safely parse JSON links
+function parseJsonLinks(raw: any, fallback: FooterLinkItem[]): FooterLinkItem[] {
+  if (!raw) return fallback;
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch {
+      // Return fallback
+    }
+  }
+  return fallback;
 }
 
 export function B2BGlobalFooter({ settings = {} }: B2BGlobalFooterProps) {
-  const { t, locale } = useLocale();
+  const { locale } = useLocale();
   const { theme } = useTheme();
   const isAr = locale === "ar";
 
@@ -40,7 +79,6 @@ export function B2BGlobalFooter({ settings = {} }: B2BGlobalFooterProps) {
 
   const phone = settings.contactPhone || "+974 3048 9955";
   const emailAddr = settings.contactEmail || "info@eeeqa.com";
-  const whatsapp = settings.contactWhatsapp || "+974 5113 8418";
   const workingHours = isAr
     ? settings.workingHours || "الأحد - الخميس: 9:00 صباحاً - 6:00 مساءً"
     : settings.workingHours || "Sun - Thu: 9:00 AM - 6:00 PM";
@@ -48,6 +86,9 @@ export function B2BGlobalFooter({ settings = {} }: B2BGlobalFooterProps) {
   const lightLogoUrl = settings.lightLogoUrl || "/logo-dark.png";
   const darkLogoUrl = settings.darkLogoUrl || "/logo-white.png";
 
+  const crNumber = settings.b2bCrNumber || "184920 / 2026";
+
+  // Dynamic CTA Banner Config
   const footerCtaTitle = isAr
     ? settings.b2bFooterCtaTitleAr || "جاهز لتنفيذ مشروعك الترفيهي القادم في قطر؟"
     : settings.b2bFooterCtaTitleEn || "Ready to Engineer Your Next Landmark Experience?";
@@ -62,28 +103,37 @@ export function B2BGlobalFooter({ settings = {} }: B2BGlobalFooterProps) {
 
   const footerCtaBtnUrl = settings.b2bFooterCtaBtnUrl || "/b2b/contact";
 
-  // Enterprise Solutions Navigation
-  const solutions = [
-    { labelEn: "Turnkey Attraction Engineering", labelAr: "هندسة الوجهات الترفيهية المتكاملة", href: "/b2b/services" },
-    { labelEn: "Live Event Production & Rigging", labelAr: "إنتاج الفعاليات الكبرى والمسارح", href: "/b2b/services" },
-    { labelEn: "Spatial & Kinetic Staging", labelAr: "العروض الحركية والمؤثرات البصرية", href: "/b2b/services" },
-    { labelEn: "Immersive AV & Projection Mapping", labelAr: "أنظمة الصوت والضوء والخرائط الضوئية", href: "/b2b/services" },
-    { labelEn: "Landmark Case Studies", labelAr: "سجل الإنجازات والمشاريع الكبرى", href: "/b2b/cases" },
-    { labelEn: "Strategic Clients & Partners", labelAr: "شركاء النجاح والعملاء الاستراتيجيين", href: "/b2b/clients" },
-  ];
+  const footerSecondaryBtnLabel = isAr
+    ? settings.b2bFooterSecondaryBtnLabelAr || "استكشف دراسات الحالة"
+    : settings.b2bFooterSecondaryBtnLabelEn || "Explore Case Studies";
 
-  // Enterprise Company Links
-  const companyLinks = [
-    { labelEn: "About E3 Enterprise", labelAr: "عن شركة إي ثري", href: "/b2b/about" },
-    { labelEn: "Executive Leadership & Founders", labelAr: "القيادة التنفيذية والمؤسسون", href: "/b2b/leadership" },
-    { labelEn: "Careers & Engineering Roles", labelAr: "الوظائف والفرص الهندسية", href: "/b2b/careers" },
-    { labelEn: "Vendor & Supplier Intake", labelAr: "تسجيل الموردين والمقاولين", href: "/b2b/contact" },
-    { labelEn: "Feedback & Quality Assurance", labelAr: "تقييم الجودة والملاحظات", href: "/b2b/feedback" },
-    { labelEn: "Frequently Asked Questions", labelAr: "الأسئلة الشائعة للشركات", href: "/b2b/faqs" },
-  ];
+  const footerSecondaryBtnUrl = settings.b2bFooterSecondaryBtnUrl || "/b2b/cases";
+
+  // Dynamic Editable Links
+  const solutions = parseJsonLinks(settings.b2bFooterSolutionsLinks, DEFAULT_SOLUTIONS_LINKS);
+  const companyLinks = parseJsonLinks(settings.b2bFooterCompanyLinks, DEFAULT_COMPANY_LINKS);
+
+  // Background Media Resolution (Image, Video, Iframe, 3D, Spline)
+  const bgMediaUrl = settings.b2bFooterMediaUrl || settings.footerMediaUrl || "";
+  const bgMediaType = (settings.b2bFooterMediaType || settings.footerMediaType || "IMAGE").toString().toUpperCase();
+  const bgPosterUrl = settings.b2bFooterPosterUrl || settings.footerPosterUrl || "";
 
   return (
     <footer className="relative bg-neutral-950 text-neutral-200 border-t border-neutral-800/80 pt-16 pb-10 overflow-hidden font-sans">
+      {/* Background Media Container (3D Spline, Video, Iframe, or Image) */}
+      {bgMediaUrl && (
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden opacity-25 pointer-events-none">
+          <UniversalMediaRenderer
+            src={bgMediaUrl}
+            type={bgMediaType as any}
+            alt="B2B Footer Background Media"
+            className="w-full h-full object-cover"
+            poster={bgPosterUrl}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/95 via-neutral-950/90 to-neutral-950 z-[1] pointer-events-none" />
+        </div>
+      )}
+
       {/* Background Architectural Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f29370f_1px,transparent_1px),linear-gradient(to_bottom,#1f29370f_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
@@ -92,7 +142,7 @@ export function B2BGlobalFooter({ settings = {} }: B2BGlobalFooterProps) {
         {/* 1. Top Enterprise CTA Banner */}
         <div className="relative rounded-3xl bg-gradient-to-r from-purple-950/70 via-neutral-900 to-indigo-950/70 border border-purple-500/30 p-8 md:p-12 overflow-hidden shadow-2xl">
           <div className="absolute -end-16 -top-16 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-          
+
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 relative z-10">
             <div className="space-y-3 max-w-2xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs font-bold font-mono">
@@ -116,10 +166,10 @@ export function B2BGlobalFooter({ settings = {} }: B2BGlobalFooterProps) {
                 <ArrowRight className={cn("w-4 h-4", isAr && "rotate-180")} />
               </Link>
               <Link
-                href={localizeHref("/b2b/cases", locale)}
+                href={localizeHref(footerSecondaryBtnUrl, locale)}
                 className="inline-flex items-center gap-2 px-6 py-4 rounded-2xl bg-neutral-900/80 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 font-bold text-sm transition-colors cursor-pointer"
               >
-                <span>{isAr ? "استكشف دراسات الحالة" : "Explore Case Studies"}</span>
+                <span>{footerSecondaryBtnLabel}</span>
               </Link>
             </div>
           </div>
@@ -142,8 +192,8 @@ export function B2BGlobalFooter({ settings = {} }: B2BGlobalFooterProps) {
 
             <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
               {isAr
-                ? "الشريك المعتمد لتنفيذ الوجهات الترفيهية، وهندسة المسارح الحية، والإنتاج التقني الشامل في دولة قطر ومنطقة الشرق الأوسط."
-                : "Qatar's turnkey event engineering, spatial entertainment production, and kinetic staging partner for governmental and commercial destinations."}
+                ? settings.footerDescriptionAr || "الشريك المعتمد لتنفيذ الوجهات الترفيهية، وهندسة المسارح الحية، والإنتاج التقني الشامل في دولة قطر ومنطقة الشرق الأوسط."
+                : settings.footerDescriptionEn || "Qatar's turnkey event engineering, spatial entertainment production, and kinetic staging partner for governmental and commercial destinations."}
             </p>
 
             {/* Social Network Links */}
@@ -195,45 +245,79 @@ export function B2BGlobalFooter({ settings = {} }: B2BGlobalFooterProps) {
             </div>
           </div>
 
-          {/* Column 2: B2B Engineering Solutions */}
+          {/* Column 2: B2B Engineering Solutions (Dynamic Backend Controlled) */}
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
               <Briefcase className="w-3.5 h-3.5" />
               <span>{isAr ? "الخدمات والحلول الهندسية" : "Engineering Solutions"}</span>
             </h4>
             <ul className="space-y-2.5 text-xs text-neutral-400">
-              {solutions.map((item) => (
-                <li key={item.labelEn}>
-                  <Link
-                    href={localizeHref(item.href, locale)}
-                    className="hover:text-purple-300 transition-colors flex items-center gap-1.5"
-                  >
-                    <ArrowRight className={cn("w-3 h-3 text-purple-500 shrink-0", isAr && "rotate-180")} />
-                    <span>{isAr ? item.labelAr : item.labelEn}</span>
-                  </Link>
-                </li>
-              ))}
+              {solutions.map((item, idx) => {
+                const label = isAr ? item.labelAr || item.labelEn : item.labelEn;
+                const isExternal = isExternalUrl(item.href);
+
+                return (
+                  <li key={`${item.href}-${idx}`}>
+                    {isExternal ? (
+                      <a
+                        href={normalizeExternalUrl(item.href)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-purple-300 transition-colors flex items-center gap-1.5"
+                      >
+                        <ArrowRight className={cn("w-3 h-3 text-purple-500 shrink-0", isAr && "rotate-180")} />
+                        <span>{label}</span>
+                      </a>
+                    ) : (
+                      <Link
+                        href={localizeHref(item.href, locale)}
+                        className="hover:text-purple-300 transition-colors flex items-center gap-1.5"
+                      >
+                        <ArrowRight className={cn("w-3 h-3 text-purple-500 shrink-0", isAr && "rotate-180")} />
+                        <span>{label}</span>
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
-          {/* Column 3: Corporate Directory */}
+          {/* Column 3: Corporate Directory (Dynamic Backend Controlled) */}
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
               <Building2 className="w-3.5 h-3.5" />
               <span>{isAr ? "الشركة والشفافية" : "Enterprise Directory"}</span>
             </h4>
             <ul className="space-y-2.5 text-xs text-neutral-400">
-              {companyLinks.map((item) => (
-                <li key={item.labelEn}>
-                  <Link
-                    href={localizeHref(item.href, locale)}
-                    className="hover:text-purple-300 transition-colors flex items-center gap-1.5"
-                  >
-                    <ArrowRight className={cn("w-3 h-3 text-purple-500 shrink-0", isAr && "rotate-180")} />
-                    <span>{isAr ? item.labelAr : item.labelEn}</span>
-                  </Link>
-                </li>
-              ))}
+              {companyLinks.map((item, idx) => {
+                const label = isAr ? item.labelAr || item.labelEn : item.labelEn;
+                const isExternal = isExternalUrl(item.href);
+
+                return (
+                  <li key={`${item.href}-${idx}`}>
+                    {isExternal ? (
+                      <a
+                        href={normalizeExternalUrl(item.href)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-purple-300 transition-colors flex items-center gap-1.5"
+                      >
+                        <ArrowRight className={cn("w-3 h-3 text-purple-500 shrink-0", isAr && "rotate-180")} />
+                        <span>{label}</span>
+                      </a>
+                    ) : (
+                      <Link
+                        href={localizeHref(item.href, locale)}
+                        className="hover:text-purple-300 transition-colors flex items-center gap-1.5"
+                      >
+                        <ArrowRight className={cn("w-3 h-3 text-purple-500 shrink-0", isAr && "rotate-180")} />
+                        <span>{label}</span>
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
@@ -272,7 +356,7 @@ export function B2BGlobalFooter({ settings = {} }: B2BGlobalFooterProps) {
               <div className="pt-3 border-t border-neutral-800/80">
                 <div className="p-2.5 rounded-xl bg-neutral-900/90 border border-neutral-800 text-[11px] font-mono text-neutral-400 flex items-center justify-between">
                   <span>{isAr ? "السجل التجاري (قطر):" : "CR Number (Qatar):"}</span>
-                  <span className="font-bold text-neutral-200">184920 / 2026</span>
+                  <span className="font-bold text-neutral-200">{crNumber}</span>
                 </div>
               </div>
             </div>

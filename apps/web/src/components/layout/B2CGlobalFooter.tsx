@@ -19,10 +19,48 @@ import {
 } from "lucide-react";
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 import { cn } from "@/lib/utils";
-import { localizeHref, normalizeExternalUrl } from "@/lib/url-helper";
+import { localizeHref, normalizeExternalUrl, isExternalUrl } from "@/lib/url-helper";
+
+interface FooterLinkItem {
+  labelEn: string;
+  labelAr?: string;
+  href: string;
+}
 
 interface B2CGlobalFooterProps {
-  settings?: Record<string, string>;
+  settings?: Record<string, any>;
+}
+
+// Default Fallback Experience Links
+const DEFAULT_EXPERIENCE_LINKS: FooterLinkItem[] = [
+  { labelEn: "All Attractions & Kinetic Rides", labelAr: "كافة الوجهات والألعاب الحركية", href: "/b2c/attractions" },
+  { labelEn: "Pulse Orbit Galaxy Station", labelAr: "محطة بولس أوربت الفضائية", href: "/b2c/pulse-orbit" },
+  { labelEn: "Upcoming Shows & Calendar", labelAr: "جدول العروض والفعاليات", href: "/b2c/calendar" },
+  { labelEn: "VIP Packages & Family Passes", labelAr: "باقات VIP والتذاكر العائلية", href: "/b2c/packages" },
+  { labelEn: "Discover Experiences", labelAr: "استكشف العوالم الترفيهية", href: "/b2c/discover" },
+];
+
+// Default Fallback Guest Links
+const DEFAULT_GUEST_LINKS: FooterLinkItem[] = [
+  { labelEn: "Guest Support & Inquiries", labelAr: "خدمة العملاء والاستفسارات", href: "/b2c/contact" },
+  { labelEn: "Visitor Safety & Height Guidelines", labelAr: "إرشادات السلامة وضوابط الطول", href: "/b2c/contact" },
+  { labelEn: "Location, Parking & Directions", labelAr: "الموقع ومواقف السيارات", href: "/b2c/contact" },
+  { labelEn: "Visitor FAQs & Help Center", labelAr: "الأسئلة الشائعة للزوار", href: "/b2c/contact" },
+];
+
+// Helper to safely parse JSON links
+function parseJsonLinks(raw: any, fallback: FooterLinkItem[]): FooterLinkItem[] {
+  if (!raw) return fallback;
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch {
+      // Return fallback
+    }
+  }
+  return fallback;
 }
 
 export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
@@ -38,20 +76,27 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
     ? settings.siteNameAr || "إي ثري قطر - عوالم الترفيه الفضائي"
     : settings.siteNameEn || "E3 Qatar - Kinetic Entertainment Worlds";
 
-  const address = isAr
-    ? settings.addressAr || "الدوحة، دولة قطر"
-    : settings.addressEn || "Doha, State of Qatar";
-
-  const phone = settings.contactPhone || "+974 3048 9955";
-  const emailAddr = settings.contactEmail || "info@eeeqa.com";
-
   const lightLogoUrl = settings.lightLogoUrl || "/logo-dark.png";
   const darkLogoUrl = settings.darkLogoUrl || "/logo-white.png";
+
+  // Dynamic B2C CTA Banner
+  const ctaTitle = isAr
+    ? settings.b2cFooterCtaTitleAr || "تجارب ترفيهية غامرة لا تُنسى في قطر"
+    : settings.b2cFooterCtaTitleEn || "Unforgettable Immersive Entertainment in Qatar";
+
+  const ctaSubtitle = isAr
+    ? settings.b2cFooterCtaSubtitleAr || "استكشف أحدث مدن الألعاب الفضائية، والعروض الترفيهية الحية، وباقات التذاكر الحصرية لك ولعائلتك."
+    : settings.b2cFooterCtaSubtitleEn || "Explore gravity-defying rides, spatial projection realms, interactive family attractions, and exclusive VIP passes.";
 
   const bookTicketsUrl = settings.bookTicketsUrl || "/b2c/tickets";
   const bookTicketsLabel = isAr
     ? settings.bookTicketsLabelAr || "احجز التذاكر الآن"
     : settings.bookTicketsLabelEn || "BOOK TICKETS NOW";
+
+  const secondaryBtnUrl = settings.b2cFooterSecondaryBtnUrl || "/b2c/calendar";
+  const secondaryBtnLabel = isAr
+    ? settings.b2cFooterSecondaryBtnLabelAr || "جدول العروض والفعاليات"
+    : settings.b2cFooterSecondaryBtnLabelEn || "View Show Schedule";
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,60 +122,52 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
     }
   };
 
-  // Background Media Resolution
+  // Background Media Resolution (Image, Video, Iframe, 3D, Spline)
   const footerMediaObj: any = typeof settings.footerMedia === "object" ? settings.footerMedia : null;
   const bgMediaUrl =
+    settings.b2cFooterMediaUrl ||
     settings.footerMediaUrl ||
     settings.footerBackgroundMediaUrl ||
     (typeof settings.footerMedia === "string" ? settings.footerMedia : footerMediaObj?.mediaUrl || footerMediaObj?.url) ||
     "";
   const bgPosterUrl =
-    settings.footerPosterUrl || settings.backgroundPosterUrl || footerMediaObj?.posterUrl || "";
+    settings.b2cFooterPosterUrl ||
+    settings.footerPosterUrl ||
+    settings.backgroundPosterUrl ||
+    footerMediaObj?.posterUrl ||
+    "";
 
   const isSpline = typeof bgMediaUrl === "string" && (bgMediaUrl.includes("spline.design") || bgMediaUrl.includes(".splinecode"));
-  let rawType = (settings.footerMediaType || footerMediaObj?.mediaType || "").toString().toUpperCase();
+  let rawType = (settings.b2cFooterMediaType || settings.footerMediaType || footerMediaObj?.mediaType || "").toString().toUpperCase();
 
   if (!rawType && bgMediaUrl) {
     if (bgMediaUrl.includes("youtube.com") || bgMediaUrl.includes("youtu.be")) rawType = "YOUTUBE";
     else if (bgMediaUrl.includes("vimeo.com")) rawType = "VIMEO";
     else if (bgMediaUrl.endsWith(".mp4") || bgMediaUrl.endsWith(".webm")) rawType = "VIDEO";
-    else if (isSpline) rawType = "IFRAME";
+    else if (isSpline) rawType = "SPLINE";
     else rawType = "IMAGE";
   }
 
-  const isIframe = rawType === "IFRAME" || rawType === "YOUTUBE" || rawType === "VIMEO";
+  const isIframe = rawType === "IFRAME" || rawType === "YOUTUBE" || rawType === "VIMEO" || rawType === "SPLINE" || rawType === "THREE_D";
   const bgMediaType = isIframe ? rawType : rawType === "VIDEO" ? "VIDEO" : "IMAGE";
   let effectiveSrc = bgMediaUrl;
   if (bgMediaType === "IMAGE") {
     effectiveSrc = bgPosterUrl || (!isSpline ? bgMediaUrl : "");
   }
 
-  // B2C Experience Links
-  const experienceLinks = [
-    { labelEn: "All Attractions & Kinetic Rides", labelAr: "كافة الوجهات والألعاب الحركية", href: "/b2c/attractions" },
-    { labelEn: "Pulse Orbit Galaxy Station", labelAr: "محطة بولس أوربت الفضائية", href: "/b2c/pulse-orbit" },
-    { labelEn: "Upcoming Shows & Calendar", labelAr: "جدول العروض والفعاليات", href: "/b2c/calendar" },
-    { labelEn: "VIP Packages & Family Passes", labelAr: "باقات VIP والتذاكر العائلية", href: "/b2c/packages" },
-    { labelEn: "Discover Experiences", labelAr: "استكشف العوالم الترفيهية", href: "/b2c/discover" },
-  ];
-
-  // B2C Guest Services Links
-  const guestLinks = [
-    { labelEn: "Guest Support & Inquiries", labelAr: "خدمة العملاء والاستفسارات", href: "/b2c/contact" },
-    { labelEn: "Visitor Safety & Height Guidelines", labelAr: "إرشادات السلامة وضوابط الطول", href: "/b2c/contact" },
-    { labelEn: "Location, Parking & Directions", labelAr: "الموقع ومواقف السيارات", href: "/b2c/contact" },
-    { labelEn: "Visitor FAQs & Help Center", labelAr: "الأسئلة الشائعة للزوار", href: "/b2c/contact" },
-  ];
+  // Dynamic Editable Links
+  const experienceLinks = parseJsonLinks(settings.b2cFooterExploreLinks, DEFAULT_EXPERIENCE_LINKS);
+  const guestLinks = parseJsonLinks(settings.b2cFooterGuestLinks, DEFAULT_GUEST_LINKS);
 
   return (
     <footer className="relative bg-neutral-950 text-neutral-200 border-t border-neutral-800/80 pt-16 pb-10 overflow-hidden font-sans">
-      {/* Atmospheric Background Media Scrim */}
+      {/* Atmospheric Background Media Scrim (Image, Video, Iframe, 3D, Spline) */}
       {(effectiveSrc || bgPosterUrl) && (
-        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden opacity-30">
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden opacity-30 pointer-events-none">
           <UniversalMediaRenderer
             src={effectiveSrc || bgPosterUrl}
             type={bgMediaType as any}
-            alt="Footer Atmospheric Media"
+            alt="B2C Footer Atmospheric Media"
             className="w-full h-full object-cover"
             poster={bgPosterUrl}
           />
@@ -138,41 +175,43 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
         </div>
       )}
 
+      {/* Futuristic Orbit Arc Accent */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-pink-500/40 to-transparent" />
+      <div className="absolute top-0 end-1/4 w-96 h-96 bg-pink-600/5 rounded-full blur-3xl pointer-events-none" />
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16">
-        {/* 1. Top Entertainment Ticket CTA Banner */}
-        <div className="relative rounded-3xl bg-gradient-to-r from-purple-950/70 via-indigo-950/50 to-pink-950/70 border border-purple-500/30 p-8 md:p-12 overflow-hidden shadow-2xl">
-          <div className="absolute -end-16 -top-16 w-64 h-64 bg-pink-600/20 rounded-full blur-3xl pointer-events-none" />
+        {/* 1. Top Atmospheric Entertainment CTA Banner */}
+        <div className="relative rounded-3xl bg-gradient-to-r from-pink-950/60 via-purple-950/70 to-indigo-950/60 border border-pink-500/30 p-8 md:p-12 overflow-hidden shadow-2xl">
+          <div className="absolute -start-16 -bottom-16 w-64 h-64 bg-pink-600/15 rounded-full blur-3xl pointer-events-none" />
 
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 relative z-10">
             <div className="space-y-3 max-w-2xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/20 border border-pink-500/40 text-pink-300 text-xs font-bold font-mono">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{isAr ? "احجز تذكرتك وعِش الإثارة" : "STEP INTO KINETIC WONDER"}</span>
+                <span>{isAr ? "خطوة نحو عوالم المرح الحركي" : "STEP INTO KINETIC WONDER"}</span>
               </div>
               <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                {isAr ? "تجارب ترفيهية غامرة لا تُنسى في قطر" : "Unforgettable Immersive Entertainment in Qatar"}
+                {ctaTitle}
               </h3>
               <p className="text-sm sm:text-base text-neutral-300 leading-relaxed">
-                {isAr
-                  ? "استكشف أحدث مدن الألعاب الفضائية، والعروض الترفيهية الحية، وباقات التذاكر الحصرية لك ولعائلتك."
-                  : "Explore gravity-defying rides, spatial projection realms, interactive family attractions, and exclusive VIP passes."}
+                {ctaSubtitle}
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-4 shrink-0">
               <Link
                 href={localizeHref(bookTicketsUrl, locale)}
-                className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white font-black text-sm shadow-xl shadow-pink-950/50 hover:shadow-pink-700/50 transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer tracking-wider"
+                className="inline-flex items-center gap-2.5 px-7 py-4 rounded-2xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold text-sm shadow-xl shadow-pink-950/50 hover:shadow-pink-700/50 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
               >
                 <Ticket className="w-4 h-4" />
                 <span>{bookTicketsLabel}</span>
               </Link>
               <Link
-                href={localizeHref("/b2c/calendar", locale)}
+                href={localizeHref(secondaryBtnUrl, locale)}
                 className="inline-flex items-center gap-2 px-6 py-4 rounded-2xl bg-neutral-900/80 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 font-bold text-sm transition-colors cursor-pointer"
               >
-                <Calendar className="w-4 h-4 text-purple-400" />
-                <span>{isAr ? "جدول الفعاليات" : "View Show Schedule"}</span>
+                <Calendar className="w-4 h-4 text-pink-400" />
+                <span>{secondaryBtnLabel}</span>
               </Link>
             </div>
           </div>
@@ -180,7 +219,7 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
 
         {/* 2. 4-Column Structured B2C Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
-          {/* Column 1: Brand & Social */}
+          {/* Column 1: Identity & Socials */}
           <div className="space-y-6">
             <Link href={localizeHref("/b2c", locale)} className="inline-block">
               <img
@@ -195,11 +234,11 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
 
             <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
               {isAr
-                ? (settings.footerDescriptionAr || "ريادة الترفيه الحركي والوجهات الغامرة في قطر. نصنع تجارب مدهشة تلامس الخيال وتجمع العائلة.")
-                : (settings.footerDescriptionEn || "Pioneering kinetic entertainment, spatial attractions, and live family experiences in Qatar.")}
+                ? settings.footerDescriptionAr || "ريادة مستقبل الفعاليات والترفيه في قطر. نصنع تجارب استثنائية ولحظات لا تُنسى لجميع أفراد العائلة."
+                : settings.footerDescriptionEn || "Pioneering the future of events and entertainment in Qatar. Creating unforgettable moments through innovation."}
             </p>
 
-            {/* Social Icons */}
+            {/* Social Links */}
             <div className="flex flex-wrap items-center gap-3 pt-2">
               {settings.socialInstagram && (
                 <a
@@ -228,7 +267,7 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
                   href={normalizeExternalUrl(settings.socialTwitter)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Twitter / X"
+                  aria-label="Twitter"
                   className="w-9 h-9 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-pink-500 text-neutral-400 hover:text-white flex items-center justify-center transition-colors"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
@@ -248,97 +287,131 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
             </div>
           </div>
 
-          {/* Column 2: Discover Attractions */}
+          {/* Column 2: Discover Attractions (Dynamic Backend Controlled) */}
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-pink-400 flex items-center gap-1.5">
               <Compass className="w-3.5 h-3.5" />
-              <span>{isAr ? "استكشف الوجهات والألعاب" : "Discover Attractions"}</span>
+              <span>{isAr ? "استكشف الوجهات والفعاليات" : "Discover Attractions"}</span>
             </h4>
             <ul className="space-y-2.5 text-xs text-neutral-400">
-              {experienceLinks.map((item) => (
-                <li key={item.labelEn}>
-                  <Link
-                    href={localizeHref(item.href, locale)}
-                    className="hover:text-pink-300 transition-colors flex items-center gap-1.5"
-                  >
-                    <ArrowRight className={cn("w-3 h-3 text-pink-500 shrink-0", isAr && "rotate-180")} />
-                    <span>{isAr ? item.labelAr : item.labelEn}</span>
-                  </Link>
-                </li>
-              ))}
+              {experienceLinks.map((item, idx) => {
+                const label = isAr ? item.labelAr || item.labelEn : item.labelEn;
+                const isExternal = isExternalUrl(item.href);
+
+                return (
+                  <li key={`${item.href}-${idx}`}>
+                    {isExternal ? (
+                      <a
+                        href={normalizeExternalUrl(item.href)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-pink-300 transition-colors flex items-center gap-1.5"
+                      >
+                        <ArrowRight className={cn("w-3 h-3 text-pink-500 shrink-0", isAr && "rotate-180")} />
+                        <span>{label}</span>
+                      </a>
+                    ) : (
+                      <Link
+                        href={localizeHref(item.href, locale)}
+                        className="hover:text-pink-300 transition-colors flex items-center gap-1.5"
+                      >
+                        <ArrowRight className={cn("w-3 h-3 text-pink-500 shrink-0", isAr && "rotate-180")} />
+                        <span>{label}</span>
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
-          {/* Column 3: Guest & Visitor Services */}
+          {/* Column 3: Guest & Visitor Services (Dynamic Backend Controlled) */}
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-pink-400 flex items-center gap-1.5">
               <HelpCircle className="w-3.5 h-3.5" />
-              <span>{isAr ? "خدمات الضيوف والزوار" : "Guest & Visitor Services"}</span>
+              <span>{isAr ? "خدمة وإرشاد الزوار" : "Guest & Visitor Services"}</span>
             </h4>
             <ul className="space-y-2.5 text-xs text-neutral-400">
-              {guestLinks.map((item) => (
-                <li key={item.labelEn}>
-                  <Link
-                    href={localizeHref(item.href, locale)}
-                    className="hover:text-pink-300 transition-colors flex items-center gap-1.5"
-                  >
-                    <ArrowRight className={cn("w-3 h-3 text-pink-500 shrink-0", isAr && "rotate-180")} />
-                    <span>{isAr ? item.labelAr : item.labelEn}</span>
-                  </Link>
-                </li>
-              ))}
+              {guestLinks.map((item, idx) => {
+                const label = isAr ? item.labelAr || item.labelEn : item.labelEn;
+                const isExternal = isExternalUrl(item.href);
+
+                return (
+                  <li key={`${item.href}-${idx}`}>
+                    {isExternal ? (
+                      <a
+                        href={normalizeExternalUrl(item.href)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-pink-300 transition-colors flex items-center gap-1.5"
+                      >
+                        <ArrowRight className={cn("w-3 h-3 text-pink-500 shrink-0", isAr && "rotate-180")} />
+                        <span>{label}</span>
+                      </a>
+                    ) : (
+                      <Link
+                        href={localizeHref(item.href, locale)}
+                        className="hover:text-pink-300 transition-colors flex items-center gap-1.5"
+                      >
+                        <ArrowRight className={cn("w-3 h-3 text-pink-500 shrink-0", isAr && "rotate-180")} />
+                        <span>{label}</span>
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
-          {/* Column 4: Newsletter & Ticket Perks */}
+          {/* Column 4: Newsletter & Ticket Alerts */}
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-pink-400 flex items-center gap-1.5">
               <Mail className="w-3.5 h-3.5" />
-              <span>{isAr ? "نشرة العروض والخصومات" : "VIP Ticket Alerts"}</span>
+              <span>{isAr ? "نشرة التذاكر والعروض الحصرية" : "VIP Ticket Alerts"}</span>
             </h4>
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-neutral-400 leading-relaxed">
               {isAr
-                ? "اشترك ليصلك جدول الفعاليات الجديدة وخصومات التذاكر الحصرية."
+                ? "اشترك ليصلك إشعار الحجز المبكر للفعاليات، وعروض التذاكر الموسمية، ومزايا باقات VIP."
                 : "Subscribe for early-bird tickets, seasonal festival schedules, and VIP perks."}
             </p>
 
-            <form onSubmit={handleSubscribe} className="space-y-2">
-              <div className="flex items-center gap-2">
+            <form onSubmit={handleSubscribe} className="space-y-2 pt-1">
+              <div className="relative">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={isAr ? "بريدك الإلكتروني..." : "Enter your email..."}
+                  placeholder={isAr ? "أدخل بريدك الإلكتروني..." : "Enter your email..."}
                   required
-                  className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-pink-500"
+                  className="w-full h-11 ps-3.5 pe-12 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-pink-500 transition-colors"
                 />
                 <button
                   type="submit"
                   disabled={subscribing}
-                  className="px-4 py-2.5 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs transition-colors shrink-0 cursor-pointer disabled:opacity-50"
                   aria-label="Subscribe"
+                  className="absolute end-1.5 top-1.5 h-8 w-8 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white flex items-center justify-center transition-all disabled:opacity-50 cursor-pointer"
                 >
-                  <Send className="w-3.5 h-3.5" />
+                  <Send className="w-3.5 h-3.5 rtl:rotate-180" />
                 </button>
               </div>
 
               {subscribeStatus === "success" && (
-                <p className="text-xs text-emerald-400 flex items-center gap-1 font-semibold">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>{isAr ? "تم الاشتراك بنجاح!" : "Subscribed successfully!"}</span>
+                <p className="text-[11px] text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>{isAr ? "تم الاشتراك بنجاح في نشرة الفعاليات!" : "Subscribed successfully!"}</span>
                 </p>
               )}
               {subscribeStatus === "error" && (
-                <p className="text-xs text-rose-400 flex items-center gap-1 font-semibold">
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  <span>{isAr ? "حدث خطأ، يرجى المحاولة لاحقاً." : "Subscription failed. Try again."}</span>
+                <p className="text-[11px] text-rose-400 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  <span>{isAr ? "حدث خطأ أثناء الاشتراك. حاول ثانية." : "Error subscribing. Try again."}</span>
                 </p>
               )}
             </form>
           </div>
         </div>
 
-        {/* 3. Bottom Legal & Visitor Safety Bar */}
+        {/* 3. Bottom Legal & PDPL Compliance Bar */}
         <div className="pt-8 border-t border-neutral-800/80 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
@@ -351,7 +424,7 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
 
           <div className="flex flex-wrap items-center gap-6 text-[11px]">
             <span className="text-emerald-400 font-semibold">
-              {isAr ? "متوافق مع حماية البيانات (Qatar PDPL)" : "Qatar PDPL Compliant"}
+              {isAr ? "متوافق مع قانون حماية البيانات الشخصية القطري (PDPL)" : "Qatar PDPL Compliant"}
             </span>
             <Link href={localizeHref("/b2c/privacy", locale)} className="hover:text-neutral-300 transition-colors">
               {isAr ? "الخصوصية" : "Privacy"}
@@ -360,7 +433,7 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
               {isAr ? "شروط التذاكر" : "Ticketing Terms"}
             </Link>
             <Link href={localizeHref("/b2c/contact", locale)} className="hover:text-neutral-300 transition-colors">
-              {isAr ? "المساعدة" : "Support"}
+              {isAr ? "الدعم والمساعدة" : "Support"}
             </Link>
           </div>
         </div>
