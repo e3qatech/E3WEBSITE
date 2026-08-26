@@ -409,10 +409,13 @@ export function PulseOrbitNav({
         <div className="container mx-auto flex items-center justify-between px-4 sm:px-6">
           {/* Main Navigation Bar Logo & Home Switcher */}
           <div className="flex items-center gap-3">
+            {/* Logo -> Main Gateway (B2B & B2C Selector) */}
             <Link
-              href={`/${locale}${type === 'b2c' ? '/b2c' : '/b2b'}`}
+              href={`/${locale}`}
               className="flex items-center group cursor-pointer"
               onClick={() => setMenuOpen(false)}
+              title={isAr ? "بوابة الدخول الرئيسية" : "Main Gateway"}
+              aria-label={isAr ? "بوابة الدخول الرئيسية" : "Main Gateway"}
             >
               <E3Logo
                 lightLogoUrl={lightLogoUrl}
@@ -423,18 +426,19 @@ export function PulseOrbitNav({
               />
             </Link>
 
-            {/* Dedicated Gateway / Home Icon */}
+            {/* Dedicated Home Icon -> Portal Landing Page */}
             <Link
-              href={`/${locale}`}
+              href={`/${locale}${type === 'b2c' ? '/b2c' : '/b2b'}`}
               onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
+              onClick={() => setMenuOpen(false)}
               className={cn(
                 "inline-flex items-center justify-center h-8.5 w-8.5 rounded-full border transition-all cursor-pointer select-none",
                 isLight
                   ? "border-slate-200 bg-white/90 text-slate-700 hover:bg-slate-100 hover:text-emerald-600 hover:border-emerald-300 shadow-xs"
                   : "border-slate-800 bg-slate-900/80 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-400 hover:bg-slate-800"
               )}
-              title={isAr ? "الرئيسية / بوابة الدخول" : "Home / Portal Gateway"}
-              aria-label={isAr ? "الرئيسية" : "Home Gateway"}
+              title={isAr ? (type === 'b2c' ? "الرئيسية — تجارب إي ثري" : "الرئيسية — قطاع الأعمال") : (type === 'b2c' ? "B2C Experiences Home" : "B2B Enterprise Home")}
+              aria-label={isAr ? "الصفحة الرئيسية للمنصة" : "Portal Home"}
             >
               <Home className="h-4 w-4" />
             </Link>

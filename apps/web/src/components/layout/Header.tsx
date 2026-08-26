@@ -71,7 +71,7 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
           {/* Logo, Home Button & Portal Badge */}
           <div className="flex items-center gap-3">
-            <Link href={`/${portal}`} className="relative z-50 flex items-center gap-2">
+            <Link href="/" className="relative z-50 flex items-center gap-2" title="Main Gateway">
               <E3Logo
                 isLight={theme === "light"}
                 lightLogoUrl={lightLogoUrl}
@@ -80,9 +80,10 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
               />
             </Link>
             <Link
-              href="/"
+              href={`/${portal}`}
               className="w-8 h-8 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)]/90 hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--color-primary)] flex items-center justify-center transition-colors shadow-xs"
-              title="Home Gateway"
+              title={portal === 'b2c' ? 'Visitors Portal Home' : 'Organizers Portal Home'}
+              aria-label={portal === 'b2c' ? 'Visitors Portal Home' : 'Organizers Portal Home'}
             >
               <Home className="w-4 h-4" />
             </Link>
