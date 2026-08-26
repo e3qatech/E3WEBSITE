@@ -33,12 +33,14 @@ export interface CaseStudyCardItem {
 }
 
 export interface CaseStudyArchiveGridProps {
-  config: {
+  config?: {
     enabled?: boolean;
     titleEn?: string;
     titleAr?: string;
     descriptionEn?: string;
     descriptionAr?: string;
+    displayOrder?: string;
+    selectedCaseStudyIds?: string[];
   };
   caseStudies: CaseStudyCardItem[];
   locale: string;
@@ -73,9 +75,9 @@ export function CaseStudyArchiveGrid({
     return Array.from(set).sort((a, b) => b - a);
   }, [caseStudies]);
 
-  // Filtered case studies
+  // Filtered and sorted case studies
   const filteredCases = useMemo(() => {
-    return caseStudies.filter((cs) => {
+    let list = caseStudies.filter((cs) => {
       const title = isAr ? cs.titleAr || cs.titleEn : cs.titleEn;
       const matchesSearch =
         !searchQuery ||
@@ -92,7 +94,32 @@ export function CaseStudyArchiveGrid({
 
       return matchesSearch && matchesCat && matchesYr;
     });
-  }, [caseStudies, selectedCategory, selectedYear, searchQuery, isAr]);
+
+    if (
+      config?.displayOrder === "MANUAL" &&
+      Array.isArray(config?.selectedCaseStudyIds) &&
+      config.selectedCaseStudyIds.length > 0
+    ) {
+      const idOrder = new Map(config.selectedCaseStudyIds.map((id, idx) => [String(id), idx]));
+      list = [...list].sort((a, b) => {
+        const orderA = idOrder.has(String(a.id)) ? (idOrder.get(String(a.id)) as number) : 999;
+        const orderB = idOrder.has(String(b.id)) ? (idOrder.get(String(b.id)) as number) : 999;
+        return orderA - orderB;
+      });
+    } else if (config?.displayOrder === "NEWEST_FIRST") {
+      list = [...list].sort((a, b) => (Number(b.year) || 0) - (Number(a.year) || 0));
+    } else {
+      // FEATURED_FIRST default
+      list = [...list].sort((a, b) => {
+        if (Boolean(b.isFeatured) !== Boolean(a.isFeatured)) {
+          return b.isFeatured ? 1 : -1;
+        }
+        return (Number(b.year) || 0) - (Number(a.year) || 0);
+      });
+    }
+
+    return list;
+  }, [caseStudies, selectedCategory, selectedYear, searchQuery, isAr, config?.displayOrder, config?.selectedCaseStudyIds]);
 
   if (config?.enabled === false) return null;
 

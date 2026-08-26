@@ -162,62 +162,7 @@ export const CANONICAL_CASE_STUDIES_FALLBACKS: Record<string, Partial<CaseStudyL
       metaDescriptionAr: "استكشف كيف هندست إي ثري الوجهة الترفيهية التكتيكية الرائدة في قطر بأوربان أرينا.",
     },
   },
-  "urban-arena": {
-    titleEn: "Urban Arena Tactical Entertainment Hub",
-    titleAr: "أوربان أرينا — مجمع الترفيه التكتيكي التفاعلي",
-    clientName: "E3 Owned & Operated / Doha Mall",
-    category: "Entertainment Destinations",
-    categoryAr: "الوجهات الترفيهية التفاعلية",
-    year: 2024,
-    isFeatured: true,
-    isPublished: true,
-    heroMediaType: "VIDEO",
-    heroImageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/d1a1b309-29fc-415b-a5f8-48bc2f14752d.mp4",
-    thumbnailMediaType: "IMAGE",
-    thumbnailUrl: "https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=1600&auto=format&fit=crop",
-    clientLogoUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/93ab62a1-8628-4355-a687-308a8f83b42c.png",
-    challengeEn: "Converting a 4,500 sqm high-ceiling commercial shell into Qatar's first multi-tiered tactical combat and gamified obstacle arena with real-time laser telemetry and biometric leaderboards under an aggressive 90-day build timeline.",
-    challengeAr: "تحويل مساحة تجارية خام بارتفاعات شاهقة تبلغ 4500 متر مربع إلى أول مجمع ترفيهي تكتيكي متعدد المستويات في قطر مجهز بنظام تتبع الليزر اللحظي ولوحات الصدارة البيومترية خلال جدول زمني قياسي مدته 90 يوماً.",
-    solutionEn: "Engineered proprietary acoustic zoning, high-speed infra-red tracking arrays, integrated laser tag courses, bazooka ball, paintless paintball zones, and automated guest throughput queuing with dynamic lighting cues.",
-    solutionAr: "هندسة مناطق عزل صوتي متقدمة، وشبكات تتبع بالأشعة تحت الحمراء عالية الدقة، مع مسارات متكاملة لليزر تاج والكرات التكتيكية وإدارة رقمية فورية لحشود الزوار مع إضاءة ديناميكية متزامنة.",
-    resultEn: "Achieved record 99.4% telemetry uptime, welcomed over 350,000 players in the opening quarter, and reduced average match turnover interval to under 90 seconds.",
-    resultAr: "تحقيق نسبة جاهزية تشغيلية 99.4%، واستقبال أكثر من 350,000 لاعب خلال الربع الأول، مع تقليص وقت تبديل جولات اللعب إلى أقل من 90 ثانية.",
-    metrics: [
-      { valueEn: "350K+", valueAr: "350K+", labelEn: "Total Arena Players", labelAr: "إجمالي لاعبي الأرينا" },
-      { valueEn: "4,500 m²", valueAr: "4,500 م²", labelEn: "Tactical Play Space", labelAr: "مساحة اللعب التكتيكية" },
-      { valueEn: "99.4%", valueAr: "99.4%", labelEn: "Telemetry System Uptime", labelAr: "جاهزية أنظمة التتبع" },
-      { valueEn: "<90s", valueAr: "<90ث", labelEn: "Match Turnover Interval", labelAr: "معدل دوران الجولات" },
-    ],
-    gallery: [
-      {
-        url: "https://images.unsplash.com/photo-1511882150382-421056c89033?q=80&w=1600&auto=format&fit=crop",
-        type: "IMAGE",
-        captionEn: "High-intensity tactical obstacle grid and neon illumination",
-        captionAr: "شبكة العقبات التكتيكية والإضاءة النيونية التفاعلية",
-      },
-      {
-        url: "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop",
-        type: "IMAGE",
-        captionEn: "Infrared laser tag combat field and dynamic scoring hubs",
-        captionAr: "ميدان الليزر تاج وشاشات تسجيل النقاط المباشرة",
-      },
-    ],
-    testimonials: [
-      {
-        quoteEn: "Urban Arena completely redefined indoor gamified entertainment in Qatar with unmatched engineering, safety protocols, and operational throughput.",
-        quoteAr: "أعادت أوربان أرينا صياغة مفهوم الترفيه التفاعلي الداخلي في قطر بمعايير هندسية وأمان وتدفق جماهيري استثنائي.",
-        authorName: "Nasser Al-Hajri",
-        authorRole: "Executive Director, Retail & Mall Operations",
-        isVisible: true,
-      },
-    ],
-    seo: {
-      metaTitleEn: "Urban Arena Tactical Entertainment Hub Case Study | E3 Qatar",
-      metaTitleAr: "دراسة حالة مجمع أوربان أرينا الترفيهي التكتيكي | إي ثري قطر",
-      metaDescriptionEn: "Explore how E3 engineered Qatar's premier gamified tactical combat destination at Urban Arena.",
-      metaDescriptionAr: "استكشف كيف هندست إي ثري الوجهة الترفيهية التكتيكية الرائدة في قطر بأوربان أرينا.",
-    },
-  },
+
   "doha-balloon-parade-2022": {
     titleEn: "Doha Balloon Parade 2022",
     titleAr: "استعراض بالونات الدوحة 2022",
@@ -556,7 +501,14 @@ export async function getPublicCaseStudies(options: PublicCaseStudiesQueryOption
     const eligibleResults = results.filter(isCaseStudyEligible);
 
     if (eligibleResults.length > 0) {
-      return eligibleResults.map(enrichCaseStudyWithDefaults);
+      const seenSlugs = new Set<string>();
+      const uniqueResults = eligibleResults.filter((cs: any) => {
+        const slugKey = String(cs.slug || cs.id || "").toLowerCase().replace(/^case-/, "");
+        if (seenSlugs.has(slugKey)) return false;
+        seenSlugs.add(slugKey);
+        return true;
+      });
+      return uniqueResults.map(enrichCaseStudyWithDefaults);
     }
 
     // Defensive fallback: If database is unseeded or empty, provide canonical published cases

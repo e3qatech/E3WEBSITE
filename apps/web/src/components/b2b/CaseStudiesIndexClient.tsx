@@ -38,12 +38,22 @@ export function CaseStudiesIndexClient({
   const teamStoriesConfig = cmsContent?.teamStories || {};
   const cta = cmsContent?.cta || {};
 
-  // Canonical Eligible Case Studies Pool (QF-05 / UX-05)
+  // Canonical Eligible Case Studies Pool (QF-05 / UX-05) - strictly deduplicated
   const eligibleCases = useMemo(() => {
-    return (caseStudies || []).filter(isCaseStudyEligible);
+    const seen = new Set<string>();
+    const list: any[] = [];
+    (caseStudies || []).forEach((cs) => {
+      if (!isCaseStudyEligible(cs)) return;
+      const slugKey = String(cs.slug || cs.id || "").toLowerCase().replace(/^case-/, "");
+      if (!seen.has(slugKey)) {
+        seen.add(slugKey);
+        list.push(cs);
+      }
+    });
+    return list;
   }, [caseStudies]);
 
-  // Sourced Featured Case Study for Spotlight
+  // Sourced Featured Case Study for Spotlight (from /dashboard/b2b/cases-page#featuredCases)
   const featuredProject = useMemo(() => {
     if (featuredCasesConfig.enabled === false) return null;
 
@@ -52,9 +62,15 @@ export function CaseStudiesIndexClient({
       Array.isArray(featuredCasesConfig.selectedCaseStudyIds) &&
       featuredCasesConfig.selectedCaseStudyIds.length > 0
     ) {
-      const targetId = String(featuredCasesConfig.selectedCaseStudyIds[0]);
-      const found = eligibleCases.find((cs) => String(cs.id) === targetId);
-      if (found) return found;
+      for (const targetId of featuredCasesConfig.selectedCaseStudyIds) {
+        const found = eligibleCases.find(
+          (cs) =>
+            String(cs.id) === String(targetId) ||
+            String(cs.slug) === String(targetId) ||
+            String(cs.slug || "").replace(/^case-/, "") === String(targetId).replace(/^case-/, "")
+        );
+        if (found) return found;
+      }
     }
 
     // Default: first item marked isFeatured: true, or first eligible case
