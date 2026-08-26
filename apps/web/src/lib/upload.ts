@@ -135,3 +135,70 @@ export async function uploadFile(originalFile: File, context?: string): Promise<
 
   throw new Error(data.error || 'Upload failed');
 }
+
+export interface UploadResult {
+  url: string;
+  fileName: string;
+  size?: number;
+  type?: string;
+  id?: string;
+  error?: string;
+}
+
+export interface BulkUploadProgress {
+  completed: number;
+  total: number;
+  currentFileName: string;
+  percent: number;
+}
+
+/**
+ * Bulk File Upload Utility
+ * Handles multiple file uploads with per-file progress callbacks and resilient error isolation.
+ */
+export async function uploadMultipleFiles(
+  files: File[],
+  context?: string,
+  onProgress?: (progress: BulkUploadProgress) => void
+): Promise<UploadResult[]> {
+  const results: UploadResult[] = [];
+  const total = files.length;
+
+  for (let i = 0; i < total; i++) {
+    const file = files[i];
+    if (!file) continue;
+
+    onProgress?.({
+      completed: i,
+      total,
+      currentFileName: file.name,
+      percent: Math.round((i / total) * 100)
+    });
+
+    try {
+      const res = await uploadFile(file, context);
+      results.push({
+        url: res.url,
+        fileName: res.fileName || file.name,
+        size: file.size,
+      });
+    } catch (err: any) {
+      console.error(`[Bulk Upload Item Failed: ${file.name}]`, err);
+      results.push({
+        url: "",
+        fileName: file.name,
+        size: file.size,
+        error: err?.message || "Upload failed"
+      });
+    }
+  }
+
+  onProgress?.({
+    completed: total,
+    total,
+    currentFileName: "Done",
+    percent: 100
+  });
+
+  return results;
+}

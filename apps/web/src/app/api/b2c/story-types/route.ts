@@ -221,6 +221,35 @@ export async function GET(request: Request) {
         });
       });
 
+      // Extract safe features from st.features
+      const relationalActivations = (st.features || []).map((f: any) => ({
+        id: f.id,
+        titleEn: f.titleEn,
+        titleAr: f.titleAr,
+        descriptionEn: f.descriptionEn,
+        descriptionAr: f.descriptionAr,
+        highlightType: f.highlightType || "Activity",
+        imageUrl: f.imageUrl || f.attraction?.heroThumbnailUrl || f.attraction?.heroMediaUrl || null,
+        orderIndex: f.orderIndex ?? 0,
+        attractionSlug: f.attraction?.slug,
+        attractionNameEn: f.attraction?.nameEn,
+        attractionNameAr: f.attraction?.nameAr,
+        attraction: f.attraction ? {
+          slug: f.attraction.slug,
+          nameEn: f.attraction.nameEn,
+          nameAr: f.attraction.nameAr,
+          taglineEn: f.attraction.taglineEn,
+          taglineAr: f.attraction.taglineAr,
+          heroThumbnailUrl: f.attraction.heroThumbnailUrl,
+          heroMediaUrl: f.attraction.heroMediaUrl,
+          isPublished: f.attraction.isPublished,
+          operations: f.attraction.operations,
+          temporalStatus: f.attraction.temporalStatus
+        } : null
+      }));
+
+      const allActivations = [...relationalActivations, ...jsonActivations];
+
       // If public user (non-manager), expose only safe fields
       if (!isManager) {
         return {
@@ -236,13 +265,13 @@ export async function GET(request: Request) {
           accentColor: st.accentColor,
           orderIndex: st.orderIndex,
           isActive: st.isActive,
-          activations: jsonActivations
+          activations: allActivations
         };
       }
 
       return {
         ...st,
-        activations: jsonActivations
+        activations: allActivations
       };
     });
     

@@ -39,8 +39,35 @@ export async function GET(request: Request) {
         where: type && type !== 'ALL' ? { type: type as any } : {},
         orderBy: { createdAt: 'desc' },
       });
-      media = dbMedia;
-      total = dbMedia.length;
+      media = dbMedia.map((m: any) => {
+        const metadata = typeof m.metadata === 'object' && m.metadata ? m.metadata : {};
+        const altObj = typeof m.alt === 'object' && m.alt ? m.alt : {};
+        const altStr = typeof m.alt === 'string' ? m.alt : '';
+        const urlFileName = m.url ? m.url.split('/').pop()?.split('?')[0] : '';
+        const fileName = metadata.fileName 
+          || metadata.originalName 
+          || altObj.en 
+          || altObj.ar 
+          || altStr 
+          || urlFileName 
+          || 'Media File';
+
+        return {
+          id: m.id,
+          url: m.url,
+          thumbnailUrl: m.thumbnailUrl,
+          type: m.type,
+          mimeType: m.mimeType,
+          size: m.size,
+          fileName,
+          alt: m.alt,
+          metadata: m.metadata,
+          uploadedBy: m.uploadedBy,
+          createdAt: m.createdAt,
+          updatedAt: m.updatedAt
+        };
+      });
+      total = media.length;
     } catch (dbErr) {
       console.warn("[CMS MEDIA GET NOTICE] db.media query notice:", dbErr);
     }
@@ -122,6 +149,8 @@ export async function POST(request: Request) {
         else if (url.match(/\.(glb|gltf)(\?.*)?$/i)) mediaType = 'MODEL_3D';
       }
 
+      const fileName = name || url.split('/').pop()?.split('?')[0] || 'Media File';
+
       let media: any = null;
       try {
         media = await db.media.create({
@@ -130,9 +159,11 @@ export async function POST(request: Request) {
             type: mediaType as any,
             mimeType: mimeType || 'application/octet-stream',
             size: size || 0,
-            alt: { en: name || 'Media', ar: name || 'Media' },
+            alt: { en: fileName, ar: fileName },
+            metadata: { fileName, originalName: fileName, fileSize: size || 0 },
           },
         });
+        media = { ...media, fileName };
       } catch (_dbErr) {
         media = {
           id: randomUUID(),
@@ -140,7 +171,8 @@ export async function POST(request: Request) {
           type: mediaType,
           mimeType: mimeType || 'application/octet-stream',
           size: size || 0,
-          name: name || 'Media',
+          name: fileName,
+          fileName,
           createdAt: new Date().toISOString()
         };
       }
@@ -221,8 +253,10 @@ export async function POST(request: Request) {
             mimeType: ext === 'svg' ? 'image/svg+xml' : (file.type || 'application/octet-stream'),
             size: file.size,
             alt: { en: file.name, ar: file.name },
+            metadata: { fileName: file.name, originalName: file.name, fileSize: file.size },
           },
         });
+        media = { ...media, fileName: file.name };
       } catch (_dbErr) {
         media = {
           id: randomUUID(),
@@ -231,6 +265,7 @@ export async function POST(request: Request) {
           mimeType: ext === 'svg' ? 'image/svg+xml' : (file.type || 'application/octet-stream'),
           size: file.size,
           name: file.name,
+          fileName: file.name,
           createdAt: new Date().toISOString()
         };
       }
@@ -242,7 +277,7 @@ export async function POST(request: Request) {
       return NextResponse.json(createdMediaItems[0], { status: 201 });
     }
 
-    return NextResponse.json({ data: createdMediaItems, success: true }, { status: 201 });
+    return NextResponse.json({ data: createdMediaItems, success: true, count: createdMediaItems.length }, { status: 201 });
   } catch (error: any) {
     console.error('Error uploading media:', error);
     return NextResponse.json(

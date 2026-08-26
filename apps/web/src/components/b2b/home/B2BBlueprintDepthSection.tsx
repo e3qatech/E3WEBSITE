@@ -9,9 +9,22 @@ import { Layers, Sparkles, Cpu, Compass, ShieldCheck } from 'lucide-react';
 
 export interface B2BBlueprintDepthSectionProps {
   locale: string;
+  data?: any;
 }
 
-export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionProps) {
+const ICON_MAP: Record<string, React.ElementType> = {
+  Compass,
+  Layers,
+  ShieldCheck,
+  Cpu,
+  Sparkles,
+};
+
+export function B2BBlueprintDepthSection({ locale, data }: B2BBlueprintDepthSectionProps) {
+  if (data?.enabled === false) {
+    return null;
+  }
+
   const isAr = locale === 'ar';
   const { tier, isReducedMotion } = useMotionCapability();
   const isFull = tier === 'full' && !isReducedMotion;
@@ -47,6 +60,77 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
     mouseY.set(0);
   };
 
+  // Content resolution
+  const eyebrow = isAr 
+    ? (data?.eyebrowAr || "الهندسة المعمارية التفاعلية") 
+    : (data?.eyebrowEn || data?.eyebrow || "SPATIAL ARCHITECTURE & DEPTH");
+  
+  const title = isAr 
+    ? (data?.titleAr || "من المخطط الهندسي إلى الواقع الحي") 
+    : (data?.titleEn || data?.title || "From Blueprint to Landmark Reality");
+  
+  const description = isAr 
+    ? (data?.descriptionAr || "شاهد كيف تتحول الحسابات الإنشائية ومخططات تدفق الجماهير ثلاثية الأبعاد إلى تجارب ترفيهية متكاملة تنبض بالحياة.") 
+    : (data?.descriptionEn || data?.description || "Explore how rigorous structural engineering, spatial telemetry, and crowd logistics transform into world-class entertainment destinations.");
+
+  const cadTabLabel = isAr 
+    ? (data?.cadTabLabelAr || "01. المخطط الهيكلي") 
+    : (data?.cadTabLabelEn || "01. CAD Blueprint");
+
+  const splitTabLabel = isAr 
+    ? (data?.splitTabLabelAr || "02. المقارنة التفاعلية") 
+    : (data?.splitTabLabelEn || "02. Interactive Split");
+
+  const liveTabLabel = isAr 
+    ? (data?.liveTabLabelAr || "03. الإنتاج الواقعي") 
+    : (data?.liveTabLabelEn || "03. Live Experience");
+
+  const schematicTitle = isAr 
+    ? (data?.schematicTitleAr || "المخطط المكاني لإي ثري // قطر") 
+    : (data?.schematicTitleEn || "E3 SPATIAL SCHEMATIC // QATAR");
+
+  const schematicSpec1 = isAr 
+    ? (data?.schematicSpec1Ar || "نسبة التسامح: ±0.5 مم | الحمل: 4.8 كيلو نيوتن/م²") 
+    : (data?.schematicSpec1En || "TOLERANCE: ±0.5mm | LOAD: 4.8 kN/m²");
+
+  const schematicSpec2 = isAr 
+    ? (data?.schematicSpec2Ar || "السعة الاستيعابية: 12,500 زائر/ساعة") 
+    : (data?.schematicSpec2En || "CROWD CAPACITY: 12,500 PAX/HR");
+
+  const systemId = data?.systemId || "SYSTEM ID: E3-B2B-ENG-2026";
+
+  const liveBadgeText = isAr 
+    ? (data?.liveBadgeTextAr || "الإنتاج المباشر — جاهز للتشغيل") 
+    : (data?.liveBadgeTextEn || "LIVE COMMISSIONED VENUE");
+
+  const liveImageUrl = data?.liveImageUrl || "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1600&q=80";
+
+  const defaultFeatures = [
+    {
+      icon: "Compass",
+      title: isAr ? "دقة التصميم الإنشائي" : "Structural Precision",
+      desc: isAr ? "مخططات هندسية متكاملة تتوافق مع أعلى معايير السلامة القطرية." : "Full engineering blueprints certified for municipal and crowd safety compliance."
+    },
+    {
+      icon: "Layers",
+      title: isAr ? "محاكاة الإضاءة والصوت" : "Acoustic & Lighting Staging",
+      desc: isAr ? "محاكاة بصرية وصوتية متقدمة تضمن تجربة استثنائية في كل نقطة." : "Advanced ray-traced spatial audio and DMX lighting simulations."
+    },
+    {
+      icon: "ShieldCheck",
+      title: isAr ? "تسليم تشغيلي متكامل" : "Turnkey Commissioning",
+      desc: isAr ? "من الفكرة إلى حفل الافتتاح وإدارة العمليات اليومية وإصدار التذاكر." : "Zero-gap handover with live crowd telemetry, staff operations, and ticketing."
+    }
+  ];
+
+  const features = Array.isArray(data?.features) && data.features.length > 0
+    ? data.features.map((f: any, idx: number) => ({
+        icon: f.icon || defaultFeatures[idx % defaultFeatures.length].icon,
+        title: isAr ? (f.titleAr || f.title || defaultFeatures[idx % defaultFeatures.length].title) : (f.titleEn || f.title || defaultFeatures[idx % defaultFeatures.length].title),
+        desc: isAr ? (f.descAr || f.desc || defaultFeatures[idx % defaultFeatures.length].desc) : (f.descEn || f.desc || defaultFeatures[idx % defaultFeatures.length].desc),
+      }))
+    : defaultFeatures;
+
   return (
     <section className="py-24 md:py-32 bg-[var(--bg-level-1)] border-y border-[var(--border-level-1)] relative overflow-hidden transition-colors" dir={isAr ? 'rtl' : 'ltr'}>
       {/* Ambient background glows */}
@@ -60,21 +144,19 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
           <Reveal direction="slide-up">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-mono text-xs uppercase tracking-widest mb-4">
               <Cpu className="w-3.5 h-3.5" />
-              <span>{isAr ? "الهندسة المعمارية التفاعلية" : "SPATIAL ARCHITECTURE & DEPTH"}</span>
+              <span>{eyebrow}</span>
             </div>
           </Reveal>
 
           <Reveal direction="slide-up" delay={0.1}>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-4">
-              {isAr ? "من المخطط الهندسي إلى الواقع الحي" : "From Blueprint to Landmark Reality"}
+              {title}
             </h2>
           </Reveal>
 
           <Reveal direction="slide-up" delay={0.2}>
             <p className="text-base md:text-lg text-[var(--text-secondary)] leading-relaxed">
-              {isAr
-                ? "شاهد كيف تتحول الحسابات الإنشائية ومخططات تدفق الجماهير ثلاثية الأبعاد إلى تجارب ترفيهية متكاملة تنبض بالحياة."
-                : "Explore how rigorous structural engineering, spatial telemetry, and crowd logistics transform into world-class entertainment destinations."}
+              {description}
             </p>
           </Reveal>
 
@@ -90,7 +172,7 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
             >
               <span className="flex items-center gap-1.5">
                 <Compass className="w-3.5 h-3.5" />
-                <span>{isAr ? "المخطط الهيكلي" : "01. CAD Blueprint"}</span>
+                <span>{cadTabLabel}</span>
               </span>
             </button>
 
@@ -104,7 +186,7 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
             >
               <span className="flex items-center gap-1.5">
                 <Layers className="w-3.5 h-3.5" />
-                <span>{isAr ? "المقارنة التفاعلية" : "02. Interactive Split"}</span>
+                <span>{splitTabLabel}</span>
               </span>
             </button>
 
@@ -118,7 +200,7 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
             >
               <span className="flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{isAr ? "الإنتاج الواقعي" : "03. Live Experience"}</span>
+                <span>{liveTabLabel}</span>
               </span>
             </button>
           </div>
@@ -188,14 +270,14 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
                   <div className="absolute top-6 start-6 flex flex-col gap-1 text-cyan-400 font-mono text-[11px] bg-black/60 backdrop-blur-md p-3 rounded-xl border border-cyan-500/30">
                     <span className="font-bold flex items-center gap-1.5 text-xs text-white">
                       <Compass className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>E3 SPATIAL SCHEMATIC // QATAR</span>
+                      <span>{schematicTitle}</span>
                     </span>
-                    <span>TOLERANCE: ±0.5mm | LOAD: 4.8 kN/m²</span>
-                    <span>CROWD CAPACITY: 12,500 PAX/HR</span>
+                    <span>{schematicSpec1}</span>
+                    <span>{schematicSpec2}</span>
                   </div>
 
                   <div className="absolute bottom-6 end-6 text-cyan-400/80 font-mono text-[10px] bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-cyan-500/20">
-                    SYSTEM ID: E3-B2B-ENG-2026
+                    {systemId}
                   </div>
                 </div>
 
@@ -209,7 +291,7 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
                   }}
                 >
                   <img
-                    src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1600&q=80"
+                    src={liveImageUrl}
                     alt="E3 Live Event Experience"
                     className="w-full h-full object-cover filter brightness-[0.95] contrast-[1.05]"
                   />
@@ -218,7 +300,7 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
                   {/* Live Status Overlay */}
                   <div className="absolute top-6 end-6 flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-mono text-xs backdrop-blur-md shadow-lg">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>{isAr ? "الإنتاج المباشر — جاهز للتشغيل" : "LIVE COMMISSIONED VENUE"}</span>
+                    <span>{liveBadgeText}</span>
                   </div>
                 </div>
 
@@ -256,29 +338,25 @@ export function B2BBlueprintDepthSection({ locale }: B2BBlueprintDepthSectionPro
 
         {/* Feature Highlights Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-5xl mx-auto">
-          <div className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4">
-              <Compass className="w-5 h-5" />
-            </div>
-            <h4 className="text-base font-bold text-[var(--text-primary)] mb-1">{isAr ? "دقة التصميم الإنشائي" : "Structural Precision"}</h4>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{isAr ? "مخططات هندسية متكاملة تتوافق مع أعلى معايير السلامة القطرية." : "Full engineering blueprints certified for municipal and crowd safety compliance."}</p>
-          </div>
+          {features.map((feat: any, idx: number) => {
+            const IconComp: any = ICON_MAP[feat.icon] || Compass;
+            const accentColors = [
+              "bg-cyan-500/10 border-cyan-500/30 text-cyan-400",
+              "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
+              "bg-amber-500/10 border-amber-500/30 text-amber-400"
+            ];
+            const colorClass = accentColors[idx % accentColors.length];
 
-          <div className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4">
-              <Layers className="w-5 h-5" />
-            </div>
-            <h4 className="text-base font-bold text-[var(--text-primary)] mb-1">{isAr ? "محاكاة الإضاءة والصوت" : "Acoustic & Lighting Staging"}</h4>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{isAr ? "محاكاة بصرية وصوتية متقدمة تضمن تجربة استثنائية في كل نقطة." : "Advanced ray-traced spatial audio and DMX lighting simulations."}</p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <h4 className="text-base font-bold text-[var(--text-primary)] mb-1">{isAr ? "تسليم تشغيلي متكامل" : "Turnkey Commissioning"}</h4>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{isAr ? "من الفكرة إلى حفل الافتتاح وإدارة العمليات اليومية وإصدار التذاكر." : "Zero-gap handover with live crowd telemetry, staff operations, and ticketing."}</p>
-          </div>
+            return (
+              <div key={idx} className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
+                <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 ${colorClass}`}>
+                  <IconComp className="w-5 h-5" />
+                </div>
+                <h4 className="text-base font-bold text-[var(--text-primary)] mb-1">{feat.title}</h4>
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{feat.desc}</p>
+              </div>
+            );
+          })}
         </div>
 
       </div>

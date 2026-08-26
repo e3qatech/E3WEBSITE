@@ -43,6 +43,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
     wowAndHow: { ...DEFAULT_B2B_HOME_CONTENT.wowAndHow, ...(rawContent.wowAndHow || {}) },
     capabilities: { ...DEFAULT_B2B_HOME_CONTENT.capabilities, ...(rawContent.capabilities || {}) },
     caseStudies: { ...DEFAULT_B2B_HOME_CONTENT.caseStudies, ...(rawContent.caseStudies || {}) },
+    blueprintDepth: { ...DEFAULT_B2B_HOME_CONTENT.blueprintDepth, ...(rawContent.blueprintDepth || {}) },
     deliveryProcess: { 
       ...DEFAULT_B2B_HOME_CONTENT.deliveryProcess, 
       ...(rawContent.deliveryProcess || {}),
@@ -437,7 +438,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       </section>
 
       {/* 3.5 BLUEPRINT-TO-LIVE DEPTH TRANSITION PILOT */}
-      <B2BBlueprintDepthSection locale={locale} />
+      <B2BBlueprintDepthSection locale={locale} data={content.blueprintDepth} />
 
       {/* 4. CORE CAPABILITIES BENTO GRID (HIGH VISIBILITY & RICH SLEEK AESTHETICS) */}
       <section className="py-24 bg-[var(--bg-level-2)] border-y border-[var(--border-level-1)] transition-colors">
@@ -645,18 +646,20 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
 
           <div className="animate-marquee py-3">
             {[...partnersList, ...partnersList, ...partnersList, ...partnersList].map((p: any, idx: number) => (
-              <div key={idx} className="flex items-center justify-center shrink-0 px-8 md:px-14">
-                {p.logoUrl ? (
-                  <img 
-                    src={p.logoUrl} 
-                    alt={p.name} 
-                    className="h-10 md:h-14 max-w-[160px] md:max-w-[210px] object-contain opacity-75 hover:opacity-100 hover:scale-110 transition-all duration-300 cursor-pointer filter dark:brightness-125"
-                  />
-                ) : (
-                  <span className="text-lg md:text-xl font-mono font-bold text-[var(--text-secondary)] whitespace-nowrap hover:text-emerald-400 hover:scale-105 transition-all duration-300 cursor-pointer px-4 py-2 rounded-2xl bg-[var(--surface-default)]/60 border border-[var(--border-level-2)] shadow-xs">
-                    {p.name}
-                  </span>
-                )}
+              <div key={idx} className="flex items-center justify-center shrink-0 px-4 md:px-6">
+                <div className="flex items-center justify-center px-6 py-3.5 rounded-2xl bg-neutral-900 border border-neutral-800 dark:bg-[var(--surface-default)]/80 dark:border-[var(--border-level-2)] shadow-md hover:border-emerald-500/50 transition-all duration-300 group min-w-[140px] md:min-w-[180px] h-16 md:h-18">
+                  {p.logoUrl ? (
+                    <img 
+                      src={p.logoUrl} 
+                      alt={p.name} 
+                      className="h-8 md:h-10 max-w-[130px] md:max-w-[160px] object-contain opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300 filter brightness-110"
+                    />
+                  ) : (
+                    <span className="text-sm md:text-base font-mono font-bold text-neutral-100 dark:text-[var(--text-secondary)] whitespace-nowrap group-hover:text-emerald-400 transition-colors uppercase tracking-wider">
+                      {p.name}
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>

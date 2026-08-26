@@ -1321,6 +1321,54 @@ export const DEFAULT_B2B_HOME_CONTENT = {
     ctaEn: "View All Case Studies",
     ctaAr: "عرض جميع دراسات الحالة"
   },
+  blueprintDepth: {
+    enabled: true,
+    eyebrowEn: "SPATIAL ARCHITECTURE & DEPTH",
+    eyebrowAr: "الهندسة المعمارية التفاعلية",
+    titleEn: "From Blueprint to Landmark Reality",
+    titleAr: "من المخطط الهندسي إلى الواقع الحي",
+    descriptionEn: "Explore how rigorous structural engineering, spatial telemetry, and crowd logistics transform into world-class entertainment destinations.",
+    descriptionAr: "شاهد كيف تتحول الحسابات الإنشائية ومخططات تدفق الجماهير ثلاثية الأبعاد إلى تجارب ترفيهية متكاملة تنبض بالحياة.",
+    cadTabLabelEn: "01. CAD Blueprint",
+    cadTabLabelAr: "01. المخطط الهيكلي",
+    splitTabLabelEn: "02. Interactive Split",
+    splitTabLabelAr: "02. المقارنة التفاعلية",
+    liveTabLabelEn: "03. Live Experience",
+    liveTabLabelAr: "03. الإنتاج الواقعي",
+    schematicTitleEn: "E3 SPATIAL SCHEMATIC // QATAR",
+    schematicTitleAr: "المخطط المكاني لإي ثري // قطر",
+    schematicSpec1En: "TOLERANCE: ±0.5mm | LOAD: 4.8 kN/m²",
+    schematicSpec1Ar: "نسبة التسامح: ±0.5 مم | الحمل: 4.8 كيلو نيوتن/م²",
+    schematicSpec2En: "CROWD CAPACITY: 12,500 PAX/HR",
+    schematicSpec2Ar: "السعة الاستيعابية: 12,500 زائر/ساعة",
+    systemId: "SYSTEM ID: E3-B2B-ENG-2026",
+    liveBadgeTextEn: "LIVE COMMISSIONED VENUE",
+    liveBadgeTextAr: "الإنتاج المباشر — جاهز للتشغيل",
+    liveImageUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1600&q=80",
+    features: [
+      {
+        icon: "Compass",
+        titleEn: "Structural Precision",
+        titleAr: "دقة التصميم الإنشائي",
+        descEn: "Full engineering blueprints certified for municipal and crowd safety compliance.",
+        descAr: "مخططات هندسية متكاملة تتوافق مع أعلى معايير السلامة القطرية."
+      },
+      {
+        icon: "Layers",
+        titleEn: "Acoustic & Lighting Staging",
+        titleAr: "محاكاة الإضاءة والصوت",
+        descEn: "Advanced ray-traced spatial audio and DMX lighting simulations.",
+        descAr: "محاكاة بصرية وصوتية متقدمة تضمن تجربة استثنائية في كل نقطة."
+      },
+      {
+        icon: "ShieldCheck",
+        titleEn: "Turnkey Commissioning",
+        titleAr: "تسليم تشغيلي متكامل",
+        descEn: "Zero-gap handover with live crowd telemetry, staff operations, and ticketing.",
+        descAr: "من الفكرة إلى حفل الافتتاح وإدارة العمليات اليومية وإصدار التذاكر."
+      }
+    ]
+  },
   deliveryProcess: {
     titleEn: "Delivery Process",
     titleAr: "منظومة مرحلية للتسليم التشغيلي",

@@ -26,11 +26,12 @@ const SECTIONS: EditorSectionItem[] = [
   { id: "hero", label: "1. Hero Section", labelAr: "1. قسم البداية والواجهة" },
   { id: "stats", label: "2. Key Metrics & Stats", labelAr: "2. المؤشرات والأرقام الرئيسية" },
   { id: "wowAndHow", label: "3. The Wow & How", labelAr: "3. قسم الإبهار والتنفيذ" },
-  { id: "capabilities", label: "4. Strategic Capabilities", labelAr: "4. القدرات والحلول الاستراتيجية" },
-  { id: "caseStudies", label: "5. Case Studies Portfolio", labelAr: "5. معرض دراسات الحالة" },
-  { id: "deliveryProcess", label: "6. Delivery Process", labelAr: "6. مراحل وآلية التنفيذ" },
-  { id: "partnerRibbon", label: "7. Partner Ribbon", labelAr: "7. شريط الشركاء والعملاء" },
-  { id: "seo", label: "8. SEO Metadata", labelAr: "8. بيانات محركات البحث (SEO)" },
+  { id: "blueprintDepth", label: "4. CAD Blueprint & Depth", labelAr: "4. المخطط الهندسي والواقع الحي" },
+  { id: "capabilities", label: "5. Strategic Capabilities", labelAr: "5. القدرات والحلول الاستراتيجية" },
+  { id: "caseStudies", label: "6. Case Studies Portfolio", labelAr: "6. معرض دراسات الحالة" },
+  { id: "deliveryProcess", label: "7. Delivery Process", labelAr: "7. مراحل وآلية التنفيذ" },
+  { id: "partnerRibbon", label: "8. Partner Ribbon", labelAr: "8. شريط الشركاء والعملاء" },
+  { id: "seo", label: "9. SEO Metadata", labelAr: "9. بيانات محركات البحث (SEO)" },
 ]
 
 export function B2BHomeEditor({ 
@@ -54,6 +55,7 @@ export function B2BHomeEditor({
   const [hero, setHero] = React.useState(initialData.content?.hero || {})
   const [stats, setStats] = React.useState<any[]>(initialData.content?.stats || [])
   const [wowAndHow, setWowAndHow] = React.useState(initialData.content?.wowAndHow || {})
+  const [blueprintDepth, setBlueprintDepth] = React.useState<any>(initialData.content?.blueprintDepth || {})
   const [capabilities, setCapabilities] = React.useState(initialData.content?.capabilities || {})
   const [caseStudiesSection, setCaseStudiesSection] = React.useState(initialData.content?.caseStudies || initialData.content?.caseStudiesSection || {})
   const [deliveryProcess, setDeliveryProcess] = React.useState(initialData.content?.deliveryProcess || {})
@@ -73,6 +75,7 @@ export function B2BHomeEditor({
             hero, 
             stats, 
             wowAndHow,
+            blueprintDepth,
             capabilities,
             caseStudies: caseStudiesSection,
             deliveryProcess,
@@ -355,6 +358,258 @@ export function B2BHomeEditor({
               ))}
             </div>
           </AdminFormGrid>
+        </AdminFormSection>
+
+        {/* INTERACTIVE CAD BLUEPRINT & SPATIAL ARCHITECTURE */}
+        <AdminFormSection 
+          id="blueprintDepth" 
+          title="Interactive CAD Blueprint & Spatial Architecture" 
+          description="Customize the interactive 3D blueprint-to-reality depth transition, CAD schematic telemetry HUD, live venue render, and capability feature cards."
+        >
+          <div className="flex items-center justify-between pb-4 mb-4 border-b border-border-default">
+            <span className="text-sm font-semibold text-text-primary">Enable Section Visibility</span>
+            <label className="flex items-center gap-2 text-xs font-mono font-bold cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={blueprintDepth?.enabled !== false} 
+                onChange={e => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, enabled: e.target.checked });
+                }}
+                className="rounded bg-surface-hover border-border-default text-primary focus:ring-primary w-4 h-4"
+              />
+              <span>SECTION ENABLED</span>
+            </label>
+          </div>
+
+          <AdminFormGrid>
+            <div className="sm:col-span-2">
+              <AdminInput 
+                label="Eyebrow Badge" 
+                value={activeLang === 'en' ? (blueprintDepth.eyebrowEn || blueprintDepth.eyebrow || "") : (blueprintDepth.eyebrowAr || "")} 
+                onChange={e => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, [activeLang === 'en' ? 'eyebrowEn' : 'eyebrowAr']: e.target.value });
+                }} 
+                placeholder="e.g. SPATIAL ARCHITECTURE & DEPTH"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <AdminInput 
+                label="Section Headline" 
+                value={activeLang === 'en' ? (blueprintDepth.titleEn || blueprintDepth.title || "") : (blueprintDepth.titleAr || "")} 
+                onChange={e => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, [activeLang === 'en' ? 'titleEn' : 'titleAr']: e.target.value });
+                }} 
+                placeholder="e.g. From Blueprint to Landmark Reality"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <AdminTextarea 
+                label="Section Description" 
+                value={activeLang === 'en' ? (blueprintDepth.descriptionEn || blueprintDepth.description || "") : (blueprintDepth.descriptionAr || "")} 
+                onChange={e => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, [activeLang === 'en' ? 'descriptionEn' : 'descriptionAr']: e.target.value });
+                }} 
+                rows={2}
+                placeholder="e.g. Explore how rigorous structural engineering, spatial telemetry, and crowd logistics transform into world-class entertainment destinations."
+              />
+            </div>
+
+            {/* Tab Labels */}
+            <div>
+              <AdminInput 
+                label="CAD Blueprint Tab Label" 
+                value={activeLang === 'en' ? (blueprintDepth.cadTabLabelEn || "") : (blueprintDepth.cadTabLabelAr || "")} 
+                onChange={e => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, [activeLang === 'en' ? 'cadTabLabelEn' : 'cadTabLabelAr']: e.target.value });
+                }} 
+                placeholder="e.g. 01. CAD Blueprint"
+              />
+            </div>
+            <div>
+              <AdminInput 
+                label="Interactive Split Tab Label" 
+                value={activeLang === 'en' ? (blueprintDepth.splitTabLabelEn || "") : (blueprintDepth.splitTabLabelAr || "")} 
+                onChange={e => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, [activeLang === 'en' ? 'splitTabLabelEn' : 'splitTabLabelAr']: e.target.value });
+                }} 
+                placeholder="e.g. 02. Interactive Split"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <AdminInput 
+                label="Live Experience Tab Label" 
+                value={activeLang === 'en' ? (blueprintDepth.liveTabLabelEn || "") : (blueprintDepth.liveTabLabelAr || "")} 
+                onChange={e => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, [activeLang === 'en' ? 'liveTabLabelEn' : 'liveTabLabelAr']: e.target.value });
+                }} 
+                placeholder="e.g. 03. Live Experience"
+              />
+            </div>
+
+            {/* HUD Schematic Telemetry Badges */}
+            <div className="sm:col-span-2 pt-2 border-t border-border-default">
+              <h4 className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider mb-3">
+                HUD Technical Schematic Telemetry Overlay
+              </h4>
+            </div>
+
+            <div>
+              <AdminInput 
+                label="Schematic Header Title" 
+                value={activeLang === 'en' ? (blueprintDepth.schematicTitleEn || "") : (blueprintDepth.schematicTitleAr || "")} 
+                onChange={e => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, [activeLang === 'en' ? 'schematicTitleEn' : 'schematicTitleAr']: e.target.value });
+                }} 
+                placeholder="e.g. E3 SPATIAL SCHEMATIC // QATAR"
+              />
+            </div>
+            <div>
+              <AdminInput 
+                label="System ID Badge" 
+                value={blueprintDepth.systemId || ""} 
+                onChange={e => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, systemId: e.target.value });
+                }} 
+                placeholder="e.g. SYSTEM ID: E3-B2B-ENG-2026"
+              />
+            </div>
+
+            <div>
+              <AdminInput 
+                label="Spec 1: Tolerance & Load" 
+                value={activeLang === 'en' ? (blueprintDepth.schematicSpec1En || "") : (blueprintDepth.schematicSpec1Ar || "")} 
+                onChange={e => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, [activeLang === 'en' ? 'schematicSpec1En' : 'schematicSpec1Ar']: e.target.value });
+                }} 
+                placeholder="e.g. TOLERANCE: ±0.5mm | LOAD: 4.8 kN/m²"
+              />
+            </div>
+            <div>
+              <AdminInput 
+                label="Spec 2: Crowd Capacity" 
+                value={activeLang === 'en' ? (blueprintDepth.schematicSpec2En || "") : (blueprintDepth.schematicSpec2Ar || "")} 
+                onChange={e => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, [activeLang === 'en' ? 'schematicSpec2En' : 'schematicSpec2Ar']: e.target.value });
+                }} 
+                placeholder="e.g. CROWD CAPACITY: 12,500 PAX/HR"
+              />
+            </div>
+
+            {/* Live Render Layer & Badge */}
+            <div className="sm:col-span-2 pt-2 border-t border-border-default">
+              <h4 className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider mb-3">
+                Live Commissioned Venue Layer
+              </h4>
+            </div>
+
+            <div className="sm:col-span-2">
+              <AdminInput 
+                label="Live Commissioned Badge Text" 
+                value={activeLang === 'en' ? (blueprintDepth.liveBadgeTextEn || "") : (blueprintDepth.liveBadgeTextAr || "")} 
+                onChange={e => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, [activeLang === 'en' ? 'liveBadgeTextEn' : 'liveBadgeTextAr']: e.target.value });
+                }} 
+                placeholder="e.g. LIVE COMMISSIONED VENUE"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <AdminMediaPicker 
+                label="Live Experience Render Image"
+                value={blueprintDepth.liveImageUrl || ""}
+                onChange={url => {
+                  setIsDirty(true);
+                  setBlueprintDepth({ ...blueprintDepth, liveImageUrl: url });
+                }}
+                accept="image/*"
+              />
+            </div>
+          </AdminFormGrid>
+
+          {/* 3 Feature Highlight Cards */}
+          <div className="mt-8 space-y-4 pt-4 border-t border-border-default">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-text-primary">Feature Highlight Cards (3 Pillars)</h4>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[0, 1, 2].map((idx) => {
+                const defaultCardNames = ["Structural Precision", "Acoustic & Lighting Staging", "Turnkey Commissioning"];
+                const defaultCardNamesAr = ["دقة التصميم الإنشائي", "محاكاة الإضاءة والصوت", "تسليم تشغيلي متكامل"];
+                const defaultIcons = ["Compass", "Layers", "ShieldCheck"];
+                const currentFeats = Array.isArray(blueprintDepth.features) ? [...blueprintDepth.features] : [];
+                const feat = currentFeats[idx] || {};
+
+                return (
+                  <div key={idx} className="p-4 bg-surface-default border border-border-default rounded-xl space-y-3 shadow-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono font-bold text-primary uppercase">Card #{idx + 1}</span>
+                      <select
+                        value={feat.icon || defaultIcons[idx]}
+                        onChange={e => {
+                          setIsDirty(true);
+                          const updated = [...(blueprintDepth.features || [])];
+                          while (updated.length <= idx) updated.push({});
+                          updated[idx] = { ...updated[idx], icon: e.target.value };
+                          setBlueprintDepth({ ...blueprintDepth, features: updated });
+                        }}
+                        className="text-xs bg-surface-hover border border-border-default rounded px-2 py-1 text-text-primary font-mono"
+                      >
+                        <option value="Compass">Compass (CAD/Engineering)</option>
+                        <option value="Layers">Layers (Acoustics/Lighting)</option>
+                        <option value="ShieldCheck">ShieldCheck (Safety/Turnkey)</option>
+                        <option value="Cpu">Cpu (Telemetry/Compute)</option>
+                        <option value="Sparkles">Sparkles (Live Show/Magic)</option>
+                      </select>
+                    </div>
+
+                    <AdminInput 
+                      label="Card Title"
+                      value={activeLang === 'en' ? (feat.titleEn || feat.title || defaultCardNames[idx]) : (feat.titleAr || defaultCardNamesAr[idx])}
+                      onChange={e => {
+                        setIsDirty(true);
+                        const updated = [...(blueprintDepth.features || [])];
+                        while (updated.length <= idx) updated.push({});
+                        updated[idx] = { 
+                          ...updated[idx], 
+                          [activeLang === 'en' ? 'titleEn' : 'titleAr']: e.target.value 
+                        };
+                        setBlueprintDepth({ ...blueprintDepth, features: updated });
+                      }}
+                    />
+
+                    <AdminTextarea 
+                      label="Card Description"
+                      rows={2}
+                      value={activeLang === 'en' ? (feat.descEn || feat.desc || "") : (feat.descAr || "")}
+                      onChange={e => {
+                        setIsDirty(true);
+                        const updated = [...(blueprintDepth.features || [])];
+                        while (updated.length <= idx) updated.push({});
+                        updated[idx] = { 
+                          ...updated[idx], 
+                          [activeLang === 'en' ? 'descEn' : 'descAr']: e.target.value 
+                        };
+                        setBlueprintDepth({ ...blueprintDepth, features: updated });
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </AdminFormSection>
 
         {/* CORE CAPABILITIES SECTION HEADERS & SELECTION */}

@@ -621,16 +621,16 @@ export function DiscoverClient({
                       return (
                         <div 
                           key={`${idx}-${brandName}`}
-                          className="flex items-center justify-center px-6 py-4 rounded-2xl bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] shadow-xl hover:border-[var(--e3-royal-blue)] hover:bg-[var(--surface-hover)] transition-all duration-300 group shrink-0 min-w-[150px] md:min-w-[190px] h-16 md:h-20"
+                          className="flex items-center justify-center px-6 py-4 rounded-2xl bg-neutral-900 border border-neutral-800 text-white dark:bg-[var(--surface-default)]/90 dark:border-[var(--border-level-2)] dark:text-[var(--text-primary)] shadow-xl hover:border-[var(--e3-royal-blue)] hover:bg-neutral-850 dark:hover:bg-[var(--surface-hover)] transition-all duration-300 group shrink-0 min-w-[150px] md:min-w-[190px] h-16 md:h-20"
                         >
                           {logoUrl ? (
                             <img 
                               src={logoUrl} 
                               alt={brandName} 
-                              className="h-8 md:h-10 w-auto max-w-[130px] md:max-w-[160px] object-contain grayscale group-hover:grayscale-0 opacity-70 group-hover:opacity-100 transition-all duration-300 filter drop-shadow" 
+                              className="h-8 md:h-10 w-auto max-w-[130px] md:max-w-[160px] object-contain opacity-90 group-hover:opacity-100 transition-all duration-300 filter drop-shadow brightness-110 group-hover:scale-105" 
                             />
                           ) : (
-                            <span className="font-mono font-extrabold text-xs md:text-sm text-[var(--text-primary)] group-hover:text-[var(--e3-royal-blue)] transition-colors whitespace-nowrap uppercase tracking-wider">
+                            <span className="font-mono font-extrabold text-xs md:text-sm text-neutral-100 dark:text-[var(--text-primary)] group-hover:text-[var(--e3-royal-blue)] transition-colors whitespace-nowrap uppercase tracking-wider">
                               {brandName}
                             </span>
                           )}

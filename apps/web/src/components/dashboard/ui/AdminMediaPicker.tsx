@@ -5,8 +5,8 @@ import { useLocale } from "@/components/layout/LocaleProvider"
 import { usePathname } from "next/navigation"
 import { uploadFile } from "@/lib/upload"
 import { safeFetchJson } from "@/lib/utils"
-import { Check, FileText, Image as ImageIcon, Trash2, UploadCloud, Video } from "lucide-react"
-import { useEffect, useRef, useState } from 'react'
+import { Check, FileText, Image as ImageIcon, Trash2, UploadCloud, Video, Search, FileCode, Layers } from "lucide-react"
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { AdminButton } from "./AdminButton"
 import { SlideOver } from "./SlideOver"
 import { resolveMediaType } from "@/lib/media-resolver"
@@ -14,8 +14,12 @@ import { resolveMediaType } from "@/lib/media-resolver"
 interface Media {
   id: string
   url: string
+  fileName?: string
   type: string
-  alt: string
+  alt: any
+  metadata?: any
+  size?: number
+  mimeType?: string
 }
 
 interface AdminMediaPickerProps {
@@ -24,6 +28,28 @@ interface AdminMediaPickerProps {
   label?: string
   accept?: string
   onUploadStatusChange?: (uploading: boolean) => void
+}
+
+function getMediaFileName(media: Media): string {
+  if (media.fileName && media.fileName.trim()) return media.fileName;
+  if (typeof media.alt === "object" && media.alt) {
+    const altName = (media.alt as any).en || (media.alt as any).ar;
+    if (altName && typeof altName === "string" && altName.trim() && !altName.startsWith("http")) {
+      return altName;
+    }
+  }
+  if (typeof media.alt === "string" && media.alt.trim() && !media.alt.startsWith("http")) {
+    return media.alt;
+  }
+  if (media.metadata && typeof media.metadata === "object") {
+    const metaName = (media.metadata as any).fileName || (media.metadata as any).originalName;
+    if (metaName && typeof metaName === "string") return metaName;
+  }
+  if (media.url) {
+    const cleaned = media.url.split("?")[0].split("/").pop();
+    if (cleaned) return cleaned;
+  }
+  return "Media File";
 }
 
 export function AdminMediaPicker({ value, onChange, label, accept = "image/*", onUploadStatusChange }: AdminMediaPickerProps) {
@@ -38,14 +64,17 @@ export function AdminMediaPicker({ value, onChange, label, accept = "image/*", o
   const [mediaList, setMediaList] = useState<Media[]>([])
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [bulkUploading, setBulkUploading] = useState(false)
   const [directUrl, setDirectUrl] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const bulkFileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
   const [imgError, setImgError] = useState(false)
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset error state on image change
+    // Reset error state on image change
     setImgError(false)
   }, [value])
 
@@ -57,7 +86,7 @@ export function AdminMediaPicker({ value, onChange, label, accept = "image/*", o
   const fetchMedia = async () => {
     setLoading(true)
     try {
-      const res = await fetch("/api/cms/media")
+      const res = await fetch("/api/cms/media?limit=250")
       const parsed = await safeFetchJson(res)
       if (parsed.ok && parsed.data?.data) {
         setMediaList(parsed.data.data)
@@ -71,7 +100,6 @@ export function AdminMediaPicker({ value, onChange, label, accept = "image/*", o
 
   useEffect(() => {
     if (isOpen) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for data synchronization
       fetchMedia()
       setDirectUrl(value || "")
     }
@@ -128,10 +156,17 @@ export function AdminMediaPicker({ value, onChange, label, accept = "image/*", o
       const finalUrl = data?.url || url;
 
       if (finalUrl && !finalUrl.startsWith('blob:') && !finalUrl.startsWith('file:')) {
-        if (res.ok && data) {
-          setMediaList(prev => [data, ...prev]);
-        }
-        
+        const newMediaItem: Media = {
+          id: data?.id || finalUrl,
+          url: finalUrl,
+          fileName: fileName || file.name,
+          type: mediaType,
+          alt: fileName || file.name,
+          size: file.size,
+          mimeType: file.type || "application/octet-stream"
+        };
+
+        setMediaList(prev => [newMediaItem, ...prev]);
         onChange(finalUrl);
         
         toast(
@@ -156,6 +191,88 @@ export function AdminMediaPicker({ value, onChange, label, accept = "image/*", o
       }
     }
   }
+
+  // Bulk Upload Handler for Multi-File Upload to Library
+  const handleBulkUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileArray = Array.from(files);
+    setBulkUploading(true);
+    onUploadStatusChange?.(true);
+
+    toast(
+      isAr
+        ? `جاري رفع مجموعة من ${fileArray.length} ملفات إلى المكتبة...`
+        : `Uploading batch of ${fileArray.length} files to library...`,
+      "info"
+    );
+
+    const newlyUploaded: Media[] = [];
+
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i];
+      try {
+        const { url, fileName } = await uploadFile(file, "cms_media");
+
+        let mediaType = "IMAGE";
+        if (file.type.startsWith("video/")) mediaType = "VIDEO";
+        else if (file.type.includes("pdf") || file.name.match(/\.(pdf|doc|docx)$/i)) mediaType = "DOCUMENT";
+        else if (file.name.match(/\.(glb|gltf)$/i)) mediaType = "MODEL_3D";
+
+        const res = await fetch("/api/cms/media", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url,
+            type: mediaType,
+            mimeType: file.type || "application/octet-stream",
+            size: file.size,
+            name: fileName || file.name,
+          }),
+        });
+
+        const data = await res.json().catch(() => null);
+        const finalUrl = data?.url || url;
+
+        if (finalUrl && !finalUrl.startsWith("blob:") && !finalUrl.startsWith("file:")) {
+          const item: Media = {
+            id: data?.id || finalUrl,
+            url: finalUrl,
+            fileName: fileName || file.name,
+            type: mediaType,
+            alt: fileName || file.name,
+            size: file.size,
+            mimeType: file.type || "application/octet-stream",
+          };
+          newlyUploaded.push(item);
+        }
+      } catch (itemErr) {
+        console.error(`Bulk upload failed for ${file.name}:`, itemErr);
+      }
+    }
+
+    if (newlyUploaded.length > 0) {
+      setMediaList((prev) => [...newlyUploaded, ...prev]);
+      if (!value && newlyUploaded[0]) {
+        onChange(newlyUploaded[0].url);
+      }
+      toast(
+        isAr
+          ? `تم رفع ${newlyUploaded.length} ملف بنجاح إلى المكتبة!`
+          : `Successfully uploaded ${newlyUploaded.length} files to media library!`,
+        "success"
+      );
+    } else {
+      toast(isAr ? "فشل رفع الملفات." : "Failed to upload files.", "error");
+    }
+
+    setBulkUploading(false);
+    onUploadStatusChange?.(false);
+    if (bulkFileInputRef.current) {
+      bulkFileInputRef.current.value = "";
+    }
+  };
 
   const handleSelect = (url: string) => {
     onChange(url)
@@ -183,6 +300,16 @@ export function AdminMediaPicker({ value, onChange, label, accept = "image/*", o
       fetchMedia()
     }
   }
+
+  const filteredMediaList = useMemo(() => {
+    if (!searchQuery.trim()) return mediaList;
+    const q = searchQuery.toLowerCase();
+    return mediaList.filter((m) => {
+      const name = getMediaFileName(m).toLowerCase();
+      const url = (m.url || "").toLowerCase();
+      return name.includes(q) || url.includes(q);
+    });
+  }, [mediaList, searchQuery]);
 
   return (
     <div className="flex flex-col gap-2.5 w-full">
@@ -343,26 +470,57 @@ export function AdminMediaPicker({ value, onChange, label, accept = "image/*", o
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-[var(--text-secondary)]">
-              {isAr ? "اختر ملفاً من مكتبتك أو ارفع ملفاً جديداً." : "Select a file from your library or upload a new one."}
-            </p>
-            <div className="relative">
+          {/* Search and Action Bar */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+              <input
+                type="text"
+                placeholder={isAr ? "البحث بالاسم أو الرابط..." : "Search by file name or URL..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl py-2 ps-8 pe-3 text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
               <input 
                 ref={fileInputRef} 
                 type="file" 
                 className="hidden" 
                 onChange={handleUpload}
                 accept={accept}
-                disabled={uploading}
+                disabled={uploading || bulkUploading}
               />
+              <input
+                ref={bulkFileInputRef}
+                type="file"
+                multiple
+                className="hidden"
+                onChange={handleBulkUpload}
+                accept={accept}
+                disabled={uploading || bulkUploading}
+              />
+
               <AdminButton 
                 variant="primary" 
+                size="sm"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
+                disabled={uploading || bulkUploading}
               >
                 {uploading ? (isAr ? "جاري الرفع..." : "Uploading...") : (isAr ? "رفع ملف جديد" : "Upload New File")}
               </AdminButton>
+
+              <button
+                type="button"
+                onClick={() => bulkFileInputRef.current?.click()}
+                disabled={uploading || bulkUploading}
+                className="flex items-center gap-1 px-3 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                title={isAr ? "رفع عدة ملفات دفعة واحدة" : "Bulk upload multiple files to library"}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>{bulkUploading ? (isAr ? "جاري الرفع المتعدد..." : "Bulk Uploading...") : (isAr ? "رفع متعدد" : "Bulk Upload")}</span>
+              </button>
             </div>
           </div>
 
@@ -372,45 +530,55 @@ export function AdminMediaPicker({ value, onChange, label, accept = "image/*", o
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {mediaList.map((media) => (
-                <div 
-                  key={media.id}
-                  onClick={() => handleSelect(media.url)}
-                  className={`group relative aspect-square rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${value === media.url ? 'border-[var(--color-primary)]' : 'border-transparent hover:border-[var(--border-strong)]'}`}
-                >
-                  <div className="w-full h-full bg-[var(--surface-default)] flex items-center justify-center p-2">
-                    {media.type === 'VIDEO' || isVideoUrl(media.url) ? (
-                      <div className="relative w-full h-full flex flex-col items-center justify-center bg-zinc-900 rounded-lg overflow-hidden">
-                        <Video className="w-8 h-8 text-[var(--text-tertiary)] mb-2" />
-                        <span className="text-xs font-mono text-[var(--text-tertiary)] truncate w-full text-center px-1">
-                          {media.url.split('/').pop()}
-                        </span>
-                      </div>
-                    ) : media.type === 'DOCUMENT' ? (
-                      <div className="relative w-full h-full flex flex-col items-center justify-center">
-                        <FileText className="w-8 h-8 text-[var(--text-tertiary)] mb-2" />
-                        <span className="text-xs font-mono text-[var(--text-tertiary)] truncate w-full text-center">{media.url.split('/').pop()}</span>
-                      </div>
-                    ) : (
-                      <img src={media.url} alt={media.alt || (isAr ? 'وسائط' : 'Media')} className="w-full h-full object-contain" />
-                    )}
-                  </div>
-                  {value === media.url && (
-                    <div className="absolute top-2 end-2 w-6 h-6 bg-[var(--color-primary)] text-white rounded-full flex items-center justify-center shadow-md z-10">
-                      <Check className="w-4 h-4" />
-                    </div>
-                  )}
-                  <button
-                    onClick={(e) => handleDelete(e, media.id)}
-                    className="absolute top-2 start-2 w-7 h-7 bg-red-500/90 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-10"
-                    title={isAr ? "حذف الملف" : "Delete Media"}
+              {filteredMediaList.map((media) => {
+                const fileName = getMediaFileName(media);
+                return (
+                  <div 
+                    key={media.id}
+                    onClick={() => handleSelect(media.url)}
+                    className={`group relative aspect-square rounded-2xl overflow-hidden border-2 cursor-pointer transition-all flex flex-col justify-between ${value === media.url ? 'border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/30' : 'border-[var(--border-default)] hover:border-purple-500/80 shadow-xs hover:shadow-md'}`}
                   >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
+                    <div className="w-full h-full bg-[var(--surface-default)] flex items-center justify-center p-2">
+                      {media.type === 'VIDEO' || isVideoUrl(media.url) ? (
+                        <div className="relative w-full h-full flex flex-col items-center justify-center bg-zinc-900 rounded-lg overflow-hidden">
+                          <Video className="w-8 h-8 text-[var(--text-tertiary)] mb-2" />
+                          <span className="text-xs font-mono text-[var(--text-tertiary)] truncate w-full text-center px-1">
+                            {fileName}
+                          </span>
+                        </div>
+                      ) : media.type === 'DOCUMENT' ? (
+                        <div className="relative w-full h-full flex flex-col items-center justify-center">
+                          <FileText className="w-8 h-8 text-[var(--text-tertiary)] mb-2" />
+                          <span className="text-xs font-mono text-[var(--text-tertiary)] truncate w-full text-center">{fileName}</span>
+                        </div>
+                      ) : (
+                        <img src={media.url} alt={fileName} className="w-full h-full object-contain" />
+                      )}
+                    </div>
+
+                    {/* Bottom File Name Bar */}
+                    <div className="absolute inset-x-0 bottom-0 bg-neutral-950/90 backdrop-blur-md p-1.5 flex items-center gap-1 text-[10px] font-mono text-zinc-300 truncate" title={fileName}>
+                      <FileCode className="w-3 h-3 text-purple-400 shrink-0" />
+                      <span className="truncate">{fileName}</span>
+                    </div>
+
+                    {value === media.url && (
+                      <div className="absolute top-2 end-2 w-6 h-6 bg-[var(--color-primary)] text-white rounded-full flex items-center justify-center shadow-md z-10">
+                        <Check className="w-4 h-4" />
+                      </div>
+                    )}
+                    <button
+                      onClick={(e) => handleDelete(e, media.id)}
+                      className="absolute top-2 start-2 w-7 h-7 bg-red-500/90 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-10"
+                      title={isAr ? "حذف الملف" : "Delete Media"}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                );
+              })}
               
-              {mediaList.length === 0 && (
+              {filteredMediaList.length === 0 && (
                 <div className="col-span-full py-12 flex flex-col items-center justify-center text-[var(--text-tertiary)] border border-dashed border-[var(--border-default)] rounded-xl">
                   <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
                   <span className="text-sm font-bold">{isAr ? "لا توجد وسائط" : "No media found"}</span>
