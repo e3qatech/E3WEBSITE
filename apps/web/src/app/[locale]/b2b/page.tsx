@@ -208,6 +208,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
   try {
     dbBrands = await db.brandIP.findMany({
       where: { isActive: true, showOnB2B: true },
+      include: { category: true },
       orderBy: { b2bDisplayOrder: 'asc' }
     })
   } catch (error) {
@@ -218,21 +219,32 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
   if (content && dbBrands.length > 0) {
     if (!content.ourBrands) content.ourBrands = {};
     content.ourBrands.brands = dbBrands.map((b: any) => ({
+      ...b,
       id: b.id,
       nameEn: b.b2bTitleOverrideEn || b.nameEn,
       nameAr: b.b2bTitleOverrideAr || b.nameAr,
-      logoPrimary: b.primaryLogoUrl,
+      logoPrimary: b.primaryLogoUrl || b.lightLogoUrl || b.darkLogoUrl || b.compactLogoUrl,
       logoLight: b.lightLogoUrl,
       logoDark: b.darkLogoUrl,
-      logoCompact: b.compactLogoUrl,
-      brandColor: "#10b981",
-      relationship: "OWNED",
-      shortDescEn: b.b2bShortDescOverrideEn || b.shortDescriptionEn,
-      shortDescAr: b.b2bShortDescOverrideAr || b.shortDescriptionAr,
+      logoCompact: b.compactLogoUrl || b.primaryLogoUrl,
+      brandColor: b.brandColor || "#10b981",
+      relationship: b.primaryRelationshipId || "OWNED",
+      shortDescEn: b.b2bShortDescOverrideEn || b.shortDescriptionEn || b.taglineEn,
+      shortDescAr: b.b2bShortDescOverrideAr || b.shortDescriptionAr || b.taglineAr,
       detailCopyEn: b.b2bDetailCopyEn || b.fullStoryEn,
       detailCopyAr: b.b2bDetailCopyAr || b.fullStoryAr,
-      primaryMediaUrl: b.primaryMediaUrl,
-      ctaUrl: localizeHref(b.b2bCtaUrl || '/b2b/contact', locale)
+      b2bBusinessOverviewEn: b.b2bBusinessOverviewEn || b.shortDescriptionEn || b.taglineEn || b.fullStoryEn,
+      b2bBusinessOverviewAr: b.b2bBusinessOverviewAr || b.shortDescriptionAr || b.taglineAr || b.fullStoryAr,
+      b2bBusinessValueEn: b.b2bBusinessValueEn || b.b2bDetailCopyEn || b.fullStoryEn || b.shortDescriptionEn,
+      b2bBusinessValueAr: b.b2bBusinessValueAr || b.b2bDetailCopyAr || b.fullStoryAr || b.shortDescriptionAr,
+      b2bCapabilitiesEn: b.b2bCapabilitiesEn,
+      b2bCapabilitiesAr: b.b2bCapabilitiesAr,
+      b2bCtaLabelEn: b.b2bCtaLabelEn || "Inquire for Partnership",
+      b2bCtaLabelAr: b.b2bCtaLabelAr || "طلب شراكة واستثمار",
+      b2bInquiryUrl: b.b2bInquiryUrl || b.b2bCtaUrl || "/b2b/contact",
+      primaryMediaUrl: b.primaryMediaUrl || b.coverMediaUrl || b.thumbnailUrl,
+      coverMediaUrl: b.coverMediaUrl || b.primaryMediaUrl || b.thumbnailUrl,
+      ctaUrl: localizeHref(b.b2bInquiryUrl || b.b2bCtaUrl || '/b2b/contact', locale)
     }));
   }
 
