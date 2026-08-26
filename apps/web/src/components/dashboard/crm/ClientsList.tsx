@@ -230,7 +230,7 @@ export function ClientsList({ initialClients }: { initialClients: Client[] }) {
               <Briefcase className="w-4 h-4" />
             </div>
             <div className="space-y-1">
-              <div className="text-xs font-bold text-white flex items-center gap-2">
+              <div className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-2">
                 <span>
                   {isAr
                     ? 'دليل شركاء وعملاء الواجهة العامة'

@@ -208,7 +208,7 @@ export function AdminMediaPicker({ value, onChange, label, accept = "image/*", o
           ) : value.match(/\.(pdf|doc)$/i) ? (
             <FileText className="w-10 h-10 text-[var(--text-tertiary)]" />
           ) : imgError ? (
-            <div className="flex flex-col items-center justify-center p-4 text-center space-y-2 bg-slate-900 text-slate-300 w-full h-full">
+            <div className="flex flex-col items-center justify-center p-4 text-center space-y-2 bg-[var(--bg-level-1)] text-[var(--text-secondary)] w-full h-full">
               <ImageIcon className="w-8 h-8 text-sky-400/80 animate-pulse" />
               <span className="text-xs font-mono break-all line-clamp-2 px-2">{value}</span>
               <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">

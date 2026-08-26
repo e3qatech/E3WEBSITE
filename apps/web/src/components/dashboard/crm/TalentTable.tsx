@@ -172,7 +172,7 @@ export function TalentTable({ initialData }: { initialData: any[] }) {
       {/* Table */}
       <div className="bg-surface-default border border-border-default rounded-2xl overflow-hidden shadow-sm flex-1">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm whitespace-nowrap">
+          <table className="w-full text-start text-sm whitespace-nowrap">
             <thead className="bg-surface-hover border-b border-border-default text-text-secondary">
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id}>

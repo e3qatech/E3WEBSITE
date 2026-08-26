@@ -150,30 +150,30 @@ export function AttractionMasterWorkbookModal({
   const BackIcon = isAr ? ArrowRight : ArrowLeft
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200" dir={isAr ? "rtl" : "ltr"}>
-      <div className="bg-[#0b0f19] border border-slate-800 rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md animate-in fade-in duration-200" dir={isAr ? "rtl" : "ltr"}>
+      <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-[var(--text-primary)]">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0f172a]/70">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-level-1)] bg-[var(--surface-hover)]/40">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={handleSafeClose}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all cursor-pointer"
+              className="p-2 rounded-xl bg-[var(--surface-active)] hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
               title={isAr ? "العودة إلى الاستوديو" : "Back to Attractions Studio"}
             >
-              <BackIcon className="w-4 h-4 text-purple-400" />
+              <BackIcon className="w-4 h-4 text-[var(--color-primary)]" />
             </button>
             <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
                 <span>{isAr ? "جدول العمل الرئيسي للوجهة" : "Attraction Master Workbook"}</span>
                 {attractionName && (
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono">
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-mono">
                     {attractionName}
                   </span>
                 )}
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[var(--text-secondary)]">
                 {isAr ? "هيكل من 3 تبويبات: الوجهة • ماذا يوجد بالداخل • الأسعار والتذاكر" : "Simple 3-Tab Architecture: Attraction • What’s Inside • Pricing"}
               </p>
             </div>
@@ -183,15 +183,15 @@ export function AttractionMasterWorkbookModal({
             <a
               href={exportUrl}
               download
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white border border-slate-700 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--surface-active)] hover:bg-[var(--surface-hover)] text-xs font-semibold text-[var(--text-primary)] border border-[var(--border-level-1)] transition-all cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5 text-blue-400" />
+              <Download className="w-3.5 h-3.5 text-blue-500" />
               <span>{isAr ? "تحميل الجدول الحالي (.xlsx)" : "Download Current (.xlsx)"}</span>
             </a>
             <button
               type="button"
               onClick={handleSafeClose}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all cursor-pointer"
+              className="p-1.5 rounded-xl text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-all cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -203,16 +203,16 @@ export function AttractionMasterWorkbookModal({
           
           {/* Target Attraction Scope Notice */}
           {(attractionId || attractionSlug) && (
-            <div className="p-3.5 rounded-2xl bg-purple-950/30 border border-purple-500/30 flex items-center justify-between text-xs">
+            <div className="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-purple-400 shrink-0" />
-                <span className="text-purple-200">
+                <Lock className="w-4 h-4 text-purple-500 shrink-0" />
+                <span className="text-purple-700 dark:text-purple-200">
                   {isAr 
                     ? `نطاق آمن مقفل على الوجهة: ${attractionName || attractionSlug} (${attractionId || attractionSlug})`
                     : `Scoped to Attraction: ${attractionName || attractionSlug} (${attractionId || attractionSlug})`}
                 </span>
               </div>
-              <span className="text-[11px] text-purple-300 font-medium">
+              <span className="text-[11px] text-purple-600 dark:text-purple-300 font-medium">
                 {isAr ? "حماية ضد الكتابة على وجهات أخرى" : "Cross-attraction overwrite protection active"}
               </span>
             </div>
@@ -228,7 +228,7 @@ export function AttractionMasterWorkbookModal({
                 "border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer flex flex-col items-center justify-center space-y-3",
                 file
                   ? "border-emerald-500/50 bg-emerald-500/5"
-                  : "border-slate-800 hover:border-purple-500/50 bg-[#0f172a]/40"
+                  : "border-[var(--border-level-1)] hover:border-purple-500/50 bg-[var(--bg-level-1)]"
               )}
             >
               <input
@@ -241,19 +241,19 @@ export function AttractionMasterWorkbookModal({
 
               {file ? (
                 <div className="space-y-1">
-                  <FileSpreadsheet className="w-10 h-10 text-emerald-400 mx-auto" />
-                  <div className="text-sm font-bold text-white">{file.name}</div>
-                  <div className="text-xs text-slate-400 font-mono">
+                  <FileSpreadsheet className="w-10 h-10 text-emerald-500 mx-auto" />
+                  <div className="text-sm font-bold text-[var(--text-primary)]">{file.name}</div>
+                  <div className="text-xs text-[var(--text-secondary)] font-mono">
                     {(file.size / 1024).toFixed(1)} KB • {isAr ? "جاهز للتدقيق الآمن" : "Ready for Safe Validation"}
                   </div>
                 </div>
               ) : (
                 <div className="space-y-1">
-                  <UploadCloud className="w-10 h-10 text-purple-400 mx-auto opacity-80" />
-                  <div className="text-sm font-bold text-white">
+                  <UploadCloud className="w-10 h-10 text-purple-500 mx-auto opacity-80" />
+                  <div className="text-sm font-bold text-[var(--text-primary)]">
                     {isAr ? "اسحب وأفلت جدول العمل الرئيسي (.xlsx / .csv)" : "Upload Master Workbook (.xlsx / .csv)"}
                   </div>
-                  <p className="text-xs text-slate-400 max-w-md mx-auto">
+                  <p className="text-xs text-[var(--text-secondary)] max-w-md mx-auto">
                     {isAr 
                       ? "الخلايا الفارغة لن تحذف المحتوى الحالي أبداً. المعرفات الثابتة تمنع أي تكرار."
                       : "Blank cells will never erase existing content. Stable IDs and slugs ensure zero duplicates."}
@@ -265,7 +265,7 @@ export function AttractionMasterWorkbookModal({
 
           {/* Error Message */}
           {errorMessage && (
-            <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-xs font-semibold text-red-400 flex items-center gap-2">
+            <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-xs font-semibold text-red-500 dark:text-red-400 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMessage}</span>
             </div>
@@ -274,11 +274,11 @@ export function AttractionMasterWorkbookModal({
           {/* Success Applied Banner */}
           {applied && (
             <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-3 text-center">
-              <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
-              <h3 className="text-base font-bold text-white">
+              <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
+              <h3 className="text-base font-bold text-[var(--text-primary)]">
                 {isAr ? "تم تطبيق جدول العمل بنجاح كمسودة!" : "Master Workbook Applied Successfully!"}
               </h3>
-              <p className="text-xs text-slate-300 max-w-lg mx-auto">
+              <p className="text-xs text-[var(--text-secondary)] max-w-lg mx-auto">
                 {isAr
                   ? `تم إنشاء أو دمج ${appliedCount} سجلات بأمان كمسودات. تم إنشاء عناصر قائمة الوسائط للأنشطة الجديدة تلقائياً.`
                   : `${appliedCount} records have been created or safely deep-merged as Drafts. Activities and their Media Queue requirements have been synchronized.`}
@@ -301,61 +301,61 @@ export function AttractionMasterWorkbookModal({
               
               {/* Summary KPIs */}
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-                  <div className="text-[11px] text-slate-400 uppercase font-semibold">{isAr ? "إجمالي الصفوف" : "Total Rows"}</div>
-                  <div className="text-xl font-bold text-white">{report.totalRows}</div>
+                <div className="p-3.5 rounded-2xl bg-[var(--bg-level-1)] border border-[var(--border-level-1)] space-y-1">
+                  <div className="text-[11px] text-[var(--text-secondary)] uppercase font-semibold">{isAr ? "إجمالي الصفوف" : "Total Rows"}</div>
+                  <div className="text-xl font-bold text-[var(--text-primary)]">{report.totalRows}</div>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-1">
-                  <div className="text-[11px] text-emerald-400 uppercase font-semibold">{isAr ? "إنشاء جديد" : "To Create"}</div>
-                  <div className="text-xl font-bold text-emerald-400">{report.createdCount}</div>
+                  <div className="text-[11px] text-emerald-600 dark:text-emerald-400 uppercase font-semibold">{isAr ? "إنشاء جديد" : "To Create"}</div>
+                  <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{report.createdCount}</div>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 space-y-1">
-                  <div className="text-[11px] text-blue-400 uppercase font-semibold">{isAr ? "تحديث ودمج" : "To Deep-Merge"}</div>
-                  <div className="text-xl font-bold text-blue-400">{report.updatedCount}</div>
+                  <div className="text-[11px] text-blue-600 dark:text-blue-400 uppercase font-semibold">{isAr ? "تحديث ودمج" : "To Deep-Merge"}</div>
+                  <div className="text-xl font-bold text-blue-600 dark:text-blue-400">{report.updatedCount}</div>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-slate-800/40 border border-slate-700/40 space-y-1">
-                  <div className="text-[11px] text-slate-400 uppercase font-semibold">{isAr ? "دون تغيير" : "Unchanged"}</div>
-                  <div className="text-xl font-bold text-slate-300">{report.unchangedCount}</div>
+                <div className="p-3.5 rounded-2xl bg-[var(--surface-active)] border border-[var(--border-level-1)] space-y-1">
+                  <div className="text-[11px] text-[var(--text-secondary)] uppercase font-semibold">{isAr ? "دون تغيير" : "Unchanged"}</div>
+                  <div className="text-xl font-bold text-[var(--text-primary)]">{report.unchangedCount}</div>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-1">
-                  <div className="text-[11px] text-amber-400 uppercase font-semibold">{isAr ? "تنبيهات / أخطاء" : "Warnings / Errors"}</div>
-                  <div className="text-xl font-bold text-amber-400">{report.warningCount + report.errorCount}</div>
+                  <div className="text-[11px] text-amber-600 dark:text-amber-400 uppercase font-semibold">{isAr ? "تنبيهات / أخطاء" : "Warnings / Errors"}</div>
+                  <div className="text-xl font-bold text-amber-600 dark:text-amber-400">{report.warningCount + report.errorCount}</div>
                 </div>
               </div>
 
               {/* Media Queue Progress Targets */}
-              <div className="p-4 rounded-2xl bg-purple-950/30 border border-purple-800/40 space-y-2">
+              <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-purple-300 flex items-center gap-1.5">
-                    <ImageIcon className="w-3.5 h-3.5 text-purple-400" />
+                  <span className="font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-purple-500" />
                     <span>{isAr ? "أهداف قائمة إنتاج الوسائط:" : "Media Queue Targets:"}</span>
                   </span>
-                  <span className="text-slate-400">
+                  <span className="text-[var(--text-secondary)]">
                     {isAr ? "معرض الوجهة: 10 صور كحد أدنى • النشاط: غلاف + 3 صور مساعدة" : "Attraction Gallery: 10 images min • Activity: 1 cover + 3 supporting"}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-                  <div className="px-3 py-1.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] flex justify-between">
-                    <span className="text-slate-400">{isAr ? "وسائط جاهزة:" : "Ready Media:"}</span>
-                    <span className="font-bold text-emerald-400">{report.mediaQueueSummary.readyMediaCount}</span>
+                  <div className="px-3 py-1.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-1)] text-[11px] flex justify-between">
+                    <span className="text-[var(--text-secondary)]">{isAr ? "وسائط جاهزة:" : "Ready Media:"}</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">{report.mediaQueueSummary.readyMediaCount}</span>
                   </div>
-                  <div className="px-3 py-1.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] flex justify-between">
-                    <span className="text-slate-400">{isAr ? "مكتمل جزئياً:" : "Partial Media:"}</span>
-                    <span className="font-bold text-amber-400">{report.mediaQueueSummary.partialMediaCount}</span>
+                  <div className="px-3 py-1.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-1)] text-[11px] flex justify-between">
+                    <span className="text-[var(--text-secondary)]">{isAr ? "مكتمل جزئياً:" : "Partial Media:"}</span>
+                    <span className="font-bold text-amber-600 dark:text-amber-400">{report.mediaQueueSummary.partialMediaCount}</span>
                   </div>
-                  <div className="px-3 py-1.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] flex justify-between">
-                    <span className="text-slate-400">{isAr ? "وسائط مفقودة:" : "Missing Media:"}</span>
-                    <span className="font-bold text-red-400">{report.mediaQueueSummary.missingMediaCount}</span>
+                  <div className="px-3 py-1.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-1)] text-[11px] flex justify-between">
+                    <span className="text-[var(--text-secondary)]">{isAr ? "وسائط مفقودة:" : "Missing Media:"}</span>
+                    <span className="font-bold text-rose-600 dark:text-red-400">{report.mediaQueueSummary.missingMediaCount}</span>
                   </div>
-                  <div className="px-3 py-1.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] flex justify-between">
-                    <span className="text-slate-400">{isAr ? "هدف المعرض (10):" : "Gallery Target Met:"}</span>
-                    <span className="font-bold text-purple-300">{report.mediaQueueSummary.attractionsMeetingGalleryTarget}/{report.mediaQueueSummary.totalAttractions}</span>
+                  <div className="px-3 py-1.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-1)] text-[11px] flex justify-between">
+                    <span className="text-[var(--text-secondary)]">{isAr ? "هدف المعرض (10):" : "Gallery Target Met:"}</span>
+                    <span className="font-bold text-purple-700 dark:text-purple-300">{report.mediaQueueSummary.attractionsMeetingGalleryTarget}/{report.mediaQueueSummary.totalAttractions}</span>
                   </div>
                 </div>
               </div>
 
               {/* Filters */}
-              <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
+              <div className="flex items-center gap-2 border-b border-[var(--border-level-1)] pb-2 overflow-x-auto">
                 {[
                   { id: "ALL", label: `${isAr ? "الكل" : "All"} (${report.diffs.length})` },
                   { id: "CREATE", label: `${isAr ? "جديد" : "New"} (${report.createdCount})` },
@@ -372,7 +372,7 @@ export function AttractionMasterWorkbookModal({
                       "px-3 py-1 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer",
                       activeFilter === tab.id
                         ? "bg-purple-600 text-white"
-                        : "text-slate-400 hover:text-white hover:bg-slate-800"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
                     )}
                   >
                     {tab.label}
@@ -385,19 +385,19 @@ export function AttractionMasterWorkbookModal({
                 {filteredDiffs.map((diff, i) => (
                   <div
                     key={i}
-                    className="p-3 rounded-xl bg-slate-900/70 border border-slate-800 flex items-start justify-between gap-3 text-xs"
+                    className="p-3 rounded-xl bg-[var(--bg-level-1)] border border-[var(--border-level-1)] flex items-start justify-between gap-3 text-xs"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-slate-400">
+                        <span className="px-1.5 py-0.5 rounded bg-[var(--surface-active)] text-[10px] font-mono text-[var(--text-secondary)]">
                           {diff.sheet} : {isAr ? `صف ${diff.rowNumber}` : `Row ${diff.rowNumber}`}
                         </span>
-                        <span className="font-bold text-white">{diff.titleEn}</span>
+                        <span className="font-bold text-[var(--text-primary)]">{diff.titleEn}</span>
                       </div>
-                      <div className="text-[11px] text-slate-400 space-y-0.5">
+                      <div className="text-[11px] text-[var(--text-secondary)] space-y-0.5">
                         {diff.messages.map((msg, idx) => (
                           <div key={idx} className="flex items-center gap-1.5">
-                            <span className="w-1 h-1 rounded-full bg-slate-500" />
+                            <span className="w-1 h-1 rounded-full bg-[var(--text-tertiary)]" />
                             <span>{msg}</span>
                           </div>
                         ))}
@@ -407,18 +407,18 @@ export function AttractionMasterWorkbookModal({
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       <span className={cn(
                         "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
-                        diff.action === 'CREATE' && "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30",
-                        diff.action === 'UPDATE' && "bg-blue-500/20 text-blue-300 border border-blue-500/30",
-                        diff.action === 'UNCHANGED' && "bg-slate-800 text-slate-400 border border-slate-700",
-                        diff.action === 'WARNING' && "bg-amber-500/20 text-amber-300 border border-amber-500/30",
-                        diff.action === 'ERROR' && "bg-red-500/20 text-red-300 border border-red-500/30"
+                        diff.action === 'CREATE' && "bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30",
+                        diff.action === 'UPDATE' && "bg-blue-500/20 text-blue-600 dark:text-blue-300 border border-blue-500/30",
+                        diff.action === 'UNCHANGED' && "bg-[var(--surface-active)] text-[var(--text-secondary)] border border-[var(--border-level-1)]",
+                        diff.action === 'WARNING' && "bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30",
+                        diff.action === 'ERROR' && "bg-red-500/20 text-red-600 dark:text-red-300 border border-red-500/30"
                       )}>
                         {diff.action}
                       </span>
                       {diff.mediaStatus && (
                         <span className={cn(
                           "text-[9px] font-mono",
-                          diff.mediaStatus === "READY" ? "text-emerald-400" : diff.mediaStatus === "PARTIALLY_COMPLETE" ? "text-amber-400" : "text-red-400"
+                          diff.mediaStatus === "READY" ? "text-emerald-600 dark:text-emerald-400" : diff.mediaStatus === "PARTIALLY_COMPLETE" ? "text-amber-600 dark:text-amber-400" : "text-rose-600 dark:text-red-400"
                         )}>
                           Media: {diff.mediaStatus}
                         </span>
@@ -435,9 +435,9 @@ export function AttractionMasterWorkbookModal({
 
         {/* Footer Actions */}
         {!applied && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-slate-800 bg-[#0f172a]/70">
-            <div className="text-xs text-slate-400 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <div className="flex items-center justify-between px-6 py-4 border-t border-[var(--border-level-1)] bg-[var(--surface-hover)]/40">
+            <div className="text-xs text-[var(--text-secondary)] flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
               <span>{isAr ? "الدمج الآمن: المحتوى الحالي محمي ولن يتم مسح أي حقل فارغ." : "Safe Merge: Existing content is strictly preserved."}</span>
             </div>
 
@@ -445,7 +445,7 @@ export function AttractionMasterWorkbookModal({
               <button
                 type="button"
                 onClick={handleSafeClose}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition-all cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
               >
                 {isAr ? "إلغاء" : "Cancel"}
               </button>

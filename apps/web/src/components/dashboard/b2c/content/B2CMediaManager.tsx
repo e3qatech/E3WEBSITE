@@ -293,7 +293,7 @@ export function B2CMediaManager({ initialData }: B2CMediaManagerProps = {}) {
                   setMaskedVideo((prev: any) => ({ ...prev, scale: parseFloat(e.target.value) }));
                   setIsDirty(true);
                 }}
-                className="w-full accent-blue-500 mt-2"
+                className="w-full h-2 bg-[var(--surface-active)] rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)] mt-2"
               />
             </div>
 
@@ -311,7 +311,7 @@ export function B2CMediaManager({ initialData }: B2CMediaManagerProps = {}) {
                   setMaskedVideo((prev: any) => ({ ...prev, edgeSoftness: parseInt(e.target.value) }));
                   setIsDirty(true);
                 }}
-                className="w-full accent-blue-500 mt-2"
+                className="w-full h-2 bg-[var(--surface-active)] rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)] mt-2"
               />
             </div>
           </div>

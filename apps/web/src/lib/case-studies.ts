@@ -157,13 +157,55 @@ export async function getPublicCaseStudies(options: PublicCaseStudiesQueryOption
     if (Array.isArray(ids) && ids.length > 0) {
       const idMap = new Map((eligibleResults as any[]).map((item: any) => [item.id, item]));
       const ordered = ids.map((id) => idMap.get(id)).filter(Boolean) as typeof eligibleResults;
-      return typeof limit === "number" && limit > 0 ? ordered.slice(0, limit) : ordered;
+      if (ordered.length > 0) {
+        return typeof limit === "number" && limit > 0 ? ordered.slice(0, limit) : ordered;
+      }
     }
 
-    return eligibleResults;
+    if (eligibleResults.length > 0) {
+      return eligibleResults;
+    }
+
+    // Defensive fallback: If database is unseeded or empty, provide canonical published cases
+    const defaultList = Object.entries(CANONICAL_CASE_STUDIES_FALLBACKS).map(([slug, data], idx) => ({
+      id: `canonical-${slug}`,
+      slug,
+      ...data,
+      isPublished: true,
+      isVisible: true,
+      status: "PUBLISHED",
+      orderIndex: idx,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+
+    let filteredDefaults = defaultList;
+    if (category && category !== "ALL" && category !== "All") {
+      filteredDefaults = filteredDefaults.filter((c: any) => c.category === category);
+    }
+    if (year && !isNaN(year)) {
+      filteredDefaults = filteredDefaults.filter((c: any) => c.year === year);
+    }
+    if (Array.isArray(ids) && ids.length > 0) {
+      filteredDefaults = filteredDefaults.filter((c: any) => ids.includes(c.id) || ids.includes(c.slug));
+    }
+    return typeof limit === "number" && limit > 0 ? filteredDefaults.slice(0, limit) : filteredDefaults;
   } catch (error) {
     console.error("[GET_PUBLIC_CASE_STUDIES_ERROR]", error);
-    return [];
+    
+    // Provide canonical published cases on connection error
+    const defaultList = Object.entries(CANONICAL_CASE_STUDIES_FALLBACKS).map(([slug, data], idx) => ({
+      id: `canonical-${slug}`,
+      slug,
+      ...data,
+      isPublished: true,
+      isVisible: true,
+      status: "PUBLISHED",
+      orderIndex: idx,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+    return defaultList;
   }
 }
 
