@@ -107,9 +107,7 @@ export function IdeasToLifeComparison({ content, locale }: IdeasToLifeComparison
                     <span>Upload stage visual media from Ideas to Life Content Manager in CMS</span>
                   </div>
                 )}
-                {activeStepIndex < 2 && (
-                  <div className="absolute inset-0 bg-blue-950/40 backdrop-blur-[2px] border-4 border-dashed border-sky-400/40 mix-blend-overlay" />
-                )}
+
                 <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)]/90 via-[var(--surface-default)]/30 to-transparent" />
 
                 <div className="absolute bottom-6 start-6 end-6 p-4 rounded-2xl bg-[var(--surface-default)]/90 border border-[var(--border-level-2)] backdrop-blur-md shadow-lg">

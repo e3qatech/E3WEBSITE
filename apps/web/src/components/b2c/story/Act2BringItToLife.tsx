@@ -114,10 +114,7 @@ export function Act2BringItToLife({ content, locale }: Act2BringItToLifeProps) {
                     Upload step media from CMS
                   </div>
                 )}
-                {/* Wireframe Overlay Effect */}
-                {activeStepIndex < 2 && (
-                  <div className="absolute inset-0 bg-blue-950/60 backdrop-blur-[2px] border-4 border-dashed border-sky-400/40 mix-blend-overlay" />
-                )}
+
                 {/* Gradient Shading */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
 
