@@ -38,8 +38,9 @@ export function CaseStudiesIndexClient({
   const teamStoriesConfig = cmsContent?.teamStories || {};
   const cta = cmsContent?.cta || {};
 
-  // Canonical Eligible Case Studies Pool (QF-05 / UX-05) - strictly deduplicated
+  // Canonical Eligible Case Studies Pool (QF-05 / UX-05) - strictly deduplicated & synced with dashboard selections
   const eligibleCases = useMemo(() => {
+    const selectedSet = new Set((featuredCasesConfig.selectedCaseStudyIds || []).map(String));
     const seen = new Set<string>();
     const list: any[] = [];
     (caseStudies || []).forEach((cs) => {
@@ -47,11 +48,18 @@ export function CaseStudiesIndexClient({
       const slugKey = String(cs.slug || cs.id || "").toLowerCase().replace(/^case-/, "");
       if (!seen.has(slugKey)) {
         seen.add(slugKey);
-        list.push(cs);
+        const isManuallyFeatured =
+          selectedSet.has(String(cs.id)) ||
+          selectedSet.has(String(cs.slug)) ||
+          selectedSet.has(slugKey);
+        list.push({
+          ...cs,
+          isFeatured: isManuallyFeatured || Boolean(cs.isFeatured),
+        });
       }
     });
     return list;
-  }, [caseStudies]);
+  }, [caseStudies, featuredCasesConfig.selectedCaseStudyIds]);
 
   // Sourced Featured Case Study for Spotlight (from /dashboard/b2b/cases-page#featuredCases)
   const featuredProject = useMemo(() => {

@@ -450,6 +450,7 @@ export async function getPublicCaseStudies(options: PublicCaseStudiesQueryOption
 
     if (Array.isArray(ids) && ids.length > 0) {
       where.id = { in: ids };
+      delete where.isPublished;
     }
 
     if (category && category !== "ALL" && category !== "All") {
