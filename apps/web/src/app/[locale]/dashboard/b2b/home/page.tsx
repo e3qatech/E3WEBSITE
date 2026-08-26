@@ -1,28 +1,51 @@
+import { Metadata } from "next"
 import { B2BHomeEditor } from "@/components/dashboard/b2b/B2BHomeEditor"
 import db from "@/lib/db"
-export const metadata = {
+import { getMergedCMSPageContent } from "@/lib/cms-default-pages"
+
+export const metadata: Metadata = {
   title: "B2B Homepage Editor | E3 Command Center"
 }
 
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 export default async function DashboardB2BHomePage() {
-  const pageData = await db.pages.findUnique({
-    where: { slug: 'b2b-home' }
-  })
+  let pageData: any = null
+  let services: any[] = []
+  let caseStudies: any[] = []
 
-  const services = await db.service.findMany({
-    where: { isVisible: true },
-    select: { id: true, slug: true, titleEn: true }
-  })
+  try {
+    const results = await Promise.all([
+      db.pages.findUnique({
+        where: { slug: 'b2b-home' }
+      }),
+      db.service.findMany({
+        where: { isVisible: true },
+        select: { id: true, slug: true, titleEn: true, titleAr: true }
+      }),
+      db.caseStudy.findMany({
+        where: { isPublished: true },
+        select: { id: true, slug: true, titleEn: true, titleAr: true }
+      })
+    ])
+    pageData = results[0]
+    services = results[1]
+    caseStudies = results[2]
+  } catch (error) {
+    console.warn("[Dashboard B2B Home] Database load notice:", error)
+  }
 
-  const caseStudies = await db.caseStudy.findMany({
-    where: { isPublished: true },
-    select: { id: true, slug: true, titleEn: true }
-  })
+  const mergedContent = getMergedCMSPageContent("b2b-home", pageData?.content)
+  const initialData = {
+    slug: "b2b-home",
+    content: mergedContent,
+    seo: pageData?.seo || mergedContent?.seo || {}
+  }
 
-  // Do not throw notFound() so the editor can load even if the DB hasn't been seeded yet.
   return (
     <B2BHomeEditor 
-      initialData={pageData || { slug: 'b2b-home', content: {} }} 
+      initialData={initialData} 
       services={services}
       caseStudies={caseStudies}
     />

@@ -2210,6 +2210,101 @@ export const DEFAULT_B2B_CAREERS_CONTENT = {
   }
 };
 
+export const DEFAULT_B2B_FAQS_CONTENT = {
+  header: {
+    eyebrowEn: "KNOWLEDGE & PARTNER FAQ",
+    eyebrowAr: "الأسئلة الشائعة والمعلومات",
+    titleEn: "Frequently Asked Questions",
+    titleAr: "الأسئلة الشائعة",
+    subtitleEn: "Everything you need to know about partnering with E3, procurement timelines, safety certifications, and live production scope.",
+    subtitleAr: "كل ما تحتاج لمعرفته حول الشراكة مع إي ثري، الجداول الزمنية لتنفيذ المشاريع، اعتمادات السلامة، ونطاق الإنتاج والتشغيل.",
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    fallbackImageUrl: ""
+  },
+  items: [
+    {
+      id: "faq_1",
+      questionEn: "What scale of events and destinations does E3 engineer?",
+      questionAr: "ما هو حجم الفعاليات والوجهات التي تقوم إي ثري بهندستها؟",
+      answerEn: "E3 engineers turnkey projects ranging from mega stadium opening ceremonies and national parades to permanent family entertainment centers and kinetic interactive pavilions across Qatar and the GCC.",
+      answerAr: "تقوم إي ثري بتنفيذ مشاريع متكاملة تشمل حفلات افتتاح الاستادات والمسيرات الوطنية الكبرى، وصولاً إلى مدن الألعاب العائلية الدائمة والأجنحة التفاعلية في قطر ودول الخليج."
+    },
+    {
+      id: "faq_2",
+      questionEn: "How does the RFP and procurement process work with E3?",
+      questionAr: "كيف تسير آلية تقديم طلبات العروض والشراكة مع إي ثري؟",
+      answerEn: "Enterprise clients can submit preliminary briefs via our B2B RFP portal. Our technical team conducts feasibility and spatial audits within 48-72 hours to deliver comprehensive production timelines and budget models.",
+      answerAr: "يمكن للجهات والشركات تقديم ملخصات المشاريع عبر بوابة طلبات العروض. يقوم فريقنا الهندسي بدراسة الجدوى والمخططات المكانية خلال 48-72 ساعة لتقديم جداول زمنية ونماذج ميزانية متكاملة."
+    },
+    {
+      id: "faq_3",
+      questionEn: "What international safety and engineering certifications does E3 hold?",
+      questionAr: "ما هي اعتمادات السلامة والهندسة الدولية التي تحملها إي ثري؟",
+      answerEn: "All kinetic rigging, structural fabrication, and crowd management systems comply with ISO 9001/45001 standards and Qatar Civil Defence safety regulations.",
+      answerAr: "تلتزم جميع أنظمة التعليق الحركي، الهياكل الإنشائية، وإدارة الحشود بمعايير ISO 9001/45001 واشتراطات الدفاع المدني القطري."
+    }
+  ],
+  seo: {
+    metaTitleEn: "B2B Frequently Asked Questions | E3 Qatar",
+    metaTitleAr: "الأسئلة الشائعة للشركات | إي ثري قطر",
+    metaDescriptionEn: "Find detailed answers about E3 procurement, event engineering services, safety protocols, and technical staging capabilities.",
+    metaDescriptionAr: "اعثر على إجابات مفصلة حول التعاقد مع إي ثري، خدمات هندسة الفعاليات، بروتوكولات السلامة، وقدرات الإنتاج المسرحي.",
+    keywordsEn: "E3 FAQ, event procurement Qatar, staging FAQ Doha, entertainment engineering questions",
+    keywordsAr: "أسئلة إي ثري, تعاقد فعاليات قطر, أسئلة شائعة ترفيه الدوحة"
+  }
+};
+
+export const DEFAULT_B2B_FEEDBACK_CONTENT = {
+  header: {
+    eyebrowEn: "PARTNER SATISFACTION & AUDIT",
+    eyebrowAr: "تقييم الشركاء وجودة الخدمة",
+    titleEn: "Partner Suggestions & Feedback",
+    titleAr: "الاقتراحات وملاحظات الشركاء",
+    subtitleEn: "We value our enterprise collaborations. Your feedback empowers us to continuously elevate operational benchmarks.",
+    subtitleAr: "نحن نعتز بشراكاتنا المؤسسية. تساهم ملاحظاتكم في الارتقاء المستمر بمعاييرنا التشغيلية وجودة مشاريعنا.",
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    fallbackImageUrl: ""
+  },
+  success: {
+    titleEn: "Thank you for your feedback!",
+    titleAr: "شكراً لملاحظاتك القيمة!",
+    messageEn: "Your feedback has been logged securely and forwarded directly to our Executive Quality & Operations board.",
+    messageAr: "تم تسجيل ملاحظاتك بأمان وتحويلها مباشرة إلى مجلس الجودة والعمليات التنفيذية لدينا."
+  },
+  seo: {
+    metaTitleEn: "Partner Feedback & Survey | E3 Qatar",
+    metaTitleAr: "نموذج تقييم وملاحظات الشركاء | إي ثري قطر",
+    metaDescriptionEn: "Share your experience and feedback on E3 Qatar event engineering, project management, and live operations.",
+    metaDescriptionAr: "شاركنا تجربتك وملاحظاتك حول خدمات هندسة الفعاليات وإدارة المشاريع والعمليات المباشرة مع إي ثري قطر.",
+    keywordsEn: "E3 feedback, partner survey Qatar, event quality feedback Doha",
+    keywordsAr: "تقييم إي ثري, استبيان الشركاء قطر, جودة الفعاليات"
+  }
+};
+
+export const DEFAULT_B2B_PARTNERS_CONTENT = {
+  hero: {
+    eyebrowEn: "GOVERNMENT & ENTERPRISE ALLIANCES",
+    eyebrowAr: "تحالفات حكومية ومؤسسية رائدة",
+    titleEn: "Trusted by the Best.",
+    titleAr: "يحظى بثقة الأفضل.",
+    subtitleEn: "We partner with ambitious government entities, global brands, and premier destinations to deliver landmark experiences that matter.",
+    subtitleAr: "نحن نتشارك مع هيئات حكومية طموحة، وعلامات تجارية عالمية، ووجهات رائدة لتقديم تجارب استثنائية.",
+    mediaType: "IMAGE",
+    mediaUrl: "",
+    fallbackImageUrl: ""
+  },
+  seo: {
+    metaTitleEn: "Corporate Partners & Clients | E3 Qatar",
+    metaTitleAr: "شركاء وعملاء إي ثري قطر للشركات",
+    metaDescriptionEn: "Explore E3 Qatar government and enterprise partnerships, landmark projects, and client testimonials.",
+    metaDescriptionAr: "استكشف شراكات إي ثري قطر مع الجهات الحكومية والمؤسسات الكبرى وأبرز المشاريع المشتركة.",
+    keywordsEn: "E3 clients, corporate partners Qatar, enterprise event partners Doha",
+    keywordsAr: "عملاء إي ثري, شركاء قطر, تنظيم فعاليات حكومية"
+  }
+};
+
 /**
  * Deeply merges target object with default fallback values.
  * Keeps user-provided values if non-empty, otherwise falls back to defaults.
@@ -2484,6 +2579,40 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
           : defaults.hiringJourney.steps,
       },
       enquiries: { ...defaults.enquiries, ...(raw.enquiries || {}) },
+      seo: { ...defaults.seo, ...(raw.seo || {}) }
+    };
+  }
+  if (slug === 'b2b-faqs' || slug === 'faqs') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2B_FAQS_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      header: { ...defaults.header, ...(raw.header || {}) },
+      items: Array.isArray(raw.items) && raw.items.length > 0
+        ? raw.items
+        : defaults.items,
+      seo: { ...defaults.seo, ...(raw.seo || {}) }
+    };
+  }
+  if (slug === 'b2b-feedback' || slug === 'feedback') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2B_FEEDBACK_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      header: { ...defaults.header, ...(raw.header || {}) },
+      success: { ...defaults.success, ...(raw.success || {}) },
+      seo: { ...defaults.seo, ...(raw.seo || {}) }
+    };
+  }
+  if (slug === 'b2b-partners' || slug === 'partners') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_B2B_PARTNERS_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      hero: { ...defaults.hero, ...(raw.hero || {}) },
       seo: { ...defaults.seo, ...(raw.seo || {}) }
     };
   }
