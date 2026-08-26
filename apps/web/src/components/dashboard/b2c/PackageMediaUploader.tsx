@@ -12,6 +12,7 @@ import {
   Eye,
   Film,
   Sparkles,
+  Copy,
 } from "lucide-react";
 import { uploadFile } from "@/lib/upload";
 import { cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ export function PackageMediaUploader({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isVideo =
@@ -286,17 +288,39 @@ export function PackageMediaUploader({
             </button>
           </div>
 
-          <div className="p-2 flex items-center justify-between text-[10px] font-mono text-zinc-400 truncate">
-            <span className="truncate pe-2">{value}</span>
-            <a
-              href={value}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[var(--color-primary)] hover:underline shrink-0 flex items-center gap-0.5 font-bold"
-            >
-              <span>{isAr ? "فتح الرابط" : "Open"}</span>
-              <Eye className="w-3 h-3" />
-            </a>
+          <div className="p-2 flex items-center justify-between text-[10px] font-mono text-zinc-400 truncate gap-2">
+            <span className="truncate pe-2 flex-1">{value}</span>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(value);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  } catch (_e) {}
+                }}
+                className={cn(
+                  "px-2 py-0.5 rounded text-[10px] font-bold font-mono transition-all flex items-center gap-1 cursor-pointer",
+                  copied
+                    ? "bg-emerald-600 text-white"
+                    : "bg-neutral-800 hover:bg-neutral-700 text-neutral-200"
+                )}
+                title="1-Click Copy Link"
+              >
+                {copied ? <Check className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />}
+                <span>{copied ? "Copied" : "Copy"}</span>
+              </button>
+              <a
+                href={value}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--color-primary)] hover:underline flex items-center gap-0.5 font-bold"
+              >
+                <span>{isAr ? "فتح" : "Open"}</span>
+                <Eye className="w-3 h-3" />
+              </a>
+            </div>
           </div>
         </div>
       )}

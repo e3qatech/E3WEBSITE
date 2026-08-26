@@ -286,3 +286,52 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function PATCH(request: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+    }
+
+    const body = await request.json();
+    const { mediaIds, folder, tags, alt, fileName } = body;
+
+    if (!Array.isArray(mediaIds) || mediaIds.length === 0) {
+      return NextResponse.json({ error: 'mediaIds array is required' }, { status: 400 });
+    }
+
+    const updated: any[] = [];
+    for (const id of mediaIds) {
+      try {
+        const existing = await db.media.findUnique({ where: { id } });
+        if (!existing) continue;
+
+        const currentMetadata = typeof existing.metadata === 'object' && existing.metadata ? (existing.metadata as any) : {};
+        const newMetadata = {
+          ...currentMetadata,
+          ...(folder !== undefined ? { folder } : {}),
+          ...(tags !== undefined ? { tags } : {}),
+          ...(fileName !== undefined ? { fileName } : {}),
+        };
+
+        const res = await db.media.update({
+          where: { id },
+          data: {
+            metadata: newMetadata,
+            ...(alt !== undefined ? { alt } : {}),
+          },
+        });
+        updated.push(res);
+      } catch (_e) {}
+    }
+
+    return NextResponse.json({ success: true, count: updated.length, data: updated });
+  } catch (error: any) {
+    console.error('Error updating media items:', error);
+    return NextResponse.json({ error: error?.message || 'Failed to update media' }, { status: 500 });
+  }
+}
+
