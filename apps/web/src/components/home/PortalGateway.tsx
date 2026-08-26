@@ -94,7 +94,7 @@ export function PortalGateway({
   }, []);
 
   const isSimulatedMobile = previewMode && simulation?.viewport === "mobile-390";
-  const effectiveIsMobile = isSimulatedMobile || isMobileViewport;
+  const isSimulatedDesktop = previewMode && simulation?.viewport === "desktop-1440";
 
   // Active CMS Configuration
   const activeCmsData = previewMode && previewConfig ? previewConfig : initialCmsData;
@@ -148,12 +148,10 @@ export function PortalGateway({
 
   // Media resolution
   const activeB2cDesktopMedia = activeCmsData.b2cDesktopMedia;
-  const activeB2cMobileMedia = activeCmsData.b2cMobileMedia || activeCmsData.b2cDesktopMedia;
-  const activeB2cMedia = effectiveIsMobile && activeB2cMobileMedia?.mediaUrl ? activeB2cMobileMedia : activeB2cDesktopMedia;
+  const activeB2cMobileMedia = activeCmsData.b2cMobileMedia?.mediaUrl ? activeCmsData.b2cMobileMedia : activeCmsData.b2cDesktopMedia;
 
   const activeB2bDesktopMedia = activeCmsData.b2bDesktopMedia;
-  const activeB2bMobileMedia = activeCmsData.b2bMobileMedia || activeCmsData.b2bDesktopMedia;
-  const activeB2bMedia = effectiveIsMobile && activeB2bMobileMedia?.mediaUrl ? activeB2bMobileMedia : activeB2bDesktopMedia;
+  const activeB2bMobileMedia = activeCmsData.b2bMobileMedia?.mediaUrl ? activeCmsData.b2bMobileMedia : activeCmsData.b2bDesktopMedia;
 
   // Active Selected / Focus State
   const activeFocus = previewMode && simulation?.portalFocus && simulation.portalFocus !== "none"
@@ -172,7 +170,7 @@ export function PortalGateway({
 
   // Pointer Ripple Trail Spawner (~55ms throttle, max 8 ripples)
   const handlePointerMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (isTouchDevice || isReducedMotion || effectiveIsMobile) return;
+    if (isTouchDevice || isReducedMotion) return;
 
     const now = performance.now();
     if (now - lastRippleTimeRef.current < 55) return;
@@ -207,7 +205,7 @@ export function PortalGateway({
     setTimeout(() => {
       setRipples((prev) => prev.filter((r) => r.id !== newRipple.id));
     }, 620);
-  }, [isTouchDevice, isReducedMotion, effectiveIsMobile, isLight, b2cWidthPercent]);
+  }, [isTouchDevice, isReducedMotion, isLight, b2cWidthPercent]);
 
   // Click / Selection Handler with 500ms transition
   const handleSelect = useCallback(
@@ -425,130 +423,134 @@ export function PortalGateway({
         <main className="relative flex-1 min-h-0 w-full h-full overflow-hidden z-10 flex flex-col">
           
           {/* MOBILE VIEW (< 768px): CLEAN ZERO-OVERLAP 50/50 SPLIT (01 EXPERIENCE / 02 CREATE) */}
-          {effectiveIsMobile ? (
-            <div className="flex flex-col w-full h-full flex-1 min-h-0 relative">
+          <div className={cn(
+            "flex flex-col w-full h-full flex-1 min-h-0 relative",
+            isSimulatedMobile ? "flex" : isSimulatedDesktop ? "hidden" : "flex md:hidden"
+          )}>
+            {/* SUB-HEADER TAGLINE */}
+            <div className="w-full px-4 py-1 z-30 bg-black/40 backdrop-blur-sm border-b border-white/5 shrink-0">
+              <p className="text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.2em] text-neutral-300 uppercase text-center sm:text-start">
+                {headline}
+              </p>
+            </div>
+
+            {/* B2C EXPERIENCE (TOP HALF: EXACT 50% OF REMAINING CANVAS) */}
+            <div
+              onClick={() => handleSelect("b2c")}
+              className={cn(
+                "relative flex-1 h-1/2 min-h-0 w-full overflow-hidden flex flex-col justify-between p-4 sm:p-6 cursor-pointer group select-none",
+                isLight ? "bg-[#F7F3FF]" : "bg-[#0B1020]"
+              )}
+              role="button"
+              tabIndex={0}
+              aria-label={b2cAria || b2cTitle}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleSelect("b2c"); }}
+            >
+              <UniversalMediaHolder
+                config={simulation?.useFallbackMedia ? { ...activeB2cMobileMedia, mediaUrl: activeB2cMobileMedia.fallbackImageUrl, mediaType: "IMAGE" } : activeB2cMobileMedia}
+                locale={activeLocale}
+                className={cn(
+                  "absolute inset-0 h-full w-full object-cover opacity-90 transition-transform duration-700 ease-out",
+                  !isReducedMotion && "group-hover:scale-105 group-active:scale-98"
+                )}
+              />
               
-              {/* SUB-HEADER TAGLINE */}
-              <div className="w-full px-4 py-1 z-30 bg-black/40 backdrop-blur-sm border-b border-white/5 shrink-0">
-                <p className="text-[9px] sm:text-[10px] font-mono font-bold tracking-[0.2em] text-neutral-300 uppercase text-center sm:text-start">
-                  {headline}
-                </p>
-              </div>
-
-              {/* B2C EXPERIENCE (TOP HALF: EXACT 50% OF REMAINING CANVAS) */}
+              {/* Magenta Ambient Gradient Overlay */}
               <div
-                onClick={() => handleSelect("b2c")}
-                className={cn(
-                  "relative flex-1 h-1/2 min-h-0 w-full overflow-hidden flex flex-col justify-between p-4 sm:p-6 cursor-pointer group select-none",
-                  isLight ? "bg-[#F7F3FF]" : "bg-[#0B1020]"
-                )}
-                role="button"
-                tabIndex={0}
-                aria-label={b2cAria || b2cTitle}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleSelect("b2c"); }}
-              >
-                <UniversalMediaHolder
-                  config={simulation?.useFallbackMedia ? { ...activeB2cMedia, mediaUrl: activeB2cMedia.fallbackImageUrl, mediaType: "IMAGE" } : activeB2cMedia}
-                  locale={activeLocale}
-                  className={cn(
-                    "absolute inset-0 h-full w-full object-cover opacity-90 transition-transform duration-700 ease-out",
-                    !isReducedMotion && "group-hover:scale-105 group-active:scale-98"
-                  )}
-                />
-                
-                {/* Magenta Ambient Gradient Overlay */}
-                <div
-                  className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-[#0B1020]/90 via-[#E11D48]/35 to-transparent transition-opacity duration-350"
-                  style={{ opacity: visual?.overlayStrength ?? 0.5 }}
-                />
+                className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-[#0B1020]/90 via-[#E11D48]/35 to-transparent transition-opacity duration-350"
+                style={{ opacity: visual?.overlayStrength ?? 0.5 }}
+              />
 
-                {/* Top: 01 Indicator Tag */}
-                <div className="relative z-30 flex items-center justify-between w-full">
-                  <div className="flex flex-col items-start">
-                    <span className="text-xs sm:text-sm font-black font-mono tracking-widest text-white drop-shadow">
-                      {b2cNumberTag}
-                    </span>
-                    <div className="w-5 h-[2px] bg-pink-400 mt-0.5 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
-                  </div>
-                </div>
-
-                {/* Bottom: Editorial Title + Subtitle + Corner Arrow */}
-                <div className="relative z-30 w-full flex items-end justify-between gap-3">
-                  <div className="space-y-0.5 max-w-[78%]">
-                    <h2 className="text-2xl sm:text-3xl xs:text-4xl font-black font-syne uppercase tracking-tight leading-[0.95] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
-                      {b2cTitle}
-                    </h2>
-                    <p className="text-[11px] sm:text-xs font-medium text-white/90 leading-tight drop-shadow line-clamp-1">
-                      {b2cTagline}
-                    </p>
-                    <span className="sr-only">{b2cCta}</span>
-                  </div>
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 group-hover:bg-pink-500 transition-colors shadow-lg">
-                    <ArrowUpRight className={cn("w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5", isAr && "scale-x-[-1]")} />
-                  </div>
+              {/* Top: 01 Indicator Tag */}
+              <div className="relative z-30 flex items-center justify-between w-full">
+                <div className="flex flex-col items-start">
+                  <span className="text-xs sm:text-sm font-black font-mono tracking-widest text-white drop-shadow">
+                    {b2cNumberTag}
+                  </span>
+                  <div className="w-5 h-[2px] bg-pink-400 mt-0.5 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
                 </div>
               </div>
 
-              {/* CLEAN HORIZONTAL SEAM DIVIDER (EXACT 50/50 SEAM) */}
-              <div className="relative z-40 w-full h-[1.5px] bg-gradient-to-r from-purple-500 via-indigo-400 to-cyan-400 shadow-[0_0_15px_rgba(168,85,247,0.8)] pointer-events-none shrink-0" />
-
-              {/* B2B CREATE (BOTTOM HALF: EXACT 50% OF REMAINING CANVAS) */}
-              <div
-                onClick={() => handleSelect("b2b")}
-                className={cn(
-                  "relative flex-1 h-1/2 min-h-0 w-full overflow-hidden flex flex-col justify-between p-4 sm:p-6 cursor-pointer group select-none",
-                  isLight ? "bg-[#EEF4F8]" : "bg-[#070A12]"
-                )}
-                role="button"
-                tabIndex={0}
-                aria-label={b2bAria || b2bTitle}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleSelect("b2b"); }}
-              >
-                <UniversalMediaHolder
-                  config={simulation?.useFallbackMedia ? { ...activeB2bMedia, mediaUrl: activeB2bMedia.fallbackImageUrl, mediaType: "IMAGE" } : activeB2bMedia}
-                  locale={activeLocale}
-                  className={cn(
-                    "absolute inset-0 h-full w-full object-cover opacity-90 transition-transform duration-700 ease-out",
-                    !isReducedMotion && "group-hover:scale-105 group-active:scale-98"
-                  )}
-                />
-                
-                {/* Cyan/Blue Ambient Blueprint Gradient Overlay */}
-                <div
-                  className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[#070A12]/90 via-[#0284C7]/35 to-transparent transition-opacity duration-350"
-                  style={{ opacity: visual?.overlayStrength ?? 0.5 }}
-                />
-
-                {/* Top: 02 Indicator Tag */}
-                <div className="relative z-30 flex items-center justify-between w-full">
-                  <div className="flex flex-col items-start">
-                    <span className="text-xs sm:text-sm font-black font-mono tracking-widest text-white drop-shadow">
-                      {b2bNumberTag}
-                    </span>
-                    <div className="w-5 h-[2px] bg-cyan-400 mt-0.5 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
-                  </div>
+              {/* Bottom: Editorial Title + Subtitle + Corner Arrow */}
+              <div className="relative z-30 w-full flex items-end justify-between gap-3">
+                <div className="space-y-0.5 max-w-[78%]">
+                  <span className="block text-2xl sm:text-3xl xs:text-4xl font-black font-syne uppercase tracking-tight leading-[0.95] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+                    {b2cTitle}
+                  </span>
+                  <p className="text-[11px] sm:text-xs font-medium text-white/90 leading-tight drop-shadow line-clamp-1">
+                    {b2cTagline}
+                  </p>
+                  <span className="sr-only">{b2cCta}</span>
                 </div>
-
-                {/* Bottom: Editorial Title + Subtitle + Corner Arrow */}
-                <div className="relative z-30 w-full flex items-end justify-between gap-3">
-                  <div className="space-y-0.5 max-w-[78%]">
-                    <h2 className="text-2xl sm:text-3xl xs:text-4xl font-black font-syne uppercase tracking-tight leading-[0.95] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
-                      {b2bTitle}
-                    </h2>
-                    <p className="text-[11px] sm:text-xs font-medium text-white/90 leading-tight drop-shadow line-clamp-1">
-                      {b2bTagline}
-                    </p>
-                    <span className="sr-only">{b2bCta}</span>
-                  </div>
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 group-hover:bg-cyan-500 transition-colors shadow-lg">
-                    <ArrowUpRight className={cn("w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5", isAr && "scale-x-[-1]")} />
-                  </div>
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 group-hover:bg-pink-500 transition-colors shadow-lg">
+                  <ArrowUpRight className={cn("w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5", isAr && "scale-x-[-1]")} />
                 </div>
               </div>
             </div>
-          ) : (
-            /* DESKTOP VIEW (>= 768px): RESTORED ORIGINAL SLANTED DIAGONAL SPLIT WITH 50/50 -> 58/42 EXPANSION */
-            <div className="absolute inset-0 w-full h-full flex flex-row">
+
+            {/* CLEAN HORIZONTAL SEAM DIVIDER (EXACT 50/50 SEAM) */}
+            <div className="relative z-40 w-full h-[1.5px] bg-gradient-to-r from-purple-500 via-indigo-400 to-cyan-400 shadow-[0_0_15px_rgba(168,85,247,0.8)] pointer-events-none shrink-0" />
+
+            {/* B2B CREATE (BOTTOM HALF: EXACT 50% OF REMAINING CANVAS) */}
+            <div
+              onClick={() => handleSelect("b2b")}
+              className={cn(
+                "relative flex-1 h-1/2 min-h-0 w-full overflow-hidden flex flex-col justify-between p-4 sm:p-6 cursor-pointer group select-none",
+                isLight ? "bg-[#EEF4F8]" : "bg-[#070A12]"
+              )}
+              role="button"
+              tabIndex={0}
+              aria-label={b2bAria || b2bTitle}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleSelect("b2b"); }}
+            >
+              <UniversalMediaHolder
+                config={simulation?.useFallbackMedia ? { ...activeB2bMobileMedia, mediaUrl: activeB2bMobileMedia.fallbackImageUrl, mediaType: "IMAGE" } : activeB2bMobileMedia}
+                locale={activeLocale}
+                className={cn(
+                  "absolute inset-0 h-full w-full object-cover opacity-90 transition-transform duration-700 ease-out",
+                  !isReducedMotion && "group-hover:scale-105 group-active:scale-98"
+                )}
+              />
+              
+              {/* Cyan/Blue Ambient Blueprint Gradient Overlay */}
+              <div
+                className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[#070A12]/90 via-[#0284C7]/35 to-transparent transition-opacity duration-350"
+                style={{ opacity: visual?.overlayStrength ?? 0.5 }}
+              />
+
+              {/* Top: 02 Indicator Tag */}
+              <div className="relative z-30 flex items-center justify-between w-full">
+                <div className="flex flex-col items-start">
+                  <span className="text-xs sm:text-sm font-black font-mono tracking-widest text-white drop-shadow">
+                    {b2bNumberTag}
+                  </span>
+                  <div className="w-5 h-[2px] bg-cyan-400 mt-0.5 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+                </div>
+              </div>
+
+              {/* Bottom: Editorial Title + Subtitle + Corner Arrow */}
+              <div className="relative z-30 w-full flex items-end justify-between gap-3">
+                <div className="space-y-0.5 max-w-[78%]">
+                  <span className="block text-2xl sm:text-3xl xs:text-4xl font-black font-syne uppercase tracking-tight leading-[0.95] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+                    {b2bTitle}
+                  </span>
+                  <p className="text-[11px] sm:text-xs font-medium text-white/90 leading-tight drop-shadow line-clamp-1">
+                    {b2bTagline}
+                  </p>
+                  <span className="sr-only">{b2bCta}</span>
+                </div>
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shrink-0 group-hover:bg-cyan-500 transition-colors shadow-lg">
+                  <ArrowUpRight className={cn("w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5", isAr && "scale-x-[-1]")} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* DESKTOP VIEW (>= 768px): RESTORED ORIGINAL SLANTED DIAGONAL SPLIT WITH 50/50 -> 58/42 EXPANSION */}
+          <div className={cn(
+            "absolute inset-0 w-full h-full flex flex-row",
+            isSimulatedMobile ? "hidden" : isSimulatedDesktop ? "flex" : "hidden md:flex"
+          )}>
               
               {/* B2C PORTAL (LEFT PANEL IN LTR / RIGHT IN RTL) */}
               <div
@@ -573,7 +575,7 @@ export function PortalGateway({
                 )}
               >
                 <UniversalMediaHolder
-                  config={simulation?.useFallbackMedia ? { ...activeB2cMedia, mediaUrl: activeB2cMedia.fallbackImageUrl, mediaType: "IMAGE" } : activeB2cMedia}
+                  config={simulation?.useFallbackMedia ? { ...activeB2cDesktopMedia, mediaUrl: activeB2cDesktopMedia.fallbackImageUrl, mediaType: "IMAGE" } : activeB2cDesktopMedia}
                   locale={activeLocale}
                   className={cn(
                     "h-full w-full object-cover opacity-100 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]",
@@ -707,7 +709,7 @@ export function PortalGateway({
                 )}
               >
                 <UniversalMediaHolder
-                  config={simulation?.useFallbackMedia ? { ...activeB2bMedia, mediaUrl: activeB2bMedia.fallbackImageUrl, mediaType: "IMAGE" } : activeB2bMedia}
+                  config={simulation?.useFallbackMedia ? { ...activeB2bDesktopMedia, mediaUrl: activeB2bDesktopMedia.fallbackImageUrl, mediaType: "IMAGE" } : activeB2bDesktopMedia}
                   locale={activeLocale}
                   className={cn(
                     "h-full w-full object-cover opacity-95 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]",
@@ -854,7 +856,6 @@ export function PortalGateway({
                 )}
               </div>
             </div>
-          )}
         </main>
       </div>
     </>
