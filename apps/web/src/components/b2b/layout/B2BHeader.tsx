@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Search, Globe, Moon, Sun } from 'lucide-react'
+import { Menu, X, Search, Globe, Moon, Sun, Home } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 import { PulseOrbitDropdown } from '@/components/b2c/nav/PulseOrbitDropdown';
@@ -81,14 +81,22 @@ export function B2BHeader({ settings = {}, locale: propLocale }: { settings?: Re
     >
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
         {/* Logo & Portal Switcher */}
-        <div className="flex items-center gap-4">
-          <Link href={`/${currentLocale}/b2b`} className="flex items-center gap-3 z-50">
+        <div className="flex items-center gap-3">
+          <Link href={`/${currentLocale}`} className="flex items-center gap-3 z-50" title={isAr ? "بوابة الدخول الرئيسية" : "Main Gateway"}>
             <E3Logo
               isLight={theme === 'light'}
               lightLogoUrl={lightLogoUrl}
               darkLogoUrl={darkLogoUrl}
               size="md"
             />
+          </Link>
+          <Link
+            href={`/${currentLocale}/b2b`}
+            className="w-8 h-8 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-default)]/90 hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-emerald-500 flex items-center justify-center transition-colors shadow-xs"
+            title={isAr ? "الرئيسية — قطاع الأعمال" : "B2B Enterprise Home"}
+            aria-label={isAr ? "الرئيسية — قطاع الأعمال" : "B2B Enterprise Home"}
+          >
+            <Home className="w-4 h-4" />
           </Link>
         </div>
 
