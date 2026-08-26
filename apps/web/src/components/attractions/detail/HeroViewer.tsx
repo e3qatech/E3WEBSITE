@@ -2,36 +2,13 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
-
+import { motion } from 'framer-motion';
 import { formatLocalizedText } from '@/lib/utils';
-import { E3LivingHero } from '@/components/b2c/hero/E3LivingHero';
-
-const ModelViewer = dynamic(() => import('./ModelViewer'), {
-  ssr: false,
-  loading: () => <div className="absolute inset-0 flex items-center justify-center bg-zinc-950"><span className="text-white/50">Loading 3D Experience...</span></div>
-});
-
 import { B2CSceneHost } from '@/components/b2c/runtime/B2CExperienceRuntime';
-
-export interface HeroViewerProps {
-  title: string;
-  tagline?: string;
-  mediaType: string;
-  mediaUrl?: string | null;
-  fallbackUrl?: string | null;
-  status?: string;
-  logoUrl?: string | null;
-  ctaText?: string;
-  ctaLink?: string;
-  motionPreset?: string;
-  rotatingWordsEn?: string[];
-  rotatingWordsAr?: string[];
-  accentColor?: string;
-  locale?: string;
-}
+import ModelViewer from './ModelViewer';
+import { E3LivingHero } from '@/components/b2c/hero/E3LivingHero';
+import { ChevronDown, Ticket } from 'lucide-react';
 
 const extractUrl = (raw: string | null | undefined) => {
   if (!raw) return '';
@@ -42,10 +19,27 @@ const extractUrl = (raw: string | null | undefined) => {
   return raw;
 };
 
+interface HeroViewerProps {
+  title: string;
+  tagline?: string;
+  mediaType?: 'IMAGE' | 'VIDEO' | 'MODEL_3D' | 'IFRAME' | string;
+  mediaUrl?: string;
+  fallbackUrl?: string;
+  status?: string;
+  logoUrl?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  motionPreset?: string;
+  rotatingWordsEn?: string[];
+  rotatingWordsAr?: string[];
+  accentColor?: string;
+  locale?: string;
+}
+
 export function HeroViewer({
   title,
   tagline,
-  mediaType,
+  mediaType = 'IMAGE',
   mediaUrl,
   fallbackUrl,
   status,
@@ -68,8 +62,6 @@ export function HeroViewer({
     ? Array.isArray(rotatingWordsAr) && rotatingWordsAr.length > 0
     : Array.isArray(rotatingWordsEn) && rotatingWordsEn.length > 0;
 
-  // Detail page rule: When record-level rotating phrases are present, render E3LivingHero with record-accent preset.
-  // When phrases are empty, retain the static hero layout without inventing fallback content.
   if (hasRecordRotatingWords) {
     return (
       <E3LivingHero
@@ -99,7 +91,7 @@ export function HeroViewer({
   }
 
   return (
-    <section className="relative w-full h-[100vh] overflow-hidden bg-zinc-950 flex items-center justify-center">
+    <section className="relative w-full min-h-screen overflow-hidden bg-zinc-950 flex flex-col items-center justify-between pt-24 pb-12 px-6">
       {/* Ambient B2C Motion Preset Signature Layer */}
       <B2CSceneHost preset={motionPreset} colorAccent={accentColor} />
 
@@ -154,17 +146,17 @@ export function HeroViewer({
         )}
       </div>
 
-      {/* Gradient Overlay for Text Readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent z-10 pointer-events-none" />
+      {/* Gradient Scrim for Readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/75 to-transparent z-10 pointer-events-none" />
 
-      {/* Hero Content */}
-      <div className="relative z-20 flex flex-col items-center justify-center text-center px-6 max-w-5xl mx-auto mt-20">
+      {/* Hero Content - Centered */}
+      <div className="relative z-20 flex-1 flex flex-col items-center justify-center text-center max-w-5xl mx-auto my-auto space-y-6">
         {logoUrl && (
           <motion.div
             initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-8 relative w-32 h-32 md:w-48 md:h-48"
+            className="relative w-28 h-28 md:w-40 md:h-40 mb-2"
           >
             <Image
               src={logoUrl}
@@ -181,7 +173,7 @@ export function HeroViewer({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
-            className="mb-8 relative group"
+            className="relative group"
           >
             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl group-hover:bg-emerald-500/40 transition-colors duration-500" />
             <span className="relative px-6 py-2 text-xs font-bold tracking-[0.2em] text-white uppercase bg-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-2xl">
@@ -194,7 +186,7 @@ export function HeroViewer({
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          className="text-balance text-5xl md:text-7xl lg:text-[clamp(3rem,8vw,6rem)] font-black text-white tracking-tighter uppercase leading-[0.9] drop-shadow-2xl max-w-6xl break-words"
+          className="text-balance text-4xl sm:text-6xl md:text-7xl lg:text-[clamp(3rem,7vw,5.5rem)] font-black text-white tracking-tighter uppercase leading-[0.92] drop-shadow-2xl max-w-5xl break-words"
         >
           {formatLocalizedText(title, locale)}
         </motion.h1>
@@ -204,7 +196,7 @@ export function HeroViewer({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-8 text-xl md:text-3xl text-zinc-300 max-w-3xl font-light leading-relaxed drop-shadow-lg"
+            className="text-lg sm:text-xl md:text-2xl text-zinc-300 max-w-3xl font-light leading-relaxed drop-shadow-lg"
           >
             {formatLocalizedText(tagline, locale)}
           </motion.p>
@@ -215,46 +207,47 @@ export function HeroViewer({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-12"
+            className="pt-4"
           >
             {ctaLink.startsWith('http://') || ctaLink.startsWith('https://') ? (
               <a 
                 href={ctaLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center px-10 py-5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-lg md:text-xl uppercase tracking-widest transition-all duration-300 rounded-sm hover:scale-105"
+                className="inline-flex items-center justify-center gap-2.5 px-10 py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-base md:text-lg uppercase tracking-wider transition-all duration-300 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:scale-105"
               >
-                {ctaText}
+                <Ticket className="w-5 h-5" />
+                <span>{ctaText}</span>
               </a>
             ) : (
               <Link 
                 href={ctaLink}
-                className="inline-flex items-center justify-center px-10 py-5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-lg md:text-xl uppercase tracking-widest transition-all duration-300 rounded-sm hover:scale-105"
+                className="inline-flex items-center justify-center gap-2.5 px-10 py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-base md:text-lg uppercase tracking-wider transition-all duration-300 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:scale-105"
               >
-                {ctaText}
+                <Ticket className="w-5 h-5" />
+                <span>{ctaText}</span>
               </Link>
             )}
           </motion.div>
         )}
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Clean Scroll Down Hint (Positioned with safe clearance at bottom) */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 1 }}
-        className="absolute bottom-10 start-1/2 -translate-x-1/2 z-20 flex flex-col items-center"
+        className="relative z-20 flex flex-col items-center gap-1.5 pt-4 pointer-events-none"
       >
-        <span className="text-[10px] text-amber-500 uppercase tracking-[0.3em] mb-4 font-mono font-bold drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]">
-          {isAr ? "استكشف" : "Discover"}
+        <span className="text-[10px] text-zinc-400 uppercase tracking-[0.25em] font-mono font-bold">
+          {isAr ? "مرر للأسفل" : "Scroll to Explore"}
         </span>
-        <div className="w-[1px] h-24 bg-white/10 relative overflow-hidden rounded-full">
-          <motion.div 
-            className="absolute top-0 start-0 w-full h-1/2 bg-amber-500 rounded-full shadow-[0_0_15px_rgba(245,158,11,1)]"
-            animate={{ y: ["-100%", "200%"] }}
-            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-          />
-        </div>
+        <motion.div
+          animate={{ y: [0, 6, 0] }}
+          transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+        >
+          <ChevronDown className="w-4 h-4 text-emerald-400" />
+        </motion.div>
       </motion.div>
     </section>
   );

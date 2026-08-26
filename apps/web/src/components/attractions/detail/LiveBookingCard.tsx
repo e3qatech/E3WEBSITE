@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Navigation, Ticket } from 'lucide-react';
+import { MapPin, Navigation, Ticket, Clock, Calendar, Phone, Sparkles, Compass, Car, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-import { formatLocalizedText } from '@/lib/utils';
+import { formatLocalizedText, cn } from '@/lib/utils';
 import { localizeHref, isExternalUrl, normalizeExternalUrl } from '@/lib/url-helper';
 import { AttractionMapCanvas } from '@/components/map/AttractionMapCanvas';
 import { MapGeoJSONCollection } from '@/components/map/map-types';
@@ -39,8 +39,8 @@ export function LiveBookingCard({
   const formattedAddress = formatLocalizedText(locationAddress, locale) || (isAr ? "الدوحة، قطر" : "Doha, Qatar");
   const formattedName = formatLocalizedText(name, locale) || (isAr ? "الوجهة" : "Attraction");
 
-  const lat = latitude || 25.2854;
-  const lng = longitude || 51.5310;
+  const lat = latitude || 25.3214;
+  const lng = longitude || 51.5284;
 
   // Single Attraction GeoJSON feature for our Location GIS Map Engine
   const singleLocationGeoJson: MapGeoJSONCollection = {
@@ -70,7 +70,7 @@ export function LiveBookingCard({
           locationType: "PERMANENT_ATTRACTION",
           status: "OPEN",
           pinColorToken: "CYAN",
-          pinBadgeText: "E3 VENUE",
+          pinBadgeText: "E3 ATTRACTION",
           accentColor: "#10b981",
           materialType: "E3 ATTRACTION",
           heroMediaUrl: mapImageFallback || undefined
@@ -79,44 +79,41 @@ export function LiveBookingCard({
     ]
   };
 
-  /* 
-    ============================================================
-    MISSION CONTROL LEFT PANEL COMMENTED OUT AS REQUESTED
-    ============================================================
-    <div className="relative bg-white/[0.02] border border-white/5 backdrop-blur-3xl rounded-[2.5rem] p-10 md:p-14 flex flex-col justify-between overflow-hidden">
-      <h2>Mission Control</h2>
-      <p>Monitor live occupancy and secure your spot...</p>
-    </div>
-    ============================================================
-  */
+  const weekdaysTiming = operations?.hoursWeekdays || operations?.openingHours || (isAr ? "10:00 صباحاً - 10:00 مساءً" : "10:00 AM - 10:00 PM");
+  const weekendsTiming = operations?.hoursWeekends || (isAr ? "10:00 صباحاً - 12:00 منتصف الليل" : "10:00 AM - 12:00 AM");
+  const isOpen = operations?.isOpen !== false;
+
+  const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  const wazeUrl = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
 
   return (
-    <section className="py-24 bg-[var(--surface-default)] text-[var(--text-primary)] relative border-t border-[var(--border-level-2)]" dir={isAr ? "rtl" : "ltr"}>
+    <section id="location" className="py-24 md:py-32 bg-[var(--surface-default)] text-[var(--text-primary)] relative border-t border-[var(--border-level-2)] overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
+      {/* Background Ambient Glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
       
-      <div className="relative z-10 max-w-7xl mx-auto px-6 space-y-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 space-y-12">
         
         {/* Section Header */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[var(--border-level-2)] pb-6">
           <div>
             <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-mono font-bold uppercase tracking-widest mb-3 shadow-sm">
-              <MapPin className="w-3.5 h-3.5" />
-              <span>{isAr ? "الموقع الجغرافي والوصول" : "LOCATION & GIS MAP"}</span>
+              <Compass className="w-3.5 h-3.5" />
+              <span>{isAr ? "الموقع الجغرافي والمواعيد" : "LOCATION & SCHEDULE"}</span>
             </span>
             <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[var(--text-primary)]">
-              {isAr ? `موقع ${formattedName}` : `Location & Map`}
+              {isAr ? "أوقات العمل والموقع" : "Location & Operating Hours"}
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <a
-              href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
+              href={googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[var(--surface-hover)] hover:bg-[var(--border-level-2)] border border-[var(--border-level-2)] text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider transition-all shadow-md cursor-pointer"
             >
               <Navigation className="w-4 h-4 text-emerald-500" />
-              <span>{isAr ? "احصل على الاتجاهات" : "Get Directions"}</span>
+              <span>{isAr ? "الاتجاهات (Google Maps)" : "Get Directions"}</span>
             </a>
 
             {bookingUrl && (
@@ -143,67 +140,144 @@ export function LiveBookingCard({
           </div>
         </div>
 
-        {/* Interactive GIS Map Canvas Feature */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="relative h-[480px] md:h-[580px] w-full rounded-3xl overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-hover)] shadow-2xl group"
-        >
-          {/* E3 Interactive Vector Map Engine */}
-          <AttractionMapCanvas 
-            geoJson={singleLocationGeoJson}
-            selectedLocationId={attractionId}
-            onSelectLocation={() => {}}
-            locale={locale}
-          />
+        {/* Two-Column Studio Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          
+          {/* Left Column: Timings, Venue Details & Contact (5 Cols) */}
+          <motion.div
+            initial={{ opacity: 0, x: isAr ? 30 : -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-5 bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-[2.5rem] p-7 md:p-8 flex flex-col justify-between space-y-6 shadow-xl"
+          >
+            <div className="space-y-6">
+              {/* Status Banner */}
+              <div className="flex items-center justify-between gap-3 pb-5 border-b border-[var(--border-level-2)]">
+                <div>
+                  <span className="text-[10px] font-mono font-bold text-[var(--text-tertiary)] uppercase tracking-wider block mb-1">
+                    {isAr ? "الحالة التشغيلية" : "LIVE STATUS"}
+                  </span>
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">
+                    {formattedName}
+                  </h3>
+                </div>
 
-          {/* Floating Location Details Badge */}
-          <div className="absolute bottom-6 start-6 end-6 md:end-auto max-w-md p-6 bg-[var(--surface-default)]/95 backdrop-blur-xl rounded-2xl border border-[var(--border-level-2)] shadow-2xl z-20 space-y-3 pointer-events-auto">
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>{isAr ? "عنوان الوجهة" : "VENUE ADDRESS"}</span>
-              </span>
-              {operations?.isOpen ? (
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>{isAr ? "مفتوح الآن" : "OPEN NOW"}</span>
+                {isOpen ? (
+                  <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/40 flex items-center gap-2 shadow-sm shrink-0">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>{isAr ? "مفتوح الآن" : "OPEN NOW"}</span>
+                  </span>
+                ) : (
+                  <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/40 flex items-center gap-2 shrink-0">
+                    <span className="w-2 h-2 rounded-full bg-rose-500" />
+                    <span>{isAr ? "مغلق حالياً" : "CLOSED NOW"}</span>
+                  </span>
+                )}
+              </div>
+
+              {/* Exact Location & Mall Floor Card */}
+              <div className="p-4 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] space-y-2">
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <span className="text-xs font-bold text-[var(--text-primary)] block">
+                      {formattedAddress}
+                    </span>
+                    <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--text-secondary)]">
+                      <span>GPS: {lat.toFixed(4)}° N, {lng.toFixed(4)}° E</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Weekly Operating Hours Table */}
+              <div className="space-y-2.5">
+                <span className="text-[10px] font-mono font-bold text-[var(--text-tertiary)] uppercase tracking-wider block">
+                  {isAr ? "جدول المواعيد الأسبوعية" : "WEEKLY SCHEDULE"}
                 </span>
-              ) : (
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30">
-                  {isAr ? "مغلق حالياً" : "CLOSED NOW"}
-                </span>
-              )}
+
+                <div className="p-3.5 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <Calendar className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span className="text-xs font-bold text-[var(--text-primary)]">
+                      {isAr ? "السبت – الأربعاء" : "Saturday – Wednesday"}
+                    </span>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg">
+                    {weekdaysTiming}
+                  </span>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <Sparkles className="w-4 h-4 text-purple-500 shrink-0" />
+                    <span className="text-xs font-bold text-[var(--text-primary)]">
+                      {isAr ? "الخميس والجمعة" : "Thursday & Friday"}
+                    </span>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-lg">
+                    {weekendsTiming}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <h3 className="font-bold text-lg text-[var(--text-primary)] leading-snug">
-              {formattedName}
-            </h3>
-            <p className="text-[var(--text-secondary)] text-xs leading-relaxed font-normal">
-              {formattedAddress}
-            </p>
+            {/* Quick Actions Footer */}
+            <div className="pt-4 border-t border-[var(--border-level-2)] flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2">
+                <a
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 hover:underline font-bold"
+                >
+                  <Navigation className="w-3.5 h-3.5" />
+                  <span>{isAr ? "فتح الخريطة ↗" : "Open in Maps ↗"}</span>
+                </a>
 
-            <div className="pt-2 border-t border-[var(--border-level-2)] flex items-center justify-between gap-4 text-xs font-bold">
-              <a 
-                href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 transition-colors"
-              >
-                <Navigation className="w-3.5 h-3.5" />
-                <span>{isAr ? "فتح الخريطة الخارجية ↗" : "Open Navigation ↗"}</span>
-              </a>
+                <span className="text-[var(--text-tertiary)]">•</span>
+
+                <a
+                  href={wazeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                >
+                  <Car className="w-3.5 h-3.5" />
+                  <span>Waze</span>
+                </a>
+              </div>
 
               {operations?.venueContactPhone && (
-                <a href={`tel:${operations.venueContactPhone}`} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-mono text-[11px]">
-                  📞 {operations.venueContactPhone}
+                <a
+                  href={`tel:${operations.venueContactPhone}`}
+                  className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                >
+                  <Phone className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>{operations.venueContactPhone}</span>
                 </a>
               )}
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+
+          {/* Right Column: High-Performance Vector GIS Map Canvas (7 Cols) */}
+          <motion.div 
+            initial={{ opacity: 0, x: isAr ? -30 : 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-7 relative min-h-[460px] lg:min-h-full rounded-[2.5rem] overflow-hidden border border-[var(--border-level-2)] bg-[var(--surface-hover)] shadow-2xl"
+          >
+            <AttractionMapCanvas 
+              geoJson={singleLocationGeoJson}
+              selectedLocationId={attractionId}
+              onSelectLocation={() => {}}
+              locale={locale}
+            />
+          </motion.div>
+
+        </div>
 
       </div>
     </section>

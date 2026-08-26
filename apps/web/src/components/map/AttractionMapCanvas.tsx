@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { MapGeoJSONCollection, MapLocationProperties } from './map-types';
-import { CARTO_DARK_MAP_STYLE, VOYAGER_ENGLISH_MAP_STYLE } from './map-config';
+import { DARK_MAP_STYLE, LIGHT_MAP_STYLE, CARTO_DARK_MAP_STYLE, VOYAGER_ENGLISH_MAP_STYLE } from './map-config';
 import { MapUnavailableFallback } from './MapUnavailableFallback';
 import { Maximize, Box, Eye, Loader2, Sun, Moon } from 'lucide-react';
 import { isMapLibreSupported, isValidLngLat } from '@/lib/webgl-capability';
@@ -137,7 +137,7 @@ export function AttractionMapCanvas({
 
         mapInstance = new maplibregl.Map({
           container: mapContainerRef.current,
-          style: mapTheme === 'dark' ? CARTO_DARK_MAP_STYLE : VOYAGER_ENGLISH_MAP_STYLE,
+          style: mapTheme === 'dark' ? DARK_MAP_STYLE : LIGHT_MAP_STYLE,
           center: [51.48, 25.35],
           zoom: 10.5,
           pitch: pitch3d ? 50 : 0,

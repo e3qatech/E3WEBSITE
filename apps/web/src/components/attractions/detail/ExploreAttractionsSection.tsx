@@ -101,45 +101,45 @@ export function ExploreAttractionsSection({
               >
                 <Link
                   href={targetUrl}
-                  className="group relative block aspect-[16/11] rounded-[2rem] overflow-hidden bg-[var(--surface-hover)] border border-[var(--border-level-2)] hover:border-emerald-500/50 transition-all duration-500 shadow-xl"
+                  className="group relative block aspect-[16/11] rounded-3xl overflow-hidden bg-neutral-950 border border-[var(--border-level-2)] hover:border-emerald-500/50 transition-all duration-500 shadow-lg"
                 >
                   {/* Background Image with Hover Zoom */}
                   <div className="absolute inset-0 z-0">
                     <img
                       src={image}
                       alt={name || "Attraction"}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-100"
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-85 group-hover:opacity-100"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/60 to-black/20 z-10" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent z-10" />
                   </div>
 
                   {/* Top Badge Pill */}
-                  <div className="absolute top-5 start-5 z-20 flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-300 shadow-sm">
+                  <div className="absolute top-4 start-4 z-20 flex items-center gap-1.5">
+                    <span className="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[9px] font-mono font-bold uppercase tracking-wider text-emerald-300 shadow-sm">
                       {item.experienceFormat ? item.experienceFormat.replace("_", " ") : "ENTERTAINMENT"}
                     </span>
                     {item.isFeatured && (
-                      <span className="px-2.5 py-1 rounded-full bg-purple-500/40 backdrop-blur-md border border-purple-400/30 text-[9px] font-mono font-bold uppercase tracking-wider text-purple-200">
+                      <span className="px-2 py-0.5 rounded-full bg-purple-500/40 backdrop-blur-md border border-purple-400/30 text-[8px] font-mono font-bold uppercase tracking-wider text-purple-200">
                         ⭐ {isAr ? "مميز" : "FEATURED"}
                       </span>
                     )}
                   </div>
 
-                  {/* Bottom Content Area */}
-                  <div className="absolute bottom-0 inset-x-0 p-6 z-20 flex items-end justify-between gap-4">
-                    <div className="space-y-1.5 max-w-[80%]">
-                      <h3 className="text-xl font-bold text-white group-hover:text-emerald-300 transition-colors leading-tight">
+                  {/* Bottom Content Area - Compact & Minimal */}
+                  <div className="absolute bottom-0 inset-x-0 p-4 sm:p-5 z-20 flex items-end justify-between gap-3">
+                    <div className="space-y-1 max-w-[82%]">
+                      <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug">
                         {name}
                       </h3>
                       {tagline && (
-                        <p className="text-xs text-neutral-300 line-clamp-2 leading-relaxed">
+                        <p className="text-xs text-neutral-300 line-clamp-1 leading-relaxed">
                           {tagline}
                         </p>
                       )}
                     </div>
 
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110 shrink-0">
-                      <ArrowRight className={cn("w-4 h-4", isAr && "rotate-180")} />
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110 shrink-0">
+                      <ArrowRight className={cn("w-3.5 h-3.5", isAr && "rotate-180")} />
                     </div>
                   </div>
                 </Link>
