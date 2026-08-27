@@ -722,6 +722,16 @@ export const DEFAULT_B2B_PULSE_ORBIT_CONTENT = {
   bookTicketsExternal: false,
   destinations: [
     {
+      id: "discover",
+      labelEn: "Discover E3",
+      labelAr: "استكشف إي ثري",
+      href: "/b2b/discover",
+      descEn: "Discover the E3 story, leadership, record-breaking achievements, and technology.",
+      descAr: "تعرف على قصة إي ثري قطر، قيادتها، أرقامها القياسية، وتكنولوجيا الفعاليات.",
+      mediaUrl: "",
+      enabled: true,
+    },
+    {
       id: "services",
       labelEn: "Services & Solutions",
       labelAr: "الخدمات والحلول المتكاملة",

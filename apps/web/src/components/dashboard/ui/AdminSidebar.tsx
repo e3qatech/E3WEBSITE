@@ -127,6 +127,7 @@ const sidebarConfig: NavGroupItem[] = [
     capability: "b2b.content.read",
     subItems: [
       { label: "Enterprise Homepage", labelAr: "الصفحة الرئيسية للشركات", href: "/dashboard/b2b/home", capability: "b2b.content.write" },
+      { label: "Discover E3 Page", labelAr: "صفحة استكشف إي ثري", href: "/dashboard/b2b/discover", capability: "b2b.content.write" },
       { label: "Services & Solutions", labelAr: "صفحة الخدمات والحلول", href: "/dashboard/b2b/services-page", capability: "b2b.content.write" },
       { label: "Case Studies Portfolio", labelAr: "صفحة دراسات الحالة والمشاريع", href: "/dashboard/b2b/cases-page", capability: "b2b.content.write" },
       { label: "About E3 Enterprise", labelAr: "صفحة عن الشركة والمسيرة", href: "/dashboard/b2b/about", capability: "b2b.content.write" },

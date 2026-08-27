@@ -117,6 +117,7 @@ export function B2BFooter({ settings = {}, locale: propLocale }: { settings?: Re
           <div>
             <h4 className="text-[var(--text-primary)] font-bold mb-6 tracking-wider uppercase text-xs">{isAr ? "الشركة" : "Company"}</h4>
             <ul className="space-y-3.5 text-sm">
+              <li><Link href={`/${currentLocale}/b2b/discover`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "استكشف إي ثري" : "Discover E3"}</Link></li>
               <li><Link href={`/${currentLocale}/b2b/case-studies`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "دراسات الحالة وأعمالنا" : "Case Studies"}</Link></li>
               <li><Link href={`/${currentLocale}/b2b/clients`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "العملاء والشركاء" : "Clients & Partners"}</Link></li>
               <li><Link href={`/${currentLocale}/b2b/about`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "من نحن" : "About Us"}</Link></li>
