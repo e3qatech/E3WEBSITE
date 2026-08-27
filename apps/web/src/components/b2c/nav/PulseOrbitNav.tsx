@@ -293,7 +293,30 @@ export function PulseOrbitNav({
         }))
     : [];
 
-  const destinationList = rawDestinations.filter((d: any) => !d.href?.includes('/tickets'));
+  const isB2BPortal = activePortalTab === 'b2b' || type === 'b2b';
+  let processedDestinations = [...rawDestinations];
+  if (isB2BPortal) {
+    const hasDiscover = processedDestinations.some((d: any) => d.href === '/b2b/discover' || d.href?.endsWith('/discover'));
+    if (!hasDiscover) {
+      const discoverItem = {
+        labelEn: 'Discover',
+        labelAr: 'استكشف',
+        href: '/b2b/discover',
+        icon: DEST_ICON_MAP['/b2b/discover'] || Sparkles,
+        descEn: 'Discover the E3 story, leadership, record-breaking achievements, and technology.',
+        descAr: 'تعرف على قصة إي ثري قطر، قيادتها، أرقامها القياسية، وتكنولوجيا الفعاليات.',
+        mediaUrl: '',
+      };
+      const servicesIdx = processedDestinations.findIndex((d: any) => d.href?.includes('/services'));
+      if (servicesIdx >= 0) {
+        processedDestinations.splice(servicesIdx, 0, discoverItem);
+      } else {
+        processedDestinations.unshift(discoverItem);
+      }
+    }
+  }
+
+  const destinationList = processedDestinations.filter((d: any) => !d.href?.includes('/tickets'));
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -488,7 +511,7 @@ export function PulseOrbitNav({
               ? "border-slate-200 bg-white/85 shadow-sm"
               : "border-slate-800/80 bg-slate-900/60"
           )}>
-            {destinationList.slice(0, 4).map((dest: any) => {
+            {destinationList.slice(0, isB2BPortal ? 5 : 4).map((dest: any) => {
               const isActive = pathname?.includes(dest.href);
               return (
                 <Link

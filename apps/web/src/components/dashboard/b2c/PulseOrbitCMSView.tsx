@@ -99,6 +99,16 @@ const DEFAULT_B2C_DESTINATIONS: OrbitDestinationItem[] = [
 
 const DEFAULT_B2B_DESTINATIONS: OrbitDestinationItem[] = [
   {
+    id: "discover",
+    labelEn: "Discover E3",
+    labelAr: "استكشف إي ثري",
+    href: "/b2b/discover",
+    descEn: "Discover the E3 story, leadership, record-breaking achievements, and technology.",
+    descAr: "تعرف على قصة إي ثري قطر، قيادتها، أرقامها القياسية، وتكنولوجيا الفعاليات.",
+    mediaUrl: "",
+    enabled: true,
+  },
+  {
     id: "services",
     labelEn: "Services & Solutions",
     labelAr: "الخدمات والحلول المتكاملة",
@@ -149,6 +159,29 @@ const DEFAULT_B2B_DESTINATIONS: OrbitDestinationItem[] = [
     enabled: true,
   },
 ]
+
+function ensureB2BDiscover(destinations: OrbitDestinationItem[]): OrbitDestinationItem[] {
+  if (!Array.isArray(destinations) || destinations.length === 0) return DEFAULT_B2B_DESTINATIONS;
+  const hasDiscover = destinations.some((d) => d.href === '/b2b/discover' || d.id === 'discover');
+  if (hasDiscover) return destinations;
+  const discoverItem: OrbitDestinationItem = {
+    id: "discover",
+    labelEn: "Discover E3",
+    labelAr: "استكشف إي ثري",
+    href: "/b2b/discover",
+    descEn: "Discover the E3 story, leadership, record-breaking achievements, and technology.",
+    descAr: "تعرف على قصة إي ثري قطر، قيادتها، أرقامها القياسية، وتكنولوجيا الفعاليات.",
+    mediaUrl: "",
+    enabled: true,
+  };
+  const servicesIdx = destinations.findIndex((d) => d.href?.includes('/services') || d.id === 'services');
+  if (servicesIdx >= 0) {
+    const copy = [...destinations];
+    copy.splice(servicesIdx, 0, discoverItem);
+    return copy;
+  }
+  return [discoverItem, ...destinations];
+}
 
 export interface PulseOrbitCMSViewProps {
   initialData?: any
@@ -206,10 +239,8 @@ export function PulseOrbitCMSView({
   const [b2cTicketsExternal, setB2CTicketsExternal] = useState(Boolean(initialData?.bookTicketsExternal))
 
   // B2B Orbit State
-  const rawB2BDestinations = initialB2BData?.destinations || DEFAULT_B2B_DESTINATIONS
-  const [b2bDestinations, setB2BDestinations] = useState<OrbitDestinationItem[]>(
-    rawB2BDestinations.length > 0 ? rawB2BDestinations : DEFAULT_B2B_DESTINATIONS
-  )
+  const rawB2BDestinations = ensureB2BDiscover(initialB2BData?.destinations || DEFAULT_B2B_DESTINATIONS)
+  const [b2bDestinations, setB2BDestinations] = useState<OrbitDestinationItem[]>(rawB2BDestinations)
   const [b2bTitleEn, setB2BTitleEn] = useState(initialB2BData?.titleEn || "B2B ENTERPRISE ORBIT")
   const [b2bTitleAr, setB2BTitleAr] = useState(initialB2BData?.titleAr || "مدار إي ثري لقطاع الأعمال")
   const [b2bNavButtonTextEn, setB2BNavButtonTextEn] = useState(initialB2BData?.navButtonTextEn || "B2B ORBIT")
@@ -269,7 +300,7 @@ export function PulseOrbitCMSView({
           if (c.navButtonTextAr !== undefined) setB2BNavButtonTextAr(c.navButtonTextAr)
           if (c.logoUrl !== undefined) setB2BLogoUrl(c.logoUrl)
           if (Array.isArray(c.destinations) && c.destinations.length > 0) {
-            setB2BDestinations(c.destinations)
+            setB2BDestinations(ensureB2BDiscover(c.destinations))
           }
           if (c.bookTicketsUrl !== undefined) setB2BProposalUrl(c.bookTicketsUrl)
           if (c.bookTicketsLabelEn !== undefined) setB2BProposalLabelEn(c.bookTicketsLabelEn)

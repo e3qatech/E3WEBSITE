@@ -2683,24 +2683,44 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     };
   }
 
-  if (slug === 'pulse-orbit') {
+  if (slug === 'b2b-pulse-orbit') {
     const raw = rawContent || {};
-    const defaultDestinations = [
-      { id: 'attractions', labelEn: 'Attractions', mediaUrl: 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/InflataPark%20City%20Center%20_Page_36_Image_0001.jpg' },
-      { id: 'packages', labelEn: 'Packages', mediaUrl: 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC06321.jpg' }
-    ];
+    const defaults = DEFAULT_B2B_PULSE_ORBIT_CONTENT;
+    const rawDests = Array.isArray(raw.destinations) && raw.destinations.length > 0 ? raw.destinations : defaults.destinations;
+    const hasDiscover = rawDests.some((d: any) => d.href === '/b2b/discover' || d.id === 'discover');
+    let mergedDests = [...rawDests];
+    if (!hasDiscover) {
+      const discoverDefault = defaults.destinations.find((d: any) => d.id === 'discover') || {
+        id: "discover",
+        labelEn: "Discover E3",
+        labelAr: "استكشف إي ثري",
+        href: "/b2b/discover",
+        descEn: "Discover the E3 story, leadership, record-breaking achievements, and technology.",
+        descAr: "تعرف على قصة إي ثري قطر، قيادتها، أرقامها القياسية، وتكنولوجيا الفعاليات.",
+        mediaUrl: "",
+        enabled: true,
+      };
+      const servicesIdx = mergedDests.findIndex((d: any) => d.href?.includes('/services') || d.id === 'services');
+      if (servicesIdx >= 0) {
+        mergedDests.splice(servicesIdx, 0, discoverDefault);
+      } else {
+        mergedDests.unshift(discoverDefault);
+      }
+    }
     return {
+      ...defaults,
       ...raw,
-      destinations: (raw.destinations && raw.destinations.length > 0)
-        ? raw.destinations.map((d: any, idx: number) => {
-            const match = defaultDestinations[idx] || defaultDestinations[0];
-            return {
-              ...match,
-              ...d,
-              mediaUrl: (d.mediaUrl && d.mediaUrl.trim().length > 0) ? d.mediaUrl : match.mediaUrl
-            };
-          })
-        : defaultDestinations
+      destinations: mergedDests,
+    };
+  }
+
+  if (slug === 'b2c-pulse-orbit' || slug === 'pulse-orbit') {
+    const raw = rawContent || {};
+    const defaults = DEFAULT_PULSE_ORBIT_CONTENT;
+    return {
+      ...defaults,
+      ...raw,
+      destinations: (raw.destinations && raw.destinations.length > 0) ? raw.destinations : defaults.destinations,
     };
   }
 
