@@ -80,32 +80,16 @@ export default async function CaseStudiesIndexPage({ params }: { params: Promise
     ? cmsContent.featuredCases.selectedCaseStudyIds.map(String)
     : []
 
-  // Fetch all published case studies from DB
+  // Fetch all case studies using unified canonical resolver
   try {
-    const rawCases = await db.caseStudy.findMany({
-      where: { isPublished: true },
-      include: {
-        teamMembers: {
-          include: { employeeProfile: true },
-          orderBy: { orderIndex: 'asc' }
-        },
-        attraction: true
-      },
-      orderBy: [{ isFeatured: 'desc' }, { year: 'desc' }, { createdAt: 'desc' }]
-    }).catch(() => [])
-
-    if (rawCases && rawCases.length > 0) {
-      caseStudies = rawCases.map(enrichCaseStudyWithDefaults)
-    } else {
-      caseStudies = await getPublicCaseStudies({
-        includeTeam: true,
-        includeAttraction: true,
-        featuredFirst: true
-      })
-    }
+    caseStudies = await getPublicCaseStudies({
+      includeTeam: true,
+      includeAttraction: true,
+      featuredFirst: true,
+    });
   } catch (err) {
-    console.error("Error loading case studies:", err)
-    caseStudies = await getPublicCaseStudies({ featuredFirst: true })
+    console.error("Error loading case studies:", err);
+    caseStudies = [];
   }
 
   const selectedSet = new Set(selectedIds)

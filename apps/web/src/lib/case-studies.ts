@@ -165,7 +165,9 @@ export function enrichCaseStudyWithDefaults(rawCase: any): any {
  * Shared canonical database fetcher for public case studies.
  * Guarantees that only published real DB records are ever returned across all public consumers.
  */
-export async function getPublicCaseStudies(options: PublicCaseStudiesQueryOptions = {}) {
+export async function getPublicCaseStudies(
+  options: PublicCaseStudiesQueryOptions = {}
+) {
   const {
     ids,
     category,
@@ -179,13 +181,10 @@ export async function getPublicCaseStudies(options: PublicCaseStudiesQueryOption
   } = options;
 
   try {
-    const where: Prisma.CaseStudyWhereInput = {
-      isPublished: true,
-    };
+    const where: Prisma.CaseStudyWhereInput = {};
 
     if (Array.isArray(ids) && ids.length > 0) {
       where.id = { in: ids };
-      delete where.isPublished;
     }
 
     if (category && category !== "ALL" && category !== "All") {
@@ -233,15 +232,20 @@ export async function getPublicCaseStudies(options: PublicCaseStudiesQueryOption
       }
     }
 
-    let results = await db.caseStudy.findMany(queryArgs).catch(async () => {
-      return (await (db as any).$queryRawUnsafe(`SELECT * FROM "CaseStudy" ORDER BY "year" DESC`).catch(() => [])) as any[];
-    });
-
-    if (!Array.isArray(results) || results.length === 0) {
+    let results: any[] = [];
+    try {
+      results = await db.caseStudy.findMany(queryArgs);
+    } catch (_prismaErr) {
       results = (await (db as any).$queryRawUnsafe(`SELECT * FROM "CaseStudy" ORDER BY "year" DESC`).catch(() => [])) as any[];
     }
 
-    const eligibleResults = (results || []).filter(isCaseStudyEligible);
+    const eligibleResults = (results || []).filter((cs: any) => {
+      if (!cs || typeof cs !== "object") return false;
+      if (cs.seo?.isArchived === true) return false;
+      if (cs.isArchived === true) return false;
+      if (typeof cs.status === "string" && ["ARCHIVED", "DELETED"].includes(cs.status.trim().toUpperCase())) return false;
+      return true;
+    });
 
     if (eligibleResults.length > 0) {
       const seen = new Set<string>();
@@ -290,57 +294,64 @@ export async function getPublicCaseStudyBySlug(
     }
 
     // 1. Direct match by exact slug, normalized slugs, or ID
-    let caseStudy = await db.caseStudy.findFirst({
-      where: {
-        OR: [
-          { slug: rawSlug },
-          { slug: rawDecoded },
-          { slug: cleanSlug },
-          { slug: underscoreSlug },
-          { slug: altSlug },
-          { id: rawSlug },
-          { id: rawDecoded },
-        ],
-      },
-      ...(Object.keys(include).length > 0 ? { include } : {}),
-    }).catch(() => null);
-
-    // 2. Case-insensitive / fuzzy match on slug, titleEn, or titleAr
-    if (!caseStudy) {
+    let caseStudy: any = null;
+    try {
       caseStudy = await db.caseStudy.findFirst({
         where: {
           OR: [
-            { slug: { contains: cleanSlug, mode: "insensitive" } },
-            { slug: { contains: underscoreSlug, mode: "insensitive" } },
-            { titleEn: { contains: plainTitle, mode: "insensitive" } },
-            { titleAr: { contains: rawDecoded, mode: "insensitive" } },
-          ],
-        },
-        ...(Object.keys(include).length > 0 ? { include } : {}),
-      }).catch(() => null);
-    }
-
-    // 3. Match by attraction slug or attraction ID
-    if (!caseStudy) {
-      const attraction = await db.attraction.findFirst({
-        where: {
-          OR: [
+            { slug: rawSlug },
+            { slug: rawDecoded },
             { slug: cleanSlug },
+            { slug: underscoreSlug },
             { slug: altSlug },
-            { slug: { contains: cleanSlug.replace(/^case-/, ""), mode: "insensitive" } },
             { id: rawSlug },
             { id: rawDecoded },
           ],
         },
-        select: { id: true },
-      }).catch(() => null);
+        ...(Object.keys(include).length > 0 ? { include } : {}),
+      });
+    } catch (_e) {}
 
-      if (attraction) {
+    // 2. Case-insensitive / fuzzy match on slug, titleEn, or titleAr
+    if (!caseStudy) {
+      try {
         caseStudy = await db.caseStudy.findFirst({
-          where: { attractionId: attraction.id },
+          where: {
+            OR: [
+              { slug: { contains: cleanSlug, mode: "insensitive" } },
+              { slug: { contains: underscoreSlug, mode: "insensitive" } },
+              { titleEn: { contains: plainTitle, mode: "insensitive" } },
+              { titleAr: { contains: rawDecoded, mode: "insensitive" } },
+            ],
+          },
           ...(Object.keys(include).length > 0 ? { include } : {}),
-        }).catch(() => null);
-      }
+        });
+      } catch (_e) {}
+    }
+
+    // 3. Match by attraction slug or attraction ID
+    if (!caseStudy) {
+      try {
+        const attraction = await db.attraction.findFirst({
+          where: {
+            OR: [
+              { slug: cleanSlug },
+              { slug: altSlug },
+              { slug: { contains: cleanSlug.replace(/^case-/, ""), mode: "insensitive" } },
+              { id: rawSlug },
+              { id: rawDecoded },
+            ],
+          },
+          select: { id: true },
+        });
+
+        if (attraction) {
+          caseStudy = await db.caseStudy.findFirst({
+            where: { attractionId: attraction.id },
+            ...(Object.keys(include).length > 0 ? { include } : {}),
+          });
+        }
+      } catch (_e) {}
     }
 
     // 4. Raw SQL fallback if Prisma schema error occurred
