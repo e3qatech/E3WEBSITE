@@ -23,6 +23,8 @@ import {
   User as UserIcon,
   Home,
   Building2,
+  Download,
+  FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { HeaderAuthControls } from '@/components/auth/HeaderAuthControls';
@@ -376,16 +378,49 @@ export function PulseOrbitNav({
     }
   };
 
-  const bookTicketsRawUrl = settings?.bookTicketsUrl || currentOrbitData?.bookTicketsUrl || (activePortalTab === 'b2c' ? '/b2c/calendar' : '/b2b/contact');
+  // B2C: Book Tickets | B2B: Download Profile
+  const isB2B = activePortalTab === 'b2b' || type === 'b2b';
+
+  const defaultB2CLabelEn = 'BOOK TICKETS';
+  const defaultB2CLabelAr = 'احجز التذاكر';
+  const defaultB2BLabelEn = 'DOWNLOAD PROFILE';
+  const defaultB2BLabelAr = 'تحميل الملف التعريفي';
+
+  const b2bProfileConfiguredUrl = settings?.b2bProfileUrl || settings?.companyProfileUrl || currentOrbitData?.b2bProfileUrl || currentOrbitData?.bookTicketsUrl || '';
+  const bookTicketsRawUrl = isB2B
+    ? (b2bProfileConfiguredUrl || '/b2b/discover')
+    : (settings?.bookTicketsUrl || currentOrbitData?.bookTicketsUrl || '/b2c/calendar');
+
   const isExternalBookUrl = isExternalUrl(bookTicketsRawUrl);
+  const isDirectFile = Boolean(
+    bookTicketsRawUrl && (
+      bookTicketsRawUrl.toLowerCase().endsWith('.pdf') ||
+      bookTicketsRawUrl.toLowerCase().endsWith('.doc') ||
+      bookTicketsRawUrl.toLowerCase().endsWith('.docx') ||
+      bookTicketsRawUrl.includes('/uploads/') ||
+      bookTicketsRawUrl.includes('/documents/')
+    )
+  );
+
   const bookTicketsHref = isExternalBookUrl
     ? normalizeExternalUrl(bookTicketsRawUrl)
-    : localizeHref(bookTicketsRawUrl, locale);
+    : (isDirectFile ? bookTicketsRawUrl : localizeHref(bookTicketsRawUrl, locale));
 
-  const bookTicketsLabelEn = settings?.bookTicketsLabelEn || currentOrbitData?.bookTicketsLabelEn || (activePortalTab === 'b2c' ? 'BOOK TICKETS' : 'REQUEST PROPOSAL');
-  const bookTicketsLabelAr = settings?.bookTicketsLabelAr || currentOrbitData?.bookTicketsLabelAr || (activePortalTab === 'b2c' ? 'احجز التذاكر' : 'اطلب عرض سعر');
-  const isBookTicketsEnabled = settings?.bookTicketsEnabled !== 'false' && currentOrbitData?.bookTicketsEnabled !== false;
-  const openInNewTab = settings?.bookTicketsExternal === 'true' || currentOrbitData?.bookTicketsExternal === true || isExternalBookUrl;
+  const bookTicketsLabelEn = isB2B
+    ? (settings?.b2bProfileLabelEn || currentOrbitData?.b2bProfileLabelEn || (currentOrbitData?.bookTicketsLabelEn && currentOrbitData.bookTicketsLabelEn !== 'REQUEST PROPOSAL' && currentOrbitData.bookTicketsLabelEn !== 'BOOK TICKETS' ? currentOrbitData.bookTicketsLabelEn : null) || defaultB2BLabelEn)
+    : (settings?.bookTicketsLabelEn || currentOrbitData?.bookTicketsLabelEn || defaultB2CLabelEn);
+
+  const bookTicketsLabelAr = isB2B
+    ? (settings?.b2bProfileLabelAr || currentOrbitData?.b2bProfileLabelAr || (currentOrbitData?.bookTicketsLabelAr && currentOrbitData.bookTicketsLabelAr !== 'اطلب عرض سعر' && currentOrbitData.bookTicketsLabelAr !== 'احجز التذاكر' ? currentOrbitData.bookTicketsLabelAr : null) || defaultB2BLabelAr)
+    : (settings?.bookTicketsLabelAr || currentOrbitData?.bookTicketsLabelAr || defaultB2CLabelAr);
+
+  const isBookTicketsEnabled = isB2B
+    ? (settings?.b2bProfileEnabled !== 'false' && currentOrbitData?.bookTicketsEnabled !== false)
+    : (settings?.bookTicketsEnabled !== 'false' && currentOrbitData?.bookTicketsEnabled !== false);
+
+  const openInNewTab = isB2B
+    ? (isDirectFile || settings?.b2bProfileExternal === 'true' || currentOrbitData?.bookTicketsExternal === true || isExternalBookUrl)
+    : (settings?.bookTicketsExternal === 'true' || currentOrbitData?.bookTicketsExternal === true || isExternalBookUrl);
 
   const defaultTitleEn = activePortalTab === 'b2c' ? 'PULSE ORBIT DESTINATIONS' : 'B2B ENTERPRISE ORBIT';
   const defaultTitleAr = activePortalTab === 'b2c' ? 'وجهات مدار إي ثري' : 'مدار إي ثري لقطاع الأعمال';
@@ -515,18 +550,19 @@ export function PulseOrbitNav({
               {isLight ? <Moon className="h-4 w-4 text-indigo-600" /> : <Sun className="h-4 w-4 text-amber-400" />}
             </button>
 
-            {/* Quick Ticket / Proposal CTA */}
+            {/* Quick Ticket (B2C) / Download Profile (B2B) CTA */}
             {isBookTicketsEnabled && (
-              isExternalBookUrl ? (
+              (isExternalBookUrl || isDirectFile) ? (
                 <a
                   href={bookTicketsHref}
                   target={openInNewTab ? "_blank" : "_self"}
                   rel={openInNewTab ? "noopener noreferrer" : undefined}
+                  download={isDirectFile ? true : undefined}
                   onMouseEnter={() => playSpatialHoverSound(0.2, 'tab')}
                   className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
-                  onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type: activePortalTab })}
+                  onClick={() => trackTelemetry(isB2B ? 'download_profile_clicked' : 'ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type: activePortalTab })}
                 >
-                  {activePortalTab === 'b2c' ? <Ticket className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
+                  {isB2B ? <Download className="h-4 w-4" /> : <Ticket className="h-4 w-4" />}
                   <span>{isAr ? bookTicketsLabelAr : bookTicketsLabelEn}</span>
                 </a>
               ) : (
@@ -535,9 +571,9 @@ export function PulseOrbitNav({
                   target={openInNewTab ? "_blank" : undefined}
                   onMouseEnter={() => playSpatialHoverSound(0.2, 'tab')}
                   className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
-                  onClick={() => trackTelemetry('ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type: activePortalTab })}
+                  onClick={() => trackTelemetry(isB2B ? 'download_profile_clicked' : 'ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type: activePortalTab })}
                 >
-                  {activePortalTab === 'b2c' ? <Ticket className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
+                  {isB2B ? <Download className="h-4 w-4" /> : <Ticket className="h-4 w-4" />}
                   <span>{isAr ? bookTicketsLabelAr : bookTicketsLabelEn}</span>
                 </Link>
               )

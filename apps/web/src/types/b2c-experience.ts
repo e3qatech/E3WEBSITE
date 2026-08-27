@@ -102,6 +102,7 @@ export type TelemetryEventType =
   | 'filter_used'
   | 'ticket_cta_visible'
   | 'ticket_cta_clicked'
+  | 'download_profile_clicked'
   | 'event_selected'
   | 'motion_fallback_used'
   | 'capability_tier_changed'

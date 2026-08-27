@@ -19,6 +19,8 @@ import {
   Type,
   Sparkles,
   ArrowRight,
+  Download,
+  LayoutTemplate,
 } from "lucide-react"
 import { AdminFormLayout } from "../ui/AdminFormLayout"
 import { AdminMediaPicker } from "../ui/AdminMediaPicker"
@@ -214,9 +216,9 @@ export function PulseOrbitCMSView({
   const [b2bNavButtonTextAr, setB2BNavButtonTextAr] = useState(initialB2BData?.navButtonTextAr || "قطاع الأعمال")
   const [b2bLogoUrl, setB2BLogoUrl] = useState(initialB2BData?.logoUrl || "")
 
-  const [b2bProposalUrl, setB2BProposalUrl] = useState(initialB2BData?.bookTicketsUrl || "/b2b/contact")
-  const [b2bProposalLabelEn, setB2BProposalLabelEn] = useState(initialB2BData?.bookTicketsLabelEn || "REQUEST PROPOSAL")
-  const [b2bProposalLabelAr, setB2BProposalLabelAr] = useState(initialB2BData?.bookTicketsLabelAr || "اطلب عرض سعر")
+  const [b2bProposalUrl, setB2BProposalUrl] = useState(initialB2BData?.bookTicketsUrl || "")
+  const [b2bProposalLabelEn, setB2BProposalLabelEn] = useState(initialB2BData?.bookTicketsLabelEn || "DOWNLOAD PROFILE")
+  const [b2bProposalLabelAr, setB2BProposalLabelAr] = useState(initialB2BData?.bookTicketsLabelAr || "تحميل الملف التعريفي")
   const [b2bProposalEnabled, setB2BProposalEnabled] = useState(initialB2BData?.bookTicketsEnabled ?? true)
   const [b2bProposalExternal, setB2BProposalExternal] = useState(Boolean(initialB2BData?.bookTicketsExternal))
 
@@ -764,35 +766,73 @@ export function PulseOrbitCMSView({
       {/* Header CTA Manager for active tab */}
       <div className="bg-[var(--surface-default)] border border-[var(--border-level-1)] p-6 rounded-2xl space-y-4 shadow-sm">
         <h3 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
+          {activeTab === 'B2B' ? <Download className="w-5 h-5 text-sky-500" /> : <LayoutTemplate className="w-5 h-5 text-emerald-500" />}
           <span>
             {isAr
               ? activeTab === 'B2C'
                 ? 'مدير زر "احجز التذاكر" في الهيدر (B2C)'
-                : 'مدير زر "اطلب عرض سعر" في الهيدر (B2B)'
+                : 'مدير زر "تحميل الملف التعريفي" وملف البروفايل في الهيدر (B2B)'
               : activeTab === 'B2C'
               ? 'B2C "Book Tickets" CTA Manager'
-              : 'B2B "Request Proposal" CTA Manager'}
+              : 'B2B "Download Profile" CTA & Document Manager'}
           </span>
         </h3>
         <p className="text-xs text-[var(--text-secondary)]">
           {isAr
-            ? `إدارة وجهة الرابط وتسمية الأزرار الخاصة بالزر الترويجي في الهيدر لصفحات ${activeTab === 'B2C' ? 'الأفراد (B2C)' : 'الشركات (B2B)'}.`
-            : `Configure hyperlink destination URL and button labels for the header CTA tab on public ${activeTab} pages.`}
+            ? activeTab === 'B2C'
+              ? 'إدارة وجهة الرابط وتسمية الأزرار الخاصة بزر حجز التذاكر في الهيدر لصفحات الأفراد (B2C).'
+              : 'إدارة الملف التعريفي للشركات (رفع ملف PDF/DOC أو وضع رابط مباشر) وتخصيص نص زر تحميل البروفايل في هيدر صفحات الشركات (B2B).'
+            : activeTab === 'B2C'
+            ? 'Configure hyperlink destination URL and button labels for the "Book Tickets" header CTA on public B2C pages.'
+            : 'Manage corporate profile PDF document upload, direct asset URL, and button labels for the "Download Profile" header CTA on public B2B pages.'}
         </p>
 
         <div className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
-              {isAr ? "رابط الوجهة المستهدفة" : "Target Hyperlink URL"}
-            </label>
-            <input
-              type="text"
-              value={activeTab === 'B2C' ? b2cTicketsUrl : b2bProposalUrl}
-              onChange={(e) => activeTab === 'B2C' ? setB2CTicketsUrl(e.target.value) : setB2BProposalUrl(e.target.value)}
-              placeholder={activeTab === 'B2C' ? "e.g. /b2c/tickets or https://tickets.e3.qa" : "e.g. /b2b/contact"}
-              className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] font-mono focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
-            />
-          </div>
+          {activeTab === 'B2B' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
+              <div>
+                <AdminMediaPicker
+                  value={b2bProposalUrl}
+                  onChange={(url) => setB2BProposalUrl(url)}
+                  onUploadStatusChange={handleUploadStatus}
+                  label={isAr ? "رفع ملف البروفايل (PDF/DOC)" : "Upload Profile Document (PDF/DOC)"}
+                  accept=".pdf,application/pdf,.doc,.docx"
+                />
+              </div>
+              <div className="lg:col-span-2 space-y-3">
+                <label className="block text-xs font-semibold text-[var(--text-secondary)]">
+                  {isAr ? "رابط ملف البروفايل أو المسار المباشر" : "Direct Profile URL / Document Link"}
+                </label>
+                <input
+                  type="text"
+                  value={b2bProposalUrl}
+                  onChange={(e) => setB2BProposalUrl(e.target.value)}
+                  placeholder={isAr ? "https://.../E3-Corporate-Profile.pdf أو /b2b-company-profile.pdf" : "https://.../E3-Corporate-Profile.pdf or /b2b-company-profile.pdf"}
+                  className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] font-mono focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
+                />
+                <p className="text-[11px] text-[var(--text-secondary)]">
+                  {isAr
+                    ? "يمكنك رفع ملف PDF/DOC باستخدام الأداة، أو إدخال مسار رابط خارجي أو داخلي."
+                    : "Upload a local PDF/document file using the button on the left, or enter an external/internal URL."}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'B2C' && (
+            <div>
+              <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                {isAr ? "رابط الوجهة المستهدفة" : "Target Hyperlink URL"}
+              </label>
+              <input
+                type="text"
+                value={b2cTicketsUrl}
+                onChange={(e) => setB2CTicketsUrl(e.target.value)}
+                placeholder="e.g. /b2c/tickets or https://tickets.e3.qa"
+                className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] font-mono focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -803,6 +843,7 @@ export function PulseOrbitCMSView({
                 type="text"
                 value={activeTab === 'B2C' ? b2cTicketsLabelEn : b2bProposalLabelEn}
                 onChange={(e) => activeTab === 'B2C' ? setB2CTicketsLabelEn(e.target.value) : setB2BProposalLabelEn(e.target.value)}
+                placeholder={activeTab === 'B2C' ? "BOOK TICKETS" : "DOWNLOAD PROFILE"}
                 className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
               />
             </div>
@@ -814,6 +855,7 @@ export function PulseOrbitCMSView({
                 type="text"
                 value={activeTab === 'B2C' ? b2cTicketsLabelAr : b2bProposalLabelAr}
                 onChange={(e) => activeTab === 'B2C' ? setB2CTicketsLabelAr(e.target.value) : setB2BProposalLabelAr(e.target.value)}
+                placeholder={activeTab === 'B2C' ? "احجز التذاكر" : "تحميل الملف التعريفي"}
                 className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                 dir="rtl"
               />
@@ -838,7 +880,7 @@ export function PulseOrbitCMSView({
                 onChange={(e) => activeTab === 'B2C' ? setB2CTicketsExternal(e.target.checked) : setB2BProposalExternal(e.target.checked)}
                 className="rounded border-[var(--border-level-1)] accent-[var(--color-primary)] w-4 h-4 cursor-pointer"
               />
-              {isAr ? "فتح الرابط في علامة تبويب جديدة (_blank)" : "Open in New Tab (_blank)"}
+              {isAr ? "فتح الرابط في علامة تبويب جديدة / تنزيل تلقائي" : "Open in New Tab / Trigger Download (_blank)"}
             </label>
           </div>
         </div>

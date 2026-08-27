@@ -369,4 +369,30 @@ describe('QF-02-C: Semantic CTA Wiring & Destination Verification', () => {
       expect(htmlAr).toContain('/ar/b2c/calendar/event-101');
     });
   });
+
+  describe('3. B2B Corporate Profile & Header CTA Resolution', () => {
+    it('correctly maps and resolves B2B Corporate Profile public settings', async () => {
+      const { resolvePublicSiteSettings, PUBLIC_SETTINGS_KEYS } = await import('../lib/settings/public-settings-dto');
+      
+      expect(PUBLIC_SETTINGS_KEYS.has('b2bProfileUrl')).toBe(true);
+      expect(PUBLIC_SETTINGS_KEYS.has('b2bProfileLabelEn')).toBe(true);
+      expect(PUBLIC_SETTINGS_KEYS.has('b2bProfileLabelAr')).toBe(true);
+      expect(PUBLIC_SETTINGS_KEYS.has('b2bProfileEnabled')).toBe(true);
+      expect(PUBLIC_SETTINGS_KEYS.has('b2bProfileExternal')).toBe(true);
+
+      const resolved = resolvePublicSiteSettings({
+        b2bProfileUrl: 'https://cdn.e3.qa/documents/e3-profile-2026.pdf',
+        b2bProfileLabelEn: 'DOWNLOAD CORPORATE PROFILE',
+        b2bProfileLabelAr: 'تحميل ملف الشركة',
+        b2bProfileEnabled: 'true',
+        b2bProfileExternal: 'true'
+      });
+
+      expect(resolved.b2bProfileUrl).toBe('https://cdn.e3.qa/documents/e3-profile-2026.pdf');
+      expect(resolved.b2bProfileLabelEn).toBe('DOWNLOAD CORPORATE PROFILE');
+      expect(resolved.b2bProfileLabelAr).toBe('تحميل ملف الشركة');
+      expect(resolved.b2bProfileEnabled).toBe('true');
+      expect(resolved.b2bProfileExternal).toBe('true');
+    });
+  });
 });

@@ -28,6 +28,12 @@ export interface PublicSiteSettings {
   bookTicketsLabelAr: string;
   bookTicketsEnabled: string;
   bookTicketsExternal: string;
+  // B2B Corporate Profile Download CTA
+  b2bProfileUrl?: string;
+  b2bProfileLabelEn?: string;
+  b2bProfileLabelAr?: string;
+  b2bProfileEnabled?: string;
+  b2bProfileExternal?: string;
   gatewayB2BDesc?: string;
   gatewayB2BDescAr?: string;
   // B2B Footer background media
@@ -118,6 +124,12 @@ export const PUBLIC_SETTINGS_KEYS = new Set<string>([
   'bookTicketsLabelAr',
   'bookTicketsEnabled',
   'bookTicketsExternal',
+  // B2B Corporate Profile Download CTA
+  'b2bProfileUrl',
+  'b2bProfileLabelEn',
+  'b2bProfileLabelAr',
+  'b2bProfileEnabled',
+  'b2bProfileExternal',
   'gatewayB2BDesc',
   'gatewayB2BDescAr',
   // B2B Footer media background
@@ -366,6 +378,12 @@ export function resolvePublicSiteSettings(
     bookTicketsLabelAr: typeof map.bookTicketsLabelAr === 'string' && map.bookTicketsLabelAr.trim() ? map.bookTicketsLabelAr.trim() : 'احجز التذاكر',
     bookTicketsEnabled: map.bookTicketsEnabled !== undefined ? String(map.bookTicketsEnabled) : 'true',
     bookTicketsExternal: map.bookTicketsExternal !== undefined ? String(map.bookTicketsExternal) : 'false',
+    // B2B Corporate Profile Download CTA
+    ...(map.b2bProfileUrl ? { b2bProfileUrl: String(map.b2bProfileUrl) } : {}),
+    ...(map.b2bProfileLabelEn ? { b2bProfileLabelEn: String(map.b2bProfileLabelEn) } : {}),
+    ...(map.b2bProfileLabelAr ? { b2bProfileLabelAr: String(map.b2bProfileLabelAr) } : {}),
+    ...(map.b2bProfileEnabled !== undefined ? { b2bProfileEnabled: String(map.b2bProfileEnabled) } : {}),
+    ...(map.b2bProfileExternal !== undefined ? { b2bProfileExternal: String(map.b2bProfileExternal) } : {}),
     ...(map.gatewayB2BDesc ? { gatewayB2BDesc: String(map.gatewayB2BDesc) } : {}),
     ...(map.gatewayB2BDescAr ? { gatewayB2BDescAr: String(map.gatewayB2BDescAr) } : {}),
     // B2B Footer media background

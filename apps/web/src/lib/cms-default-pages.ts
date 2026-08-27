@@ -715,9 +715,9 @@ export const DEFAULT_B2B_PULSE_ORBIT_CONTENT = {
   navButtonTextEn: "B2B ORBIT",
   navButtonTextAr: "قطاع الأعمال",
   logoUrl: "",
-  bookTicketsUrl: "/b2b/contact",
-  bookTicketsLabelEn: "REQUEST PROPOSAL",
-  bookTicketsLabelAr: "اطلب عرض سعر",
+  bookTicketsUrl: "",
+  bookTicketsLabelEn: "DOWNLOAD PROFILE",
+  bookTicketsLabelAr: "تحميل الملف التعريفي",
   bookTicketsEnabled: true,
   bookTicketsExternal: false,
   destinations: [

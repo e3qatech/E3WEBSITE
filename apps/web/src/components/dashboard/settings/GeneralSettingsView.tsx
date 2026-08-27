@@ -16,7 +16,10 @@ import {
   ImageIcon,
   Sparkles,
   ArrowRight,
+  Download,
+  FileText,
 } from "lucide-react";
+import { AdminMediaPicker } from "@/components/dashboard/ui/AdminMediaPicker";
 import { PackageMediaUploader } from "@/components/dashboard/b2c/PackageMediaUploader";
 import {
   DashboardPageShell,
@@ -35,7 +38,7 @@ const SECTIONS: EditorSectionItem[] = [
   { id: "branding", label: "2. Logos & Favicon", labelAr: "٢. الشعارات والأيقونة" },
   { id: "contact", label: "3. Contact Details", labelAr: "٣. بيانات التواصل" },
   { id: "social", label: "4. Social Channels", labelAr: "٤. قنوات التواصل" },
-  { id: "tickets", label: "5. Ticket CTA Bar", labelAr: "٥. شريط حجز التذاكر" },
+  { id: "tickets", label: "5. Header CTAs & Profile", labelAr: "٥. أشرطة الهيدر والملف التعريفي" },
   { id: "integrations", label: "6. API Gateways", labelAr: "٦. بوابات الربط البرمجي" },
   { id: "gateway", label: "7. Gateway Customization", labelAr: "٧. تخصيص بوابة الدخول" },
   { id: "emails", label: "8. Email Templates", labelAr: "٨. قوالب البريد التلقائية" },
@@ -86,6 +89,12 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
     bookTicketsLabelAr: initialSettings.bookTicketsLabelAr || "احجز التذاكر",
     bookTicketsEnabled: initialSettings.bookTicketsEnabled !== undefined ? String(initialSettings.bookTicketsEnabled) : "true",
     bookTicketsExternal: initialSettings.bookTicketsExternal !== undefined ? String(initialSettings.bookTicketsExternal) : "false",
+    // B2B Corporate Profile Download CTA
+    b2bProfileUrl: initialSettings.b2bProfileUrl || initialSettings.companyProfileUrl || "",
+    b2bProfileLabelEn: initialSettings.b2bProfileLabelEn || "DOWNLOAD PROFILE",
+    b2bProfileLabelAr: initialSettings.b2bProfileLabelAr || "تحميل الملف التعريفي",
+    b2bProfileEnabled: initialSettings.b2bProfileEnabled !== undefined ? String(initialSettings.b2bProfileEnabled) : "true",
+    b2bProfileExternal: initialSettings.b2bProfileExternal !== undefined ? String(initialSettings.b2bProfileExternal) : "true",
   });
 
   const handleChange = (field: string, value: string) => {
@@ -397,14 +406,109 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
         </DashboardSectionCard>
       </div>
 
-      {/* 5. Ticket CTA Bar */}
+      {/* 5. Header CTA & Corporate Profile */}
       <div id="tickets" className={cn("space-y-6", activeSectionId === "tickets" ? "block" : "hidden")}>
+        {/* Card A: B2B Corporate Profile Download CTA */}
         <DashboardSectionCard
-          title={isAr ? "٥. شريط زر حجز التذاكر في الهيدر" : "5. Header 'Book Tickets' CTA"}
+          title={isAr ? "٥.أ. ملف الشركة التعريفي وزر التحميل في هيدر B2B" : "5.A. B2B Corporate Profile Download & Header CTA"}
           description={
             isAr
-              ? "تخصيص مسار الرابط، ونص الزر باللغتين، وخيار فتح الرابط في نافذة جديدة لشريط حجز التذاكر العلوي."
-              : "Configure the target hyperlink URL, custom button label, and window target for the top header 'Book Tickets' CTA tab."
+              ? "إدارة الملف التعريفي للشركة (Corporate Profile PDF)، رفع ملف محلي أو وضع رابط، وتخصيص نص زر 'تحميل الملف التعريفي' في هيدر صفحات الشركات B2B."
+              : "Upload a local PDF/document file or provide a direct link for the Corporate Profile, and configure the 'Download Profile' CTA button displayed in the B2B header."
+          }
+          icon={<Download className="w-5 h-5 text-sky-500" />}
+        >
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div>
+                <AdminMediaPicker
+                  value={data.b2bProfileUrl}
+                  onChange={(url) => handleChange("b2bProfileUrl", url)}
+                  label={isAr ? "رفع ملف البروفايل (PDF/DOC)" : "Upload Profile Document (PDF/DOC)"}
+                  accept=".pdf,application/pdf,.doc,.docx"
+                />
+              </div>
+
+              <div className="lg:col-span-2 space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                    {isAr ? "رابط ملف البروفايل المباشر أو المسار" : "Corporate Profile Document URL / Asset Link"}
+                  </label>
+                  <input
+                    type="text"
+                    value={data.b2bProfileUrl}
+                    onChange={(e) => handleChange("b2bProfileUrl", e.target.value)}
+                    placeholder="https://.../E3-Corporate-Profile-2026.pdf or /b2b-company-profile.pdf"
+                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                  />
+                  <p className="text-[11px] text-[var(--text-tertiary)] mt-1.5">
+                    {isAr
+                      ? "يمكنك رفع ملف محلي باستخدام الزر أعلاه، أو إدخال رابط مباشر لأي ملف PDF مستضاف."
+                      : "Upload a local file using the uploader, or paste a direct URL to any hosted PDF/document."}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                      {isAr ? "نص الزر (الإنجليزية)" : "Button Label (English)"}
+                    </label>
+                    <input
+                      type="text"
+                      value={data.b2bProfileLabelEn}
+                      onChange={(e) => handleChange("b2bProfileLabelEn", e.target.value)}
+                      placeholder="DOWNLOAD PROFILE"
+                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
+                      {isAr ? "نص الزر (العربية)" : "Button Label (Arabic)"}
+                    </label>
+                    <input
+                      type="text"
+                      dir="rtl"
+                      value={data.b2bProfileLabelAr}
+                      onChange={(e) => handleChange("b2bProfileLabelAr", e.target.value)}
+                      placeholder="تحميل الملف التعريفي"
+                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-arabic text-right font-semibold"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-6 pt-3 border-t border-[var(--border-default)]">
+                  <label className="flex items-center gap-3 text-xs font-bold text-[var(--text-primary)] cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={data.b2bProfileEnabled === "true"}
+                      onChange={(e) => handleChange("b2bProfileEnabled", e.target.checked ? "true" : "false")}
+                      className="rounded border-[var(--border-default)] text-[var(--color-primary)] w-4 h-4 cursor-pointer"
+                    />
+                    <span>{isAr ? "إظهار زر تحميل البروفايل في هيدر B2B" : "Show 'Download Profile' CTA in B2B Header"}</span>
+                  </label>
+
+                  <label className="flex items-center gap-3 text-xs font-bold text-[var(--text-primary)] cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={data.b2bProfileExternal === "true"}
+                      onChange={(e) => handleChange("b2bProfileExternal", e.target.checked ? "true" : "false")}
+                      className="rounded border-[var(--border-default)] text-[var(--color-primary)] w-4 h-4 cursor-pointer"
+                    />
+                    <span>{isAr ? "فتح في علامة تبويب جديدة / تنزيل تلقائي" : "Open in New Tab / Trigger Direct Download"}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DashboardSectionCard>
+
+        {/* Card B: B2C Ticket Booking CTA */}
+        <DashboardSectionCard
+          title={isAr ? "٥.ب. شريط زر حجز التذاكر في هيدر B2C" : "5.B. B2C Header 'Book Tickets' CTA"}
+          description={
+            isAr
+              ? "تخصيص مسار الرابط، ونص الزر باللغتين، وخيار فتح الرابط في نافذة جديدة لشريط حجز التذاكر العلوي في بوابة الأفراد B2C."
+              : "Configure the target hyperlink URL, custom button label, and window target for the top header 'Book Tickets' CTA tab on B2C visitor pages."
           }
           icon={<LayoutTemplate className="w-5 h-5 text-emerald-500" />}
         >
@@ -458,7 +562,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
                   onChange={(e) => handleChange("bookTicketsEnabled", e.target.checked ? "true" : "false")}
                   className="rounded border-[var(--border-default)] text-[var(--color-primary)] w-4 h-4 cursor-pointer"
                 />
-                <span>{isAr ? "إظهار زر الحجز في الهيدر" : "Show CTA Button in Header"}</span>
+                <span>{isAr ? "إظهار زر الحجز في هيدر B2C" : "Show 'Book Tickets' CTA in B2C Header"}</span>
               </label>
 
               <label className="flex items-center gap-3 text-xs font-bold text-[var(--text-primary)] cursor-pointer select-none">
