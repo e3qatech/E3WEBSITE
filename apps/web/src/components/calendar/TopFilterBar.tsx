@@ -78,12 +78,19 @@ export function TopFilterBar({
     PRIVATE: { en: 'PRIVATE', ar: 'حصرية' },
   };
 
-  // Auto-scroll to selected date on mount or date change
+  // Auto-scroll to selected date on user date change, never on initial mount
+  const isInitialMount = useRef(true);
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     if (dateScrollRef.current) {
-      const selectedEl = dateScrollRef.current.querySelector('[data-selected="true"]');
+      const selectedEl = dateScrollRef.current.querySelector('[data-selected="true"]') as HTMLElement;
       if (selectedEl) {
-        selectedEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        const container = dateScrollRef.current;
+        const scrollTarget = selectedEl.offsetLeft - (container.clientWidth / 2) + (selectedEl.clientWidth / 2);
+        container.scrollTo({ left: scrollTarget, behavior: 'smooth' });
       }
     }
   }, [currentDate]);

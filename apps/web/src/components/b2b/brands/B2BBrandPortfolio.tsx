@@ -50,12 +50,19 @@ export function B2BBrandPortfolio({ content, locale = 'en' }: B2BBrandPortfolioP
     }
   }
 
-  // Scroll active tab into view in the horizontal slider
+  // Scroll active tab horizontally inside its container only when user changes tab, never on initial mount
+  const isInitialMount = useRef(true)
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
     if (tabsScrollRef.current) {
       const activeBtn = tabsScrollRef.current.children[activeIndex] as HTMLElement
       if (activeBtn) {
-        activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+        const container = tabsScrollRef.current
+        const scrollTarget = activeBtn.offsetLeft - (container.clientWidth / 2) + (activeBtn.clientWidth / 2)
+        container.scrollTo({ left: scrollTarget, behavior: 'smooth' })
       }
     }
   }, [activeIndex])

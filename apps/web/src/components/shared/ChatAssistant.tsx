@@ -47,8 +47,10 @@ export function ChatAssistant({ portal = "b2c" }: { portal?: "b2c" | "b2b" }) {
   }, [isOpen, isAr, messages.length]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isLoading]);
+    if (isOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isLoading, isOpen]);
 
   // Handle escape key to close
   useEffect(() => {
