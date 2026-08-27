@@ -373,7 +373,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
               { field: "socialInstagram", label: "Instagram URL", placeholder: "https://instagram.com/..." },
-              { field: "socialTwitter", label: "Twitter / X URL", placeholder: "https://x.com/..." },
+              { field: "socialTwitter", label: "X (Twitter) URL", placeholder: "https://x.com/..." },
               { field: "socialLinkedin", label: "LinkedIn URL", placeholder: "https://linkedin.com/company/..." },
               { field: "socialYoutube", label: "YouTube URL", placeholder: "https://youtube.com/@..." },
               { field: "socialSnapchat", label: "Snapchat URL", placeholder: "https://snapchat.com/..." },

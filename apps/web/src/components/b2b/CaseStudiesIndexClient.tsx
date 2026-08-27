@@ -65,8 +65,10 @@ export function CaseStudiesIndexClient({
   const featuredProject = useMemo(() => {
     if (featuredCasesConfig.enabled === false) return null;
 
+    // Honour explicit dashboard selections: try selectedCaseStudyIds first regardless of selectionMode.
+    // This covers both new saves (selectionMode:"MANUAL") and legacy DB data that has IDs but
+    // selectionMode was never stored (it defaulted to "FEATURED_FLAG").
     if (
-      featuredCasesConfig.selectionMode === "MANUAL" &&
       Array.isArray(featuredCasesConfig.selectedCaseStudyIds) &&
       featuredCasesConfig.selectedCaseStudyIds.length > 0
     ) {

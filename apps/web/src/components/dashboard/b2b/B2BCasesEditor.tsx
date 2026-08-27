@@ -229,6 +229,8 @@ export function B2BCasesEditor({
         featuredCases: {
           ...prev.featuredCases,
           selectedCaseStudyIds: newIds,
+          // Ensure the spotlight resolver honours explicit dashboard selections
+          selectionMode: newIds.length > 0 ? "MANUAL" : "FEATURED_FLAG",
         },
       };
     });
