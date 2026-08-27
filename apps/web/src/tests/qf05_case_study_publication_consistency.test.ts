@@ -244,8 +244,8 @@ describe("QF-05-E — Preserve Hidden State and Prove the Deployed Contract", ()
 
     it("localizes case routes correctly without mutating slugs", () => {
       const slug = "lusail-winter-wonderland";
-      expect(localizeHref(`/b2b/cases/${slug}`, "en")).toBe(`/en/b2b/cases/${slug}`);
-      expect(localizeHref(`/b2b/cases/${slug}`, "ar")).toBe(`/ar/b2b/cases/${slug}`);
+      expect(localizeHref(`/b2b/case-studies/${slug}`, "en")).toBe(`/en/b2b/case-studies/${slug}`);
+      expect(localizeHref(`/b2b/case-studies/${slug}`, "ar")).toBe(`/ar/b2b/case-studies/${slug}`);
     });
   });
 });

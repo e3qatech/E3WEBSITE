@@ -254,7 +254,7 @@ export function CaseStudyArchiveGrid({
               return (
                 <Link
                   key={cs.id}
-                  href={`/${locale}/b2b/cases/${cs.slug}`}
+                  href={`/${locale}/b2b/case-studies/${cs.slug}`}
                   className="group relative rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-emerald-500/60 transition-all duration-500 overflow-hidden flex flex-col justify-between p-7 backdrop-blur-md min-h-[420px] shadow-xs hover:shadow-[0_0_40px_rgba(16,185,129,0.15)]"
                 >
                   {/* Media Thumbnail with hover zoom */}

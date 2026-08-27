@@ -572,7 +572,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
               </p>
             </div>
             <Link 
-              href={localizeHref('/b2b/cases', locale)} 
+              href={localizeHref('/b2b/case-studies', locale)} 
               className="inline-flex items-center gap-2 text-emerald-400 font-bold text-base hover:text-emerald-300 transition-colors group"
             >
               <span>{caseStudiesHeader.cta}</span>
@@ -585,7 +585,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
               dbProjects.map((project, i) => {
                 const title = isAr ? (project.titleAr || project.titleEn || project.slug) : (project.titleEn || project.slug)
                 return (
-                  <Link key={i} href={localizeHref(`/b2b/cases/${project.slug}`, locale)} className="group block">
+                  <Link key={i} href={localizeHref(`/b2b/case-studies/${project.slug}`, locale)} className="group block">
                     <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-[var(--surface-default)] mb-6 border border-[var(--border-level-2)] group-hover:border-emerald-500/60 transition-all duration-500 shadow-md hover:shadow-[0_0_40px_rgba(16,185,129,0.2)]">
                       {(project.thumbnailUrl || project.heroImageUrl) ? (
                         <UniversalMediaRenderer 

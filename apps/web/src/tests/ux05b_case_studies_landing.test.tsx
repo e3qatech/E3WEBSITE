@@ -258,7 +258,7 @@ describe("UX-05B — Case Studies Landing Page Correction & Enhancement", () => 
     expect(htmlEn).toContain("Engineered kinetic motorized trusses with automated thermal compensation.");
     expect(htmlEn).toContain("1.2M+");
     expect(htmlEn).toContain("Total Visitors");
-    expect(htmlEn).toContain("/en/b2b/cases/lusail-kinetic-lights");
+    expect(htmlEn).toContain("/en/b2b/case-studies/lusail-kinetic-lights");
 
     // Arabic parity
     const htmlAr = renderToStaticMarkup(
@@ -271,7 +271,7 @@ describe("UX-05B — Case Studies Landing Page Correction & Enhancement", () => 
 
     expect(htmlAr).toContain("مظلة لوسيل الحركية");
     expect(htmlAr).toContain("توزيع الأحمال الديناميكية المعقدة في البيئة الصحراوية.");
-    expect(htmlAr).toContain("/ar/b2b/cases/lusail-kinetic-lights");
+    expect(htmlAr).toContain("/ar/b2b/case-studies/lusail-kinetic-lights");
   });
 
   it("4. Impact Stories Stream: Automatically extracts metric highlights from published case studies", () => {
@@ -299,7 +299,7 @@ describe("UX-05B — Case Studies Landing Page Correction & Enhancement", () => 
 
     expect(html).toContain("1.2M+");
     expect(html).toContain("Total Visitors");
-    expect(html).toContain("/en/b2b/cases/lusail-kinetic-lights");
+    expect(html).toContain("/en/b2b/case-studies/lusail-kinetic-lights");
   });
 
   it("5. Behind the Build: Renders canonical team assignments while strictly protecting email privacy", () => {
@@ -316,7 +316,7 @@ describe("UX-05B — Case Studies Landing Page Correction & Enhancement", () => 
     expect(html).toContain("Ahmad Faraz");
     expect(html).toContain("Lead Kinetic Engineer");
     expect(html).toContain("Lusail Kinetic Canopy");
-    expect(html).toContain("/en/b2b/cases/lusail-kinetic-lights");
+    expect(html).toContain("/en/b2b/case-studies/lusail-kinetic-lights");
 
     // STRICT PRIVACY CHECK: Personal email must NEVER be in markup
     expect(html).not.toContain("ahmad.faraz.private@e3.qa");
@@ -333,8 +333,8 @@ describe("UX-05B — Case Studies Landing Page Correction & Enhancement", () => 
     );
 
     expect(htmlEn).toContain("/en/b2b/contact");
-    expect(htmlEn).toContain("/en/b2b/cases/lusail-kinetic-lights");
-    expect(htmlEn).toContain("/en/b2b/cases/inflatapark-doha");
+    expect(htmlEn).toContain("/en/b2b/case-studies/lusail-kinetic-lights");
+    expect(htmlEn).toContain("/en/b2b/case-studies/inflatapark-doha");
 
     const htmlAr = renderToStaticMarkup(
       <CaseStudiesIndexClient
@@ -345,7 +345,7 @@ describe("UX-05B — Case Studies Landing Page Correction & Enhancement", () => 
     );
 
     expect(htmlAr).toContain("/ar/b2b/contact");
-    expect(htmlAr).toContain("/ar/b2b/cases/lusail-kinetic-lights");
-    expect(htmlAr).toContain("/ar/b2b/cases/inflatapark-doha");
+    expect(htmlAr).toContain("/ar/b2b/case-studies/lusail-kinetic-lights");
+    expect(htmlAr).toContain("/ar/b2b/case-studies/inflatapark-doha");
   });
 });

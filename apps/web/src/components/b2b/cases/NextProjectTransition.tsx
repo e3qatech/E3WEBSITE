@@ -41,7 +41,7 @@ export function NextProjectTransition({
       >
         <div className="max-w-4xl mx-auto px-4">
           <Link
-            href={`/${locale}/b2b/cases`}
+            href={`/${locale}/b2b/case-studies`}
             data-testid="back-to-all-cases-btn"
             className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-sm sm:text-base transition-all shadow-xl shadow-cyan-500/20 hover:scale-105 active:scale-95"
           >
@@ -63,7 +63,7 @@ export function NextProjectTransition({
     ? nextProject.thumbnailMediaType || "IMAGE"
     : nextProject.heroMediaType || "IMAGE";
 
-  const nextUrl = `/${locale}/b2b/cases/${nextProject.slug}`;
+  const nextUrl = `/${locale}/b2b/case-studies/${nextProject.slug}`;
 
   return (
     <section
@@ -112,7 +112,7 @@ export function NextProjectTransition({
         {/* Back to All Cases Auxiliary Action */}
         <div className="mt-12 pt-6 border-t border-white/10 w-full max-w-xs">
           <Link
-            href={`/${locale}/b2b/cases`}
+            href={`/${locale}/b2b/case-studies`}
             data-testid="back-to-all-cases-btn"
             className="inline-flex items-center gap-2 text-xs font-mono font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-wider"
           >

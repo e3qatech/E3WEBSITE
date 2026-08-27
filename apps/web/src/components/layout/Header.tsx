@@ -27,7 +27,7 @@ const navConfig = {
   b2b: [
     { label: "nav.home", href: "/b2b" },
     { label: "nav.services", href: "/b2b/services" },
-    { label: "nav.cases", href: "/b2b/cases" },
+    { label: "nav.cases", href: "/b2b/case-studies" },
     { label: "nav.discover", href: "/b2c/discover" },
     { label: "nav.partners", href: "/b2b/clients" },
     { label: "nav.about", href: "/b2b/about" },

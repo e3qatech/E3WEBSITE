@@ -265,7 +265,7 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
               <Link href={localizeHref('/b2b/contact')}>Start a Project</Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-full border-[var(--border-level-2)] bg-[var(--surface-default)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)]">
-              <Link href={localizeHref('/b2b/cases')}>View Our Work</Link>
+              <Link href={localizeHref('/b2b/case-studies')}>View Our Work</Link>
             </Button>
           </div>
         </div>

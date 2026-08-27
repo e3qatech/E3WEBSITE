@@ -234,7 +234,7 @@ describe("UX-05C — Case Study Detail Page Enhancement Suite", () => {
     );
     expect(nextProjectHtml).toContain('data-testid="next-project-transition"');
     expect(nextProjectHtml).toContain("Lusail Winter Wonderland");
-    expect(nextProjectHtml).toContain("/en/b2b/cases/lusail-winter-wonderland-2023");
+    expect(nextProjectHtml).toContain("/en/b2b/case-studies/lusail-winter-wonderland-2023");
   });
 
   it("9. Supports Arabic RTL layout and bilingual localization correctly", () => {

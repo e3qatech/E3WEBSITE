@@ -142,9 +142,9 @@ describe("QF-05-G — Cases Landing Complete Data Path & DTO Integrity", () => {
     expect(html).toContain("All Projects (3)");
 
     // Assert all 3 case links are rendered in the DOM
-    expect(html).toContain("/en/b2b/cases/case-urban-arena");
-    expect(html).toContain("/en/b2b/cases/doha-balloon-parade-2022");
-    expect(html).toContain("/en/b2b/cases/doha-balloon-parade");
+    expect(html).toContain("/en/b2b/case-studies/case-urban-arena");
+    expect(html).toContain("/en/b2b/case-studies/doha-balloon-parade-2022");
+    expect(html).toContain("/en/b2b/case-studies/doha-balloon-parade");
 
     // Hidden record link must never be rendered
     expect(html).not.toContain("confidential-draft");
@@ -180,9 +180,9 @@ describe("QF-05-G — Cases Landing Complete Data Path & DTO Integrity", () => {
     expect(html).toContain("جميع المشاريع (3)");
 
     // Assert Arabic case links
-    expect(html).toContain("/ar/b2b/cases/case-urban-arena");
-    expect(html).toContain("/ar/b2b/cases/doha-balloon-parade-2022");
-    expect(html).toContain("/ar/b2b/cases/doha-balloon-parade");
+    expect(html).toContain("/ar/b2b/case-studies/case-urban-arena");
+    expect(html).toContain("/ar/b2b/case-studies/doha-balloon-parade-2022");
+    expect(html).toContain("/ar/b2b/case-studies/doha-balloon-parade");
   });
 
   it("5. Homepage and Services selections are valid subsets of the landing eligible set", () => {

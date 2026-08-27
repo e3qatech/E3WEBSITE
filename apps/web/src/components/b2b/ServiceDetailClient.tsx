@@ -238,7 +238,7 @@ export function ServiceDetailClient({ service }: { service: any }) {
             </div>
             <div className="mt-16 text-center">
               <Button variant="outline" asChild size="lg" className="rounded-full">
-                <Link href={localizeHref('/b2b/cases')}>View All Case Studies</Link>
+                <Link href={localizeHref('/b2b/case-studies')}>View All Case Studies</Link>
               </Button>
             </div>
           </div>

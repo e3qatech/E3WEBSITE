@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: '', priority: 1.0, changeFrequency: 'daily' as const },
     { path: '/b2b', priority: 0.9, changeFrequency: 'weekly' as const },
     { path: '/b2b/services', priority: 0.8, changeFrequency: 'weekly' as const },
-    { path: '/b2b/cases', priority: 0.8, changeFrequency: 'weekly' as const },
+    { path: '/b2b/case-studies', priority: 0.8, changeFrequency: 'weekly' as const },
     { path: '/b2b/about', priority: 0.7, changeFrequency: 'monthly' as const },
     { path: '/b2b/careers', priority: 0.7, changeFrequency: 'monthly' as const },
     { path: '/b2b/contact', priority: 0.8, changeFrequency: 'monthly' as const },
@@ -75,14 +75,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
       })),
       ...caseStudies.map((item: any) => ({
-        url: `${baseUrl}/b2b/cases/${item.slug}`,
+        url: `${baseUrl}/b2b/case-studies/${item.slug}`,
         lastModified: item.updatedAt,
         changeFrequency: 'monthly' as const,
         priority: 0.7,
         alternates: {
           languages: {
-            en: `${baseUrl}/en/b2b/cases/${item.slug}`,
-            ar: `${baseUrl}/ar/b2b/cases/${item.slug}`,
+            en: `${baseUrl}/en/b2b/case-studies/${item.slug}`,
+            ar: `${baseUrl}/ar/b2b/case-studies/${item.slug}`,
           },
         },
       })),

@@ -89,18 +89,20 @@ export function canonicalizeRoute(path: string): string {
   // Exact & prefix alias mappings
   let canonical = normalized;
 
-  // 1. B2B Case Studies Aliases
-  if (normalized === '/b2b/case-studies' || normalized === '/case-studies' || normalized === '/cases') {
-    canonical = '/b2b/cases';
-  } else if (normalized.startsWith('/b2b/case-studies/')) {
-    const slug = normalized.replace('/b2b/case-studies/', '');
-    canonical = `/b2b/cases/${slug}`;
+  // 1. B2B Case Studies Aliases (Canonical: /b2b/case-studies)
+  if (normalized === '/b2b/cases' || normalized === '/case-studies' || normalized === '/cases' || normalized === '/b2b/case-studies') {
+    canonical = '/b2b/case-studies';
+  } else if (normalized.startsWith('/b2b/cases/')) {
+    const slug = normalized.replace('/b2b/cases/', '');
+    canonical = `/b2b/case-studies/${slug}`;
   } else if (normalized.startsWith('/case-studies/')) {
     const slug = normalized.replace('/case-studies/', '');
-    canonical = `/b2b/cases/${slug}`;
+    canonical = `/b2b/case-studies/${slug}`;
   } else if (normalized.startsWith('/cases/')) {
     const slug = normalized.replace('/cases/', '');
-    canonical = `/b2b/cases/${slug}`;
+    canonical = `/b2b/case-studies/${slug}`;
+  } else if (normalized.startsWith('/b2b/case-studies/')) {
+    canonical = normalized;
   }
 
   // 2. B2B Services & FEC Aliases

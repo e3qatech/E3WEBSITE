@@ -35,7 +35,7 @@ const DEFAULT_SOLUTIONS_LINKS: FooterLinkItem[] = [
   { labelEn: "Live Event Production & Rigging", labelAr: "إنتاج الفعاليات الكبرى والمسارح", href: "/b2b/services" },
   { labelEn: "Spatial & Kinetic Staging", labelAr: "العروض الحركية والمؤثرات البصرية", href: "/b2b/services" },
   { labelEn: "Immersive AV & Projection Mapping", labelAr: "أنظمة الصوت والضوء والخرائط الضوئية", href: "/b2b/services" },
-  { labelEn: "Landmark Case Studies", labelAr: "سجل الإنجازات والمشاريع الكبرى", href: "/b2b/cases" },
+  { labelEn: "Landmark Case Studies", labelAr: "سجل الإنجازات والمشاريع الكبرى", href: "/b2b/case-studies" },
   { labelEn: "Strategic Clients & Partners", labelAr: "شركاء النجاح والعملاء الاستراتيجيين", href: "/b2b/clients" },
 ];
 
@@ -107,7 +107,7 @@ export function B2BGlobalFooter({ settings = {} }: B2BGlobalFooterProps) {
     ? settings.b2bFooterSecondaryBtnLabelAr || "استكشف دراسات الحالة"
     : settings.b2bFooterSecondaryBtnLabelEn || "Explore Case Studies";
 
-  const footerSecondaryBtnUrl = settings.b2bFooterSecondaryBtnUrl || "/b2b/cases";
+  const footerSecondaryBtnUrl = settings.b2bFooterSecondaryBtnUrl || "/b2b/case-studies";
 
   // Dynamic Editable Links
   const solutions = parseJsonLinks(settings.b2bFooterSolutionsLinks, DEFAULT_SOLUTIONS_LINKS);

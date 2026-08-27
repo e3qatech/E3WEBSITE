@@ -48,7 +48,7 @@ export function CaseStudyCard({ caseStudy, locale, isFeatured = false, index = 0
         viewport={{ once: true, margin: "-50px" }}
         className="group relative w-full rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-[var(--surface-default)] mb-16"
       >
-        <Link href={localizeHref(`/b2b/cases/${caseStudy.slug}`, locale)} className="flex flex-col lg:flex-row relative z-10 w-full h-full min-h-[500px]">
+        <Link href={localizeHref(`/b2b/case-studies/${caseStudy.slug}`, locale)} className="flex flex-col lg:flex-row relative z-10 w-full h-full min-h-[500px]">
           {/* Image Side */}
           <div className="w-full lg:w-3/5 h-[400px] lg:h-auto overflow-hidden relative">
             <img 
@@ -104,7 +104,7 @@ export function CaseStudyCard({ caseStudy, locale, isFeatured = false, index = 0
       viewport={{ once: true, margin: "-50px" }}
       className="group relative w-full h-full flex flex-col"
     >
-      <Link href={localizeHref(`/b2b/cases/${caseStudy.slug}`, locale)} className="flex flex-col h-full">
+      <Link href={localizeHref(`/b2b/case-studies/${caseStudy.slug}`, locale)} className="flex flex-col h-full">
         {/* Image */}
         <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden relative mb-6">
           <img 

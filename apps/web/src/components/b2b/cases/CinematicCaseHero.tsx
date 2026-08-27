@@ -87,7 +87,7 @@ export function CinematicCaseHero({
         {/* Back Button & Top Badges */}
         <div className="flex flex-wrap items-center gap-3 mb-6 sm:mb-8">
           <Link
-            href={`/${locale}/b2b/cases`}
+            href={`/${locale}/b2b/case-studies`}
             data-testid="hero-back-link"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-mono font-bold text-slate-200 hover:text-white backdrop-blur-md transition-all group"
           >

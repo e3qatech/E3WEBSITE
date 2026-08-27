@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import CaseStudiesIndexPage, { dynamic, revalidate } from "@/app/[locale]/b2b/cases/page";
+import CaseStudiesIndexPage, { dynamic, revalidate } from "@/app/[locale]/b2b/case-studies/page";
 import { getPublicCaseStudies, getPublicCaseStudyBySlug, isCaseStudyEligible } from "@/lib/case-studies";
 
 describe("QF-05-H — Real Server Loader & Runtime Boundary Regression", () => {
@@ -26,7 +26,7 @@ describe("QF-05-H — Real Server Loader & Runtime Boundary Regression", () => {
 
     for (const cs of publicCases) {
       expect(html).toContain(cs.slug);
-      expect(html).toContain(`/en/b2b/cases/${cs.slug}`);
+      expect(html).toContain(`/en/b2b/case-studies/${cs.slug}`);
     }
   });
 
@@ -45,7 +45,7 @@ describe("QF-05-H — Real Server Loader & Runtime Boundary Regression", () => {
     const publicCases = await getPublicCaseStudies();
     for (const cs of publicCases) {
       expect(html).toContain(cs.slug);
-      expect(html).toContain(`/ar/b2b/cases/${cs.slug}`);
+      expect(html).toContain(`/ar/b2b/case-studies/${cs.slug}`);
     }
   });
 

@@ -9,12 +9,12 @@ import {
 
 describe('url-helper unit tests', () => {
   describe('canonicalizeRoute', () => {
-    it('maps legacy B2B case-studies aliases to /b2b/cases', () => {
-      expect(canonicalizeRoute('/b2b/case-studies')).toBe('/b2b/cases');
-      expect(canonicalizeRoute('/cases')).toBe('/b2b/cases');
-      expect(canonicalizeRoute('/case-studies')).toBe('/b2b/cases');
-      expect(canonicalizeRoute('/b2b/case-studies/digital-transform')).toBe('/b2b/cases/digital-transform');
-      expect(canonicalizeRoute('/cases/digital-transform')).toBe('/b2b/cases/digital-transform');
+    it('maps legacy B2B case-studies aliases to /b2b/case-studies', () => {
+      expect(canonicalizeRoute('/b2b/cases')).toBe('/b2b/case-studies');
+      expect(canonicalizeRoute('/cases')).toBe('/b2b/case-studies');
+      expect(canonicalizeRoute('/case-studies')).toBe('/b2b/case-studies');
+      expect(canonicalizeRoute('/b2b/cases/digital-transform')).toBe('/b2b/case-studies/digital-transform');
+      expect(canonicalizeRoute('/cases/digital-transform')).toBe('/b2b/case-studies/digital-transform');
     });
 
     it('maps legacy service FEC aliases to canonical FEC service route', () => {
@@ -39,7 +39,7 @@ describe('url-helper unit tests', () => {
       expect(canonicalizeRoute('/partners-contact?utm_source=hero#contact-form')).toBe(
         '/b2b/contact?utm_source=hero#contact-form'
       );
-      expect(canonicalizeRoute('/en/cases/slug?ref=123')).toBe('/en/b2b/cases/slug?ref=123');
+      expect(canonicalizeRoute('/en/cases/slug?ref=123')).toBe('/en/b2b/case-studies/slug?ref=123');
     });
   });
 

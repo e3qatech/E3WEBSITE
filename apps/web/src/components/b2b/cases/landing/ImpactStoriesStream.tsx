@@ -150,7 +150,7 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
 
                 {config.showProjectTitle !== false && projectTitle && (
                   <Link
-                    href={`/${locale}/b2b/cases/${activeFact.caseStudySlug}`}
+                    href={`/${locale}/b2b/case-studies/${activeFact.caseStudySlug}`}
                     className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--bg-level-2)] border border-[var(--border-level-2)] rounded-full text-xs font-mono text-amber-500 font-bold hover:border-amber-500/60 transition-colors shadow-xs"
                   >
                     <span>{projectTitle}</span>
@@ -174,7 +174,7 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
               {/* Direct Link */}
               <div className="pt-2">
                 <Link
-                  href={`/${locale}/b2b/cases/${activeFact.caseStudySlug}`}
+                  href={`/${locale}/b2b/case-studies/${activeFact.caseStudySlug}`}
                   className="inline-flex items-center gap-2 text-xs font-mono font-bold text-amber-500 hover:text-amber-600 uppercase tracking-widest group/link transition-colors"
                 >
                   <span>{isAr ? "استكشف المشروع بالكامل" : "Explore the Project"}</span>

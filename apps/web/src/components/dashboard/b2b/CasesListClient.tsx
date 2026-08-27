@@ -126,7 +126,7 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
             {filteredCases.map(caseStudy => {
               const audit = auditMap.get(caseStudy.slug);
               const editHref = localizeHref(`/dashboard/b2b/cases/${caseStudy.slug}`, locale);
-              const publicHref = localizeHref(`/b2b/cases/${caseStudy.slug}`, locale);
+              const publicHref = localizeHref(`/b2b/case-studies/${caseStudy.slug}`, locale);
               const isArchived = caseStudy.seo?.isArchived || audit?.status === 'ARCHIVED_DUPLICATE';
 
               return (

@@ -76,7 +76,7 @@ export function FooterSettingsView({ initialSettings }: { initialSettings: Recor
       { labelEn: "Live Event Production & Rigging", labelAr: "إنتاج الفعاليات الكبرى والمسارح", href: "/b2b/services" },
       { labelEn: "Spatial & Kinetic Staging", labelAr: "العروض الحركية والمؤثرات البصرية", href: "/b2b/services" },
       { labelEn: "Immersive AV & Projection Mapping", labelAr: "أنظمة الصوت والضوء والخرائط الضوئية", href: "/b2b/services" },
-      { labelEn: "Landmark Case Studies", labelAr: "سجل الإنجازات والمشاريع الكبرى", href: "/b2b/cases" },
+      { labelEn: "Landmark Case Studies", labelAr: "سجل الإنجازات والمشاريع الكبرى", href: "/b2b/case-studies" },
       { labelEn: "Strategic Clients & Partners", labelAr: "شركاء النجاح والعملاء الاستراتيجيين", href: "/b2b/clients" },
     ])
   );
@@ -122,7 +122,7 @@ export function FooterSettingsView({ initialSettings }: { initialSettings: Recor
     b2bFooterCtaBtnUrl: initialSettings.b2bFooterCtaBtnUrl || "/b2b/contact",
     b2bFooterSecondaryBtnLabelEn: initialSettings.b2bFooterSecondaryBtnLabelEn || "Explore Case Studies",
     b2bFooterSecondaryBtnLabelAr: initialSettings.b2bFooterSecondaryBtnLabelAr || "استكشف دراسات الحالة",
-    b2bFooterSecondaryBtnUrl: initialSettings.b2bFooterSecondaryBtnUrl || "/b2b/cases",
+    b2bFooterSecondaryBtnUrl: initialSettings.b2bFooterSecondaryBtnUrl || "/b2b/case-studies",
     b2bCrNumber: initialSettings.b2bCrNumber || "184920 / 2026",
     b2bFooterMediaUrl: initialSettings.b2bFooterMediaUrl || "",
     b2bFooterMediaType: initialSettings.b2bFooterMediaType || "IMAGE",

@@ -140,7 +140,7 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
           label: isVisible ? "VISIBLE" : "HIDDEN",
           variant: isVisible ? "success" : "warning",
         }}
-        previewUrl={slug ? `/b2b/cases/${slug}` : undefined}
+        previewUrl={slug ? `/b2b/case-studies/${slug}` : undefined}
         primaryAction={{
           label: isSaving ? "Saving..." : "Save Changes",
           onClick: handleSave,

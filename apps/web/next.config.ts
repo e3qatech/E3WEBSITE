@@ -52,44 +52,54 @@ const nextConfig: NextConfig = {
       // 0. Balloon Parade Duplicate Case Study 301 Consolidation (QF-13-C)
       {
         source: '/:locale(en|ar)/b2b/cases/doha-balloon-parade',
-        destination: '/:locale/b2b/cases/doha-balloon-parade-2022',
+        destination: '/:locale/b2b/case-studies/doha-balloon-parade-2022',
         permanent: true,
       },
       {
         source: '/b2b/cases/doha-balloon-parade',
-        destination: '/en/b2b/cases/doha-balloon-parade-2022',
+        destination: '/en/b2b/case-studies/doha-balloon-parade-2022',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/case-studies/doha-balloon-parade',
+        destination: '/:locale/b2b/case-studies/doha-balloon-parade-2022',
+        permanent: true,
+      },
+      {
+        source: '/b2b/case-studies/doha-balloon-parade',
+        destination: '/en/b2b/case-studies/doha-balloon-parade-2022',
         permanent: true,
       },
 
-      // 1. Case Studies Aliases
+      // 1. Case Studies Canonical Aliases (QF-05 Canonical Migration)
       {
-        source: '/:locale(en|ar)/b2b/case-studies',
-        destination: '/:locale/b2b/cases',
+        source: '/:locale(en|ar)/b2b/cases',
+        destination: '/:locale/b2b/case-studies',
         permanent: true,
       },
       {
-        source: '/:locale(en|ar)/b2b/case-studies/:slug',
-        destination: '/:locale/b2b/cases/:slug',
+        source: '/:locale(en|ar)/b2b/cases/:slug',
+        destination: '/:locale/b2b/case-studies/:slug',
         permanent: true,
       },
       {
         source: '/:locale(en|ar)/cases',
-        destination: '/:locale/b2b/cases',
+        destination: '/:locale/b2b/case-studies',
         permanent: true,
       },
       {
         source: '/:locale(en|ar)/cases/:slug',
-        destination: '/:locale/b2b/cases/:slug',
+        destination: '/:locale/b2b/case-studies/:slug',
         permanent: true,
       },
       {
         source: '/:locale(en|ar)/case-studies',
-        destination: '/:locale/b2b/cases',
+        destination: '/:locale/b2b/case-studies',
         permanent: true,
       },
       {
         source: '/:locale(en|ar)/case-studies/:slug',
-        destination: '/:locale/b2b/cases/:slug',
+        destination: '/:locale/b2b/case-studies/:slug',
         permanent: true,
       },
 

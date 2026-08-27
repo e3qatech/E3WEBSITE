@@ -265,14 +265,14 @@ export function B2BCasesEditor({
 
       <DashboardPageHeader
         title="B2B Case Studies Page Editor"
-        description="Manage hero, showreel, fact stream, featured landmarks, team stories, transformations, impact, and SEO (/b2b/cases)."
+        description="Manage hero, showreel, fact stream, featured landmarks, team stories, transformations, impact, and SEO (/b2b/case-studies)."
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "B2B Pages", href: "/dashboard/b2b/home" },
           { label: "Case Studies Editor" },
         ]}
         badge={{ label: "B2B Public", variant: "warning" }}
-        previewUrl="/b2b/cases"
+        previewUrl="/b2b/case-studies"
         isUnsaved={isDirty}
         lastSavedAt={lastSaved || undefined}
         primaryAction={{

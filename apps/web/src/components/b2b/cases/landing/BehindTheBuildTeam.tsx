@@ -207,7 +207,7 @@ export function BehindTheBuildTeam({
 
                   {caseTitle && caseSlug && (
                     <Link
-                      href={`/${locale}/b2b/cases/${caseSlug}`}
+                      href={`/${locale}/b2b/case-studies/${caseSlug}`}
                       className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-purple-500 hover:text-purple-600 transition-colors"
                     >
                       <span className="hidden sm:inline line-clamp-1 max-w-[140px]">

@@ -48,7 +48,7 @@ import { CaseTestimonialsSection } from "@/components/b2b/cases/CaseTestimonials
 import { CaseGalleryJourney } from "@/components/b2b/cases/CaseGalleryJourney";
 import { NextProjectTransition } from "@/components/b2b/cases/NextProjectTransition";
 import { LocaleProvider } from "@/components/layout/LocaleProvider";
-import { generateMetadata } from "@/app/[locale]/b2b/cases/[slug]/page";
+import { generateMetadata } from "@/app/[locale]/b2b/case-studies/[slug]/page";
 import * as CaseStudiesLib from "@/lib/case-studies";
 
 const MOCK_CASE_STUDY = {
@@ -167,7 +167,7 @@ describe("UX-05A — Build the Cinematic Case-Study Microsite System Suite", () 
       expect(html).toContain("Live at Lusail Boulevard Experience");
       expect(html).toContain('data-testid="hero-client-logo"');
       expect(html).toContain('data-testid="hero-back-link"');
-      expect(html).toContain("/en/b2b/cases");
+      expect(html).toContain("/en/b2b/case-studies");
     });
 
     it("renders fallback when hero image is absent without rendering an empty black hero", () => {
@@ -479,7 +479,7 @@ describe("UX-05A — Build the Cinematic Case-Study Microsite System Suite", () 
       expect(html).toContain('data-testid="next-case-link"');
       expect(html).toContain("Doha Balloon Festival Parade");
       expect(html).toContain("Live Entertainment");
-      expect(html).toContain("/en/b2b/cases/doha-balloon-parade-2022");
+      expect(html).toContain("/en/b2b/case-studies/doha-balloon-parade-2022");
       expect(html).toContain('data-testid="back-to-all-cases-btn"');
     });
 
@@ -491,7 +491,7 @@ describe("UX-05A — Build the Cinematic Case-Study Microsite System Suite", () 
       );
 
       expect(html).toContain('data-testid="back-to-all-cases-btn"');
-      expect(html).toContain("/en/b2b/cases");
+      expect(html).toContain("/en/b2b/case-studies");
     });
   });
 
@@ -507,7 +507,7 @@ describe("UX-05A — Build the Cinematic Case-Study Microsite System Suite", () 
       });
 
       expect(meta.title).toBe("Lusail Kinetic Canopy Case Study — E3 Case Study");
-      expect(meta.alternates?.canonical).toBe("https://e3.qa/en/b2b/cases/lusail-kinetic-lights-2024");
+      expect(meta.alternates?.canonical).toBe("https://e3.qa/en/b2b/case-studies/lusail-kinetic-lights-2024");
       expect(meta.openGraph?.images).toEqual([{ url: "https://e3.qa/media/lusail-hero.mp4" }]);
     });
 

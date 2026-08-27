@@ -568,7 +568,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                 </h2>
               </div>
               <Link 
-                href={proofConfig.viewAllLink || `/${locale}/b2b/cases`} 
+                href={proofConfig.viewAllLink || `/${locale}/b2b/case-studies`} 
                 className="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-base hover:text-emerald-500 transition-colors group"
               >
                 <span>{viewAllCaseStudiesCta || (isAr ? "عرض جميع المشاريع" : "View All Case Studies")}</span>
@@ -580,7 +580,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
               {displayCaseStudies.map((cs) => {
                 const title = isAr ? (cs.titleAr || cs.titleEn) : cs.titleEn
                 return (
-                  <Link key={cs.id} href={`/${locale}/b2b/cases/${cs.slug}`} className="group block">
+                  <Link key={cs.id} href={`/${locale}/b2b/case-studies/${cs.slug}`} className="group block">
                     <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-[var(--surface-default)] mb-6 border border-[var(--border-level-2)] group-hover:border-emerald-500/50 transition-all duration-500 shadow-sm">
                       {(cs.thumbnailUrl || cs.heroImageUrl) ? (
                         <UniversalMediaRenderer 

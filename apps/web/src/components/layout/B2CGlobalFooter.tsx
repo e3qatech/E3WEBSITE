@@ -234,7 +234,7 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
 
             <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
               {isAr
-                ? settings.footerDescriptionAr || "ريادة مستقبل الفعاليات والترفيه في قطر. نصنع تجارب استثنائية ولحظات لا تُنسى لجميع أفراد العائلة."
+                ? settings.footerDescriptionAr || "ريادة مستقبل الفعاليات والترفيه في قطر. صناعة لحظات لا تُنسى من خلال الابتكار."
                 : settings.footerDescriptionEn || "Pioneering the future of events and entertainment in Qatar. Creating unforgettable moments through innovation."}
             </p>
 
@@ -429,10 +429,10 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
               {isAr ? "متوافق مع قانون حماية البيانات الشخصية القطري (PDPL)" : "Qatar PDPL Compliant"}
             </span>
             <Link href={localizeHref("/b2c/privacy", locale)} className="hover:text-neutral-300 transition-colors">
-              {isAr ? "الخصوصية" : "Privacy"}
+              {isAr ? "سياسة الخصوصية" : "Privacy Policy"}
             </Link>
             <Link href={localizeHref("/b2c/terms", locale)} className="hover:text-neutral-300 transition-colors">
-              {isAr ? "شروط التذاكر" : "Ticketing Terms"}
+              {isAr ? "شروط الخدمة" : "Terms of Service"}
             </Link>
             <Link href={localizeHref("/b2c/contact", locale)} className="hover:text-neutral-300 transition-colors">
               {isAr ? "الدعم والمساعدة" : "Support"}

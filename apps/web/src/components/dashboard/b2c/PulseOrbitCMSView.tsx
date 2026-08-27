@@ -110,7 +110,7 @@ const DEFAULT_B2B_DESTINATIONS: OrbitDestinationItem[] = [
     id: "cases",
     labelEn: "Case Studies & Portfolio",
     labelAr: "دراسات الحالة والمشاريع",
-    href: "/b2b/cases",
+    href: "/b2b/case-studies",
     descEn: "Flagship national ceremonies, summits, and mega entertainment builds in Qatar.",
     descAr: "الاحتفالات الوطنية، القمم، والمشاريع الترفيهية الكبرى في قطر.",
     mediaUrl: "",

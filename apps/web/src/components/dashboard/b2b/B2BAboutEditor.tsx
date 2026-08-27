@@ -120,7 +120,7 @@ export function B2BAboutEditor({ initialData }: { initialData: any }) {
       primaryCtaUrl: initialData?.cta?.primaryCtaUrl || "/b2b/contact",
       secondaryCtaTextEn: initialData?.cta?.secondaryCtaTextEn || "Explore Our Case Studies",
       secondaryCtaTextAr: initialData?.cta?.secondaryCtaTextAr || "استكشف دراسات الحالة",
-      secondaryCtaUrl: initialData?.cta?.secondaryCtaUrl || "/b2b/cases",
+      secondaryCtaUrl: initialData?.cta?.secondaryCtaUrl || "/b2b/case-studies",
     },
   });
 

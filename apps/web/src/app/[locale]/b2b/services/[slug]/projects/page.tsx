@@ -84,7 +84,7 @@ export default async function ServiceProjectsPage(props: { params: Promise<{ loc
           {projects.map((project: any) => (
             <Link 
               key={project.id} 
-              href={localizeHref(`/b2b/cases/${project.slug}`, locale)}
+              href={localizeHref(`/b2b/case-studies/${project.slug}`, locale)}
               className="group block relative overflow-hidden rounded-2xl bg-zinc-900 border border-white/5 hover:border-emerald-500/30 transition-all duration-500"
             >
               <div className="aspect-video relative overflow-hidden">

@@ -164,11 +164,11 @@ describe('QF-13-C: Balloon Parade Case-Study Consolidation & 301 Redirect Guardr
     );
 
     expect(balloonParadeLocalizedRedirect).toBeDefined();
-    expect(balloonParadeLocalizedRedirect?.destination).toBe('/:locale/b2b/cases/doha-balloon-parade-2022');
+    expect(balloonParadeLocalizedRedirect?.destination).toBe('/:locale/b2b/case-studies/doha-balloon-parade-2022');
     expect(balloonParadeLocalizedRedirect?.permanent).toBe(true);
 
     expect(balloonParadeBareRedirect).toBeDefined();
-    expect(balloonParadeBareRedirect?.destination).toBe('/en/b2b/cases/doha-balloon-parade-2022');
+    expect(balloonParadeBareRedirect?.destination).toBe('/en/b2b/case-studies/doha-balloon-parade-2022');
     expect(balloonParadeBareRedirect?.permanent).toBe(true);
   });
 
@@ -184,7 +184,7 @@ describe('QF-13-C: Balloon Parade Case-Study Consolidation & 301 Redirect Guardr
     expect(html).toContain('Canonical Master');
     expect(html).toContain('Archived (301 → /doha-balloon-parade-2022)');
     expect(html).toContain('Archived (Staff)');
-    expect(html).toContain('href="/en/b2b/cases/doha-balloon-parade-2022"');
+    expect(html).toContain('href="/en/b2b/case-studies/doha-balloon-parade-2022"');
     expect(html).toContain('href="/en/dashboard/b2b/cases/doha-balloon-parade"'); // Staff can still edit archived record
   });
 
@@ -200,6 +200,6 @@ describe('QF-13-C: Balloon Parade Case-Study Consolidation & 301 Redirect Guardr
     expect(html).toContain('النسخة الأساسية المعتمدة');
     expect(html).toContain('مؤرشف (301 → /doha-balloon-parade-2022)');
     expect(html).toContain('مؤرشف (للموظفين)');
-    expect(html).toContain('href="/ar/b2b/cases/doha-balloon-parade-2022"');
+    expect(html).toContain('href="/ar/b2b/case-studies/doha-balloon-parade-2022"');
   });
 });

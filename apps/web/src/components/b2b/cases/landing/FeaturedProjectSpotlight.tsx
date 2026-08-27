@@ -166,7 +166,7 @@ export function FeaturedProjectSpotlight({
                 </div>
 
                 {/* Project Title */}
-                <Link href={`/${locale}/b2b/cases/${featuredProject.slug}`} className="group/title block">
+                <Link href={`/${locale}/b2b/case-studies/${featuredProject.slug}`} className="group/title block">
                   <h3 className="text-2xl md:text-4xl font-black font-syne text-[var(--text-primary)] tracking-tight mb-4 leading-tight group-hover/title:text-emerald-500 transition-colors">
                     {projectTitle}
                   </h3>
@@ -224,7 +224,7 @@ export function FeaturedProjectSpotlight({
               {/* Call to Action Button */}
               <div className="pt-6 border-t border-[var(--border-level-2)]">
                 <Link
-                  href={`/${locale}/b2b/cases/${featuredProject.slug}`}
+                  href={`/${locale}/b2b/case-studies/${featuredProject.slug}`}
                   className="w-full py-4 px-8 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-syne font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] flex items-center justify-center gap-3 group/btn"
                 >
                   <span>{ctaText}</span>

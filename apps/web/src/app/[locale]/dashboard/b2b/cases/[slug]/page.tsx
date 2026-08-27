@@ -2,7 +2,6 @@ import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { CaseEditor } from "@/components/dashboard/b2b/CaseEditor"
-import { CANONICAL_CASE_STUDIES_FALLBACKS } from "@/lib/case-studies"
 
 export const metadata = {
   title: "Case Study Editor | E3 Admin",
@@ -120,52 +119,46 @@ export default async function EditCasePage({
     } catch (_e) {}
   }
 
-  // If still not found, construct a graceful placeholder or default case study
+  // If still not found, construct a clean blank case study object
   if (!caseStudy) {
-    const fallback = CANONICAL_CASE_STUDIES_FALLBACKS[slug] ||
-      CANONICAL_CASE_STUDIES_FALLBACKS[`case-${slug}`] ||
-      CANONICAL_CASE_STUDIES_FALLBACKS["case-urban-arena"] || {}
-
-    const titleSlug = slug
+    const titleSlug = slug === "new" ? "" : slug
       .split("-")
       .map(s => s.charAt(0).toUpperCase() + s.slice(1))
       .join(" ")
 
     const formattedData = {
       id: "",
-      slug: slug.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
-      titleEn: fallback.titleEn || titleSlug || "New Case Study",
-      titleAr: fallback.titleAr || titleSlug || "دراسة حالة جديدة",
-      clientName: fallback.clientName || "E3 Client",
-      category: fallback.category || "Corporate",
-      year: fallback.year || new Date().getFullYear(),
-      challengeEn: fallback.challengeEn || "",
-      challengeAr: fallback.challengeAr || "",
-      solutionEn: fallback.solutionEn || "",
-      solutionAr: fallback.solutionAr || "",
-      resultEn: fallback.resultEn || "",
-      resultAr: fallback.resultAr || "",
-      heroMediaType: fallback.heroMediaType || "IMAGE",
-      heroImageUrl: fallback.heroImageUrl || "",
-      thumbnailMediaType: fallback.thumbnailMediaType || "IMAGE",
-      thumbnailUrl: fallback.thumbnailUrl || "",
-      clientLogoUrl: fallback.clientLogoUrl || "",
-      isPublished: fallback.isPublished ?? true,
-      isFeatured: fallback.isFeatured ?? false,
-      attractionId: fallback.attractionId || "",
-      metrics: Array.isArray(fallback.metrics) ? fallback.metrics : [],
-      testimonials: Array.isArray(fallback.testimonials) ? fallback.testimonials : [],
-      gallery: Array.isArray(fallback.gallery) ? fallback.gallery : [],
-      technicalSpecs: Array.isArray(fallback.technicalSpecs) ? fallback.technicalSpecs : [],
-      servicesUsed: Array.isArray(fallback.servicesUsed) ? fallback.servicesUsed : [],
+      slug: slug === "new" ? "" : slug.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
+      titleEn: titleSlug || "",
+      titleAr: "",
+      clientName: "",
+      category: "",
+      year: new Date().getFullYear(),
+      challengeEn: "",
+      challengeAr: "",
+      solutionEn: "",
+      solutionAr: "",
+      resultEn: "",
+      resultAr: "",
+      heroMediaType: "IMAGE",
+      heroImageUrl: "",
+      thumbnailMediaType: "IMAGE",
+      thumbnailUrl: "",
+      clientLogoUrl: "",
+      isPublished: true,
+      isFeatured: false,
+      attractionId: "",
+      metrics: [],
+      testimonials: [],
+      gallery: [],
+      technicalSpecs: [],
+      servicesUsed: [],
       teamMembers: [],
-      seo: fallback.seo || {}
+      seo: {}
     }
 
     return <CaseEditor initialData={formattedData} attractions={attractions} teamMembers={teamMembersDb} />
   }
-
-  const fallback = CANONICAL_CASE_STUDIES_FALLBACKS[caseStudy.slug] || {}
 
   // Defensive array normalizer for metrics (handles object dictionary vs array)
   let rawMetrics: any[] = []
@@ -178,8 +171,6 @@ export default async function EditCasePage({
       labelAr: key,
       valueAr: String(val)
     }))
-  } else if (Array.isArray(fallback.metrics)) {
-    rawMetrics = fallback.metrics
   }
 
   const normalizedMetrics = rawMetrics.map((m: any) => ({
@@ -200,8 +191,6 @@ export default async function EditCasePage({
       quoteAr: "",
       isVisible: true
     }))
-  } else if (Array.isArray(fallback.testimonials)) {
-    rawTestimonials = fallback.testimonials
   }
 
   const normalizedTestimonials = rawTestimonials.map((t: any) => ({
@@ -215,8 +204,6 @@ export default async function EditCasePage({
   let rawGallery: any[] = []
   if (Array.isArray(caseStudy.gallery)) {
     rawGallery = caseStudy.gallery
-  } else if (Array.isArray(fallback.gallery)) {
-    rawGallery = fallback.gallery
   }
 
   const normalizedGallery = rawGallery.map((g: any) => ({
@@ -237,32 +224,32 @@ export default async function EditCasePage({
   const formattedData = {
     id: caseStudy.id,
     slug: caseStudy.slug,
-    titleEn: caseStudy.titleEn || fallback.titleEn || "",
-    titleAr: caseStudy.titleAr || fallback.titleAr || "",
-    clientName: caseStudy.clientName || fallback.clientName || "",
-    category: caseStudy.category || fallback.category || "Corporate",
-    year: caseStudy.year || fallback.year || 2024,
-    challengeEn: caseStudy.challengeEn || fallback.challengeEn || "",
-    challengeAr: caseStudy.challengeAr || fallback.challengeAr || "",
-    solutionEn: caseStudy.solutionEn || fallback.solutionEn || "",
-    solutionAr: caseStudy.solutionAr || fallback.solutionAr || "",
-    resultEn: caseStudy.resultEn || fallback.resultEn || "",
-    resultAr: caseStudy.resultAr || fallback.resultAr || "",
-    heroMediaType: caseStudy.heroMediaType || fallback.heroMediaType || "IMAGE",
-    heroImageUrl: caseStudy.heroImageUrl || fallback.heroImageUrl || "",
-    thumbnailMediaType: caseStudy.thumbnailMediaType || fallback.thumbnailMediaType || "IMAGE",
-    thumbnailUrl: caseStudy.thumbnailUrl || fallback.thumbnailUrl || "",
-    clientLogoUrl: caseStudy.clientLogoUrl || fallback.clientLogoUrl || "",
-    isPublished: caseStudy.isPublished ?? fallback.isPublished ?? true,
-    isFeatured: caseStudy.isFeatured ?? fallback.isFeatured ?? false,
-    attractionId: caseStudy.attractionId || fallback.attractionId || "",
+    titleEn: caseStudy.titleEn || "",
+    titleAr: caseStudy.titleAr || "",
+    clientName: caseStudy.clientName || "",
+    category: caseStudy.category || "Corporate",
+    year: caseStudy.year || new Date().getFullYear(),
+    challengeEn: caseStudy.challengeEn || "",
+    challengeAr: caseStudy.challengeAr || "",
+    solutionEn: caseStudy.solutionEn || "",
+    solutionAr: caseStudy.solutionAr || "",
+    resultEn: caseStudy.resultEn || "",
+    resultAr: caseStudy.resultAr || "",
+    heroMediaType: caseStudy.heroMediaType || "IMAGE",
+    heroImageUrl: caseStudy.heroImageUrl || "",
+    thumbnailMediaType: caseStudy.thumbnailMediaType || "IMAGE",
+    thumbnailUrl: caseStudy.thumbnailUrl || "",
+    clientLogoUrl: caseStudy.clientLogoUrl || "",
+    isPublished: caseStudy.isPublished ?? true,
+    isFeatured: caseStudy.isFeatured ?? false,
+    attractionId: caseStudy.attractionId || "",
     metrics: normalizedMetrics,
     testimonials: normalizedTestimonials,
     gallery: normalizedGallery,
     technicalSpecs: Array.isArray(caseStudy.technicalSpecs) ? caseStudy.technicalSpecs : [],
     servicesUsed: Array.isArray(caseStudy.servicesUsed) ? caseStudy.servicesUsed : [],
     teamMembers,
-    seo: caseStudy.seo || fallback.seo || {}
+    seo: caseStudy.seo || {}
   }
 
   return <CaseEditor initialData={formattedData} attractions={attractions} teamMembers={teamMembersDb} />
