@@ -19,16 +19,12 @@ export default async function RootB2BLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const settings = await getPublicSettingsServer();
 
-  let b2bOrbitPage: any = null;
-  try {
-    b2bOrbitPage = await db.pages.findUnique({
-      where: { slug: "b2b-pulse-orbit" }
-    });
-  } catch (e) {
-    console.warn("[B2B LAYOUT NOTICE] Failed to query b2b-pulse-orbit page:", e);
-  }
+  // Run both DB calls in parallel — no sequential awaits
+  const [settings, b2bOrbitPage] = await Promise.all([
+    getPublicSettingsServer().catch(() => ({} as any)),
+    db.pages.findUnique({ where: { slug: "b2b-pulse-orbit" } }).catch(() => null),
+  ]);
 
   const b2bOrbitData = getMergedCMSPageContent("b2b-pulse-orbit", b2bOrbitPage?.content);
 

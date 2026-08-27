@@ -83,44 +83,49 @@ const prismaClientSingleton = () => {
     // Ignore URL parse errors
   }
 
+  const isProduction = process.env.NODE_ENV === 'production';
+
   const client = new PrismaClient({
     datasources: {
       db: {
         url: finalUrl,
       },
     },
-    log: [
-      { emit: 'event', level: 'query' },
-      { emit: 'stdout', level: 'error' },
-      { emit: 'stdout', level: 'info' },
-      { emit: 'stdout', level: 'warn' },
-    ],
+    // In production, only log errors. In development, log warnings/info too.
+    log: isProduction
+      ? [{ emit: 'stdout', level: 'error' }]
+      : [
+          { emit: 'stdout', level: 'error' },
+          { emit: 'stdout', level: 'warn' },
+          { emit: 'stdout', level: 'info' },
+        ],
   });
 
   return client.$extends({
     query: {
       $allModels: {
         async $allOperations({ operation, model, args, query }: any) {
-          const start = performance.now()
-          const TIMEOUT_MS = 15000 // 15 seconds max per query (increased for cold starts)
+          // Only time queries in development to avoid perf overhead in production
+          if (isProduction) {
+            return query(args);
+          }
+
+          const start = performance.now();
+          const TIMEOUT_MS = 15000;
 
           const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error(`[DB TIMEOUT] ${model}.${operation} exceeded ${TIMEOUT_MS}ms`)), TIMEOUT_MS)
-          })
+            setTimeout(() => reject(new Error(`[DB TIMEOUT] ${model}.${operation} exceeded ${TIMEOUT_MS}ms`)), TIMEOUT_MS);
+          });
 
           try {
-            const result = await Promise.race([query(args), timeoutPromise])
-            const end = performance.now()
-            const duration = end - start
-
-            // Log warning if query exceeds 250ms budget (accounting for initial connection pool warmup)
-            if (duration > 250) {
-              console.warn(`[PRISMA PERFORMANCE BREACH] ${model}.${operation} took ${Math.round(duration)}ms`)
+            const result = await Promise.race([query(args), timeoutPromise]);
+            const duration = performance.now() - start;
+            if (duration > 500) {
+              console.warn(`[PRISMA SLOW QUERY] ${model}.${operation} took ${Math.round(duration)}ms`);
             }
-
-            return result
+            return result;
           } catch (error: any) {
-            const errMsg = String(error?.message || error || "");
+            const errMsg = String(error?.message || error || '');
             console.error(`[DB ERROR] ${model}.${operation} failed:`, errMsg);
             throw error;
           }

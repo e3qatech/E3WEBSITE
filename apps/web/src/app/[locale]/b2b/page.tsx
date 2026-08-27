@@ -68,17 +68,35 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function B2BHomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const isAr = locale === 'ar';
-  
-  // Fetch real data from the CMS safely
-  let page: any = null
-  try {
-    page = await db.pages.findUnique({
-      where: { slug: 'b2b-home' }
-    })
-  } catch (error) {
-    console.error("Error loading b2b-home page:", error)
-  }
-  
+
+  // ── Parallel Data Fetch ───────────────────────────────────────────────────
+  // All 5 independent data sources fire simultaneously. Zero sequential awaits.
+  const [pageResult, servicesFeaturedResult, servicesAllResult, caseStudiesResult, partnersResult, brandsResult] =
+    await Promise.allSettled([
+      db.pages.findUnique({ where: { slug: 'b2b-home' } }),
+      db.service.findMany({
+        where: { isVisible: true, isFeatured: true },
+        orderBy: { createdAt: 'desc' },
+        take: 6,
+      }),
+      db.service.findMany({
+        where: { isVisible: true },
+        orderBy: { createdAt: 'desc' },
+        take: 6,
+      }),
+      getPublicCaseStudies({ limit: 3, featuredFirst: true }),
+      db.partner.findMany({
+        where: { isVisible: true },
+        orderBy: [{ orderIndex: 'asc' }, { createdAt: 'desc' }],
+      }),
+      db.brandIP.findMany({
+        where: { isActive: true, showOnB2B: true },
+        include: { category: true },
+        orderBy: { b2bDisplayOrder: 'asc' },
+      }),
+    ]);
+
+  const page = pageResult.status === 'fulfilled' ? pageResult.value : null;
   const content = getMergedCMSPageContent('b2b-home', page?.content);
 
   // 1. Hero Data
@@ -174,60 +192,39 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
       : (content.partnerRibbon?.titleEn || content.partnerRibbon?.title || "Trusted by Industry Leaders")
   }
 
-  // Fetch Services from Database
-  const featuredServiceIds = content?.featuredServiceIds || []
-  let dbServices: any[] = []
-  try {
-    if (featuredServiceIds.length > 0) {
-      dbServices = await db.service.findMany({
-        where: { id: { in: featuredServiceIds }, isVisible: true }
-      })
-      dbServices.sort((a, b) => featuredServiceIds.indexOf(a.id) - featuredServiceIds.indexOf(b.id))
-    } else {
-      dbServices = await db.service.findMany({
-        where: { isVisible: true, isFeatured: true },
-        orderBy: { createdAt: 'desc' },
-        take: 6
-      })
-      if (dbServices.length === 0) {
-        dbServices = await db.service.findMany({
-          where: { isVisible: true },
-          orderBy: { createdAt: 'desc' },
-          take: 6
-        })
-      }
-    }
-  } catch (error) {
-    console.error("Error loading services for B2B home:", error)
+  // ── Resolve parallel results ─────────────────────────────────────────────
+  const featuredServiceIds: string[] = content?.featuredServiceIds || [];
+  const featuredCaseStudyIds: string[] = content?.featuredCaseStudyIds || [];
+
+  // Services: if admin pinned specific IDs, fetch only those (rare); else use parallel result
+  let dbServices: any[] = [];
+  if (featuredServiceIds.length > 0) {
+    try {
+      const pinned = await db.service.findMany({ where: { id: { in: featuredServiceIds }, isVisible: true } });
+      dbServices = pinned.length > 0 ? pinned : [];
+      dbServices.sort((a, b) => featuredServiceIds.indexOf(a.id) - featuredServiceIds.indexOf(b.id));
+    } catch { /* fall through */ }
+  }
+  if (dbServices.length === 0) {
+    const featuredSvcs = servicesFeaturedResult.status === 'fulfilled' ? (servicesFeaturedResult.value || []) : [];
+    dbServices = featuredSvcs.length > 0
+      ? featuredSvcs
+      : (servicesAllResult.status === 'fulfilled' ? (servicesAllResult.value || []) : []);
   }
 
-  // Fetch Case Studies using shared canonical helper (QF-05)
-  const featuredCaseStudyIds = content?.featuredCaseStudyIds || []
-  let dbProjects: any[] = []
-  try {
-    dbProjects = await getPublicCaseStudies({
-      ids: featuredCaseStudyIds.length > 0 ? featuredCaseStudyIds : undefined,
-      limit: 3,
-      featuredFirst: true
-    })
-  } catch (error) {
-    console.error("Error loading case studies for B2B home:", error)
+  // Case studies: filter by pinned IDs client-side to avoid another DB round-trip
+  let dbProjects: any[] = caseStudiesResult.status === 'fulfilled' ? (caseStudiesResult.value || []) : [];
+  if (featuredCaseStudyIds.length > 0) {
+    const pinned = dbProjects.filter((cs: any) =>
+      featuredCaseStudyIds.includes(String(cs.id)) || featuredCaseStudyIds.includes(String(cs.slug))
+    );
+    dbProjects = (pinned.length > 0 ? pinned : dbProjects).slice(0, 3);
+  } else {
+    dbProjects = dbProjects.slice(0, 3);
   }
 
-  // Fetch Partners safely from DB
-  let dbPartners: any[] = []
-  try {
-    dbPartners = await db.partner.findMany({
-      where: { isVisible: true },
-      orderBy: [
-        { orderIndex: 'asc' },
-        { createdAt: 'desc' }
-      ]
-    })
-  } catch (error) {
-    console.error("Error loading partners for B2B home:", error)
-  }
-
+  // Partners
+  const dbPartners: any[] = partnersResult.status === 'fulfilled' ? (partnersResult.value || []) : [];
   const resolvedPartners = filterAndResolvePublicPartners(dbPartners);
   const partnersList = resolvedPartners.length > 0 ? resolvedPartners : [
     { id: '1', name: 'Visit Qatar', logoUrl: '' },
@@ -235,20 +232,11 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
     { id: '3', name: 'Qatar Calendar', logoUrl: '' },
     { id: '4', name: 'UDC', logoUrl: '' },
     { id: '5', name: 'QNCC', logoUrl: '' },
-    { id: '6', name: 'Doha Festival City', logoUrl: '' }
-  ]
+    { id: '6', name: 'Doha Festival City', logoUrl: '' },
+  ];
 
-  // Fetch Brands for IP Portfolio
-  let dbBrands: any[] = []
-  try {
-    dbBrands = await db.brandIP.findMany({
-      where: { isActive: true, showOnB2B: true },
-      include: { category: true },
-      orderBy: { b2bDisplayOrder: 'asc' }
-    })
-  } catch (error) {
-    console.error("Error loading brands for B2B home:", error)
-  }
+  // Brands
+  const dbBrands: any[] = brandsResult.status === 'fulfilled' ? (brandsResult.value || []) : [];
 
   // Inject dynamic brands into CMS data if not hardcoded
   if (content && dbBrands.length > 0) {

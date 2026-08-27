@@ -70,20 +70,20 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function Home() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
-
-  let cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD;
+async function loadGatewayCmsData(): Promise<GatewayCustomizationPayload> {
   try {
     const record = await db.setting.findUnique({
       where: { key: 'gateway_customization_published' },
     });
-    if (record?.value) {
-      cmsData = mergeGatewayPayload(record.value);
-    }
+    return record?.value ? mergeGatewayPayload(record.value) : DEFAULT_GATEWAY_CMS_PAYLOAD;
   } catch (_e) {
-    // Fallback
+    return DEFAULT_GATEWAY_CMS_PAYLOAD;
   }
+}
+
+export default async function Home() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
+  const cmsData = await loadGatewayCmsData();
 
   return (
     <LocaleProvider defaultLocale="en">

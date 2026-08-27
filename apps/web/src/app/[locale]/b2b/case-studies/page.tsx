@@ -48,7 +48,7 @@ export default async function CaseStudiesIndexPage({ params }: { params: Promise
   let pageData: any = null
   
   try {
-    const [pageRes, servicesRes, teamRes] = await Promise.allSettled([
+    const [pageRes, servicesRes, teamRes, casesRes] = await Promise.allSettled([
       db.pages.findUnique({
         where: { slug: 'b2b-cases' }
       }),
@@ -59,7 +59,12 @@ export default async function CaseStudiesIndexPage({ params }: { params: Promise
       db.employeeProfile.findMany({
         orderBy: { firstName: 'asc' },
         select: { id: true, firstName: true, lastName: true, designation: true, profileImage: true, department: true }
-      })
+      }),
+      getPublicCaseStudies({
+        includeTeam: true,
+        includeAttraction: true,
+        featuredFirst: true,
+      }),
     ])
 
     if (pageRes.status === 'fulfilled') {
@@ -71,6 +76,9 @@ export default async function CaseStudiesIndexPage({ params }: { params: Promise
     if (teamRes.status === 'fulfilled') {
       employeeProfiles = teamRes.value || []
     }
+    if (casesRes.status === 'fulfilled') {
+      caseStudies = casesRes.value || []
+    }
   } catch (error) {
     console.error("Error fetching b2b case studies page data:", error)
   }
@@ -79,18 +87,6 @@ export default async function CaseStudiesIndexPage({ params }: { params: Promise
   const selectedIds = Array.isArray(cmsContent?.featuredCases?.selectedCaseStudyIds)
     ? cmsContent.featuredCases.selectedCaseStudyIds.map(String)
     : []
-
-  // Fetch all case studies using unified canonical resolver
-  try {
-    caseStudies = await getPublicCaseStudies({
-      includeTeam: true,
-      includeAttraction: true,
-      featuredFirst: true,
-    });
-  } catch (err) {
-    console.error("Error loading case studies:", err);
-    caseStudies = [];
-  }
 
   const selectedSet = new Set(selectedIds)
 
