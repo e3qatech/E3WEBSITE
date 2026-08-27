@@ -2,10 +2,23 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 
+const ALLOWED_ROLES = [
+  "SUPER_ADMIN",
+  "ADMIN",
+  "SUPPORT_ADMIN",
+  "SALES_ADMIN",
+  "CONTENT_MANAGER",
+  "EDITOR",
+  "STAFF",
+  "OPERATIONS",
+  "MARKETING",
+];
+
 export async function POST(request: Request) {
   try {
     const session = await auth();
-    if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
+    const role = (session?.user as any)?.role;
+    if (!session || !ALLOWED_ROLES.includes(role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

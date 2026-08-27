@@ -3,6 +3,18 @@ import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { getPublicCaseStudies } from "@/lib/case-studies"
 
+const ALLOWED_ROLES = [
+  "SUPER_ADMIN",
+  "ADMIN",
+  "SUPPORT_ADMIN",
+  "SALES_ADMIN",
+  "CONTENT_MANAGER",
+  "EDITOR",
+  "STAFF",
+  "OPERATIONS",
+  "MARKETING",
+];
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -11,7 +23,7 @@ export async function GET(request: Request) {
     if (requestAll) {
       const session = await auth()
       const role = (session?.user as any)?.role
-      const isStaff = session?.user && ["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN", "CONTENT_MANAGER", "EDITOR", "STAFF"].includes(role)
+      const isStaff = session?.user && ALLOWED_ROLES.includes(role)
       
       if (isStaff) {
         const caseStudies = await db.caseStudy.findMany({
@@ -33,7 +45,8 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const session = await auth()
-    if (!session || !["SUPER_ADMIN", "SUPPORT_ADMIN", "SALES_ADMIN"].includes((session.user as any)?.role)) {
+    const role = (session?.user as any)?.role
+    if (!session || !ALLOWED_ROLES.includes(role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

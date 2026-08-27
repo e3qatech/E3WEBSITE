@@ -53,21 +53,29 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
   const [isPublishingAll, setIsPublishingAll] = useState(false);
 
   const handleToggleVisibility = async (id: string, currentStatus: boolean) => {
+    const nextStatus = !currentStatus;
+    // Optimistic UI update
+    setCaseStudies((prev) =>
+      prev.map((c) => (c.id === id || c.slug === id ? { ...c, isPublished: nextStatus, isVisible: nextStatus } : c))
+    );
+
     try {
-      const nextStatus = !currentStatus;
-      const res = await fetch(`/api/b2b/cases/${id}`, {
+      const res = await fetch(`/api/b2b/cases/${encodeURIComponent(id)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isPublished: nextStatus }),
       });
-      if (!res.ok) throw new Error("Failed to update status");
-
-      setCaseStudies((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, isPublished: nextStatus, isVisible: nextStatus } : c))
-      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
       router.refresh();
-    } catch {
-      alert(isAr ? "فشل تحديث حالة الظهور" : "Failed to update visibility status");
+    } catch (err: any) {
+      // Rollback on failure
+      setCaseStudies((prev) =>
+        prev.map((c) => (c.id === id || c.slug === id ? { ...c, isPublished: currentStatus, isVisible: currentStatus } : c))
+      );
+      alert(isAr ? `فشل تحديث حالة الظهور: ${err.message}` : `Failed to update visibility: ${err.message}`);
     }
   };
 
@@ -75,20 +83,24 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
     if (!confirm(isAr ? "هل ترغب في نشر جميع دراسات الحالة لتظهر في الموقع العام فوراً؟" : "Publish all case studies to be visible on the public website immediately?")) return;
 
     setIsPublishingAll(true);
+    // Optimistic update
+    setCaseStudies((prev) =>
+      prev.map((c) => (c.slug === "doha-balloon-parade" ? c : { ...c, isPublished: true, isVisible: true }))
+    );
+
     try {
       const res = await fetch("/api/b2b/cases/bulk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "publishAll" }),
       });
-      if (!res.ok) throw new Error("Failed to publish all");
-
-      setCaseStudies((prev) =>
-        prev.map((c) => (c.slug === "doha-balloon-parade" ? c : { ...c, isPublished: true, isVisible: true }))
-      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
       router.refresh();
-    } catch {
-      alert(isAr ? "فشل نشر جميع دراسات الحالة" : "Failed to publish all case studies");
+    } catch (err: any) {
+      alert(isAr ? `فشل نشر جميع دراسات الحالة: ${err.message}` : `Failed to publish all case studies: ${err.message}`);
     } finally {
       setIsPublishingAll(false);
     }
