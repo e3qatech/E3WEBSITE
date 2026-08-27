@@ -14,6 +14,19 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
+
+    // Fast path: visibility or featured toggle
+    if (Object.keys(body).length <= 2 && (body.isPublished !== undefined || body.isFeatured !== undefined)) {
+      const updated = await db.caseStudy.update({
+        where: { id },
+        data: {
+          ...(body.isPublished !== undefined && { isPublished: Boolean(body.isPublished) }),
+          ...(body.isFeatured !== undefined && { isFeatured: Boolean(body.isFeatured) }),
+        }
+      })
+      return NextResponse.json({ success: true, caseStudy: updated })
+    }
+
     const { 
       slug, titleEn, titleAr, clientName, year, category,
       heroMediaType, heroImageUrl, 
@@ -22,32 +35,47 @@ export async function PUT(
       challengeEn, challengeAr, solutionEn, solutionAr, resultEn, resultAr,
       isFeatured, isPublished,
       gallery, metrics, technicalSpecs, servicesUsed,
-      attractionId, teamMembers, testimonials
+      attractionId, teamMembers, testimonials, seo
     } = body
 
     await db.$transaction(async (tx: any) => {
-      // 1. Delete existing team members
-      await tx.caseStudyTeamMember.deleteMany({
-        where: { caseStudyId: id }
-      })
+      // 1. Delete existing team members if teamMembers array provided
+      if (teamMembers !== undefined) {
+        await tx.caseStudyTeamMember.deleteMany({
+          where: { caseStudyId: id }
+        })
+      }
 
       // 2. Update case study
       await tx.caseStudy.update({
         where: { id },
         data: {
-          slug, titleEn, titleAr, clientName, category,
-          year: year ? parseInt(year) : 2024,
-          heroMediaType, heroImageUrl, 
-          thumbnailMediaType, thumbnailUrl, 
-          clientLogoUrl,
-          challengeEn, challengeAr, solutionEn, solutionAr, resultEn, resultAr,
-          isFeatured, isPublished,
-          attractionId: attractionId || null,
-          gallery: gallery || [],
-          metrics: metrics || [],
-          technicalSpecs: technicalSpecs || [],
-          servicesUsed: servicesUsed || [],
-          testimonials: testimonials || [],
+          ...(slug && { slug: slug.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') }),
+          ...(titleEn && { titleEn }),
+          ...(titleAr && { titleAr }),
+          ...(clientName !== undefined && { clientName }),
+          ...(category !== undefined && { category }),
+          ...(year && { year: parseInt(year) }),
+          ...(heroMediaType !== undefined && { heroMediaType }),
+          ...(heroImageUrl !== undefined && { heroImageUrl }),
+          ...(thumbnailMediaType !== undefined && { thumbnailMediaType }),
+          ...(thumbnailUrl !== undefined && { thumbnailUrl }),
+          ...(clientLogoUrl !== undefined && { clientLogoUrl }),
+          ...(challengeEn !== undefined && { challengeEn }),
+          ...(challengeAr !== undefined && { challengeAr }),
+          ...(solutionEn !== undefined && { solutionEn }),
+          ...(solutionAr !== undefined && { solutionAr }),
+          ...(resultEn !== undefined && { resultEn }),
+          ...(resultAr !== undefined && { resultAr }),
+          ...(isFeatured !== undefined && { isFeatured: Boolean(isFeatured) }),
+          ...(isPublished !== undefined && { isPublished: Boolean(isPublished) }),
+          ...(attractionId !== undefined && { attractionId: attractionId || null }),
+          ...(gallery !== undefined && { gallery }),
+          ...(metrics !== undefined && { metrics }),
+          ...(technicalSpecs !== undefined && { technicalSpecs }),
+          ...(servicesUsed !== undefined && { servicesUsed }),
+          ...(testimonials !== undefined && { testimonials }),
+          ...(seo !== undefined && { seo }),
           ...(teamMembers && teamMembers.length > 0 && {
             teamMembers: {
               create: teamMembers.map((tm: any, i: number) => ({

@@ -237,11 +237,11 @@ export async function getPublicCaseStudies(options: PublicCaseStudiesQueryOption
     const eligibleResults = results.filter(isCaseStudyEligible);
 
     if (eligibleResults.length > 0) {
-      const seenSlugs = new Set<string>();
+      const seen = new Set<string>();
       const uniqueResults = eligibleResults.filter((cs: any) => {
-        const slugKey = String(cs.slug || cs.id || "").toLowerCase().replace(/^case-/, "");
-        if (seenSlugs.has(slugKey)) return false;
-        seenSlugs.add(slugKey);
+        const key = String(cs.slug || cs.id || "").toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
         return true;
       });
       return uniqueResults.map(enrichCaseStudyWithDefaults);
@@ -255,8 +255,8 @@ export async function getPublicCaseStudies(options: PublicCaseStudiesQueryOption
 }
 
 /**
- * Fetch a single published case study by slug or alias from database.
- * Returns null if not found in DB.
+ * Fetch a single case study by slug, alias, or title from database.
+ * Returns null only if no matching record exists in DB.
  */
 export async function getPublicCaseStudyBySlug(
   rawSlug: string,
@@ -264,9 +264,11 @@ export async function getPublicCaseStudyBySlug(
 ) {
   if (!rawSlug) return null;
 
-  const slug = decodeURIComponent(rawSlug).trim();
-  const cleanSlug = slug.toLowerCase();
+  const rawDecoded = decodeURIComponent(rawSlug).trim();
+  const cleanSlug = rawDecoded.toLowerCase().replace(/[\s_]+/g, "-");
+  const underscoreSlug = rawDecoded.toLowerCase().replace(/[\s-]+/g, "_");
   const altSlug = cleanSlug.startsWith("case-") ? cleanSlug.replace(/^case-/, "") : `case-${cleanSlug}`;
+  const plainTitle = cleanSlug.replace(/-/g, " ");
 
   try {
     const include: Prisma.CaseStudyInclude = {};
@@ -280,28 +282,38 @@ export async function getPublicCaseStudyBySlug(
       include.attraction = true;
     }
 
-    // 1. Direct match by exact slug
-    let caseStudy = await db.caseStudy.findUnique({
-      where: { slug },
+    // 1. Direct match by exact slug, normalized slugs, or ID
+    let caseStudy = await db.caseStudy.findFirst({
+      where: {
+        OR: [
+          { slug: rawSlug },
+          { slug: rawDecoded },
+          { slug: cleanSlug },
+          { slug: underscoreSlug },
+          { slug: altSlug },
+          { id: rawSlug },
+          { id: rawDecoded },
+        ],
+      },
       ...(Object.keys(include).length > 0 ? { include } : {}),
     }).catch(() => null);
 
-    // 2. Match by clean slug, alt slug, or ID
+    // 2. Case-insensitive / fuzzy match on slug, titleEn, or titleAr
     if (!caseStudy) {
       caseStudy = await db.caseStudy.findFirst({
         where: {
           OR: [
-            { slug: cleanSlug },
-            { slug: altSlug },
-            { id: slug },
             { slug: { contains: cleanSlug, mode: "insensitive" } },
+            { slug: { contains: underscoreSlug, mode: "insensitive" } },
+            { titleEn: { contains: plainTitle, mode: "insensitive" } },
+            { titleAr: { contains: rawDecoded, mode: "insensitive" } },
           ],
         },
         ...(Object.keys(include).length > 0 ? { include } : {}),
       }).catch(() => null);
     }
 
-    // 3. Match by attraction slug
+    // 3. Match by attraction slug or attraction ID
     if (!caseStudy) {
       const attraction = await db.attraction.findFirst({
         where: {
@@ -309,6 +321,8 @@ export async function getPublicCaseStudyBySlug(
             { slug: cleanSlug },
             { slug: altSlug },
             { slug: { contains: cleanSlug.replace(/^case-/, ""), mode: "insensitive" } },
+            { id: rawSlug },
+            { id: rawDecoded },
           ],
         },
         select: { id: true },
@@ -322,7 +336,7 @@ export async function getPublicCaseStudyBySlug(
       }
     }
 
-    if (caseStudy && isCaseStudyEligible(caseStudy)) {
+    if (caseStudy) {
       return enrichCaseStudyWithDefaults(caseStudy);
     }
   } catch (error) {

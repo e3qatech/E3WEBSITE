@@ -56,7 +56,7 @@ export function CaseEditor({ initialData, attractions = [], teamMembers = [] }: 
   const [resultAr, setResultAr] = useState(initialData?.resultAr || "")
 
   const [isFeatured, setIsFeatured] = useState(initialData?.isFeatured ?? false)
-  const [isVisible, setIsVisible] = useState(initialData?.isPublished ?? false)
+  const [isVisible, setIsVisible] = useState(initialData?.isPublished ?? true)
   
   const [metrics, setMetrics] = useState<any[]>(Array.isArray(initialData?.metrics) ? initialData.metrics : [])
   const [testimonials, setTestimonials] = useState<any[]>(Array.isArray(initialData?.testimonials) ? initialData.testimonials : [])

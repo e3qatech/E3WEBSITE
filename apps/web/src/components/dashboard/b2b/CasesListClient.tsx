@@ -50,6 +50,50 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
     (c.clientName && c.clientName.toLowerCase().includes(search.toLowerCase()))
   );
 
+  const [isPublishingAll, setIsPublishingAll] = useState(false);
+
+  const handleToggleVisibility = async (id: string, currentStatus: boolean) => {
+    try {
+      const nextStatus = !currentStatus;
+      const res = await fetch(`/api/b2b/cases/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPublished: nextStatus }),
+      });
+      if (!res.ok) throw new Error("Failed to update status");
+
+      setCaseStudies((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, isPublished: nextStatus, isVisible: nextStatus } : c))
+      );
+      router.refresh();
+    } catch {
+      alert(isAr ? "فشل تحديث حالة الظهور" : "Failed to update visibility status");
+    }
+  };
+
+  const handlePublishAll = async () => {
+    if (!confirm(isAr ? "هل ترغب في نشر جميع دراسات الحالة لتظهر في الموقع العام فوراً؟" : "Publish all case studies to be visible on the public website immediately?")) return;
+
+    setIsPublishingAll(true);
+    try {
+      const res = await fetch("/api/b2b/cases/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "publishAll" }),
+      });
+      if (!res.ok) throw new Error("Failed to publish all");
+
+      setCaseStudies((prev) =>
+        prev.map((c) => (c.slug === "doha-balloon-parade" ? c : { ...c, isPublished: true, isVisible: true }))
+      );
+      router.refresh();
+    } catch {
+      alert(isAr ? "فشل نشر جميع دراسات الحالة" : "Failed to publish all case studies");
+    } finally {
+      setIsPublishingAll(false);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm(isAr ? "هل أنت متأكد من حذف دراسة الحالة هذه؟" : "Are you sure you want to delete this case study?")) return;
 
@@ -88,14 +132,26 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
             icon: <Plus className="w-4 h-4" />,
           }}
           secondaryAction={
-            <Link href={localizeHref("/dashboard/b2b/cases-page#featuredCases", locale)}>
+            <div className="flex items-center gap-2">
               <AdminButton
                 variant="outline"
+                disabled={isPublishingAll}
+                onClick={handlePublishAll}
                 leftIcon={<Sparkles className="w-4 h-4 text-emerald-400" />}
               >
-                {isAr ? "تخصيص المشاريع المميزة والصفحة" : "Featured Cases & Page Editor"}
+                {isPublishingAll
+                  ? (isAr ? "جاري النشر..." : "Publishing...")
+                  : (isAr ? "نشر جميع المشاريع في الموقع" : "Publish All Cases Live")}
               </AdminButton>
-            </Link>
+              <Link href={localizeHref("/dashboard/b2b/cases-page#featuredCases", locale)}>
+                <AdminButton
+                  variant="outline"
+                  leftIcon={<Sparkles className="w-4 h-4 text-purple-400" />}
+                >
+                  {isAr ? "تخصيص الصفحة" : "Featured & Page Editor"}
+                </AdminButton>
+              </Link>
+            </div>
           }
         />
 
@@ -227,17 +283,28 @@ export function CasesListClient({ initialData }: { initialData: any[] }) {
                         <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-purple-500/10 text-purple-400 border border-purple-500/20">
                           {isAr ? "مؤرشف (للموظفين)" : "Archived (Staff)"}
                         </span>
-                      ) : (caseStudy.isPublished ?? caseStudy.isVisible) ? (
-                        <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400">
-                          {isAr ? "منشور Live" : "Visible"}
-                        </span>
                       ) : (
-                        <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-surface-hover text-text-secondary border border-border-default">
-                          {isAr ? "مخفي" : "Hidden"}
-                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleVisibility(caseStudy.id, Boolean(caseStudy.isPublished ?? caseStudy.isVisible))}
+                          className="inline-flex w-fit cursor-pointer hover:opacity-80 transition-opacity"
+                          title={isAr ? "انقر لتغيير حالة الظهور" : "Click to toggle visibility"}
+                        >
+                          {(caseStudy.isPublished ?? caseStudy.isVisible) ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                              {isAr ? "منشور Live" : "Visible"}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-surface-hover text-text-secondary border border-border-default hover:border-amber-500/40 hover:text-amber-300">
+                              <span className="w-1.5 h-1.5 rounded-full bg-text-tertiary"></span>
+                              {isAr ? "مخفي (انقر للنشر)" : "Hidden (Click to Publish)"}
+                            </span>
+                          )}
+                        </button>
                       )}
                       {caseStudy.isFeatured && !isArchived && (
-                        <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-amber-500/10 text-amber-400">
+                        <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">
                           {isAr ? "مميز" : "Featured"}
                         </span>
                       )}
