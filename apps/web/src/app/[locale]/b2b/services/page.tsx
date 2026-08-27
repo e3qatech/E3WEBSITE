@@ -19,6 +19,7 @@ import { LivingHeroHeadline } from '@/components/b2b/shared/LivingHeroHeadline'
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
 import { cn } from '@/lib/utils'
 import { getPublicCaseStudies, isCaseStudyEligible } from '@/lib/case-studies'
+import { getAllCanonicalServices, CanonicalService } from '@/lib/services/canonical-services'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -85,11 +86,41 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
       })
     ])
     page = results[0]
-    allServices = results[1]
-    allCaseStudies = results[2]
+    allServices = results[1] || []
+    allCaseStudies = results[2] || []
   } catch (error) {
     console.error("Error fetching b2b services public page data:", error)
   }
+
+  // Blend Canonical 10-Service Taxonomy with Database Records
+  const canonicalServices = getAllCanonicalServices()
+  const servicesMap = new Map<string, any>()
+
+  canonicalServices.forEach((cs: CanonicalService) => {
+    servicesMap.set(cs.slug, {
+      id: cs.id,
+      slug: cs.slug,
+      titleEn: cs.titleEn,
+      titleAr: cs.titleAr,
+      taglineEn: cs.taglineEn,
+      taglineAr: cs.taglineAr,
+      category: cs.categoryEn,
+      isFeatured: true,
+      thumbnail: cs.heroMediaUrl,
+      heroMediaUrl: cs.heroMediaUrl,
+    })
+  })
+
+  ;(allServices || []).forEach((dbs: any) => {
+    if (dbs.isVisible !== false) {
+      servicesMap.set(dbs.slug, {
+        ...(servicesMap.get(dbs.slug) || {}),
+        ...dbs,
+      })
+    }
+  })
+
+  const effectiveServices = Array.from(servicesMap.values())
 
   // Get deep-merged CMS content
   const cms = getMergedCMSPageContent('b2b-services', page?.content)
@@ -106,8 +137,8 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
   const capCountConfig = cms.capabilityCount || {}
   const countTemplate = isAr ? capCountConfig.templateAr : capCountConfig.templateEn
   const formattedCountStatement = countTemplate
-    ? countTemplate.replace('{{count}}', String(allServices.length))
-    : `${allServices.length} ${isAr ? 'قدرات تخصصية متكاملة. شريك واحد.' : 'Specialised Capabilities. One Integrated Partner.'}`
+    ? countTemplate.replace('{{count}}', String(effectiveServices.length))
+    : `${effectiveServices.length} ${isAr ? 'قدرات تخصصية متكاملة. شريك واحد.' : 'Specialised Capabilities. One Integrated Partner.'}`
 
   // 3. PHILOSOPHY / WOW & HOW DATA
   const phil = cms.philosophy || {}
@@ -128,10 +159,10 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
   const navCardCta = isAr ? (nav.cardCtaAr || nav.cardCtaEn) : nav.cardCtaEn
 
   // Filter services based on CMS selection mode
-  let navigatorServices = allServices
+  let navigatorServices = effectiveServices
   if (nav.sourceMode === 'MANUAL' && Array.isArray(nav.selectedServiceIds) && nav.selectedServiceIds.length > 0) {
     const selected = nav.selectedServiceIds
-      .map((id: string) => allServices.find(s => s.id === id))
+      .map((id: string) => effectiveServices.find((s) => s.id === id || s.slug === id))
       .filter(Boolean)
     if (selected.length > 0) {
       navigatorServices = selected
