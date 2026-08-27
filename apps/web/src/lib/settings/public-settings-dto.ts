@@ -30,6 +30,39 @@ export interface PublicSiteSettings {
   bookTicketsExternal: string;
   gatewayB2BDesc?: string;
   gatewayB2BDescAr?: string;
+  // B2B Footer background media
+  b2bFooterMediaUrl?: string;
+  b2bFooterMediaType?: string;
+  b2bFooterPosterUrl?: string;
+  // B2B Footer CTA banner
+  b2bFooterCtaTitleEn?: string;
+  b2bFooterCtaTitleAr?: string;
+  b2bFooterCtaSubtitleEn?: string;
+  b2bFooterCtaSubtitleAr?: string;
+  b2bFooterCtaBtnLabelEn?: string;
+  b2bFooterCtaBtnLabelAr?: string;
+  b2bFooterCtaBtnUrl?: string;
+  b2bFooterSecondaryBtnLabelEn?: string;
+  b2bFooterSecondaryBtnLabelAr?: string;
+  b2bFooterSecondaryBtnUrl?: string;
+  b2bFooterSolutionsLinks?: string;
+  b2bFooterCompanyLinks?: string;
+  b2bCrNumber?: string;
+  // B2C Footer background media
+  b2cFooterMediaUrl?: string;
+  b2cFooterMediaType?: string;
+  b2cFooterPosterUrl?: string;
+  // B2C Footer CTA banner
+  b2cFooterCtaTitleEn?: string;
+  b2cFooterCtaTitleAr?: string;
+  b2cFooterCtaSubtitleEn?: string;
+  b2cFooterCtaSubtitleAr?: string;
+  b2cFooterSecondaryBtnLabelEn?: string;
+  b2cFooterSecondaryBtnLabelAr?: string;
+  b2cFooterSecondaryBtnUrl?: string;
+  b2cFooterExploreLinks?: string;
+  b2cFooterGuestLinks?: string;
+  // Legacy / shared footer fields
   footerMediaUrl?: string;
   footerMediaType?: string;
   footerPosterUrl?: string;
@@ -87,6 +120,39 @@ export const PUBLIC_SETTINGS_KEYS = new Set<string>([
   'bookTicketsExternal',
   'gatewayB2BDesc',
   'gatewayB2BDescAr',
+  // B2B Footer media background
+  'b2bFooterMediaUrl',
+  'b2bFooterMediaType',
+  'b2bFooterPosterUrl',
+  // B2B Footer CTA banner & links
+  'b2bFooterCtaTitleEn',
+  'b2bFooterCtaTitleAr',
+  'b2bFooterCtaSubtitleEn',
+  'b2bFooterCtaSubtitleAr',
+  'b2bFooterCtaBtnLabelEn',
+  'b2bFooterCtaBtnLabelAr',
+  'b2bFooterCtaBtnUrl',
+  'b2bFooterSecondaryBtnLabelEn',
+  'b2bFooterSecondaryBtnLabelAr',
+  'b2bFooterSecondaryBtnUrl',
+  'b2bFooterSolutionsLinks',
+  'b2bFooterCompanyLinks',
+  'b2bCrNumber',
+  // B2C Footer media background
+  'b2cFooterMediaUrl',
+  'b2cFooterMediaType',
+  'b2cFooterPosterUrl',
+  // B2C Footer CTA banner & links
+  'b2cFooterCtaTitleEn',
+  'b2cFooterCtaTitleAr',
+  'b2cFooterCtaSubtitleEn',
+  'b2cFooterCtaSubtitleAr',
+  'b2cFooterSecondaryBtnLabelEn',
+  'b2cFooterSecondaryBtnLabelAr',
+  'b2cFooterSecondaryBtnUrl',
+  'b2cFooterExploreLinks',
+  'b2cFooterGuestLinks',
+  // Legacy / shared footer fields
   'footerMediaUrl',
   'footerMediaType',
   'footerPosterUrl',
@@ -302,6 +368,39 @@ export function resolvePublicSiteSettings(
     bookTicketsExternal: map.bookTicketsExternal !== undefined ? String(map.bookTicketsExternal) : 'false',
     ...(map.gatewayB2BDesc ? { gatewayB2BDesc: String(map.gatewayB2BDesc) } : {}),
     ...(map.gatewayB2BDescAr ? { gatewayB2BDescAr: String(map.gatewayB2BDescAr) } : {}),
+    // B2B Footer media background
+    ...(map.b2bFooterMediaUrl ? { b2bFooterMediaUrl: String(map.b2bFooterMediaUrl) } : {}),
+    ...(map.b2bFooterMediaType ? { b2bFooterMediaType: String(map.b2bFooterMediaType) } : {}),
+    ...(map.b2bFooterPosterUrl ? { b2bFooterPosterUrl: String(map.b2bFooterPosterUrl) } : {}),
+    // B2B Footer CTA banner & navigation links
+    ...(map.b2bFooterCtaTitleEn ? { b2bFooterCtaTitleEn: String(map.b2bFooterCtaTitleEn) } : {}),
+    ...(map.b2bFooterCtaTitleAr ? { b2bFooterCtaTitleAr: String(map.b2bFooterCtaTitleAr) } : {}),
+    ...(map.b2bFooterCtaSubtitleEn ? { b2bFooterCtaSubtitleEn: String(map.b2bFooterCtaSubtitleEn) } : {}),
+    ...(map.b2bFooterCtaSubtitleAr ? { b2bFooterCtaSubtitleAr: String(map.b2bFooterCtaSubtitleAr) } : {}),
+    ...(map.b2bFooterCtaBtnLabelEn ? { b2bFooterCtaBtnLabelEn: String(map.b2bFooterCtaBtnLabelEn) } : {}),
+    ...(map.b2bFooterCtaBtnLabelAr ? { b2bFooterCtaBtnLabelAr: String(map.b2bFooterCtaBtnLabelAr) } : {}),
+    ...(map.b2bFooterCtaBtnUrl ? { b2bFooterCtaBtnUrl: String(map.b2bFooterCtaBtnUrl) } : {}),
+    ...(map.b2bFooterSecondaryBtnLabelEn ? { b2bFooterSecondaryBtnLabelEn: String(map.b2bFooterSecondaryBtnLabelEn) } : {}),
+    ...(map.b2bFooterSecondaryBtnLabelAr ? { b2bFooterSecondaryBtnLabelAr: String(map.b2bFooterSecondaryBtnLabelAr) } : {}),
+    ...(map.b2bFooterSecondaryBtnUrl ? { b2bFooterSecondaryBtnUrl: String(map.b2bFooterSecondaryBtnUrl) } : {}),
+    ...(map.b2bFooterSolutionsLinks ? { b2bFooterSolutionsLinks: String(map.b2bFooterSolutionsLinks) } : {}),
+    ...(map.b2bFooterCompanyLinks ? { b2bFooterCompanyLinks: String(map.b2bFooterCompanyLinks) } : {}),
+    ...(map.b2bCrNumber ? { b2bCrNumber: String(map.b2bCrNumber) } : {}),
+    // B2C Footer media background
+    ...(map.b2cFooterMediaUrl ? { b2cFooterMediaUrl: String(map.b2cFooterMediaUrl) } : {}),
+    ...(map.b2cFooterMediaType ? { b2cFooterMediaType: String(map.b2cFooterMediaType) } : {}),
+    ...(map.b2cFooterPosterUrl ? { b2cFooterPosterUrl: String(map.b2cFooterPosterUrl) } : {}),
+    // B2C Footer CTA banner & navigation links
+    ...(map.b2cFooterCtaTitleEn ? { b2cFooterCtaTitleEn: String(map.b2cFooterCtaTitleEn) } : {}),
+    ...(map.b2cFooterCtaTitleAr ? { b2cFooterCtaTitleAr: String(map.b2cFooterCtaTitleAr) } : {}),
+    ...(map.b2cFooterCtaSubtitleEn ? { b2cFooterCtaSubtitleEn: String(map.b2cFooterCtaSubtitleEn) } : {}),
+    ...(map.b2cFooterCtaSubtitleAr ? { b2cFooterCtaSubtitleAr: String(map.b2cFooterCtaSubtitleAr) } : {}),
+    ...(map.b2cFooterSecondaryBtnLabelEn ? { b2cFooterSecondaryBtnLabelEn: String(map.b2cFooterSecondaryBtnLabelEn) } : {}),
+    ...(map.b2cFooterSecondaryBtnLabelAr ? { b2cFooterSecondaryBtnLabelAr: String(map.b2cFooterSecondaryBtnLabelAr) } : {}),
+    ...(map.b2cFooterSecondaryBtnUrl ? { b2cFooterSecondaryBtnUrl: String(map.b2cFooterSecondaryBtnUrl) } : {}),
+    ...(map.b2cFooterExploreLinks ? { b2cFooterExploreLinks: String(map.b2cFooterExploreLinks) } : {}),
+    ...(map.b2cFooterGuestLinks ? { b2cFooterGuestLinks: String(map.b2cFooterGuestLinks) } : {}),
+    // Legacy / shared footer fields
     ...(map.footerMediaUrl ? { footerMediaUrl: String(map.footerMediaUrl) } : {}),
     ...(map.footerMediaType ? { footerMediaType: String(map.footerMediaType) } : {}),
     ...(map.footerPosterUrl ? { footerPosterUrl: String(map.footerPosterUrl) } : {}),
