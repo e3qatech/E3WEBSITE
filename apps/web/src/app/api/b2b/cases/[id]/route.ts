@@ -29,10 +29,13 @@ export async function PUT(
     const body = await request.json();
 
     // Find existing case study by id or slug
-    const existing = await db.caseStudy.findFirst({
+    let existing = await db.caseStudy.findFirst({
       where: {
         OR: [{ id }, { slug: id }],
       },
+    }).catch(async () => {
+      const rows = await (db as any).$queryRawUnsafe(`SELECT id, slug, "isPublished", "isFeatured" FROM "CaseStudy" WHERE id = $1 OR slug = $1 LIMIT 1`, id).catch(() => []);
+      return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
     });
 
     if (!existing) {
@@ -41,14 +44,24 @@ export async function PUT(
 
     // Fast path: visibility or featured toggle
     if (Object.keys(body).length <= 2 && (body.isPublished !== undefined || body.isFeatured !== undefined)) {
-      const updated = await db.caseStudy.update({
-        where: { id: existing.id },
-        data: {
-          ...(body.isPublished !== undefined && { isPublished: Boolean(body.isPublished) }),
-          ...(body.isFeatured !== undefined && { isFeatured: Boolean(body.isFeatured) }),
-        },
-      });
-      return NextResponse.json({ success: true, caseStudy: updated });
+      try {
+        const updated = await db.caseStudy.update({
+          where: { id: existing.id },
+          data: {
+            ...(body.isPublished !== undefined && { isPublished: Boolean(body.isPublished) }),
+            ...(body.isFeatured !== undefined && { isFeatured: Boolean(body.isFeatured) }),
+          },
+        });
+        return NextResponse.json({ success: true, caseStudy: updated });
+      } catch (_updateErr) {
+        if (body.isPublished !== undefined) {
+          await (db as any).$executeRawUnsafe(`UPDATE "CaseStudy" SET "isPublished" = $1 WHERE id = $2`, Boolean(body.isPublished), existing.id);
+        }
+        if (body.isFeatured !== undefined) {
+          await (db as any).$executeRawUnsafe(`UPDATE "CaseStudy" SET "isFeatured" = $1 WHERE id = $2`, Boolean(body.isFeatured), existing.id);
+        }
+        return NextResponse.json({ success: true, message: "Visibility updated via fallback" });
+      }
     }
 
     const { 

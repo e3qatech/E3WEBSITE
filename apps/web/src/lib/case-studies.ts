@@ -233,8 +233,15 @@ export async function getPublicCaseStudies(options: PublicCaseStudiesQueryOption
       }
     }
 
-    const results = await db.caseStudy.findMany(queryArgs).catch(() => []);
-    const eligibleResults = results.filter(isCaseStudyEligible);
+    let results = await db.caseStudy.findMany(queryArgs).catch(async () => {
+      return (await (db as any).$queryRawUnsafe(`SELECT * FROM "CaseStudy" ORDER BY "year" DESC`).catch(() => [])) as any[];
+    });
+
+    if (!Array.isArray(results) || results.length === 0) {
+      results = (await (db as any).$queryRawUnsafe(`SELECT * FROM "CaseStudy" ORDER BY "year" DESC`).catch(() => [])) as any[];
+    }
+
+    const eligibleResults = (results || []).filter(isCaseStudyEligible);
 
     if (eligibleResults.length > 0) {
       const seen = new Set<string>();
@@ -333,6 +340,18 @@ export async function getPublicCaseStudyBySlug(
           where: { attractionId: attraction.id },
           ...(Object.keys(include).length > 0 ? { include } : {}),
         }).catch(() => null);
+      }
+    }
+
+    // 4. Raw SQL fallback if Prisma schema error occurred
+    if (!caseStudy) {
+      const rawRows = (await (db as any).$queryRawUnsafe(
+        `SELECT * FROM "CaseStudy" WHERE slug = $1 OR slug = $2 OR slug = $3 OR slug = $4 OR id = $1 LIMIT 1`,
+        rawSlug, cleanSlug, underscoreSlug, altSlug
+      ).catch(() => [])) as any[];
+
+      if (Array.isArray(rawRows) && rawRows.length > 0) {
+        caseStudy = rawRows[0];
       }
     }
 

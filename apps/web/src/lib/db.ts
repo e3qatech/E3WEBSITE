@@ -83,7 +83,7 @@ const prismaClientSingleton = () => {
     // Ignore URL parse errors
   }
 
-  return new PrismaClient({
+  const client = new PrismaClient({
     datasources: {
       db: {
         url: finalUrl,
@@ -95,7 +95,49 @@ const prismaClientSingleton = () => {
       { emit: 'stdout', level: 'info' },
       { emit: 'stdout', level: 'warn' },
     ],
-  }).$extends({
+  });
+
+  // Auto-heal missing CaseStudy columns on startup/cold-start
+  let hasAutoHealed = false;
+  const ensureSchema = async () => {
+    if (hasAutoHealed) return;
+    hasAutoHealed = true;
+    const statements = [
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "resultEn" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "resultAr" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "challengeEn" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "challengeAr" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "solutionEn" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "solutionAr" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "metrics" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "gallery" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "beforeAfter" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "servicesUsed" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "technicalSpecs" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "testimonials" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "heroMediaType" TEXT DEFAULT 'IMAGE'`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "thumbnailMediaType" TEXT DEFAULT 'IMAGE'`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "seo" JSONB`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "attractionId" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "clientLogoUrl" TEXT`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "isFeatured" BOOLEAN NOT NULL DEFAULT false`,
+      `ALTER TABLE "CaseStudy" ADD COLUMN IF NOT EXISTS "isPublished" BOOLEAN NOT NULL DEFAULT false`,
+      `ALTER TABLE "Attraction" ADD COLUMN IF NOT EXISTS "isB2bVisible" BOOLEAN NOT NULL DEFAULT true`,
+    ];
+
+    for (const sql of statements) {
+      try {
+        await client.$executeRawUnsafe(sql).catch(() => {});
+      } catch (_stmtErr) {
+        // Continue applying remaining statements
+      }
+    }
+  };
+
+  // Trigger non-blocking schema self-healing on initialization
+  ensureSchema().catch(() => {});
+
+  return client.$extends({
     query: {
       $allModels: {
         async $allOperations({ operation, model, args, query }: any) {
@@ -118,7 +160,18 @@ const prismaClientSingleton = () => {
 
             return result
           } catch (error: any) {
-            console.error(`[DB ERROR] ${model}.${operation} failed:`, error?.message || error);
+            const errMsg = String(error?.message || error || "");
+            if (errMsg.includes("does not exist") || errMsg.includes("column") || errMsg.includes("resultEn") || errMsg.includes("resultAr")) {
+              console.warn(`[DB AUTO-HEAL] Detected missing column in ${model}.${operation}. Repairing schema...`);
+              hasAutoHealed = false;
+              await ensureSchema();
+              try {
+                return await query(args);
+              } catch (retryErr) {
+                console.error(`[DB AUTO-HEAL FAILED] ${model}.${operation} retry failed:`, retryErr);
+              }
+            }
+            console.error(`[DB ERROR] ${model}.${operation} failed:`, errMsg);
             throw error;
           }
         }
