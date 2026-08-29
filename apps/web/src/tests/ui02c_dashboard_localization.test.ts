@@ -81,7 +81,7 @@ describe("UI-02-C Arabic Dashboard Localization & Controls", () => {
       expect(localizeHref("/", "ar")).toBe("/ar");
       expect(localizeHref("/b2b", "ar")).toBe("/ar/b2b");
       expect(localizeHref("/b2b/services/family-entertainment-centers", "ar")).toBe(
-        "/ar/b2b/services/family-entertainment-centers"
+        "/ar/b2b/services/fec-development"
       );
       expect(localizeHref("/b2c/attractions/snow-dunes", "ar")).toBe(
         "/ar/b2c/attractions/snow-dunes"

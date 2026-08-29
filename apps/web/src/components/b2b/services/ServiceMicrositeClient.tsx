@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Trophy, Sparkles } from "lucide-react";
+import { ArrowRight, Trophy } from "lucide-react";
 import { CanonicalService } from "@/lib/services/canonical-services";
 import { ServiceHero } from "./ServiceHero";
 import { ServiceMediaGallery } from "./ServiceMediaGallery";
@@ -47,6 +47,8 @@ export function ServiceMicrositeClient({
     galleryItems: dbOverrides?.galleryItems || service.galleryItems || [],
   };
 
+  const visibility = mergedService.sectionVisibility || {};
+
   const handleOpenBriefWithObjective = (obj: any) => {
     setSelectedObjectiveForBrief(obj);
     setIsBriefModalOpen(true);
@@ -63,19 +65,21 @@ export function ServiceMicrositeClient({
       dir={isAr ? "rtl" : "ltr"}
     >
       {/* 1. CINEMATIC HERO */}
-      <ServiceHero
-        service={mergedService}
-        locale={locale}
-        onOpenBriefBuilder={() => setIsBriefModalOpen(true)}
-      />
+      {visibility.hero !== false && (
+        <ServiceHero
+          service={mergedService}
+          locale={locale}
+          onOpenBriefBuilder={() => setIsBriefModalOpen(true)}
+        />
+      )}
 
       {/* 2. WOW & HOW SIGNATURE SECTION */}
-      {mergedService.wowHow && mergedService.wowHow.length > 0 && (
+      {visibility.wowHow !== false && mergedService.wowHow && mergedService.wowHow.length > 0 && (
         <ServiceWowHowSection items={mergedService.wowHow} locale={locale} />
       )}
 
       {/* 3. "WHAT ARE YOU TRYING TO ACHIEVE?" OBJECTIVE SELECTOR */}
-      {mergedService.objectives && mergedService.objectives.length > 0 && (
+      {visibility.objectives !== false && mergedService.objectives && mergedService.objectives.length > 0 && (
         <ServiceObjectiveSelector
           objectives={mergedService.objectives}
           locale={locale}
@@ -85,17 +89,17 @@ export function ServiceMicrositeClient({
       )}
 
       {/* 4. VISUAL MEDIA & EXECUTION GALLERY */}
-      {mergedService.galleryItems && mergedService.galleryItems.length > 0 && (
+      {visibility.gallery !== false && mergedService.galleryItems && mergedService.galleryItems.length > 0 && (
         <ServiceMediaGallery items={mergedService.galleryItems} locale={locale} />
       )}
 
-      {/* 4. CAPABILITIES BENTO MATRIX */}
-      {mergedService.capabilities && mergedService.capabilities.length > 0 && (
+      {/* 5. CAPABILITIES BENTO MATRIX */}
+      {visibility.capabilities !== false && mergedService.capabilities && mergedService.capabilities.length > 0 && (
         <ServiceCapabilitiesBento capabilities={mergedService.capabilities} locale={locale} />
       )}
 
-      {/* 5. ENGAGEMENT & PROCUREMENT APPOINTMENT MODELS */}
-      {mergedService.engagementModels && mergedService.engagementModels.length > 0 && (
+      {/* 6. ENGAGEMENT & PROCUREMENT APPOINTMENT MODELS */}
+      {visibility.engagementModels !== false && mergedService.engagementModels && mergedService.engagementModels.length > 0 && (
         <ServiceEngagementModels
           models={mergedService.engagementModels}
           locale={locale}
@@ -103,23 +107,23 @@ export function ServiceMicrositeClient({
         />
       )}
 
-      {/* 6. CLEAR DELIVERABLES ROSTER */}
-      {mergedService.deliverables && mergedService.deliverables.length > 0 && (
+      {/* 7. CLEAR DELIVERABLES ROSTER */}
+      {visibility.deliverables !== false && mergedService.deliverables && mergedService.deliverables.length > 0 && (
         <ServiceDeliverablesRoster categories={mergedService.deliverables} locale={locale} />
       )}
 
-      {/* 7. DELIVERY LIFECYCLE METHODOLOGY */}
-      {mergedService.lifecycleStages && mergedService.lifecycleStages.length > 0 && (
+      {/* 8. DELIVERY LIFECYCLE METHODOLOGY */}
+      {visibility.lifecycle !== false && mergedService.lifecycleStages && mergedService.lifecycleStages.length > 0 && (
         <ServiceDeliveryLifecycle stages={mergedService.lifecycleStages} locale={locale} />
       )}
 
-      {/* 8. SERVICE-SPECIFIC UNIQUE MODULE */}
-      {mergedService.serviceSpecificModule && (
+      {/* 9. SERVICE-SPECIFIC UNIQUE MODULE */}
+      {visibility.specialistModule !== false && mergedService.serviceSpecificModule && (
         <ServiceSpecificModule moduleConfig={mergedService.serviceSpecificModule} locale={locale} />
       )}
 
-      {/* 9. CONNECTED LANDMARK CASE STUDIES (Proof of Work) */}
-      {relatedCaseStudies && relatedCaseStudies.length > 0 && (
+      {/* 10. CONNECTED LANDMARK CASE STUDIES (Proof of Work) */}
+      {visibility.caseStudies !== false && relatedCaseStudies && relatedCaseStudies.length > 0 && (
         <section id="case-studies-section" className="py-20 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)] transition-colors">
           <div className="container mx-auto px-4 md:px-8">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
@@ -152,7 +156,7 @@ export function ServiceMicrositeClient({
                 const title = isAr ? study.titleAr || study.titleEn : study.titleEn;
                 const clientName = isAr ? study.clientNameAr || study.clientNameEn : study.clientNameEn;
                 const summary = isAr ? study.summaryAr || study.summaryEn : study.summaryEn;
-                const image = study.heroMediaUrl || study.heroThumbnailUrl || study.thumbnailImage;
+                const image = study.heroMediaUrl || study.heroThumbnailUrl || study.thumbnailImage || study.thumbnail;
 
                 return (
                   <Link
@@ -205,13 +209,13 @@ export function ServiceMicrositeClient({
         </section>
       )}
 
-      {/* 10. ENTERPRISE READINESS & ACCREDITATIONS */}
-      {mergedService.enterpriseReadiness && mergedService.enterpriseReadiness.length > 0 && (
+      {/* 11. ENTERPRISE READINESS & ACCREDITATIONS */}
+      {visibility.enterpriseReadiness !== false && mergedService.enterpriseReadiness && mergedService.enterpriseReadiness.length > 0 && (
         <ServiceEnterpriseReadiness items={mergedService.enterpriseReadiness} locale={locale} />
       )}
 
-      {/* 11. RELATED INTEGRATED SOLUTIONS */}
-      {mergedService.relatedServiceSlugs && (
+      {/* 12. RELATED INTEGRATED SOLUTIONS */}
+      {visibility.relatedServices !== false && mergedService.relatedServiceSlugs && mergedService.relatedServiceSlugs.length > 0 && (
         <ServiceRelatedSolutions
           relatedSlugs={mergedService.relatedServiceSlugs}
           locale={locale}
@@ -219,7 +223,7 @@ export function ServiceMicrositeClient({
         />
       )}
 
-      {/* 12. PROJECT BRIEF BUILDER MODAL */}
+      {/* 13. PROJECT BRIEF BUILDER MODAL */}
       <ProjectBriefBuilderModal
         isOpen={isBriefModalOpen}
         onClose={() => setIsBriefModalOpen(false)}
@@ -229,7 +233,7 @@ export function ServiceMicrositeClient({
         locale={locale}
       />
 
-      {/* 13. RESTING FLOATING DOCK */}
+      {/* 14. RESTING FLOATING DOCK */}
       <ServiceFloatingDock
         locale={locale}
         onOpenBriefBuilder={() => setIsBriefModalOpen(true)}

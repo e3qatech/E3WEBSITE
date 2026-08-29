@@ -19,7 +19,7 @@ import { LivingHeroHeadline } from '@/components/b2b/shared/LivingHeroHeadline'
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
 import { cn } from '@/lib/utils'
 import { getPublicCaseStudies, isCaseStudyEligible } from '@/lib/case-studies'
-import { getAllCanonicalServices, CanonicalService } from '@/lib/services/canonical-services'
+import { getAllCanonicalServices, getCanonicalService, CanonicalService } from '@/lib/services/canonical-services'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -92,7 +92,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
     console.error("Error fetching b2b services public page data:", error)
   }
 
-  // Blend Canonical 10-Service Taxonomy with Database Records
+  // Blend Canonical 10-Service Taxonomy with Database Records without duplicating aliases
   const canonicalServices = getAllCanonicalServices()
   const servicesMap = new Map<string, any>()
 
@@ -113,9 +113,12 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
 
   ;(allServices || []).forEach((dbs: any) => {
     if (dbs.isVisible !== false) {
-      servicesMap.set(dbs.slug, {
-        ...(servicesMap.get(dbs.slug) || {}),
+      const canonical = getCanonicalService(dbs.slug)
+      const targetSlug = canonical ? canonical.slug : dbs.slug
+      servicesMap.set(targetSlug, {
+        ...(servicesMap.get(targetSlug) || {}),
         ...dbs,
+        slug: targetSlug,
       })
     }
   })
@@ -128,7 +131,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
   // 1. HERO SECTION DATA
   const hero = cms.hero || {}
   const heroEyebrow = isAr ? (hero.eyebrowAr || hero.eyebrowEn) : hero.eyebrowEn
-  const heroTitle = isAr ? (hero.titleAr || hero.titleEn) : hero.titleEn
+  const _heroTitle = isAr ? (hero.titleAr || hero.titleEn) : hero.titleEn
   const heroSubtitle = isAr ? (hero.subtitleAr || hero.subtitleEn) : hero.subtitleEn
   const heroPrimaryCta = isAr ? (hero.primaryCtaAr || hero.primaryCtaEn) : hero.primaryCtaEn
   const heroSecondaryCta = isAr ? (hero.secondaryCtaAr || hero.secondaryCtaEn) : hero.secondaryCtaEn

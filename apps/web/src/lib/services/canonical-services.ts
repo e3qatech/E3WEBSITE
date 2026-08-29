@@ -15,6 +15,7 @@ export interface VerifiedProofPoint {
   labelAr: string;
   sourceEn?: string;
   sourceAr?: string;
+  isVerified?: boolean;
 }
 
 export interface WowHowItem {
@@ -149,6 +150,16 @@ export interface CanonicalService {
   supportingStatementAr: string;
   heroMediaUrl?: string;
   heroMediaType?: 'IMAGE' | 'VIDEO';
+  mobileHeroMediaUrl?: string;
+  videoPosterUrl?: string;
+  ctaPrimary?: string;
+  ctaPrimaryTextEn?: string;
+  ctaPrimaryTextAr?: string;
+  ctaPrimaryUrl?: string;
+  ctaSecondary?: string;
+  ctaSecondaryTextEn?: string;
+  ctaSecondaryTextAr?: string;
+  ctaSecondaryUrl?: string;
   verifiedProofPoints: VerifiedProofPoint[];
   wowHow: WowHowItem[];
   objectives: ServiceObjective[];
@@ -159,6 +170,11 @@ export interface CanonicalService {
   serviceSpecificModule: ServiceSpecificModuleConfig;
   enterpriseReadiness: EnterpriseReadinessItem[];
   relatedServiceSlugs: string[];
+  relatedCaseStudySlugs?: string[];
+  relatedServicesNarrativeEn?: string;
+  relatedServicesNarrativeAr?: string;
+  sectionVisibility?: Record<string, boolean>;
+  sectionOrdering?: string[];
   galleryItems?: ServiceGalleryItemPayload[];
 }
 
@@ -477,7 +493,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
   {
     id: "fec-development",
     slug: "fec-development",
-    aliases: ["family-entertainment-centers", "fec", "fec-design"],
+    aliases: ["family-entertainment-centers", "family-entertainment-center", "fec", "fec-design"],
     titleEn: "Family Entertainment Centre Development",
     titleAr: "تطوير مراكز الترفيه العائلي",
     categoryEn: "Venues & Attractions",
@@ -1459,7 +1475,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
   {
     id: "av-stage-rentals",
     slug: "av-stage-rentals",
-    aliases: ["av-rentals", "equipment-rentals", "stage-equipment", "audio-visual"],
+    aliases: ["audio-visual-stage", "av-rentals", "equipment-rentals", "stage-equipment", "audio-visual", "stage-lighting", "sound-light"],
     titleEn: "AV, Stage Equipment & Rentals",
     titleAr: "تجهيزات الصوت والضوء وتأجير المسارح",
     categoryEn: "Technical Production",

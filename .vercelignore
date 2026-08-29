@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.turbo
+dist
+build
+.vercel
+apps/web/.next
+apps/web/node_modules
+packages/*/node_modules
+packages/*/.next
+scratch

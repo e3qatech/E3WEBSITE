@@ -105,13 +105,20 @@ export function canonicalizeRoute(path: string): string {
     canonical = normalized;
   }
 
-  // 2. B2B Services & FEC Aliases
+  // 2. B2B Services & Aliases
   else if (
     normalized === '/services/fec' ||
     normalized === '/b2b/services/fec' ||
-    normalized === '/b2b/services/fec-center'
+    normalized === '/b2b/services/fec-center' ||
+    normalized === '/b2b/services/family-entertainment-centers'
   ) {
-    canonical = '/b2b/services/family-entertainment-centers';
+    canonical = '/b2b/services/fec-development';
+  } else if (
+    normalized === '/b2b/services/audio-visual-stage' ||
+    normalized === '/services/audio-visual-stage' ||
+    normalized === '/services/av-rentals'
+  ) {
+    canonical = '/b2b/services/av-stage-rentals';
   } else if (normalized === '/services') {
     canonical = '/b2b/services';
   } else if (normalized.startsWith('/services/')) {

@@ -1,14 +1,14 @@
 import React from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
 import { db } from "@/lib/db";
 import {
   getCanonicalService,
-  getAllCanonicalServices,
   CanonicalService
 } from "@/lib/services/canonical-services";
 import { ServiceMicrositeClient } from "@/components/b2b/services/ServiceMicrositeClient";
 import { getPublicCaseStudies } from "@/lib/case-studies";
+import { adaptDbServiceToPresentation } from "@/lib/services/service-adapters";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -22,11 +22,12 @@ export async function generateMetadata({
   const isAr = locale === "ar";
 
   const canonical = getCanonicalService(slug);
+  const searchSlugs = canonical ? [canonical.slug, ...canonical.aliases] : [slug];
 
   let dbService: any = null;
   try {
-    dbService = await db.service.findUnique({
-      where: { slug }
+    dbService = await db.service.findFirst({
+      where: { slug: { in: searchSlugs } }
     });
   } catch (e) {
     console.error("Error fetching db service metadata:", e);
@@ -55,12 +56,10 @@ export async function generateMetadata({
       images: heroImage ? [{ url: heroImage }] : [],
     },
     alternates: {
-      canonical: `https://e3.qa/${locale}/b2b/services/${canonical?.slug || slug}`
+      canonical: `https://eeeqa.com/${locale}/b2b/services/${canonical?.slug || slug}`
     }
   };
 }
-
-import { adaptDbServiceToPresentation } from "@/lib/services/service-adapters";
 
 export default async function ServiceMicrositePage({
   params
@@ -70,13 +69,20 @@ export default async function ServiceMicrositePage({
   const { slug, locale } = await params;
   const canonical = getCanonicalService(slug);
 
+  // If alias route requested (e.g. /fec or /audio-visual-stage), redirect to canonical primary route
+  if (canonical && canonical.slug !== slug.toLowerCase().trim()) {
+    redirect(`/${locale}/b2b/services/${canonical.slug}`);
+  }
+
+  const searchSlugs = canonical ? [canonical.slug, ...canonical.aliases] : [slug];
+
   let dbService: any = null;
   let allCaseStudies: any[] = [];
 
   try {
     const results = await Promise.all([
-      db.service.findUnique({
-        where: { slug },
+      db.service.findFirst({
+        where: { slug: { in: searchSlugs } },
         include: {
           projects: { include: { attraction: true } },
           gallery: { orderBy: { orderIndex: "asc" } }
@@ -105,8 +111,16 @@ export default async function ServiceMicrositePage({
     ? adaptDbServiceToPresentation(dbService)
     : canonical!;
 
-  // Filter relevant case studies (take top featured case studies)
-  const relatedCases = allCaseStudies.slice(0, 3);
+  // Filter relevant case studies (take configured case studies or top 3)
+  let relatedCases = allCaseStudies.slice(0, 3);
+  if (activeService.relatedCaseStudySlugs && activeService.relatedCaseStudySlugs.length > 0) {
+    const customCases = allCaseStudies.filter((cs: any) =>
+      activeService.relatedCaseStudySlugs?.includes(cs.slug) || activeService.relatedCaseStudySlugs?.includes(cs.id)
+    );
+    if (customCases.length > 0) {
+      relatedCases = customCases;
+    }
+  }
 
   return (
     <ServiceMicrositeClient

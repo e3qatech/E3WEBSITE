@@ -20,6 +20,21 @@ export function ServiceHero({ service, locale, onOpenBriefBuilder }: ServiceHero
   const heroOutcome = isAr ? service.heroOutcomeAr : service.heroOutcomeEn;
   const supportingStatement = isAr ? service.supportingStatementAr : service.supportingStatementEn;
 
+  const primaryCtaLabel = isAr
+    ? (service.ctaPrimaryTextAr || "بناء موجز مشروعك المخصص")
+    : (service.ctaPrimaryTextEn || "Build Your Project Brief");
+
+  const secondaryCtaLabel = isAr
+    ? (service.ctaSecondaryTextAr || "استعراض المشاريع ذات الصلة")
+    : (service.ctaSecondaryTextEn || "View Relevant Work");
+
+  const secondaryCtaUrl = service.ctaSecondaryUrl || "#case-studies-section";
+
+  // Filter out any unverified proof points
+  const verifiedPoints = (service.verifiedProofPoints || []).filter(
+    (p) => p && p.isVerified !== false
+  );
+
   return (
     <section className="relative min-h-[75vh] flex items-center pt-28 pb-16 overflow-hidden border-b border-[var(--border-level-1)] bg-[var(--bg-level-1)]">
       {/* Background Media Layer with Adaptive Gradient Overlay */}
@@ -82,27 +97,47 @@ export function ServiceHero({ service, locale, onOpenBriefBuilder }: ServiceHero
 
           {/* Dual Action CTAs */}
           <div className="flex flex-wrap items-center gap-4 mb-12">
-            <button
-              onClick={onOpenBriefBuilder}
-              className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-sm tracking-wide shadow-lg shadow-emerald-700/20 hover:shadow-emerald-600/30 transition-all cursor-pointer active:scale-95"
-            >
-              <FileText className="w-4 h-4" />
-              {isAr ? "بناء موجز مشروعك المخصص" : "Build Your Project Brief"}
-            </button>
+            {service.ctaPrimaryUrl ? (
+              <Link
+                href={localizeHref(service.ctaPrimaryUrl, locale)}
+                className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-sm tracking-wide shadow-lg shadow-emerald-700/20 hover:shadow-emerald-600/30 transition-all cursor-pointer active:scale-95"
+              >
+                <FileText className="w-4 h-4" />
+                {primaryCtaLabel}
+              </Link>
+            ) : (
+              <button
+                onClick={onOpenBriefBuilder}
+                className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-sm tracking-wide shadow-lg shadow-emerald-700/20 hover:shadow-emerald-600/30 transition-all cursor-pointer active:scale-95"
+              >
+                <FileText className="w-4 h-4" />
+                {primaryCtaLabel}
+              </button>
+            )}
 
-            <a
-              href="#case-studies-section"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[var(--surface-default)] hover:bg-[var(--surface-raised)] border border-[var(--border-level-2)] text-[var(--text-primary)] font-semibold text-sm transition-all"
-            >
-              {isAr ? "استعراض المشاريع ذات الصلة" : "View Relevant Work"}
-              <ArrowRight className="w-4 h-4 rtl:rotate-180 text-emerald-500" />
-            </a>
+            {secondaryCtaUrl.startsWith("#") ? (
+              <a
+                href={secondaryCtaUrl}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[var(--surface-default)] hover:bg-[var(--surface-raised)] border border-[var(--border-level-2)] text-[var(--text-primary)] font-semibold text-sm transition-all"
+              >
+                {secondaryCtaLabel}
+                <ArrowRight className="w-4 h-4 rtl:rotate-180 text-emerald-500" />
+              </a>
+            ) : (
+              <Link
+                href={localizeHref(secondaryCtaUrl, locale)}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[var(--surface-default)] hover:bg-[var(--surface-raised)] border border-[var(--border-level-2)] text-[var(--text-primary)] font-semibold text-sm transition-all"
+              >
+                {secondaryCtaLabel}
+                <ArrowRight className="w-4 h-4 rtl:rotate-180 text-emerald-500" />
+              </Link>
+            )}
           </div>
 
-          {/* Verified Proof Points Strip (Strict CMS Verification) */}
-          {service.verifiedProofPoints && service.verifiedProofPoints.length > 0 && (
+          {/* Verified Proof Points Strip (Strict CMS Verification - unverified suppressed) */}
+          {verifiedPoints.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-[var(--border-level-1)]/60">
-              {service.verifiedProofPoints.map((point, i) => (
+              {verifiedPoints.map((point, i) => (
                 <div
                   key={i}
                   className="flex flex-col p-4 rounded-xl bg-[var(--surface-default)]/60 border border-[var(--border-level-2)]/60 backdrop-blur-sm shadow-xs"
