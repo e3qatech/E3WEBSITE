@@ -20,6 +20,10 @@ export function ServiceHero({ service, locale, onOpenBriefBuilder }: ServiceHero
   const heroOutcome = isAr ? service.heroOutcomeAr : service.heroOutcomeEn;
   const supportingStatement = isAr ? service.supportingStatementAr : service.supportingStatementEn;
 
+  const stripHtml = (text?: string) => (text ? text.replace(/<[^>]*>?/gm, "").trim() : "");
+  const cleanHeroOutcome = stripHtml(heroOutcome);
+  const cleanSupportingStatement = stripHtml(supportingStatement);
+
   const primaryCtaLabel = isAr
     ? (service.ctaPrimaryTextAr || "بناء موجز مشروعك المخصص")
     : (service.ctaPrimaryTextEn || "Build Your Project Brief");
@@ -32,7 +36,7 @@ export function ServiceHero({ service, locale, onOpenBriefBuilder }: ServiceHero
 
   // Filter out any unverified proof points
   const verifiedPoints = (service.verifiedProofPoints || []).filter(
-    (p) => p && p.isVerified !== false
+    (p) => p && p.isVerified === true
   );
 
   return (
@@ -87,12 +91,12 @@ export function ServiceHero({ service, locale, onOpenBriefBuilder }: ServiceHero
 
           {/* Outcome-Led Statement */}
           <p className="text-xl sm:text-2xl font-bold text-emerald-700 dark:text-emerald-400 mb-4 leading-snug">
-            {heroOutcome}
+            {cleanHeroOutcome}
           </p>
 
           {/* Supporting Narrative */}
           <p className="text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed max-w-3xl mb-8">
-            {supportingStatement}
+            {cleanSupportingStatement}
           </p>
 
           {/* Dual Action CTAs */}
@@ -100,33 +104,35 @@ export function ServiceHero({ service, locale, onOpenBriefBuilder }: ServiceHero
             {service.ctaPrimaryUrl ? (
               <Link
                 href={localizeHref(service.ctaPrimaryUrl, locale)}
-                className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-sm tracking-wide shadow-lg shadow-emerald-700/20 hover:shadow-emerald-600/30 transition-all cursor-pointer active:scale-95"
+                className="px-8 py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm tracking-wide shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all flex items-center gap-2 group"
               >
-                <FileText className="w-4 h-4" />
                 {primaryCtaLabel}
+                <ArrowRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
               </Link>
             ) : (
               <button
+                type="button"
                 onClick={onOpenBriefBuilder}
-                className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-sm tracking-wide shadow-lg shadow-emerald-700/20 hover:shadow-emerald-600/30 transition-all cursor-pointer active:scale-95"
+                className="px-8 py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm tracking-wide shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all flex items-center gap-2 group cursor-pointer"
               >
                 <FileText className="w-4 h-4" />
                 {primaryCtaLabel}
+                <ArrowRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
               </button>
             )}
 
-            {secondaryCtaUrl.startsWith("#") ? (
-              <a
-                href={secondaryCtaUrl}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[var(--surface-default)] hover:bg-[var(--surface-raised)] border border-[var(--border-level-2)] text-[var(--text-primary)] font-semibold text-sm transition-all"
+            {service.ctaSecondaryUrl ? (
+              <Link
+                href={localizeHref(service.ctaSecondaryUrl, locale)}
+                className="px-6 py-4 rounded-xl bg-[var(--surface-default)]/80 hover:bg-[var(--surface-default)] text-[var(--text-primary)] font-bold text-sm border border-[var(--border-level-2)] hover:border-emerald-500/40 transition-all flex items-center gap-2"
               >
                 {secondaryCtaLabel}
                 <ArrowRight className="w-4 h-4 rtl:rotate-180 text-emerald-500" />
-              </a>
+              </Link>
             ) : (
               <Link
-                href={localizeHref(secondaryCtaUrl, locale)}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[var(--surface-default)] hover:bg-[var(--surface-raised)] border border-[var(--border-level-2)] text-[var(--text-primary)] font-semibold text-sm transition-all"
+                href={secondaryCtaUrl}
+                className="px-6 py-4 rounded-xl bg-[var(--surface-default)]/80 hover:bg-[var(--surface-default)] text-[var(--text-primary)] font-bold text-sm border border-[var(--border-level-2)] hover:border-emerald-500/40 transition-all flex items-center gap-2"
               >
                 {secondaryCtaLabel}
                 <ArrowRight className="w-4 h-4 rtl:rotate-180 text-emerald-500" />
@@ -146,15 +152,17 @@ export function ServiceHero({ service, locale, onOpenBriefBuilder }: ServiceHero
                     <span className="text-2xl font-black text-[var(--text-primary)] tracking-tight">
                       {point.value}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                      <CheckCircle2 className="w-3 h-3" />
-                      {isAr ? "معتمد" : "Verified"}
-                    </span>
+                    {point.isVerified === true && (point.sourceEn || point.sourceAr) && (
+                      <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                        <CheckCircle2 className="w-3 h-3" />
+                        {isAr ? "معتمد" : "Verified"}
+                      </span>
+                    )}
                   </div>
                   <span className="text-xs font-semibold text-[var(--text-secondary)]">
                     {isAr ? point.labelAr : point.labelEn}
                   </span>
-                  {point.sourceEn && (
+                  {(point.sourceEn || point.sourceAr) && (
                     <span className="text-[10px] text-[var(--text-tertiary)] mt-1 line-clamp-1">
                       {isAr ? point.sourceAr || point.sourceEn : point.sourceEn}
                     </span>

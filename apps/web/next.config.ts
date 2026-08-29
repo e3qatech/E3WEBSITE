@@ -103,15 +103,95 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
 
-      // 2. Services Aliases & FEC
+      // 2. Services Aliases (FEC, AV, Kids, etc.)
       {
         source: '/:locale(en|ar)/b2b/services/fec',
         destination: '/:locale/b2b/services/family-entertainment-centers',
         permanent: true,
       },
       {
+        source: '/:locale(en|ar)/b2b/services/fec-development',
+        destination: '/:locale/b2b/services/family-entertainment-centers',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/fec-design',
+        destination: '/:locale/b2b/services/family-entertainment-centers',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/family-entertainment-center',
+        destination: '/:locale/b2b/services/family-entertainment-centers',
+        permanent: true,
+      },
+      {
         source: '/:locale(en|ar)/services/fec',
         destination: '/:locale/b2b/services/family-entertainment-centers',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/audio-visual-stage',
+        destination: '/:locale/b2b/services/av-stage-rentals',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/av-rentals',
+        destination: '/:locale/b2b/services/av-stage-rentals',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/equipment-rentals',
+        destination: '/:locale/b2b/services/av-stage-rentals',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/stage-equipment',
+        destination: '/:locale/b2b/services/av-stage-rentals',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/audio-visual',
+        destination: '/:locale/b2b/services/av-stage-rentals',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/kids-play-concepts',
+        destination: '/:locale/b2b/services/kids-concepts',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/kids-edutainment',
+        destination: '/:locale/b2b/services/kids-concepts',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/children-entertainment',
+        destination: '/:locale/b2b/services/kids-concepts',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/kids-play',
+        destination: '/:locale/b2b/services/kids-concepts',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/event-engineering',
+        destination: '/:locale/b2b/services/mega-events',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/events-production',
+        destination: '/:locale/b2b/services/mega-events',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/feasibility-research',
+        destination: '/:locale/b2b/services/feasibility-design-research',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/design-research',
+        destination: '/:locale/b2b/services/feasibility-design-research',
         permanent: true,
       },
       {

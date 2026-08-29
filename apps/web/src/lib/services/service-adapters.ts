@@ -89,8 +89,8 @@ export function adaptDbServiceToPresentation(
     dbService.verifiedProofPoints ?? proc.verifiedProofPoints ?? proc.proofPoints,
     canonicalBase?.verifiedProofPoints || []
   );
-  // Suppress unverified claims (isVerified === false)
-  const verifiedProofPoints: VerifiedProofPoint[] = (rawProofPoints || []).filter((p: any) => p && p.isVerified !== false);
+  // Suppress unverified claims (strictly require isVerified === true)
+  const verifiedProofPoints: VerifiedProofPoint[] = (rawProofPoints || []).filter((p: any) => p && p.isVerified === true);
 
   // Safe JSON extraction for optional enhancement structures
   const objectives = safeJsonParse<ServiceObjective[]>(

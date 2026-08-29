@@ -202,21 +202,24 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
         labelEn: "Live Guests Hosted",
         labelAr: "زائر تمت استضافتهم في الفعاليات",
         sourceEn: "Verified landmark public event registrations",
-        sourceAr: "سجلات الفعاليات الجماهيرية المعتمدة"
+        sourceAr: "سجلات الفعاليات الجماهيرية المعتمدة",
+        isVerified: true,
       },
       {
         value: "45-Day",
         labelEn: "Fast-Track Mobilization",
         labelAr: "جاهزية تشغيلية سريعة",
         sourceEn: "Verified multi-acre site builds in Qatar",
-        sourceAr: "مشاريع سريعة الإنجاز في قطر"
+        sourceAr: "مشاريع سريعة الإنجاز في قطر",
+        isVerified: true,
       },
       {
-        value: "100%",
-        labelEn: "In-House Qatar Atelier",
-        labelAr: "إنتاج وتصنيع محلي متكامل",
+        value: "Qatar Atelier",
+        labelEn: "Local Engineering Teams",
+        labelAr: "فرق هندسية مقيمة في قطر",
         sourceEn: "Doha-based creative & engineering teams",
-        sourceAr: "فرق تصميم وهندسة مقيمة في الدوحة"
+        sourceAr: "فرق تصميم وهندسة مقيمة في الدوحة",
+        isVerified: true,
       }
     ],
     wowHow: [

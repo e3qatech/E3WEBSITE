@@ -1,5 +1,5 @@
 import React from "react";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
 import { db } from "@/lib/db";
 import {
@@ -69,9 +69,9 @@ export default async function ServiceMicrositePage({
   const { slug, locale } = await params;
   const canonical = getCanonicalService(slug);
 
-  // If alias route requested (e.g. /fec or /audio-visual-stage), redirect to canonical primary route
+  // If alias route requested (e.g. /fec or /audio-visual-stage), permanent redirect (308) to canonical primary route
   if (canonical && canonical.slug !== slug.toLowerCase().trim()) {
-    redirect(`/${locale}/b2b/services/${canonical.slug}`);
+    permanentRedirect(`/${locale}/b2b/services/${canonical.slug}`);
   }
 
   const searchSlugs = canonical ? [canonical.slug, ...canonical.aliases] : [slug];
