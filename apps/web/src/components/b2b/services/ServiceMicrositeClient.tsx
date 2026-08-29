@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Trophy, Sparkles } from "lucide-react";
 import { CanonicalService } from "@/lib/services/canonical-services";
 import { ServiceHero } from "./ServiceHero";
+import { ServiceMediaGallery } from "./ServiceMediaGallery";
 import { ServiceWowHowSection } from "./ServiceWowHowSection";
 import { ServiceObjectiveSelector } from "./ServiceObjectiveSelector";
 import { ServiceCapabilitiesBento } from "./ServiceCapabilitiesBento";
@@ -33,6 +34,8 @@ export function ServiceMicrositeClient({
 }: ServiceMicrositeClientProps) {
   const isAr = locale === "ar";
   const [isBriefModalOpen, setIsBriefModalOpen] = useState(false);
+  const [selectedObjectiveForBrief, setSelectedObjectiveForBrief] = useState<any>(null);
+  const [selectedServicesForBrief, setSelectedServicesForBrief] = useState<string[]>([]);
 
   // Merge DB overrides if present while keeping canonical integrity
   const mergedService: CanonicalService = {
@@ -41,6 +44,17 @@ export function ServiceMicrositeClient({
     heroMediaType: dbOverrides?.heroMediaType || service.heroMediaType,
     taglineEn: dbOverrides?.taglineEn || service.taglineEn,
     taglineAr: dbOverrides?.taglineAr || service.taglineAr,
+    galleryItems: dbOverrides?.galleryItems || service.galleryItems || [],
+  };
+
+  const handleOpenBriefWithObjective = (obj: any) => {
+    setSelectedObjectiveForBrief(obj);
+    setIsBriefModalOpen(true);
+  };
+
+  const handleOpenBriefWithService = (slug: string) => {
+    setSelectedServicesForBrief((prev) => (prev.includes(slug) ? prev : [...prev, slug]));
+    setIsBriefModalOpen(true);
   };
 
   return (
@@ -65,8 +79,14 @@ export function ServiceMicrositeClient({
         <ServiceObjectiveSelector
           objectives={mergedService.objectives}
           locale={locale}
-          onSelectObjective={() => setIsBriefModalOpen(true)}
+          onSelectObjective={handleOpenBriefWithObjective}
+          onOpenBriefBuilder={handleOpenBriefWithObjective}
         />
+      )}
+
+      {/* 4. VISUAL MEDIA & EXECUTION GALLERY */}
+      {mergedService.galleryItems && mergedService.galleryItems.length > 0 && (
+        <ServiceMediaGallery items={mergedService.galleryItems} locale={locale} />
       )}
 
       {/* 4. CAPABILITIES BENTO MATRIX */}
@@ -195,7 +215,7 @@ export function ServiceMicrositeClient({
         <ServiceRelatedSolutions
           relatedSlugs={mergedService.relatedServiceSlugs}
           locale={locale}
-          onOpenBriefWithService={() => setIsBriefModalOpen(true)}
+          onOpenBriefWithService={handleOpenBriefWithService}
         />
       )}
 
@@ -204,6 +224,8 @@ export function ServiceMicrositeClient({
         isOpen={isBriefModalOpen}
         onClose={() => setIsBriefModalOpen(false)}
         initialService={mergedService}
+        initialObjective={selectedObjectiveForBrief}
+        selectedServices={selectedServicesForBrief}
         locale={locale}
       />
 

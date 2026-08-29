@@ -119,6 +119,20 @@ export interface EnterpriseReadinessItem {
   badgeAr?: string;
 }
 
+export interface ServiceGalleryItemPayload {
+  id: string;
+  url: string;
+  mediaUrl?: string;
+  mediaType: 'IMAGE' | 'VIDEO';
+  captionEn?: string;
+  captionAr?: string;
+  titleEn?: string;
+  titleAr?: string;
+  orderIndex?: number;
+  isVisible?: boolean;
+  aspectRatio?: '16:9' | '4:3' | '1:1';
+}
+
 export interface CanonicalService {
   id: string;
   slug: string;
@@ -145,6 +159,7 @@ export interface CanonicalService {
   serviceSpecificModule: ServiceSpecificModuleConfig;
   enterpriseReadiness: EnterpriseReadinessItem[];
   relatedServiceSlugs: string[];
+  galleryItems?: ServiceGalleryItemPayload[];
 }
 
 export const CANONICAL_SERVICES: CanonicalService[] = [
@@ -2355,7 +2370,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
   {
     id: "feasibility-design-research",
     slug: "feasibility-design-research",
-    aliases: ["feasibility-research", "research", "feasibility", "entertainment-consulting"],
+    aliases: ["feasibility-research", "design-research", "research", "feasibility", "entertainment-consulting"],
     titleEn: "Feasibility, Design & Research",
     titleAr: "دراسات الجدوى والتصميم والأبحاث",
     categoryEn: "Strategy & Advisory",

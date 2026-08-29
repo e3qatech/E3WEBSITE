@@ -60,6 +60,8 @@ export async function generateMetadata({
   };
 }
 
+import { adaptDbServiceToPresentation } from "@/lib/services/service-adapters";
+
 export default async function ServiceMicrositePage({
   params
 }: {
@@ -98,43 +100,12 @@ export default async function ServiceMicrositePage({
     notFound();
   }
 
-  // Use canonical service or adapt DB service into canonical structure
-  const activeService: CanonicalService = canonical || {
-    id: dbService.id,
-    slug: dbService.slug,
-    aliases: [],
-    titleEn: dbService.titleEn,
-    titleAr: dbService.titleAr || dbService.titleEn,
-    categoryEn: dbService.category || "Enterprise Service",
-    categoryAr: dbService.category || "خدمات قطاع الأعمال",
-    taglineEn: dbService.taglineEn || "",
-    taglineAr: dbService.taglineAr || "",
-    heroOutcomeEn: dbService.taglineEn || dbService.titleEn,
-    heroOutcomeAr: dbService.taglineAr || dbService.titleAr,
-    supportingStatementEn: dbService.contentEn || "",
-    supportingStatementAr: dbService.contentAr || "",
-    heroMediaUrl: dbService.heroMediaUrl || dbService.thumbnail || "",
-    heroMediaType: (dbService.heroMediaType as any) || "IMAGE",
-    verifiedProofPoints: [],
-    wowHow: [],
-    objectives: [],
-    capabilities: [],
-    engagementModels: [],
-    deliverables: [],
-    lifecycleStages: [],
-    serviceSpecificModule: {
-      type: "scale-explorer",
-      titleEn: "Scope & Specifications",
-      titleAr: "المواصفات ونطاق العمل",
-      subtitleEn: "Production overview",
-      subtitleAr: "نظرة عامة على التنفيذ",
-      data: {}
-    },
-    enterpriseReadiness: [],
-    relatedServiceSlugs: []
-  };
+  // Use typed compatibility adapter to safely bind authoritative DB data with presentation contracts
+  const activeService: CanonicalService = dbService
+    ? adaptDbServiceToPresentation(dbService)
+    : canonical!;
 
-  // Filter relevant case studies (match by tag or take top featured case studies)
+  // Filter relevant case studies (take top featured case studies)
   const relatedCases = allCaseStudies.slice(0, 3);
 
   return (

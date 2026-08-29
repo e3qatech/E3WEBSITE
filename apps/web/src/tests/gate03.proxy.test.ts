@@ -33,7 +33,7 @@ describe('Gate 03: proxy.ts Routing Boundary', () => {
     const req = createMockRequest('/dashboard');
     const res = proxy(req) as NextResponse;
     expect(res.status).toBe(307);
-    expect(res.headers.get('location')).toBe('https://e3-qatar.com/en/login/admin');
+    expect(res.headers.get('location')).toBe('https://e3-qatar.com/en/login/admin?callbackUrl=%2Fen%2Fdashboard');
   });
 
   it('3. Dashboard loads with authorized session', () => {
@@ -127,7 +127,7 @@ describe('Gate 03: proxy.ts Routing Boundary', () => {
     const req = createMockRequest('/%64%61%73%68%62%6f%61%72%64'); 
     const res = proxy(req) as NextResponse;
     expect(res.status).toBe(307);
-    expect(res.headers.get('location')).toBe('https://e3-qatar.com/en/login/admin');
+    expect(res.headers.get('location')).toBe('https://e3-qatar.com/en/login/admin?callbackUrl=%2Fen%2Fdashboard');
   });
 
   it('17. Case and trailing-slash variants behave consistently', () => {

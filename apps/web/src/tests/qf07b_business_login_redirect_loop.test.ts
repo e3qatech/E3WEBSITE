@@ -23,19 +23,19 @@ describe('QF-07-B: Business Login Redirect Loop & Multi-Tenant Authorization', (
     const resEn = proxy(reqEn);
     expect(resEn.status).toBe(307);
     const locationEn = resEn.headers.get('location');
-    expect(locationEn).toBe('http://localhost:3000/en/login/business');
+    expect(locationEn).toBe('http://localhost:3000/en/login/business?callbackUrl=%2Fen%2Fbusiness');
 
     const reqAr = createReq('http://localhost:3000/ar/business');
     const resAr = proxy(reqAr);
     expect(resAr.status).toBe(307);
     const locationAr = resAr.headers.get('location');
-    expect(locationAr).toBe('http://localhost:3000/ar/login/business');
+    expect(locationAr).toBe('http://localhost:3000/ar/login/business?callbackUrl=%2Far%2Fbusiness');
 
     // Query parameters like callbackUrl are preserved safely without loop
     const reqWithCb = createReq('http://localhost:3000/en/business?callbackUrl=/en/business/rfps/123');
     const resWithCb = proxy(reqWithCb);
     expect(resWithCb.status).toBe(307);
-    expect(resWithCb.headers.get('location')).toBe('http://localhost:3000/en/login/business?callbackUrl=/en/business/rfps/123');
+    expect(resWithCb.headers.get('location')).toBe('http://localhost:3000/en/login/business?callbackUrl=%2Fen%2Fbusiness%2Frfps%2F123');
   });
 
   // 2. Signed-out user requesting the login page directly (NO REDIRECT LOOP)

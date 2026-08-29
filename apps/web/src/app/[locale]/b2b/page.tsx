@@ -89,11 +89,13 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
         where: { isVisible: true },
         orderBy: [{ orderIndex: 'asc' }, { createdAt: 'desc' }],
       }),
-      db.brandIP.findMany({
-        where: { isActive: true, showOnB2B: true },
-        include: { category: true },
-        orderBy: { b2bDisplayOrder: 'asc' },
-      }),
+      db.brandIP?.findMany
+        ? db.brandIP.findMany({
+            where: { isActive: true, showOnB2B: true },
+            include: { category: true },
+            orderBy: { b2bDisplayOrder: 'asc' },
+          })
+        : Promise.resolve([]),
     ]);
 
   const page = pageResult.status === 'fulfilled' ? pageResult.value : null;

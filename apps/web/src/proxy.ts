@@ -99,28 +99,52 @@ export function proxy(req: NextRequest) {
   }
 
   // 6. Protected Portal Route Edge Guards (Strict segment matching)
-  const isDev = process.env.NODE_ENV === 'development';
-  if (!isLoggedIn && !isDev) {
+  if (!isLoggedIn) {
     const search = nextUrl.search || '';
+    const explicitCallback = nextUrl.searchParams.get('callbackUrl');
 
     // Dashboard (/dashboard, /en/dashboard, /ar/dashboard)
     if (/^\/(?:en|ar)?\/?dashboard(?:\/.*)?$/i.test(normalizedPath)) {
-      return NextResponse.redirect(new URL(`/${targetLocale}/login/admin${search}`, nextUrl));
+      const canonicalPath = normalizedPath.startsWith('/en/') || normalizedPath.startsWith('/ar/')
+        ? normalizedPath
+        : `/${targetLocale}${normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`}`;
+      const fullCallback = explicitCallback || `${canonicalPath}${search}`;
+      return NextResponse.redirect(
+        new URL(`/${targetLocale}/login/admin?callbackUrl=${encodeURIComponent(fullCallback)}`, nextUrl)
+      );
     }
 
     // Staff Portal (/staff, /en/staff, /ar/staff)
     if (/^\/(?:en|ar)?\/?staff(?:\/.*)?$/i.test(normalizedPath)) {
-      return NextResponse.redirect(new URL(`/${targetLocale}/login/staff${search}`, nextUrl));
+      const canonicalPath = normalizedPath.startsWith('/en/') || normalizedPath.startsWith('/ar/')
+        ? normalizedPath
+        : `/${targetLocale}${normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`}`;
+      const fullCallback = explicitCallback || `${canonicalPath}${search}`;
+      return NextResponse.redirect(
+        new URL(`/${targetLocale}/login/staff?callbackUrl=${encodeURIComponent(fullCallback)}`, nextUrl)
+      );
     }
 
     // Business Portal (/business, /en/business, /ar/business)
     if (/^\/(?:en|ar)?\/?business(?:\/.*)?$/i.test(normalizedPath)) {
-      return NextResponse.redirect(new URL(`/${targetLocale}/login/business${search}`, nextUrl));
+      const canonicalPath = normalizedPath.startsWith('/en/') || normalizedPath.startsWith('/ar/')
+        ? normalizedPath
+        : `/${targetLocale}${normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`}`;
+      const fullCallback = explicitCallback || `${canonicalPath}${search}`;
+      return NextResponse.redirect(
+        new URL(`/${targetLocale}/login/business?callbackUrl=${encodeURIComponent(fullCallback)}`, nextUrl)
+      );
     }
 
     // Candidate Portal (/candidate, /en/candidate, /ar/candidate)
     if (/^\/(?:en|ar)?\/?candidate(?:\/.*)?$/i.test(normalizedPath)) {
-      return NextResponse.redirect(new URL(`/${targetLocale}/login/careers${search}`, nextUrl));
+      const canonicalPath = normalizedPath.startsWith('/en/') || normalizedPath.startsWith('/ar/')
+        ? normalizedPath
+        : `/${targetLocale}${normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`}`;
+      const fullCallback = explicitCallback || `${canonicalPath}${search}`;
+      return NextResponse.redirect(
+        new URL(`/${targetLocale}/login/careers?callbackUrl=${encodeURIComponent(fullCallback)}`, nextUrl)
+      );
     }
   }
 

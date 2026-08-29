@@ -9,12 +9,14 @@ interface ServiceObjectiveSelectorProps {
   objectives: ServiceObjective[];
   locale: string;
   onSelectObjective?: (obj: ServiceObjective) => void;
+  onOpenBriefBuilder?: (obj: ServiceObjective) => void;
 }
 
 export function ServiceObjectiveSelector({
   objectives,
   locale,
-  onSelectObjective
+  onSelectObjective,
+  onOpenBriefBuilder
 }: ServiceObjectiveSelectorProps) {
   const isAr = locale === "ar";
   const [selectedId, setSelectedId] = useState<string>(objectives[0]?.id || "");
@@ -22,6 +24,14 @@ export function ServiceObjectiveSelector({
   if (!objectives || objectives.length === 0) return null;
 
   const activeObj = objectives.find((o) => o.id === selectedId) || objectives[0];
+
+  const handleIncludeInBrief = () => {
+    if (onOpenBriefBuilder && activeObj) {
+      onOpenBriefBuilder(activeObj);
+    } else if (onSelectObjective && activeObj) {
+      onSelectObjective(activeObj);
+    }
+  };
 
   return (
     <section className="py-20 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)] transition-colors">
@@ -100,13 +110,14 @@ export function ServiceObjectiveSelector({
               </div>
 
               <div className="flex items-center gap-3 shrink-0">
-                <a
-                  href="#project-brief-section"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm transition-all shadow-sm active:scale-95"
+                <button
+                  type="button"
+                  onClick={handleIncludeInBrief}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm transition-all shadow-sm active:scale-95 cursor-pointer"
                 >
                   {isAr ? "إدراج في موجز المشروع" : "Include in Brief"}
                   <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-                </a>
+                </button>
               </div>
             </div>
           </div>

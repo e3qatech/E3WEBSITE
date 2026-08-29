@@ -23,6 +23,8 @@ interface ProjectBriefBuilderModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialService?: CanonicalService;
+  initialObjective?: any;
+  selectedServices?: string[];
   locale: string;
 }
 
@@ -30,6 +32,8 @@ export function ProjectBriefBuilderModal({
   isOpen,
   onClose,
   initialService,
+  initialObjective,
+  selectedServices = [],
   locale
 }: ProjectBriefBuilderModalProps) {
   const isAr = locale === "ar";
@@ -39,10 +43,15 @@ export function ProjectBriefBuilderModal({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submissionResult, setSubmissionResult] = useState<any>(null);
 
+  const initialObjLabel = typeof initialObjective === "object"
+    ? initialObjective?.labelEn || initialObjective?.labelAr || ""
+    : typeof initialObjective === "string" ? initialObjective : "";
+
   // Form State
   const [formData, setFormData] = useState({
     serviceSlug: initialService?.slug || allServices[0]?.slug || "mega-events",
-    objective: initialService?.objectives[0]?.labelEn || "",
+    objective: initialObjLabel || initialService?.objectives?.[0]?.labelEn || "",
+    primaryObjective: initialObjLabel || "",
     venueType: "Ballroom / Arena",
     audienceSize: "500 - 2,500 Guests",
     targetDate: "",
@@ -50,13 +59,30 @@ export function ProjectBriefBuilderModal({
     indoorOutdoor: "Indoor",
     budgetRange: "Confidential / Flexible",
     briefNotes: "",
-    selectedRelatedServices: [] as string[],
+    selectedRelatedServices: selectedServices || ([] as string[]),
     name: "",
     email: "",
     phone: "",
     company: "",
     consent: true
   });
+
+  // Sync state when modal opens or props change
+  React.useEffect(() => {
+    if (isOpen) {
+      const objText = typeof initialObjective === "object"
+        ? initialObjective?.labelEn || initialObjective?.labelAr || ""
+        : typeof initialObjective === "string" ? initialObjective : "";
+
+      setFormData((prev) => ({
+        ...prev,
+        serviceSlug: initialService?.slug || prev.serviceSlug || allServices[0]?.slug || "mega-events",
+        objective: objText || prev.objective || initialService?.objectives?.[0]?.labelEn || "",
+        primaryObjective: objText || prev.primaryObjective || "",
+        selectedRelatedServices: selectedServices && selectedServices.length > 0 ? selectedServices : prev.selectedRelatedServices,
+      }));
+    }
+  }, [isOpen, initialService, initialObjective, selectedServices]);
 
   if (!isOpen) return null;
 
