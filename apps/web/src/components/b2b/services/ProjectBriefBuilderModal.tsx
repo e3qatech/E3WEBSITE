@@ -1,18 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   X,
   FileText,
   ArrowRight,
-  ArrowLeft,
   CheckCircle2,
-  Download,
   Printer,
-  Building,
-  Calendar,
-  Users,
-  MapPin,
   Sparkles,
   Loader2
 } from "lucide-react";
@@ -25,6 +19,7 @@ interface ProjectBriefBuilderModalProps {
   initialService?: CanonicalService;
   initialObjective?: any;
   selectedServices?: string[];
+  availableServices?: CanonicalService[];
   locale: string;
 }
 
@@ -34,24 +29,34 @@ export function ProjectBriefBuilderModal({
   initialService,
   initialObjective,
   selectedServices = [],
+  availableServices,
   locale
 }: ProjectBriefBuilderModalProps) {
   const isAr = locale === "ar";
-  const allServices = getAllCanonicalServices();
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Available services list - filter out uncreated services
+  const baseCanonicalServices = getAllCanonicalServices().filter((s) => s.slug !== "attraction-operations");
+  const servicesList = (availableServices && availableServices.length > 0)
+    ? availableServices
+    : baseCanonicalServices;
 
   const [step, setStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submissionResult, setSubmissionResult] = useState<any>(null);
 
   const initialObjLabel = typeof initialObjective === "object"
-    ? initialObjective?.labelEn || initialObjective?.labelAr || ""
+    ? initialObjective?.labelEn || initialObjective?.labelAr || initialObjective?.id || ""
     : typeof initialObjective === "string" ? initialObjective : "";
+
+  const defaultServiceSlug = initialService?.slug || servicesList[0]?.slug || "mega-events";
+  const defaultMatchingService = servicesList.find((s) => s.slug === defaultServiceSlug) || initialService || servicesList[0];
 
   // Form State
   const [formData, setFormData] = useState({
-    serviceSlug: initialService?.slug || allServices[0]?.slug || "mega-events",
-    objective: initialObjLabel || initialService?.objectives?.[0]?.labelEn || "",
-    primaryObjective: initialObjLabel || "",
+    serviceSlug: defaultServiceSlug,
+    objective: initialObjLabel || defaultMatchingService?.objectives?.[0]?.labelEn || "",
+    primaryObjective: initialObjLabel || defaultMatchingService?.objectives?.[0]?.labelEn || "",
     venueType: "Ballroom / Arena",
     audienceSize: "500 - 2,500 Guests",
     targetDate: "",
@@ -68,21 +73,82 @@ export function ProjectBriefBuilderModal({
   });
 
   // Sync state when modal opens or props change
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen) {
       const objText = typeof initialObjective === "object"
-        ? initialObjective?.labelEn || initialObjective?.labelAr || ""
+        ? initialObjective?.labelEn || initialObjective?.labelAr || initialObjective?.id || ""
         : typeof initialObjective === "string" ? initialObjective : "";
 
-      setFormData((prev) => ({
-        ...prev,
-        serviceSlug: initialService?.slug || prev.serviceSlug || allServices[0]?.slug || "mega-events",
-        objective: objText || prev.objective || initialService?.objectives?.[0]?.labelEn || "",
-        primaryObjective: objText || prev.primaryObjective || "",
-        selectedRelatedServices: selectedServices && selectedServices.length > 0 ? selectedServices : prev.selectedRelatedServices,
-      }));
+      setFormData((prev) => {
+        const activeSlug = initialService?.slug || prev.serviceSlug || servicesList[0]?.slug || "mega-events";
+        const matchedService = servicesList.find((s) => s.slug === activeSlug) || initialService || servicesList[0];
+
+        return {
+          ...prev,
+          serviceSlug: activeSlug,
+          objective: objText || prev.objective || matchedService?.objectives?.[0]?.labelEn || "",
+          primaryObjective: objText || prev.primaryObjective || matchedService?.objectives?.[0]?.labelEn || "",
+          selectedRelatedServices: selectedServices && selectedServices.length > 0 ? selectedServices : prev.selectedRelatedServices,
+        };
+      });
     }
-  }, [isOpen, initialService, initialObjective, selectedServices]);
+  }, [isOpen, initialService, initialObjective, selectedServices, servicesList]);
+
+  // Accessible Dialog Behavior: Focus Trap, Focus Return, and Escape Key Handler
+  useEffect(() => {
+    if (!isOpen) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (e.key === "Tab" && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+
+        const firstElement = focusable[0];
+        const lastElement = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Initial focus on close button or modal
+    const timer = setTimeout(() => {
+      if (modalRef.current) {
+        const firstFocusable = modalRef.current.querySelector<HTMLElement>('button[aria-label], select, input');
+        if (firstFocusable) {
+          firstFocusable.focus();
+        } else {
+          modalRef.current.focus();
+        }
+      }
+    }, 50);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      clearTimeout(timer);
+      previouslyFocused?.focus();
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -112,12 +178,21 @@ export function ProjectBriefBuilderModal({
     }
   };
 
-  const currentService = allServices.find((s) => s.slug === formData.serviceSlug) || allServices[0];
+  const currentService = servicesList.find((s) => s.slug === formData.serviceSlug) || initialService || servicesList[0];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md overflow-y-auto">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md overflow-y-auto"
+      onClick={onClose}
+    >
       <div
-        className="relative w-full max-w-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl shadow-2xl overflow-hidden my-8"
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="brief-builder-title"
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl shadow-2xl overflow-hidden my-8 focus:outline-none"
         dir={isAr ? "rtl" : "ltr"}
       >
         {/* Header */}
@@ -130,14 +205,16 @@ export function ProjectBriefBuilderModal({
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 block">
                 {isAr ? "أداة التخطيط المؤسسي" : "Enterprise Brief Engine"}
               </span>
-              <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
+              <h2 id="brief-builder-title" className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
                 {isAr ? "بناء موجز المشروع والمواصفات" : "Build Your Project Brief"}
               </h2>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={onClose}
+            aria-label={isAr ? "إغلاق نافذة بناء الموجز" : "Close Project Brief modal"}
             className="p-2 rounded-full hover:bg-[var(--surface-default)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -179,16 +256,18 @@ export function ProjectBriefBuilderModal({
                   value={formData.serviceSlug}
                   onChange={(e) => {
                     const slug = e.target.value;
-                    const match = allServices.find((s) => s.slug === slug);
+                    const match = servicesList.find((s) => s.slug === slug);
+                    const defaultObj = match?.objectives?.[0]?.labelEn || "";
                     setFormData({
                       ...formData,
                       serviceSlug: slug,
-                      objective: match?.objectives[0]?.labelEn || ""
+                      objective: defaultObj,
+                      primaryObjective: defaultObj,
                     });
                   }}
                   className="w-full p-3.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-level-2)] text-sm font-semibold text-[var(--text-primary)] focus:outline-emerald-500"
                 >
-                  {allServices.map((s) => (
+                  {servicesList.map((s) => (
                     <option key={s.slug} value={s.slug}>
                       {isAr ? s.titleAr : s.titleEn}
                     </option>
@@ -202,28 +281,43 @@ export function ProjectBriefBuilderModal({
                     {isAr ? "ما هو هدفك الأساسي؟" : "What is your primary objective?"}
                   </label>
                   <div className="space-y-2">
-                    {currentService.objectives.map((obj) => (
-                      <label
-                        key={obj.id}
-                        className={cn(
-                          "flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all",
-                          formData.objective === obj.labelEn
-                            ? "bg-emerald-500/10 border-emerald-500"
-                            : "bg-[var(--surface-raised)] border-[var(--border-level-2)] hover:border-emerald-500/30"
-                        )}
-                      >
-                        <input
-                          type="radio"
-                          name="objective"
-                          checked={formData.objective === obj.labelEn}
-                          onChange={() => setFormData({ ...formData, objective: obj.labelEn })}
-                          className="mt-1 text-emerald-500"
-                        />
-                        <span className="text-sm font-semibold text-[var(--text-primary)]">
-                          {isAr ? obj.labelAr : obj.labelEn}
-                        </span>
-                      </label>
-                    ))}
+                    {currentService.objectives.map((obj) => {
+                      const isChecked =
+                        formData.objective === obj.labelEn ||
+                        formData.objective === obj.id ||
+                        formData.objective === obj.labelAr ||
+                        formData.primaryObjective === obj.labelEn ||
+                        formData.primaryObjective === obj.id;
+
+                      return (
+                        <label
+                          key={obj.id}
+                          className={cn(
+                            "flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all",
+                            isChecked
+                              ? "bg-emerald-500/10 border-emerald-500"
+                              : "bg-[var(--surface-raised)] border-[var(--border-level-2)] hover:border-emerald-500/30"
+                          )}
+                        >
+                          <input
+                            type="radio"
+                            name="objective"
+                            checked={isChecked}
+                            onChange={() =>
+                              setFormData({
+                                ...formData,
+                                objective: obj.labelEn,
+                                primaryObjective: obj.labelEn,
+                              })
+                            }
+                            className="mt-1 text-emerald-500"
+                          />
+                          <span className="text-sm font-semibold text-[var(--text-primary)]">
+                            {isAr ? obj.labelAr : obj.labelEn}
+                          </span>
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
               )}

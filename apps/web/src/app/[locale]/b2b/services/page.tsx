@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils'
 import { getPublicCaseStudies, isCaseStudyEligible } from '@/lib/case-studies'
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
 import { getCanonicalService } from '@/lib/services/canonical-services'
+import { decodeHtmlEntities } from '@/lib/services/service-adapters'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -48,18 +49,28 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     ? (seo.metaDescriptionAr || 'خدمات التصميم الفضائي، هندسة الفعاليات، الأنظمة الصوتية والضوئية، والإنتاج الحي في قطر.') 
     : (seo.metaDescriptionEn || 'Turnkey spatial design, event engineering, kinetic AV, live production, and landmark attraction operations in Qatar.')
 
+  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://eeeqa.com').replace(/\/$/, '');
+  const canonicalPath = '/b2b/services';
+  const ogUrl = `${siteUrl}/${locale}${canonicalPath}`;
+
   return {
-    title,
+    title: `${title} | E3 Qatar`,
     description,
     openGraph: {
       title: isAr ? (seo.ogTitleAr || title) : (seo.ogTitleEn || title),
       description: isAr ? (seo.ogDescriptionAr || description) : (seo.ogDescriptionEn || description),
+      url: ogUrl,
       images: seo.ogImage ? [{ url: seo.ogImage }] : []
     },
     alternates: {
-      canonical: seo.canonicalUrl || 'https://e3.qa/b2b/services'
+      canonical: `${siteUrl}/${locale}${canonicalPath}`,
+      languages: {
+        en: `${siteUrl}/en${canonicalPath}`,
+        ar: `${siteUrl}/ar${canonicalPath}`,
+        'x-default': `${siteUrl}/en${canonicalPath}`,
+      },
     }
-  }
+  };
 }
 
 export default async function ServicesIndexPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -401,11 +412,13 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {navigatorServices.length > 0 ? (
                 navigatorServices.map((service, i) => {
-                  const name = isAr ? (service.titleAr || service.titleEn || service.slug) : (service.titleEn || service.slug)
-                  const tagline = isAr 
-                    ? (service.taglineAr || service.contentAr?.substring(0, 140) || "خدمات إنتاج وتصنيع غامرة") 
-                    : (service.taglineEn || service.contentEn?.substring(0, 140) || "Turnkey spatial engineering service")
-                  
+                  const name = decodeHtmlEntities(isAr ? (service.titleAr || service.titleEn || service.slug) : (service.titleEn || service.slug))
+                  const tagline = decodeHtmlEntities(
+                    isAr
+                      ? (service.taglineAr || service.contentAr?.substring(0, 140) || "خدمات إنتاج وتصنيع غامرة")
+                      : (service.taglineEn || service.contentEn?.substring(0, 140) || "Turnkey spatial engineering service")
+                  )
+
                   const isAnchorTile = service.isFeatured || i % 7 === 0
 
                   return (

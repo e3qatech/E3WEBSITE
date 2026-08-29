@@ -1,4 +1,4 @@
-const base = 'https://e3-qatar-dey4u9xsp-e3qatechs-projects.vercel.app';
+const base = 'https://e3-qatar-n0y5os3ae-e3qatechs-projects.vercel.app';
 
 async function runAudit() {
   console.log('=== 1. Services Directory (EN & AR) ===');

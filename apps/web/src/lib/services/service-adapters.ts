@@ -15,6 +15,28 @@ import {
 } from './canonical-services';
 
 /**
+ * Decodes HTML entities and strips unwanted markup.
+ */
+export function decodeHtmlEntities(text?: string | null): string {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/<[^>]*>?/gm, '') // Strip literal HTML tags
+    .replace(/&amp;/g, '&')
+    .replace(/&rarr;/g, '→')
+    .replace(/&larr;/g, '←')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&hellip;/g, '…')
+    .replace(/&ndash;/g, '–')
+    .replace(/&mdash;/g, '—')
+    .replace(/&bull;/g, '•')
+    .trim();
+}
+
+/**
  * Safely parse JSON array or object with fallback.
  */
 function safeJsonParse<T>(input: unknown, fallback: T): T {
@@ -56,20 +78,22 @@ export function adaptDbServiceToPresentation(
   const id = dbService.id || canonicalBase?.id || 'service';
   const slug = dbService.slug || canonicalBase?.slug || 'service';
   const aliases = canonicalBase?.aliases || [];
-  const titleEn = dbService.titleEn || canonicalBase?.titleEn || '';
-  const titleAr = dbService.titleAr || canonicalBase?.titleAr || '';
-  const taglineEn = dbService.taglineEn || canonicalBase?.taglineEn || '';
-  const taglineAr = dbService.taglineAr || canonicalBase?.taglineAr || '';
-  const categoryEn = (dbService as any).categoryEn || (dbService as any).category || canonicalBase?.categoryEn || 'Enterprise Service';
-  const categoryAr = (dbService as any).categoryAr || (dbService as any).category || canonicalBase?.categoryAr || 'خدمات قطاع الأعمال';
+  const titleEn = decodeHtmlEntities(dbService.titleEn || canonicalBase?.titleEn || '');
+  const titleAr = decodeHtmlEntities(dbService.titleAr || canonicalBase?.titleAr || '');
+  const taglineEn = decodeHtmlEntities(dbService.taglineEn || canonicalBase?.taglineEn || '');
+  const taglineAr = decodeHtmlEntities(dbService.taglineAr || canonicalBase?.taglineAr || '');
+  const categoryEn = decodeHtmlEntities((dbService as any).categoryEn || (dbService as any).category || canonicalBase?.categoryEn || 'Enterprise Service');
+  const categoryAr = decodeHtmlEntities((dbService as any).categoryAr || (dbService as any).category || canonicalBase?.categoryAr || 'خدمات قطاع الأعمال');
 
   // Hero narrative & media
-  const heroOutcomeEn = dbService.heroOutcomeEn || proc.heroOutcomeEn || canonicalBase?.heroOutcomeEn || taglineEn || titleEn;
-  const heroOutcomeAr = dbService.heroOutcomeAr || proc.heroOutcomeAr || canonicalBase?.heroOutcomeAr || taglineAr || titleAr;
-  const supportingStatementEn =
-    dbService.supportingStatementEn || proc.supportingStatementEn || (dbService as any).contentEn || canonicalBase?.supportingStatementEn || '';
-  const supportingStatementAr =
-    dbService.supportingStatementAr || proc.supportingStatementAr || (dbService as any).contentAr || canonicalBase?.supportingStatementAr || '';
+  const heroOutcomeEn = decodeHtmlEntities(dbService.heroOutcomeEn || proc.heroOutcomeEn || canonicalBase?.heroOutcomeEn || taglineEn || titleEn);
+  const heroOutcomeAr = decodeHtmlEntities(dbService.heroOutcomeAr || proc.heroOutcomeAr || canonicalBase?.heroOutcomeAr || taglineAr || titleAr);
+  const supportingStatementEn = decodeHtmlEntities(
+    dbService.supportingStatementEn || proc.supportingStatementEn || (dbService as any).contentEn || canonicalBase?.supportingStatementEn || ''
+  );
+  const supportingStatementAr = decodeHtmlEntities(
+    dbService.supportingStatementAr || proc.supportingStatementAr || (dbService as any).contentAr || canonicalBase?.supportingStatementAr || ''
+  );
   const heroMediaUrl = dbService.heroMediaUrl || dbService.thumbnail || canonicalBase?.heroMediaUrl || '';
   const heroMediaType = ((dbService.heroMediaType || proc.heroMediaType) as 'IMAGE' | 'VIDEO') || canonicalBase?.heroMediaType || 'IMAGE';
   const mobileHeroMediaUrl = dbService.mobileHeroMediaUrl || proc.mobileHeroMediaUrl || canonicalBase?.mobileHeroMediaUrl;
@@ -77,12 +101,12 @@ export function adaptDbServiceToPresentation(
 
   // CTAs
   const ctaPrimary = dbService.ctaPrimary || proc.ctaPrimary || canonicalBase?.ctaPrimary || 'BRIEF_BUILDER';
-  const ctaPrimaryTextEn = dbService.ctaPrimaryTextEn || proc.ctaPrimaryTextEn || canonicalBase?.ctaPrimaryTextEn;
-  const ctaPrimaryTextAr = dbService.ctaPrimaryTextAr || proc.ctaPrimaryTextAr || canonicalBase?.ctaPrimaryTextAr;
+  const ctaPrimaryTextEn = decodeHtmlEntities(dbService.ctaPrimaryTextEn || proc.ctaPrimaryTextEn || canonicalBase?.ctaPrimaryTextEn);
+  const ctaPrimaryTextAr = decodeHtmlEntities(dbService.ctaPrimaryTextAr || proc.ctaPrimaryTextAr || canonicalBase?.ctaPrimaryTextAr);
   const ctaPrimaryUrl = dbService.ctaPrimaryUrl || proc.ctaPrimaryUrl || canonicalBase?.ctaPrimaryUrl;
   const ctaSecondary = dbService.ctaSecondary || proc.ctaSecondary || canonicalBase?.ctaSecondary;
-  const ctaSecondaryTextEn = dbService.ctaSecondaryTextEn || proc.ctaSecondaryTextEn || canonicalBase?.ctaSecondaryTextEn;
-  const ctaSecondaryTextAr = dbService.ctaSecondaryTextAr || proc.ctaSecondaryTextAr || canonicalBase?.ctaSecondaryTextAr;
+  const ctaSecondaryTextEn = decodeHtmlEntities(dbService.ctaSecondaryTextEn || proc.ctaSecondaryTextEn || canonicalBase?.ctaSecondaryTextEn);
+  const ctaSecondaryTextAr = decodeHtmlEntities(dbService.ctaSecondaryTextAr || proc.ctaSecondaryTextAr || canonicalBase?.ctaSecondaryTextAr);
   const ctaSecondaryUrl = dbService.ctaSecondaryUrl || proc.ctaSecondaryUrl || canonicalBase?.ctaSecondaryUrl;
 
   // Proof points with strict factual verification filter

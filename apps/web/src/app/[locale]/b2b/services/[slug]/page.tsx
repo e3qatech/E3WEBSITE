@@ -46,6 +46,10 @@ export async function generateMetadata({
     : dbService.taglineEn || "Turnkey entertainment, event engineering, operations, and spatial solutions in Qatar.";
 
   const heroImage = dbService?.heroMediaUrl || dbService?.thumbnail || canonical?.heroMediaUrl;
+  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://eeeqa.com").replace(/\/$/, "");
+  const canonicalSlug = canonical?.slug || slug;
+  const canonicalPath = `/b2b/services/${canonicalSlug}`;
+  const ogUrl = `${siteUrl}/${locale}${canonicalPath}`;
 
   return {
     title: `${title} | E3 Qatar`,
@@ -53,11 +57,17 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
+      url: ogUrl,
       images: heroImage ? [{ url: heroImage }] : [],
     },
     alternates: {
-      canonical: `https://eeeqa.com/${locale}/b2b/services/${canonical?.slug || slug}`
-    }
+      canonical: `${siteUrl}/${locale}${canonicalPath}`,
+      languages: {
+        en: `${siteUrl}/en${canonicalPath}`,
+        ar: `${siteUrl}/ar${canonicalPath}`,
+        "x-default": `${siteUrl}/en${canonicalPath}`,
+      },
+    },
   };
 }
 
@@ -78,6 +88,7 @@ export default async function ServiceMicrositePage({
 
   let dbService: any = null;
   let allCaseStudies: any[] = [];
+  let allPublishedServices: any[] = [];
 
   try {
     const results = await Promise.all([
@@ -88,10 +99,15 @@ export default async function ServiceMicrositePage({
           gallery: { orderBy: { orderIndex: "asc" } }
         }
       }).catch(() => null),
-      getPublicCaseStudies({ featuredFirst: true }).catch(() => [])
+      getPublicCaseStudies({ featuredFirst: true }).catch(() => []),
+      db.service.findMany({
+        where: { isVisible: true },
+        select: { slug: true }
+      }).catch(() => [])
     ]);
     dbService = results[0];
     allCaseStudies = results[1] || [];
+    allPublishedServices = results[2] || [];
   } catch (error) {
     console.error("Error fetching service detail data:", error);
   }
@@ -104,6 +120,16 @@ export default async function ServiceMicrositePage({
 
   // Use typed compatibility adapter to safely bind authoritative DB data with presentation contracts
   const activeService: CanonicalService = adaptDbServiceToPresentation(dbService);
+
+  // Map published services for related dropdowns & project brief
+  const publishedMap = new Map<string, CanonicalService>();
+  (allPublishedServices || []).forEach((s: any) => {
+    const canon = getCanonicalService(s.slug);
+    if (canon && canon.slug !== "attraction-operations") {
+      publishedMap.set(canon.slug, canon);
+    }
+  });
+  const availableServices = Array.from(publishedMap.values());
 
   // Filter relevant case studies (take configured case studies or top 3)
   let relatedCases = allCaseStudies.slice(0, 3);
@@ -122,6 +148,7 @@ export default async function ServiceMicrositePage({
       locale={locale}
       relatedCaseStudies={relatedCases}
       dbOverrides={dbService}
+      availableServices={availableServices}
     />
   );
 }

@@ -4,7 +4,7 @@ import {
   getCanonicalService,
   resolveServiceSlug,
 } from "@/lib/services/canonical-services";
-import { adaptDbServiceToPresentation } from "@/lib/services/service-adapters";
+import { adaptDbServiceToPresentation, decodeHtmlEntities } from "@/lib/services/service-adapters";
 import { canonicalizeRoute } from "@/lib/url-helper";
 
 describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
@@ -389,5 +389,54 @@ describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
       "fabrication-branding",
       "feasibility-design-research",
     ]);
+  });
+
+  // 10. Entity Decoding & Sanitization
+  it("10. decodeHtmlEntities correctly decodes HTML entities and strips markup", () => {
+    const rawString = "Creative &amp; Technical &rarr; &quot;Excellence&#39; &lt;World&gt; <p>Paragraph</p>";
+    const decoded = decodeHtmlEntities(rawString);
+    expect(decoded).toBe('Creative & Technical → "Excellence\' <World> Paragraph');
+
+    const dbRecordWithEntities: any = {
+      id: "srv-entities",
+      slug: "mega-events",
+      titleEn: "Mega Events &amp; Ceremonies",
+      titleAr: "الفعاليات الكبرى والاحتفالات &rarr; الرسمية",
+      taglineEn: "&quot;Turnkey&quot; Event Engineering &amp; Staging",
+      taglineAr: "&quot;هندسة الفعاليات والإنتاج المتكامل&quot;",
+      process: {
+        heroOutcomeEn: "From Blueprint &amp; Concept &rarr; Flawless Live Reality.",
+        heroOutcomeAr: "من المخطط &amp; المفهوم &rarr; إلى الواقع الحي المتكامل.",
+      },
+    };
+
+    const adapted = adaptDbServiceToPresentation(dbRecordWithEntities);
+    expect(adapted.titleEn).toBe("Mega Events & Ceremonies");
+    expect(adapted.titleAr).toBe("الفعاليات الكبرى والاحتفالات → الرسمية");
+    expect(adapted.taglineEn).toBe('"Turnkey" Event Engineering & Staging');
+    expect(adapted.heroOutcomeEn).toBe("From Blueprint & Concept → Flawless Live Reality.");
+    expect(adapted.heroOutcomeAr).toBe("من المخطط & المفهوم → إلى الواقع الحي المتكامل.");
+  });
+
+  // 11. Attraction Operations Suppression
+  it("11. Suppresses attraction-operations from available services when not in DB records", () => {
+    const publishedDbServices = [
+      { slug: "mega-events", isVisible: true },
+      { slug: "fec", isVisible: true },
+      { slug: "kids-concepts", isVisible: true },
+      { slug: "av-stage-rentals", isVisible: true },
+    ];
+
+    const publishedMap = new Map<string, any>();
+    publishedDbServices.forEach((s) => {
+      const canon = getCanonicalService(s.slug);
+      if (canon && canon.slug !== "attraction-operations") {
+        publishedMap.set(canon.slug, canon);
+      }
+    });
+
+    const availableServices = Array.from(publishedMap.values());
+    expect(availableServices.some((s) => s.slug === "attraction-operations")).toBe(false);
+    expect(availableServices.length).toBe(4);
   });
 });

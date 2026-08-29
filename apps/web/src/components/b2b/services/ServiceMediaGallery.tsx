@@ -16,7 +16,7 @@ interface ServiceMediaGalleryProps {
 
 export function ServiceMediaGallery({
   items = [],
-  layout = "grid",
+  layout: _layout = "grid",
   locale,
   titleEn,
   titleAr,
@@ -32,20 +32,66 @@ export function ServiceMediaGallery({
   // Filter out items that are explicitly hidden or have no valid URL
   const visibleItems = items.filter((item) => item && item.url && item.isVisible !== false);
 
-  // Lightbox keyboard navigation
+  // Lightbox keyboard navigation, focus trap & restoration
   useEffect(() => {
     if (lightboxIndex === null) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightboxIndex(null);
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setLightboxIndex(null);
+        return;
+      }
       if (e.key === "ArrowRight" && visibleItems.length > 0) {
         setLightboxIndex((prev) => (prev !== null ? (prev + 1) % visibleItems.length : 0));
       }
       if (e.key === "ArrowLeft" && visibleItems.length > 0) {
         setLightboxIndex((prev) => (prev !== null ? (prev - 1 + visibleItems.length) % visibleItems.length : 0));
       }
+
+      if (e.key === "Tab" && lightboxRef.current) {
+        const focusable = lightboxRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+
+        const firstElement = focusable[0];
+        const lastElement = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
     };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+
+    // Initial focus on close button
+    const timer = setTimeout(() => {
+      if (lightboxRef.current) {
+        const closeBtn = lightboxRef.current.querySelector<HTMLElement>('button[aria-label]');
+        if (closeBtn) {
+          closeBtn.focus();
+        } else {
+          lightboxRef.current.focus();
+        }
+      }
+    }, 50);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      clearTimeout(timer);
+      previouslyFocused?.focus();
+    };
   }, [lightboxIndex, visibleItems.length]);
 
   // Empty state suppression: if no valid items, suppress the entire section cleanly
@@ -139,7 +185,7 @@ export function ServiceMediaGallery({
                     </span>
                     {isVideo && (
                       <span className="px-2 py-0.5 rounded-full bg-black/70 text-emerald-400 text-[10px] font-mono font-bold flex items-center gap-1">
-                        <Film className="w-3 h-3" />
+                        <Film className="w-3.5 h-3.5" />
                         VIDEO
                       </span>
                     )}
@@ -163,10 +209,14 @@ export function ServiceMediaGallery({
       {lightboxIndex !== null && visibleItems[lightboxIndex] && (
         <div
           ref={lightboxRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={isAr ? "معرض الوسائط والتنفيذ" : "Media Lightbox"}
+          tabIndex={-1}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 select-none"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 select-none focus:outline-none"
           onClick={() => setLightboxIndex(null)}
         >
           <button
@@ -176,7 +226,7 @@ export function ServiceMediaGallery({
               setLightboxIndex(null);
             }}
             className="absolute top-4 end-4 z-50 w-10 h-10 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-white flex items-center justify-center transition-colors cursor-pointer"
-            aria-label="Close"
+            aria-label={isAr ? "إغلاق المعرض" : "Close media lightbox"}
           >
             <X className="w-5 h-5" />
           </button>
@@ -190,7 +240,7 @@ export function ServiceMediaGallery({
                 setLightboxIndex((prev) => (prev !== null ? (prev - 1 + visibleItems.length) % visibleItems.length : 0));
               }}
               className="absolute start-4 top-1/2 -translate-y-1/2 z-50 w-12 h-12 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-white flex items-center justify-center transition-colors cursor-pointer"
-              aria-label="Previous"
+              aria-label={isAr ? "العنصر السابق" : "Previous media item"}
             >
               <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
             </button>
@@ -205,7 +255,7 @@ export function ServiceMediaGallery({
                 setLightboxIndex((prev) => (prev !== null ? (prev + 1) % visibleItems.length : 0));
               }}
               className="absolute end-4 top-1/2 -translate-y-1/2 z-50 w-12 h-12 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-white flex items-center justify-center transition-colors cursor-pointer"
-              aria-label="Next"
+              aria-label={isAr ? "العنصر التالي" : "Next media item"}
             >
               <ChevronRight className="w-6 h-6 rtl:rotate-180" />
             </button>

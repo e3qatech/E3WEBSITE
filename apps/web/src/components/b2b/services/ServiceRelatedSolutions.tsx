@@ -2,19 +2,22 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Plus, Check } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 import { getCanonicalService } from "@/lib/services/canonical-services";
 import { localizeHref } from "@/lib/url-helper";
+import { decodeHtmlEntities } from "@/lib/services/service-adapters";
 
 interface ServiceRelatedSolutionsProps {
   relatedSlugs: string[];
   locale: string;
+  availableServices?: any[];
   onOpenBriefWithService?: (slug: string) => void;
 }
 
 export function ServiceRelatedSolutions({
   relatedSlugs,
   locale,
+  availableServices,
   onOpenBriefWithService
 }: ServiceRelatedSolutionsProps) {
   const isAr = locale === "ar";
@@ -23,7 +26,13 @@ export function ServiceRelatedSolutions({
 
   const services = relatedSlugs
     .map((s) => getCanonicalService(s))
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter((s: any) => {
+      if (availableServices && availableServices.length > 0) {
+        return availableServices.some((avail) => avail.slug === s.slug);
+      }
+      return s.slug !== "attraction-operations";
+    });
 
   if (services.length === 0) return null;
 
@@ -53,13 +62,13 @@ export function ServiceRelatedSolutions({
             >
               <div>
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 block mb-2">
-                  {isAr ? rel.categoryAr : rel.categoryEn}
+                  {decodeHtmlEntities(isAr ? rel.categoryAr : rel.categoryEn)}
                 </span>
                 <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
-                  {isAr ? rel.titleAr : rel.titleEn}
+                  {decodeHtmlEntities(isAr ? rel.titleAr : rel.titleEn)}
                 </h3>
                 <p className="text-xs text-[var(--text-secondary)] leading-relaxed line-clamp-2 mb-4">
-                  {isAr ? rel.taglineAr : rel.taglineEn}
+                  {decodeHtmlEntities(isAr ? rel.taglineAr : rel.taglineEn)}
                 </p>
               </div>
 

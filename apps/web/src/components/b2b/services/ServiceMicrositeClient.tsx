@@ -24,13 +24,15 @@ interface ServiceMicrositeClientProps {
   locale: string;
   relatedCaseStudies?: any[];
   dbOverrides?: any;
+  availableServices?: CanonicalService[];
 }
 
 export function ServiceMicrositeClient({
   service,
   locale,
   relatedCaseStudies = [],
-  dbOverrides
+  dbOverrides,
+  availableServices
 }: ServiceMicrositeClientProps) {
   const isAr = locale === "ar";
   const [isBriefModalOpen, setIsBriefModalOpen] = useState(false);
@@ -219,6 +221,7 @@ export function ServiceMicrositeClient({
         <ServiceRelatedSolutions
           relatedSlugs={mergedService.relatedServiceSlugs}
           locale={locale}
+          availableServices={availableServices}
           onOpenBriefWithService={handleOpenBriefWithService}
         />
       )}
@@ -230,6 +233,7 @@ export function ServiceMicrositeClient({
         initialService={mergedService}
         initialObjective={selectedObjectiveForBrief}
         selectedServices={selectedServicesForBrief}
+        availableServices={availableServices}
         locale={locale}
       />
 
