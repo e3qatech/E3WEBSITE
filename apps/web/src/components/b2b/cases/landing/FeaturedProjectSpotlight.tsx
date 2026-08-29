@@ -22,12 +22,14 @@ export interface FeaturedProjectSpotlightProps {
   };
   featuredProject: any | null;
   locale: string;
+  onOpenBriefBuilder?: (caseStudy: any) => void;
 }
 
 export function FeaturedProjectSpotlight({
   config,
   featuredProject,
   locale,
+  onOpenBriefBuilder,
 }: FeaturedProjectSpotlightProps) {
   const isAr = locale === "ar";
   if (config?.enabled === false || !featuredProject) return null;
@@ -221,15 +223,24 @@ export function FeaturedProjectSpotlight({
                 )}
               </div>
 
-              {/* Call to Action Button */}
-              <div className="pt-6 border-t border-[var(--border-level-2)]">
+              {/* Call to Action Buttons */}
+              <div className="pt-6 border-t border-[var(--border-level-2)] flex flex-col sm:flex-row gap-3">
                 <Link
                   href={`/${locale}/b2b/case-studies/${featuredProject.slug}`}
-                  className="w-full py-4 px-8 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-syne font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] flex items-center justify-center gap-3 group/btn"
+                  className="flex-1 py-3.5 px-6 rounded-full bg-emerald-700 hover:bg-emerald-600 text-white font-syne font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-emerald-700/20 flex items-center justify-center gap-2 group/btn"
                 >
                   <span>{ctaText}</span>
                   <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1 rtl:-scale-x-100 transition-transform" />
                 </Link>
+
+                {onOpenBriefBuilder && (
+                  <button
+                    onClick={() => onOpenBriefBuilder(featuredProject)}
+                    className="py-3.5 px-6 rounded-full bg-[var(--surface-default)] hover:bg-[var(--surface-raised)] border border-[var(--border-level-2)] text-[var(--text-primary)] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>{isAr ? "بناء موجز بهذا النطاق" : "Build Brief with Scope"}</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>

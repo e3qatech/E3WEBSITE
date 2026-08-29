@@ -3,15 +3,19 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useInView, useReducedMotion } from "framer-motion";
 import { TrendingUp } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface MetricItem {
   valueEn?: string;
   valueAr?: string;
   value?: string;
+  prefix?: string;
+  suffix?: string;
   labelEn?: string;
   labelAr?: string;
   label?: string;
+  sourceEn?: string;
+  sourceAr?: string;
+  isHighlighted?: boolean;
 }
 
 interface ImpactMetricsGridProps {
@@ -19,7 +23,7 @@ interface ImpactMetricsGridProps {
   metrics?: MetricItem[] | null;
 }
 
-function AnimatedCounter({ value, inView }: { value: any; inView: boolean }) {
+function AnimatedCounter({ value, inView, prefix = "", suffix = "" }: { value: any; inView: boolean; prefix?: string; suffix?: string }) {
   const shouldReduceMotion = useReducedMotion();
   const valStr = String(value ?? "");
   const [displayValue, setDisplayValue] = useState(valStr);
@@ -30,16 +34,16 @@ function AnimatedCounter({ value, inView }: { value: any; inView: boolean }) {
       return;
     }
 
-    // Match leading/trailing units (e.g., "+", "%", "K", "M", " QAR")
+    // Match leading/trailing units
     const match = valStr.match(/^([^\d]*)([\d,.]+)([^\d]*)$/);
     if (!match) {
       setDisplayValue(valStr);
       return;
     }
 
-    const prefix = match[1] || "";
+    const matchedPrefix = prefix || match[1] || "";
     const rawNumberStr = match[2].replace(/,/g, "");
-    const suffix = match[3] || "";
+    const matchedSuffix = suffix || match[3] || "";
     const targetNum = parseFloat(rawNumberStr);
 
     if (isNaN(targetNum)) {
@@ -60,16 +64,16 @@ function AnimatedCounter({ value, inView }: { value: any; inView: boolean }) {
       const currentVal = targetNum * easeProgress;
 
       const formatted = isDecimal ? currentVal.toFixed(1) : Math.floor(currentVal).toLocaleString();
-      setDisplayValue(`${prefix}${formatted}${suffix}`);
+      setDisplayValue(`${matchedPrefix}${formatted}${matchedSuffix}`);
 
       if (step >= steps) {
         clearInterval(timer);
-        setDisplayValue(value);
+        setDisplayValue(`${matchedPrefix}${value}${matchedSuffix}`);
       }
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [value, inView, shouldReduceMotion]);
+  }, [value, valStr, inView, shouldReduceMotion, prefix, suffix]);
 
   return <span>{displayValue}</span>;
 }
@@ -84,14 +88,16 @@ export function ImpactMetricsGrid({
 
   let normalizedMetrics: MetricItem[] = [];
   if (Array.isArray(metrics)) {
-    normalizedMetrics = metrics;
+    normalizedMetrics = metrics.filter((m) => m && (m.value || m.valueEn || m.valueAr));
   } else if (metrics && typeof metrics === "object") {
-    normalizedMetrics = Object.entries(metrics).map(([key, val]) => ({
-      labelEn: key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
-      labelAr: key,
-      valueEn: String(val),
-      valueAr: String(val),
-    }));
+    normalizedMetrics = Object.entries(metrics)
+      .filter(([_, val]) => Boolean(val))
+      .map(([key, val]) => ({
+        labelEn: key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
+        labelAr: key,
+        valueEn: String(val),
+        valueAr: String(val),
+      }));
   }
 
   if (normalizedMetrics.length === 0) {
@@ -127,25 +133,39 @@ export function ImpactMetricsGrid({
             const rawLabel = isAr
               ? metric.labelAr || metric.labelEn || metric.label || ""
               : metric.labelEn || metric.label || "";
+            const source = isAr ? metric.sourceAr || metric.sourceEn : metric.sourceEn;
 
             return (
               <div
                 key={i}
                 data-testid={`metric-card-${i}`}
-                className="p-6 sm:p-8 rounded-3xl bg-[#0d1322] border border-white/10 hover:border-emerald-500/40 transition-all duration-300 flex flex-col items-center justify-center text-center shadow-xl group"
+                className="p-6 sm:p-8 rounded-3xl bg-[#0d1322] border border-white/10 hover:border-emerald-500/40 transition-all duration-300 flex flex-col items-center justify-between text-center shadow-xl group"
               >
-                <div
-                  data-testid={`metric-value-${i}`}
-                  className="font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-300 to-indigo-300 font-syne tracking-tight mb-2 sm:mb-3 group-hover:scale-105 transition-transform duration-300 text-3xl sm:text-4xl lg:text-5xl"
-                >
-                  <AnimatedCounter value={rawValue} inView={inView} />
+                <div>
+                  <div
+                    data-testid={`metric-value-${i}`}
+                    className="font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-300 to-indigo-300 font-syne tracking-tight mb-2 sm:mb-3 group-hover:scale-105 transition-transform duration-300 text-3xl sm:text-4xl lg:text-5xl"
+                  >
+                    <AnimatedCounter
+                      value={rawValue}
+                      inView={inView}
+                      prefix={metric.prefix}
+                      suffix={metric.suffix}
+                    />
+                  </div>
+                  <div
+                    data-testid={`metric-label-${i}`}
+                    className="text-[11px] sm:text-xs font-mono font-bold text-slate-300 uppercase tracking-widest max-w-xs"
+                  >
+                    {rawLabel}
+                  </div>
                 </div>
-                <div
-                  data-testid={`metric-label-${i}`}
-                  className="text-[11px] sm:text-xs font-mono font-bold text-slate-300 uppercase tracking-widest max-w-xs"
-                >
-                  {rawLabel}
-                </div>
+
+                {source && (
+                  <div className="mt-4 pt-3 border-t border-white/5 text-[10px] text-slate-400 font-medium">
+                    {source}
+                  </div>
+                )}
               </div>
             );
           })}

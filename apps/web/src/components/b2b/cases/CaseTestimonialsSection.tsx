@@ -6,14 +6,24 @@ import { Quote, ChevronLeft, ChevronRight } from "lucide-react";
 interface TestimonialItem {
   quoteEn?: string;
   quoteAr?: string;
+  quote?: string;
   authorName?: string;
   authorNameEn?: string;
   authorNameAr?: string;
+  authorEn?: string;
+  authorAr?: string;
   authorRole?: string;
   authorRoleEn?: string;
   authorRoleAr?: string;
+  roleEn?: string;
+  roleAr?: string;
   authorCompany?: string;
   authorCompanyAr?: string;
+  companyEn?: string;
+  companyAr?: string;
+  company?: string;
+  avatarUrl?: string;
+  isVerified?: boolean;
   isVisible?: boolean;
 }
 

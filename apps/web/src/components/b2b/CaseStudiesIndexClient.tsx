@@ -10,6 +10,7 @@ import { BeforeAfterTransformationStage } from "@/components/b2b/cases/landing/B
 import { BehindTheBuildTeam } from "@/components/b2b/cases/landing/BehindTheBuildTeam";
 import { CaseStudiesCommercialCta } from "@/components/b2b/cases/landing/CaseStudiesCommercialCta";
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
+import { ProjectBriefBuilderModal } from "@/components/b2b/services/ProjectBriefBuilderModal";
 
 export interface CaseStudiesIndexClientProps {
   caseStudies: CaseStudyCardItem[];
@@ -27,6 +28,16 @@ export function CaseStudiesIndexClient({
   locale,
 }: CaseStudiesIndexClientProps) {
   const isAr = locale === "ar";
+  const [isBriefModalOpen, setIsBriefModalOpen] = React.useState(false);
+  const [selectedServicesForBrief, setSelectedServicesForBrief] = React.useState<string[]>([]);
+
+  const handleOpenBriefWithCase = (cs?: any) => {
+    if (cs?.servicesUsed && Array.isArray(cs.servicesUsed)) {
+      const slugs = cs.servicesUsed.map((s: any) => (typeof s === "string" ? s : s.slug || s.id)).filter(Boolean);
+      setSelectedServicesForBrief(slugs);
+    }
+    setIsBriefModalOpen(true);
+  };
 
   // CMS Section configurations
   const hero = cmsContent?.hero || {};
@@ -236,6 +247,7 @@ export function CaseStudiesIndexClient({
         config={featuredCasesConfig}
         featuredProject={featuredProject}
         locale={locale}
+        onOpenBriefBuilder={handleOpenBriefWithCase}
       />
 
       {/* 4. Impact Stories Stream Carousel ("Did You Know?") */}
@@ -269,6 +281,14 @@ export function CaseStudiesIndexClient({
       {/* 8. Commercial Final CTA */}
       <CaseStudiesCommercialCta
         cta={cta}
+        locale={locale}
+      />
+
+      {/* 9. Project Brief Builder Modal */}
+      <ProjectBriefBuilderModal
+        isOpen={isBriefModalOpen}
+        onClose={() => setIsBriefModalOpen(false)}
+        selectedServices={selectedServicesForBrief}
         locale={locale}
       />
     </div>

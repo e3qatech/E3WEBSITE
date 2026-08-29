@@ -4,9 +4,8 @@ import { useState } from "react";
 import { AdminFormLayout } from "../ui/AdminFormLayout";
 import { AdminButton } from "../ui/AdminButton";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
-import { MediaUploader } from "@/components/shared/MediaUploader";
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer";
-import { Plus, Trash2, Layers, Video, Sparkles, Trophy, Users, Flame, BarChart3, CheckSquare, Save } from "lucide-react";
+import { Plus, Trash2, Layers, Video, Sparkles, Trophy, Users, Flame, BarChart3, Save } from "lucide-react";
 import { E3LivingHeroEditor } from "@/components/dashboard/b2c/E3LivingHeroEditor";
 import {
   DashboardPageShell,
@@ -24,18 +23,19 @@ const SECTIONS: EditorSectionItem[] = [
   { id: "showreel", label: "2. Master Showreel", labelAr: "2. فيديو العرض الرئيسي (Showreel)" },
   { id: "factStream", label: "3. Fact Stream", labelAr: "3. شريط الحقائق والمؤشرات" },
   { id: "featuredCases", label: "4. Featured Cases", labelAr: "4. المشاريع المميزة" },
-  { id: "teamStories", label: "5. Team Stories", labelAr: "5. قصص الكوادر وفريق العمل" },
-  { id: "transformations", label: "6. Transformations", labelAr: "6. قصص التحول والإنجاز" },
-  { id: "impactOverview", label: "7. ROI & Impact", labelAr: "7. العائد على الاستثمار والأثر" },
-  { id: "cta", label: "8. Commercial CTA", labelAr: "8. دعوة طلب العروض (CTA)" },
-  { id: "seo", label: "9. SEO Settings", labelAr: "9. بيانات محركات البحث (SEO)" },
+  { id: "archive", label: "5. Archive & Impact Lens", labelAr: "5. أرشيف المشاريع وفلاتر الإنجاز" },
+  { id: "teamStories", label: "6. Team Stories", labelAr: "6. قصص الكوادر وفريق العمل" },
+  { id: "transformations", label: "7. Transformations", labelAr: "7. قصص التحول والإنجاز" },
+  { id: "impactOverview", label: "8. ROI & Impact", labelAr: "8. العائد على الاستثمار والأثر" },
+  { id: "cta", label: "9. Commercial CTA", labelAr: "9. دعوة طلب العروض (CTA)" },
+  { id: "seo", label: "10. SEO Settings", labelAr: "10. بيانات محركات البحث (SEO)" },
 ];
 
 export function B2BCasesEditor({
   initialData,
   caseStudies = [],
   services: _services = [],
-  employeeProfiles = [],
+  employeeProfiles: _employeeProfiles = [],
 }: {
   initialData: any;
   caseStudies?: any[];
@@ -236,7 +236,7 @@ export function B2BCasesEditor({
     });
   };
 
-  const moveFeaturedCaseOrder = (index: number, direction: "up" | "down") => {
+  const _moveFeaturedCaseOrder = (index: number, direction: "up" | "down") => {
     setData((prev: any) => {
       const currentIds: string[] = Array.isArray(prev.featuredCases?.selectedCaseStudyIds)
         ? [...prev.featuredCases.selectedCaseStudyIds.map(String)]
@@ -522,13 +522,95 @@ export function B2BCasesEditor({
           </div>
         )}
 
-        {/* 5. TEAM STORIES */}
+        {/* 5. ARCHIVE & IMPACT LENS */}
+        {activeSectionId === "archive" && (
+          <div id="archive" className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+            <div className="flex items-center justify-between border-b border-border-default pb-4">
+              <div className="flex items-center gap-2.5">
+                <Layers className="w-5 h-5 text-emerald-500" />
+                <h2 className="text-lg font-bold text-text-primary">5. Project Archive & Impact Lens Filters</h2>
+              </div>
+              <label className="flex items-center gap-2 text-xs font-mono font-bold cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={data.archive?.enabled !== false}
+                  onChange={(e) => handleChange("archive", "enabled", e.target.checked)}
+                  className="rounded bg-surface-hover border-border-default text-emerald-500 focus:ring-0 cursor-pointer"
+                />
+                <span>SECTION ENABLED</span>
+              </label>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Archive Title (En)</label>
+                <input
+                  type="text"
+                  value={data.archive?.titleEn || ""}
+                  onChange={(e) => handleChange("archive", "titleEn", e.target.value)}
+                  placeholder="e.g. Landmark Portfolio Archive"
+                  className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Archive Title (Ar)</label>
+                <input
+                  type="text"
+                  dir="rtl"
+                  value={data.archive?.titleAr || ""}
+                  onChange={(e) => handleChange("archive", "titleAr", e.target.value)}
+                  placeholder="مثال: سجل وأرشيف المشاريع الوطنية"
+                  className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Archive Description (En)</label>
+                <textarea
+                  rows={3}
+                  value={data.archive?.descriptionEn || ""}
+                  onChange={(e) => handleChange("archive", "descriptionEn", e.target.value)}
+                  placeholder="Filter and explore delivered entertainment and spatial installations across Qatar..."
+                  className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Archive Description (Ar)</label>
+                <textarea
+                  rows={3}
+                  dir="rtl"
+                  value={data.archive?.descriptionAr || ""}
+                  onChange={(e) => handleChange("archive", "descriptionAr", e.target.value)}
+                  placeholder="تصفح واستكشف مشاريعنا الترفيهية والتجهيزات المكانية المنفذة في قطر..."
+                  className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none resize-none font-arabic"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Archive Sorting Mode</label>
+              <select
+                value={data.archive?.displayOrder || "FEATURED_FIRST"}
+                onChange={(e) => handleChange("archive", "displayOrder", e.target.value)}
+                className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2 text-sm text-text-primary focus:border-primary focus:outline-none cursor-pointer"
+              >
+                <option value="FEATURED_FIRST">Featured Projects First</option>
+                <option value="NEWEST_FIRST">Newest Year First</option>
+                <option value="ALPHABETICAL">Alphabetical by Title</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* 6. TEAM STORIES */}
         {activeSectionId === "teamStories" && (
           <div id="teamStories" className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
             <div className="flex items-center justify-between border-b border-border-default pb-4">
               <div className="flex items-center gap-2.5">
                 <Users className="w-5 h-5 text-blue-400" />
-                <h2 className="text-lg font-bold text-text-primary">5. Behind the Build (Team Stories)</h2>
+                <h2 className="text-lg font-bold text-text-primary">6. Behind the Build (Team Stories)</h2>
               </div>
               <AdminButton variant="secondary" onClick={addTeamStory} className="flex items-center gap-1.5 text-xs">
                 <Plus className="w-4 h-4" />
