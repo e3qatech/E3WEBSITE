@@ -33,17 +33,17 @@ export async function generateMetadata({
     console.error("Error fetching db service metadata:", e);
   }
 
-  if (!canonical && !dbService) {
+  if (!dbService || dbService.isVisible === false) {
     return { title: isAr ? "الخدمة غير موجودة" : "Service Not Found" };
   }
 
   const title = isAr
-    ? dbService?.titleAr || canonical?.titleAr || "الخدمات — إي ثري لقطاع الأعمال"
-    : dbService?.titleEn || canonical?.titleEn || "Services — E3 Enterprise Atelier";
+    ? dbService.titleAr || "الخدمات — إي ثري لقطاع الأعمال"
+    : dbService.titleEn || "Services — E3 Enterprise Atelier";
 
   const description = isAr
-    ? dbService?.taglineAr || canonical?.taglineAr || "خدمات وحلول متكاملة لقطاع الفعاليات والترفيه في قطر."
-    : dbService?.taglineEn || canonical?.taglineEn || "Turnkey entertainment, event engineering, operations, and spatial solutions in Qatar.";
+    ? dbService.taglineAr || "خدمات وحلول متكاملة لقطاع الفعاليات والترفيه في قطر."
+    : dbService.taglineEn || "Turnkey entertainment, event engineering, operations, and spatial solutions in Qatar.";
 
   const heroImage = dbService?.heroMediaUrl || dbService?.thumbnail || canonical?.heroMediaUrl;
 
@@ -96,20 +96,14 @@ export default async function ServiceMicrositePage({
     console.error("Error fetching service detail data:", error);
   }
 
-  // If service does not exist in canonical taxonomy and does not exist in DB, 404
-  if (!canonical && !dbService) {
-    notFound();
-  }
-
-  // If DB service exists but is marked explicitly hidden and there is no canonical mapping
-  if (dbService && dbService.isVisible === false && !canonical) {
+  // Authoritative Database Safety Gate:
+  // If the service record does not exist in the database or is explicitly hidden, return 404
+  if (!dbService || dbService.isVisible === false) {
     notFound();
   }
 
   // Use typed compatibility adapter to safely bind authoritative DB data with presentation contracts
-  const activeService: CanonicalService = dbService
-    ? adaptDbServiceToPresentation(dbService)
-    : canonical!;
+  const activeService: CanonicalService = adaptDbServiceToPresentation(dbService);
 
   // Filter relevant case studies (take configured case studies or top 3)
   let relatedCases = allCaseStudies.slice(0, 3);

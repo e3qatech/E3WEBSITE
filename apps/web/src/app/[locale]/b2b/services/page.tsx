@@ -16,10 +16,10 @@ import {
 import { db } from "@/lib/db"
 import { UniversalMediaRenderer } from '@/components/shared/UniversalMediaRenderer'
 import { LivingHeroHeadline } from '@/components/b2b/shared/LivingHeroHeadline'
-import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
 import { cn } from '@/lib/utils'
 import { getPublicCaseStudies, isCaseStudyEligible } from '@/lib/case-studies'
-import { getAllCanonicalServices, getCanonicalService, CanonicalService } from '@/lib/services/canonical-services'
+import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
+import { getCanonicalService } from '@/lib/services/canonical-services'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -92,33 +92,25 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
     console.error("Error fetching b2b services public page data:", error)
   }
 
-  // Blend Canonical 10-Service Taxonomy with Database Records without duplicating aliases
-  const canonicalServices = getAllCanonicalServices()
+  // Authoritative Database Records Mapping with Canonical Alias Deduplication (No seed fallbacks)
   const servicesMap = new Map<string, any>()
-
-  canonicalServices.forEach((cs: CanonicalService) => {
-    servicesMap.set(cs.slug, {
-      id: cs.id,
-      slug: cs.slug,
-      titleEn: cs.titleEn,
-      titleAr: cs.titleAr,
-      taglineEn: cs.taglineEn,
-      taglineAr: cs.taglineAr,
-      category: cs.categoryEn,
-      isFeatured: true,
-      thumbnail: cs.heroMediaUrl,
-      heroMediaUrl: cs.heroMediaUrl,
-    })
-  })
 
   ;(allServices || []).forEach((dbs: any) => {
     if (dbs.isVisible !== false) {
       const canonical = getCanonicalService(dbs.slug)
       const targetSlug = canonical ? canonical.slug : dbs.slug
+      const baseInfo = canonical
+        ? {
+            category: isAr ? canonical.categoryAr : canonical.categoryEn,
+            thumbnail: canonical.heroMediaUrl,
+            heroMediaUrl: canonical.heroMediaUrl,
+          }
+        : {}
+
       servicesMap.set(targetSlug, {
-        ...(servicesMap.get(targetSlug) || {}),
+        ...baseInfo,
         ...dbs,
-        slug: targetSlug,
+        slug: targetSlug, // Ensure public card links to canonical URL
       })
     }
   })

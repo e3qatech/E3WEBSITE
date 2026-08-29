@@ -110,9 +110,9 @@ export function canonicalizeRoute(path: string): string {
     normalized === '/services/fec' ||
     normalized === '/b2b/services/fec' ||
     normalized === '/b2b/services/fec-center' ||
-    normalized === '/b2b/services/family-entertainment-centers'
+    normalized === '/b2b/services/fec-development'
   ) {
-    canonical = '/b2b/services/fec-development';
+    canonical = '/b2b/services/family-entertainment-centers';
   } else if (
     normalized === '/b2b/services/audio-visual-stage' ||
     normalized === '/services/audio-visual-stage' ||

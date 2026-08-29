@@ -18,8 +18,8 @@ describe('url-helper unit tests', () => {
     });
 
     it('maps legacy service FEC aliases to canonical FEC service route', () => {
-      expect(canonicalizeRoute('/services/fec')).toBe('/b2b/services/fec-development');
-      expect(canonicalizeRoute('/b2b/services/fec')).toBe('/b2b/services/fec-development');
+      expect(canonicalizeRoute('/services/fec')).toBe('/b2b/services/family-entertainment-centers');
+      expect(canonicalizeRoute('/b2b/services/fec')).toBe('/b2b/services/family-entertainment-centers');
     });
 
     it('maps legacy contact aliases to /b2b/contact', () => {

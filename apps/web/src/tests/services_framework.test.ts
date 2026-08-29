@@ -14,7 +14,7 @@ describe("E3 Canonical Services Taxonomy & Verification Layer", () => {
 
   const expectedSlugs = [
     "mega-events",
-    "fec-development",
+    "family-entertainment-centers",
     "kids-concepts",
     "experiential-activations",
     "shows-performances",
@@ -33,7 +33,9 @@ describe("E3 Canonical Services Taxonomy & Verification Layer", () => {
   });
 
   it("should resolve legacy aliases to canonical slugs", () => {
-    expect(resolveServiceSlug("family-entertainment-centers")).toBe("fec-development");
+    expect(resolveServiceSlug("fec")).toBe("family-entertainment-centers");
+    expect(resolveServiceSlug("fec-development")).toBe("family-entertainment-centers");
+    expect(resolveServiceSlug("family-entertainment-centers")).toBe("family-entertainment-centers");
     expect(resolveServiceSlug("event-engineering")).toBe("mega-events");
     expect(resolveServiceSlug("av-rentals")).toBe("av-stage-rentals");
     expect(resolveServiceSlug("operations")).toBe("attraction-operations");

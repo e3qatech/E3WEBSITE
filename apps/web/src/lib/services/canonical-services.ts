@@ -491,9 +491,9 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
 
   // 2. FAMILY ENTERTAINMENT CENTRE DEVELOPMENT
   {
-    id: "fec-development",
-    slug: "fec-development",
-    aliases: ["family-entertainment-centers", "family-entertainment-center", "fec", "fec-design"],
+    id: "family-entertainment-centers",
+    slug: "family-entertainment-centers",
+    aliases: ["fec", "fec-development", "fec-design", "family-entertainment-center"],
     titleEn: "Family Entertainment Centre Development",
     titleAr: "تطوير مراكز الترفيه العائلي",
     categoryEn: "Venues & Attractions",

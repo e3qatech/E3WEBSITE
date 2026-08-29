@@ -21,7 +21,7 @@ describe("Phase 4: Whole-Site Regression Gates & Contract Integrity", () => {
     const slugs = services.map((s) => s.slug);
     expect(slugs).toEqual([
       "mega-events",
-      "fec-development",
+      "family-entertainment-centers",
       "kids-concepts",
       "experiential-activations",
       "shows-performances",
@@ -35,15 +35,15 @@ describe("Phase 4: Whole-Site Regression Gates & Contract Integrity", () => {
 
   // 2. Legacy Aliases Resolution without duplication
   it("2. Legacy service aliases redirect without producing duplicate public service cards", () => {
-    expect(resolveServiceSlug("family-entertainment-centers")).toBe("fec-development");
-    expect(resolveServiceSlug("fec")).toBe("fec-development");
+    expect(resolveServiceSlug("fec")).toBe("family-entertainment-centers");
+    expect(resolveServiceSlug("fec-development")).toBe("family-entertainment-centers");
     expect(resolveServiceSlug("event-engineering")).toBe("mega-events");
     expect(resolveServiceSlug("av-rentals")).toBe("av-stage-rentals");
     expect(resolveServiceSlug("design-research")).toBe("feasibility-design-research");
 
     // Resolving canonical slug returns the canonical slug itself
     expect(resolveServiceSlug("mega-events")).toBe("mega-events");
-    expect(resolveServiceSlug("fec-development")).toBe("fec-development");
+    expect(resolveServiceSlug("family-entertainment-centers")).toBe("family-entertainment-centers");
   });
 
   // 3. Adapter Resilience: Malformed JSON does not remove parent service

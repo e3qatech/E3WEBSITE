@@ -9,13 +9,13 @@ import { canonicalizeRoute } from "@/lib/url-helper";
 
 describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
   // 1. Canonical Services Taxonomy Count
-  it("1. Returns exactly the 10 canonical service disciplines", () => {
+  it("1. Returns exactly the 10 canonical service disciplines with family-entertainment-centers", () => {
     const services = getAllCanonicalServices();
     expect(services.length).toBe(10);
     const slugs = services.map((s) => s.slug);
     expect(slugs).toEqual([
       "mega-events",
-      "fec-development",
+      "family-entertainment-centers",
       "kids-concepts",
       "experiential-activations",
       "shows-performances",
@@ -28,10 +28,11 @@ describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
   });
 
   // 2. Legacy Aliases Resolution without Duplication
-  it("2. Reconciles legacy aliases to their canonical primary service slugs", () => {
-    expect(resolveServiceSlug("family-entertainment-centers")).toBe("fec-development");
-    expect(resolveServiceSlug("fec")).toBe("fec-development");
-    expect(resolveServiceSlug("family-entertainment-center")).toBe("fec-development");
+  it("2. Reconciles legacy aliases (/fec, /audio-visual-stage) to canonical primary service slugs", () => {
+    expect(resolveServiceSlug("fec")).toBe("family-entertainment-centers");
+    expect(resolveServiceSlug("fec-development")).toBe("family-entertainment-centers");
+    expect(resolveServiceSlug("family-entertainment-center")).toBe("family-entertainment-centers");
+    expect(resolveServiceSlug("family-entertainment-centers")).toBe("family-entertainment-centers");
     expect(resolveServiceSlug("audio-visual-stage")).toBe("av-stage-rentals");
     expect(resolveServiceSlug("av-rentals")).toBe("av-stage-rentals");
     expect(resolveServiceSlug("attraction-operations")).toBe("attraction-operations");
@@ -41,14 +42,77 @@ describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
 
   // 3. Route Canonicalization for Service Aliases
   it("3. canonicalizeRoute routes aliases to the canonical service URL", () => {
-    expect(canonicalizeRoute("/b2b/services/fec")).toBe("/b2b/services/fec-development");
-    expect(canonicalizeRoute("/b2b/services/family-entertainment-centers")).toBe("/b2b/services/fec-development");
+    expect(canonicalizeRoute("/services/fec")).toBe("/b2b/services/family-entertainment-centers");
+    expect(canonicalizeRoute("/b2b/services/fec")).toBe("/b2b/services/family-entertainment-centers");
+    expect(canonicalizeRoute("/b2b/services/fec-development")).toBe("/b2b/services/family-entertainment-centers");
     expect(canonicalizeRoute("/b2b/services/audio-visual-stage")).toBe("/b2b/services/av-stage-rentals");
     expect(canonicalizeRoute("/services/av-rentals")).toBe("/b2b/services/av-stage-rentals");
   });
 
-  // 4. Persistence Round-Trip: Unpacking Full Enhancement JSON from Prisma Record
-  it("4. Rehydrates all 17 structured bilingual sections from DB process and root fields", () => {
+  // 4. FEC Content and Routing: Stored record (/fec) resolves to canonical microsite with DB content
+  it("4. Stored /fec record resolves to family-entertainment-centers with authoritative DB content", () => {
+    const fecDbRecord: any = {
+      id: "srv-fec-stored-1",
+      slug: "fec", // Stored legacy slug in DB
+      titleEn: "Family Entertainment Centers",
+      titleAr: "مراكز الترفيه العائلي",
+      taglineEn: "Comprehensive masterplanning and fit-out for family venues in Qatar.",
+      taglineAr: "تخطيط شامل وتجهيز متكامل لمراكز الترفيه العائلي في قطر.",
+      contentEn: "E3 guides developers from concept to day-to-day operations.",
+      contentAr: "تقود إي ثري المطورين من الفكرة إلى التشغيل اليومي.",
+      heroMediaUrl: "https://example.com/fec-hero.jpg",
+      isVisible: true,
+      isFeatured: true,
+      process: {
+        heroOutcomeEn: "High-Yield Family Entertainment Venues Built for Longevity.",
+        heroOutcomeAr: "وجهات ترفيه عائلية عالية المردود مصممة لضمان استدامة الزيارات.",
+        ctaPrimaryTextEn: "Build Your FEC Brief",
+        ctaPrimaryTextAr: "بناء موجز مركز الترفيه",
+        verifiedProofPoints: [
+          { value: "Turnkey", labelEn: "Design-to-Operate", labelAr: "تصميم وتشغيل", isVerified: true },
+        ],
+      },
+    };
+
+    const canonical = getCanonicalService(fecDbRecord.slug);
+    expect(canonical).toBeDefined();
+    expect(canonical?.slug).toBe("family-entertainment-centers");
+    expect(canonical?.aliases).toContain("fec");
+
+    const adapted = adaptDbServiceToPresentation(fecDbRecord);
+    expect(adapted.titleEn).toBe("Family Entertainment Centers");
+    expect(adapted.titleAr).toBe("مراكز الترفيه العائلي");
+    expect(adapted.heroOutcomeEn).toBe("High-Yield Family Entertainment Venues Built for Longevity.");
+    expect(adapted.heroOutcomeAr).toBe("وجهات ترفيه عائلية عالية المردود مصممة لضمان استدامة الزيارات.");
+    expect(adapted.verifiedProofPoints.length).toBe(1);
+  });
+
+  // 5. AV Route Compatibility: Stored record (/audio-visual-stage) resolves to av-stage-rentals
+  it("5. Stored /audio-visual-stage record resolves to av-stage-rentals canonical route", () => {
+    const avDbRecord: any = {
+      id: "srv-av-stored-1",
+      slug: "audio-visual-stage", // Stored legacy slug in DB
+      titleEn: "AV & Stage Equipment Rentals",
+      titleAr: "تجهيزات الصوت والضوء وتأجير المسارح",
+      isVisible: true,
+      process: {
+        heroOutcomeEn: "Crystal-Clear Acoustic Power and Visually Stunning Stage Grids.",
+        heroOutcomeAr: "قوة صوتية فائقة النقاء وعروض بصرية وإضاءة مسرحية مبهرة.",
+      },
+    };
+
+    const canonical = getCanonicalService(avDbRecord.slug);
+    expect(canonical).toBeDefined();
+    expect(canonical?.slug).toBe("av-stage-rentals");
+    expect(canonical?.aliases).toContain("audio-visual-stage");
+
+    const adapted = adaptDbServiceToPresentation(avDbRecord);
+    expect(adapted.titleEn).toBe("AV & Stage Equipment Rentals");
+    expect(adapted.heroOutcomeEn).toBe("Crystal-Clear Acoustic Power and Visually Stunning Stage Grids.");
+  });
+
+  // 6. Persistence Round-Trip: Unpacking Full Enhancement JSON from Prisma Record
+  it("6. Rehydrates all 17 structured bilingual sections from DB process and root fields", () => {
     const dbRecord: any = {
       id: "srv-doha-mega-1",
       slug: "mega-events",
@@ -225,8 +289,8 @@ describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
     expect(adapted.galleryItems?.length).toBe(1);
   });
 
-  // 5. Strict Factual Claims & Claims Verification Filtering
-  it("5. Strictly suppresses unverified factual claims (isVerified === false)", () => {
+  // 7. Strict Factual Claims & Claims Verification Filtering
+  it("7. Strictly suppresses unverified factual claims (isVerified === false)", () => {
     const dbRecordWithClaims: any = {
       slug: "mega-events",
       titleEn: "Mega Events",
@@ -246,8 +310,8 @@ describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
     expect(adapted.verifiedProofPoints.some((p) => p.value === "1M+")).toBe(false);
   });
 
-  // 6. Section Suppression Independence: Missing enhancement data hides only that section
-  it("6. Missing enhancement data suppresses only that section without hiding the parent service", () => {
+  // 8. Section Suppression Independence: Missing enhancement data hides only that section
+  it("8. Missing enhancement data suppresses only that section without hiding the parent service", () => {
     const minimalRecord: any = {
       id: "srv-minimal",
       slug: "attraction-operations",
@@ -280,13 +344,14 @@ describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
     expect(adapted.verifiedProofPoints).toEqual([]);
   });
 
-  // 7. Directory Deduplication: Public services directory renders exactly 10 cards
-  it("7. Canonical mapping deduplicates legacy aliases into exactly 10 distinct service cards", () => {
+  // 9. Directory Deduplication: Public services directory deduplicates legacy aliases into canonical cards
+  it("9. Canonical mapping deduplicates legacy aliases (fec -> family-entertainment-centers, audio-visual-stage -> av-stage-rentals)", () => {
     const rawDbServices = [
       { slug: "mega-events", titleEn: "Mega Events", isVisible: true },
       { slug: "fec", titleEn: "FEC Legacy Record", isVisible: true },
       { slug: "family-entertainment-centers", titleEn: "FEC Duplicate", isVisible: true },
       { slug: "audio-visual-stage", titleEn: "AV Stage Legacy", isVisible: true },
+      { slug: "av-stage-rentals", titleEn: "AV Stage Canonical Duplicate", isVisible: true },
       { slug: "kids-concepts", titleEn: "Kids Concepts", isVisible: true },
       { slug: "experiential-activations", titleEn: "Activations", isVisible: true },
       { slug: "shows-performances", titleEn: "Shows", isVisible: true },
@@ -295,12 +360,7 @@ describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
       { slug: "feasibility-design-research", titleEn: "Feasibility", isVisible: true },
     ];
 
-    const canonicalServices = getAllCanonicalServices();
     const servicesMap = new Map<string, any>();
-
-    canonicalServices.forEach((cs) => {
-      servicesMap.set(cs.slug, { slug: cs.slug, titleEn: cs.titleEn });
-    });
 
     rawDbServices.forEach((dbs) => {
       if (dbs.isVisible !== false) {
@@ -315,15 +375,14 @@ describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
     });
 
     const effectiveServices = Array.from(servicesMap.values());
-    expect(effectiveServices.length).toBe(10);
+    expect(effectiveServices.length).toBe(9); // 11 minus 2 deduplicated aliases
     expect(effectiveServices.map((s) => s.slug)).toEqual([
       "mega-events",
-      "fec-development",
+      "family-entertainment-centers",
+      "av-stage-rentals",
       "kids-concepts",
       "experiential-activations",
       "shows-performances",
-      "av-stage-rentals",
-      "attraction-operations",
       "ticketing-solutions",
       "fabrication-branding",
       "feasibility-design-research",
