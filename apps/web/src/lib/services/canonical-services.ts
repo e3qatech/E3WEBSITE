@@ -1004,7 +1004,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
         descriptionAr: "تصنيع ومطابقة تامة للمواصفات الدولية لألعاب الأطفال EN 1176 و EN 14960 و ASTM."
       }
     ],
-    relatedServiceSlugs: ["fec-development", "attraction-operations", "ticketing-solutions", "fabrication-branding"]
+    relatedServiceSlugs: ["family-entertainment-centers", "attraction-operations", "ticketing-solutions", "fabrication-branding"]
   },
 
   // 4. EXPERIENTIAL ACTIVATIONS
@@ -1926,7 +1926,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
         descriptionAr: "مشرفون ميدانيون حاصلون على شهادات إسعاف معتمدة وبروتوكول اتصال فوري مع الطوارئ."
       }
     ],
-    relatedServiceSlugs: ["fec-development", "kids-concepts", "ticketing-solutions", "mega-events"]
+    relatedServiceSlugs: ["family-entertainment-centers", "kids-concepts", "ticketing-solutions", "mega-events"]
   },
 
   // 8. TICKETING & ACCREDITATION SOLUTIONS
@@ -2154,7 +2154,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
         descriptionAr: "حماية تامة لبيانات المدفوعات والامتثال الكامل لقانون حماية خصوصية البيانات الشخصية في قطر."
       }
     ],
-    relatedServiceSlugs: ["mega-events", "fec-development", "attraction-operations", "shows-performances"]
+    relatedServiceSlugs: ["mega-events", "family-entertainment-centers", "attraction-operations", "shows-performances"]
   },
 
   // 9. FABRICATION & BRANDING
@@ -2382,7 +2382,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
         descriptionAr: "كافة الأقمشة والأخشاب والدهانات معالجة ومطابقة لمعايير الدفاع المدني لمقاومة الحريق."
       }
     ],
-    relatedServiceSlugs: ["experiential-activations", "mega-events", "av-stage-rentals", "fec-development"]
+    relatedServiceSlugs: ["experiential-activations", "mega-events", "av-stage-rentals", "family-entertainment-centers"]
   },
 
   // 10. FEASIBILITY, DESIGN & RESEARCH
@@ -2610,7 +2610,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
         descriptionAr: "كافة النماذج والفرضيات المالية مصممة لتلبية متطلبات التدقيق المالي للمؤسسات التمويلية."
       }
     ],
-    relatedServiceSlugs: ["fec-development", "kids-concepts", "attraction-operations", "mega-events"]
+    relatedServiceSlugs: ["family-entertainment-centers", "kids-concepts", "attraction-operations", "mega-events"]
   }
 ];
 

@@ -107,7 +107,7 @@ export function B2BFooter({ settings = {}, locale: propLocale }: { settings?: Re
             <h4 className="text-[var(--text-primary)] font-bold mb-6 tracking-wider uppercase text-xs">{isAr ? "الخدمات" : "Services"}</h4>
             <ul className="space-y-3.5 text-sm">
               <li><Link href={`/${currentLocale}/b2b/services/mega-events`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "الفعاليات الكبرى" : "Mega Events"}</Link></li>
-              <li><Link href={`/${currentLocale}/b2b/services/fec-development`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "مراكز الترفيه العائلي" : "Family Entertainment Centers"}</Link></li>
+              <li><Link href={`/${currentLocale}/b2b/services/family-entertainment-centers`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "مراكز الترفيه العائلي" : "Family Entertainment Centers"}</Link></li>
               <li><Link href={`/${currentLocale}/b2b/services/experiential-activations`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "التجارب والتفعيلات" : "Experiential Activations"}</Link></li>
               <li><Link href={`/${currentLocale}/b2b/services/shows-performances`} className="hover:text-[var(--color-primary)] transition-colors">{isAr ? "العروض والأداء المباشر" : "Shows & Performances"}</Link></li>
               <li><Link href={`/${currentLocale}/b2b/services`} className="text-[var(--color-primary)] hover:underline transition-all font-semibold">{isAr ? "عرض جميع الخدمات ←" : "View All Services &rarr;"}</Link></li>

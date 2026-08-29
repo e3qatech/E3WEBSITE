@@ -10,6 +10,8 @@
  * 4. External Anchor Property Generator (adds rel="noopener noreferrer" and target="_blank" safely)
  */
 
+import { resolveServiceSlug } from './services/canonical-services';
+
 export type SupportedLocale = 'en' | 'ar';
 
 /** List of approved URL protocols */
@@ -106,24 +108,14 @@ export function canonicalizeRoute(path: string): string {
   }
 
   // 2. B2B Services & Aliases
-  else if (
-    normalized === '/services/fec' ||
-    normalized === '/b2b/services/fec' ||
-    normalized === '/b2b/services/fec-center' ||
-    normalized === '/b2b/services/fec-development'
-  ) {
-    canonical = '/b2b/services/family-entertainment-centers';
-  } else if (
-    normalized === '/b2b/services/audio-visual-stage' ||
-    normalized === '/services/audio-visual-stage' ||
-    normalized === '/services/av-rentals'
-  ) {
-    canonical = '/b2b/services/av-stage-rentals';
-  } else if (normalized === '/services') {
+  else if (normalized === '/services') {
     canonical = '/b2b/services';
+  } else if (normalized.startsWith('/b2b/services/')) {
+    const slug = normalized.replace('/b2b/services/', '');
+    canonical = `/b2b/services/${resolveServiceSlug(slug)}`;
   } else if (normalized.startsWith('/services/')) {
     const slug = normalized.replace('/services/', '');
-    canonical = `/b2b/services/${slug}`;
+    canonical = `/b2b/services/${resolveServiceSlug(slug)}`;
   }
 
   // 3. B2B Contact / RFP & Partner Contact Aliases
