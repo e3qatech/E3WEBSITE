@@ -771,7 +771,7 @@ export const CANONICAL_SERVICES: CanonicalService[] = [
   {
     id: "kids-concepts",
     slug: "kids-concepts",
-    aliases: ["kids-play", "children-entertainment", "kids"],
+    aliases: ["kids-play-concepts", "kids-play", "kids-edutainment", "children-entertainment", "kids", "kids-concept"],
     titleEn: "Kids’ Play Concepts & Attractions",
     titleAr: "مفاهيم وتجارب لعب الأطفال",
     categoryEn: "Kids & Family",

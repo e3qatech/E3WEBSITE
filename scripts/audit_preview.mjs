@@ -1,4 +1,4 @@
-const base = 'https://e3-qatar-n0y5os3ae-e3qatechs-projects.vercel.app';
+const base = 'https://e3-qatar-gj0s3xi3v-e3qatechs-projects.vercel.app';
 
 async function runAudit() {
   console.log('=== 1. Services Directory (EN & AR) ===');
@@ -24,7 +24,40 @@ async function runAudit() {
   const attrAr = await fetch(base + '/ar/b2b/services/attraction-operations', { redirect: 'manual' });
   console.log('/ar/b2b/services/attraction-operations status:', attrAr.status);
 
-  console.log('\n=== 3. FEC Canonical and Aliases ===');
+  console.log('\n=== 3. All 9 Database-Backed Microsites (EN & AR) ===');
+  const micrositeSlugs = [
+    'mega-events',
+    'family-entertainment-centers',
+    'av-stage-rentals',
+    'kids-concepts',
+    'experiential-activations',
+    'shows-performances',
+    'ticketing-solutions',
+    'fabrication-branding',
+    'feasibility-design-research'
+  ];
+
+  for (const slug of micrositeSlugs) {
+    const enRes = await fetch(`${base}/en/b2b/services/${slug}`);
+    const arRes = await fetch(`${base}/ar/b2b/services/${slug}`);
+    console.log(`/b2b/services/${slug} -> EN status: ${enRes.status}, AR status: ${arRes.status}`);
+
+    const enHtml = await enRes.text();
+    // Check canonical metadata
+    const hasCanonical = enHtml.includes(`rel="canonical"`) || enHtml.includes(`href="https://eeeqa.com/en/b2b/services/${slug}"`);
+    const hasHreflangEn = enHtml.includes(`hreflang="en"`);
+    const hasHreflangAr = enHtml.includes(`hreflang="ar"`);
+    const hasXDefault = enHtml.includes(`hreflang="x-default"`);
+    const hasOgUrl = enHtml.includes(`property="og:url"`);
+
+    // Check no un-decoded entities in text
+    const hasRawAmpersandInTitle = enHtml.includes('&amp;amp;');
+    const hasRawRarr = enHtml.includes('&amp;rarr;');
+
+    console.log(`  - Metadata check for ${slug}: canonical=${hasCanonical}, hreflang=${hasHreflangEn && hasHreflangAr}, x-default=${hasXDefault}, og:url=${hasOgUrl}`);
+  }
+
+  console.log('\n=== 4. FEC Canonical and Aliases ===');
   const fecCanonicalEn = await fetch(base + '/en/b2b/services/family-entertainment-centers', { redirect: 'manual' });
   console.log('/en/b2b/services/family-entertainment-centers status:', fecCanonicalEn.status);
   const fecCanonicalAr = await fetch(base + '/ar/b2b/services/family-entertainment-centers', { redirect: 'manual' });
@@ -43,7 +76,7 @@ async function runAudit() {
     console.log(a, '-> status:', res.status, 'location:', res.headers.get('location'));
   }
 
-  console.log('\n=== 4. AV Canonical and Aliases ===');
+  console.log('\n=== 5. AV Canonical and Aliases ===');
   const avCanonicalEn = await fetch(base + '/en/b2b/services/av-stage-rentals', { redirect: 'manual' });
   console.log('/en/b2b/services/av-stage-rentals status:', avCanonicalEn.status);
   const avCanonicalAr = await fetch(base + '/ar/b2b/services/av-stage-rentals', { redirect: 'manual' });
@@ -62,10 +95,7 @@ async function runAudit() {
     console.log(a, '-> status:', res.status, 'location:', res.headers.get('location'));
   }
 
-  console.log('\n=== 5. Kids Concepts Aliases ===');
-  const kidsCanonicalEn = await fetch(base + '/en/b2b/services/kids-concepts', { redirect: 'manual' });
-  console.log('/en/b2b/services/kids-concepts status:', kidsCanonicalEn.status);
-
+  console.log('\n=== 6. Kids Concepts Aliases ===');
   const kidsAliases = [
     '/en/b2b/services/kids-play-concepts',
     '/en/b2b/services/kids-edutainment',
@@ -77,7 +107,7 @@ async function runAudit() {
     console.log(a, '-> status:', res.status, 'location:', res.headers.get('location'));
   }
 
-  console.log('\n=== 6. Other Ecosystem Pages (B2B Home, Case Studies, Team, B2C) ===');
+  console.log('\n=== 7. Other Ecosystem Pages (B2B Home, Case Studies, Team, B2C) ===');
   const otherPages = [
     '/en',
     '/ar',
@@ -100,4 +130,4 @@ async function runAudit() {
   }
 }
 
-runAudit();
+runAudit().catch(console.error);
