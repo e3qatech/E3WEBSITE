@@ -290,16 +290,17 @@ describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
   });
 
   // 7. Strict Factual Claims & Claims Verification Filtering
-  it("7. Strictly suppresses unverified factual claims (isVerified === false)", () => {
+  it("7. Strictly suppresses unverified factual claims (strictly require isVerified === true)", () => {
     const dbRecordWithClaims: any = {
       slug: "mega-events",
       titleEn: "Mega Events",
       titleAr: "الفعاليات الكبرى",
       process: {
         verifiedProofPoints: [
-          { value: "100%", labelEn: "Permitted", labelAr: "مرخص", isVerified: true },
-          { value: "48h", labelEn: "Rapid Rigging", labelAr: "تركيب سريع", isVerified: true },
+          { value: "100%", labelEn: "Permitted", labelAr: "مرخص", sourceEn: "Ministry Permit", isVerified: true },
+          { value: "48h", labelEn: "Rapid Rigging", labelAr: "تركيب سريع", sourceEn: "Doha Build Logs", isVerified: true },
           { value: "1M+", labelEn: "Unverified Claim", labelAr: "ادعاء غير موثق", isVerified: false },
+          { value: "Unset Flag", labelEn: "No Status", labelAr: "بدون حالة" },
         ],
       },
     };
@@ -308,6 +309,7 @@ describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
     expect(adapted.verifiedProofPoints.length).toBe(2);
     expect(adapted.verifiedProofPoints.map((p) => p.value)).toEqual(["100%", "48h"]);
     expect(adapted.verifiedProofPoints.some((p) => p.value === "1M+")).toBe(false);
+    expect(adapted.verifiedProofPoints.some((p) => p.value === "Unset Flag")).toBe(false);
   });
 
   // 8. Section Suppression Independence: Missing enhancement data hides only that section

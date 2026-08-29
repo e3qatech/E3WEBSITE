@@ -11,6 +11,7 @@ import {
   ServiceGalleryItemPayload,
   VerifiedProofPoint,
   getCanonicalService,
+  resolveServiceSlug,
 } from './canonical-services';
 
 /**
@@ -140,10 +141,11 @@ export function adaptDbServiceToPresentation(
     canonicalBase?.enterpriseReadiness || []
   );
 
-  const relatedServiceSlugs = safeJsonParse<string[]>(
+  const rawRelatedSlugs = safeJsonParse<string[]>(
     dbService.relatedServiceSlugs ?? proc.relatedServiceSlugs,
     canonicalBase?.relatedServiceSlugs || []
   );
+  const relatedServiceSlugs = (rawRelatedSlugs || []).map((s: string) => resolveServiceSlug(s));
 
   const relatedCaseStudySlugs = safeJsonParse<string[]>(
     dbService.relatedCaseStudySlugs ?? proc.relatedCaseStudySlugs,

@@ -170,10 +170,10 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
   const spotlightCta = isAr ? (spotlightsConfig.spotlightCtaAr || spotlightsConfig.spotlightCtaEn) : spotlightsConfig.spotlightCtaEn
   const requestCta = isAr ? (spotlightsConfig.requestCtaAr || spotlightsConfig.requestCtaEn) : spotlightsConfig.requestCtaEn
 
-  let spotlightServices = allServices.filter(s => s.isFeatured)
+  let spotlightServices = effectiveServices.filter(s => s.isFeatured)
   if (spotlightsConfig.selectionMode === 'MANUAL' && Array.isArray(spotlightsConfig.selectedServiceIds) && spotlightsConfig.selectedServiceIds.length > 0) {
     const selected = spotlightsConfig.selectedServiceIds
-      .map((id: string) => allServices.find(s => s.id === id))
+      .map((id: string) => effectiveServices.find(s => s.id === id || s.slug === id))
       .filter(Boolean)
     if (selected.length > 0) {
       spotlightServices = selected
