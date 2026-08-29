@@ -24,7 +24,7 @@ export function ServiceObjectiveSelector({
   const activeObj = objectives.find((o) => o.id === selectedId) || objectives[0];
 
   return (
-    <section className="py-20 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)] transition-colors">
+    <section id="objectives-section" className="py-20 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)] transition-colors">
       <div className="container mx-auto px-4 md:px-8">
         <div className="max-w-3xl mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-3">

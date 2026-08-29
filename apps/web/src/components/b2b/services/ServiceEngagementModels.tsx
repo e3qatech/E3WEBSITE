@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { Handshake, Clock, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Handshake, Clock, ShieldCheck } from "lucide-react";
 import { EngagementModel } from "@/lib/services/canonical-services";
+import { getServiceFrameworkLabels } from "@/lib/services/service-labels";
 
 interface ServiceEngagementModelsProps {
   models: EngagementModel[];
@@ -12,24 +13,23 @@ interface ServiceEngagementModelsProps {
 
 export function ServiceEngagementModels({ models, locale, onSelectModel }: ServiceEngagementModelsProps) {
   const isAr = locale === "ar";
+  const labels = getServiceFrameworkLabels(locale);
 
   if (!models || models.length === 0) return null;
 
   return (
-    <section className="py-20 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)] transition-colors">
+    <section id="engagement-section" className="py-24 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)] transition-colors">
       <div className="container mx-auto px-4 md:px-8">
         <div className="max-w-3xl mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-3">
             <Handshake className="w-3.5 h-3.5" />
-            {isAr ? "نماذج الشراكة والتعاقد" : "Procurement & Engagement"}
+            <span>{isAr ? "نماذج الشراكة والتعاقد" : "Procurement & Engagement"}</span>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight mb-3">
-            {isAr ? "نماذج التعاقد والتعيين المؤسسي" : "How to Appoint E3: Flexible Engagement Models"}
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-[var(--text-primary)] tracking-tight mb-3">
+            {isAr ? labels.engagementHeading : labels.engagementHeading}
           </h2>
-          <p className="text-base text-[var(--text-secondary)]">
-            {isAr
-              ? "نقدم هياكل تعاقدية مرنة تلائم الجهات الحكومية، المطورين العقاريين، والشركات العالمية."
-              : "Structured appointment frameworks tailored for government entities, private developers, and enterprise procurement teams."}
+          <p className="text-base text-[var(--text-secondary)] font-medium">
+            {isAr ? labels.engagementSubheading : labels.engagementSubheading}
           </p>
         </div>
 
@@ -37,7 +37,7 @@ export function ServiceEngagementModels({ models, locale, onSelectModel }: Servi
           {models.map((model) => (
             <div
               key={model.id}
-              className="p-8 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs flex flex-col justify-between hover:border-emerald-500/40 transition-all group"
+              className="p-8 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs flex flex-col justify-between hover:border-emerald-500/40 transition-all group"
             >
               <div>
                 <div className="flex items-center justify-between gap-4 mb-4">
@@ -54,7 +54,7 @@ export function ServiceEngagementModels({ models, locale, onSelectModel }: Servi
                   {isAr ? model.titleAr : model.titleEn}
                 </h3>
 
-                <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed mb-6">
+                <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed mb-6 font-medium">
                   {isAr ? model.descriptionAr : model.descriptionEn}
                 </p>
               </div>
@@ -71,10 +71,11 @@ export function ServiceEngagementModels({ models, locale, onSelectModel }: Servi
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => onSelectModel && onSelectModel(model)}
-                  className="w-full py-3 rounded-xl bg-[var(--surface-raised)] hover:bg-emerald-700 hover:text-white text-[var(--text-primary)] font-bold text-xs sm:text-sm transition-all border border-[var(--border-level-2)] hover:border-emerald-700 cursor-pointer shadow-xs"
+                  className="w-full py-3.5 rounded-2xl bg-[var(--surface-raised)] hover:bg-emerald-500 hover:text-zinc-950 text-[var(--text-primary)] font-bold text-xs sm:text-sm transition-all border border-[var(--border-level-2)] hover:border-emerald-500 cursor-pointer shadow-xs focus:outline-hidden focus:ring-2 focus:ring-emerald-400"
                 >
-                  {isAr ? "طلب مناقشة هذا النموذج" : "Request Model Scope"}
+                  {labels.requestModelScope}
                 </button>
               </div>
             </div>

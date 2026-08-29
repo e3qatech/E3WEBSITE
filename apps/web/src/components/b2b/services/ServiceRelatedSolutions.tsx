@@ -2,38 +2,57 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Plus, Check } from "lucide-react";
-import { getCanonicalService } from "@/lib/services/canonical-services";
+import { ArrowRight, Plus } from "lucide-react";
 import { localizeHref } from "@/lib/url-helper";
+import { getLocalizedCanonicalServiceTitle } from "@/lib/services/canonical-services";
 
 interface ServiceRelatedSolutionsProps {
-  relatedSlugs: string[];
+  relatedSlugs?: string[];
+  relatedServices?: Array<{
+    slug: string;
+    titleEn: string;
+    titleAr: string;
+    category?: string;
+    taglineEn?: string;
+    taglineAr?: string;
+    thumbnail?: string;
+    heroMediaUrl?: string;
+  }>;
   locale: string;
   onOpenBriefWithService?: (slug: string) => void;
 }
 
 export function ServiceRelatedSolutions({
   relatedSlugs,
+  relatedServices = [],
   locale,
   onOpenBriefWithService
 }: ServiceRelatedSolutionsProps) {
   const isAr = locale === "ar";
 
-  if (!relatedSlugs || relatedSlugs.length === 0) return null;
-
-  const services = relatedSlugs
-    .map((s) => getCanonicalService(s))
-    .filter(Boolean);
+  // Use pure database records if passed, otherwise construct from slugs with localized titles
+  const services = (relatedServices && relatedServices.length > 0)
+    ? relatedServices
+    : (relatedSlugs || []).map((s) => {
+        return {
+          slug: s,
+          titleEn: getLocalizedCanonicalServiceTitle(s, false),
+          titleAr: getLocalizedCanonicalServiceTitle(s, true),
+          category: isAr ? "تخصص متكامل" : "Integrated Discipline",
+          taglineEn: "Complementary specialized capability.",
+          taglineAr: "قدرة تخصصية متكاملة.",
+        };
+      });
 
   if (services.length === 0) return null;
 
   return (
-    <section className="py-20 bg-[var(--bg-level-2)] border-b border-[var(--border-level-1)] transition-colors">
+    <section id="related-section" className="py-20 bg-[var(--bg-level-2)] border-b border-[var(--border-level-1)] transition-colors">
       <div className="container mx-auto px-4 md:px-8">
         <div className="max-w-3xl mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-3">
             <Plus className="w-3.5 h-3.5" />
-            {isAr ? "باقات وحلول متكاملة" : "Integrated Solutions"}
+            <span>{isAr ? "باقات وحلول متكاملة" : "Integrated Solutions"}</span>
           </div>
           <h2 className="text-2xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight mb-3">
             {isAr ? "خدمات متكاملة تعمل بتناغم تام" : "Better Together: Connected Service Bundles"}
@@ -53,13 +72,13 @@ export function ServiceRelatedSolutions({
             >
               <div>
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 block mb-2">
-                  {isAr ? rel.categoryAr : rel.categoryEn}
+                  {isAr ? rel.category || "تخصص متكامل" : rel.category || "Integrated Discipline"}
                 </span>
                 <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
-                  {isAr ? rel.titleAr : rel.titleEn}
+                  {isAr ? rel.titleAr || rel.titleEn : rel.titleEn}
                 </h3>
-                <p className="text-xs text-[var(--text-secondary)] leading-relaxed line-clamp-2 mb-4">
-                  {isAr ? rel.taglineAr : rel.taglineEn}
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed line-clamp-2 mb-4 font-medium">
+                  {isAr ? rel.taglineAr || rel.taglineEn : rel.taglineEn}
                 </p>
               </div>
 

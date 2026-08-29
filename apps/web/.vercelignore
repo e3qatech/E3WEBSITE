@@ -1,0 +1,10 @@
+node_modules
+.next
+.git
+.gemini
+coverage
+.pnpm-store
+*.log
+.turbo
+dist
+.tempmediaStorage

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { GitCommit, ArrowRight, Check } from "lucide-react";
+import { GitCommit, Check } from "lucide-react";
 import { LifecycleStage } from "@/lib/services/canonical-services";
 
 interface ServiceDeliveryLifecycleProps {
@@ -15,7 +15,7 @@ export function ServiceDeliveryLifecycle({ stages, locale }: ServiceDeliveryLife
   if (!stages || stages.length === 0) return null;
 
   return (
-    <section className="py-20 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)] transition-colors">
+    <section id="lifecycle-section" className="py-20 bg-[var(--bg-level-1)] border-b border-[var(--border-level-1)] transition-colors">
       <div className="container mx-auto px-4 md:px-8">
         <div className="max-w-3xl mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-3">

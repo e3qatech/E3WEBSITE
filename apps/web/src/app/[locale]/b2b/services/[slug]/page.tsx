@@ -1,14 +1,15 @@
 import React from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
 import { db } from "@/lib/db";
 import {
+  resolveCanonicalSlug,
+  isCanonicalSlug,
   getCanonicalService,
-  getAllCanonicalServices,
-  CanonicalService
+  ServiceCmsPayload,
 } from "@/lib/services/canonical-services";
 import { ServiceMicrositeClient } from "@/components/b2b/services/ServiceMicrositeClient";
-import { getPublicCaseStudies } from "@/lib/case-studies";
+import { getPublicCaseStudies, isCaseStudyEligible } from "@/lib/case-studies";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -21,30 +22,34 @@ export async function generateMetadata({
   const { slug, locale } = await params;
   const isAr = locale === "ar";
 
-  const canonical = getCanonicalService(slug);
+  const targetSlug = resolveCanonicalSlug(slug) || slug;
 
   let dbService: any = null;
   try {
     dbService = await db.service.findUnique({
-      where: { slug }
+      where: { slug: targetSlug }
     });
   } catch (e) {
     console.error("Error fetching db service metadata:", e);
   }
 
-  if (!canonical && !dbService) {
+  if (!dbService && isCanonicalSlug(targetSlug)) {
+    dbService = getCanonicalService(targetSlug);
+  }
+
+  if (!dbService) {
     return { title: isAr ? "الخدمة غير موجودة" : "Service Not Found" };
   }
 
   const title = isAr
-    ? dbService?.titleAr || canonical?.titleAr || "الخدمات — إي ثري لقطاع الأعمال"
-    : dbService?.titleEn || canonical?.titleEn || "Services — E3 Enterprise Atelier";
+    ? dbService.titleAr || dbService.titleEn || "الخدمات — إي ثري لقطاع الأعمال"
+    : dbService.titleEn || "Services — E3 Enterprise Atelier";
 
   const description = isAr
-    ? dbService?.taglineAr || canonical?.taglineAr || "خدمات وحلول متكاملة لقطاع الفعاليات والترفيه في قطر."
-    : dbService?.taglineEn || canonical?.taglineEn || "Turnkey entertainment, event engineering, operations, and spatial solutions in Qatar.";
+    ? dbService.taglineAr || "خدمات وحلول متكاملة لقطاع الفعاليات والترفيه في قطر."
+    : dbService.taglineEn || "Turnkey entertainment, event engineering, operations, and spatial solutions in Qatar.";
 
-  const heroImage = dbService?.heroMediaUrl || dbService?.thumbnail || canonical?.heroMediaUrl;
+  const heroImage = dbService.heroMediaUrl || dbService.thumbnail;
 
   return {
     title: `${title} | E3 Qatar`,
@@ -55,7 +60,7 @@ export async function generateMetadata({
       images: heroImage ? [{ url: heroImage }] : [],
     },
     alternates: {
-      canonical: `https://e3.qa/${locale}/b2b/services/${canonical?.slug || slug}`
+      canonical: `https://e3.qa/${locale}/b2b/services/${dbService.slug}`
     }
   };
 }
@@ -66,7 +71,14 @@ export default async function ServiceMicrositePage({
   params: Promise<{ slug: string; locale: string }>;
 }) {
   const { slug, locale } = await params;
-  const canonical = getCanonicalService(slug);
+
+  // Handle permanent legacy redirects
+  const canonicalSlug = resolveCanonicalSlug(slug);
+  if (canonicalSlug && canonicalSlug !== slug) {
+    redirect(`/${locale}/b2b/services/${canonicalSlug}`);
+  }
+
+  const targetSlug = canonicalSlug || slug;
 
   let dbService: any = null;
   let allCaseStudies: any[] = [];
@@ -74,7 +86,7 @@ export default async function ServiceMicrositePage({
   try {
     const results = await Promise.all([
       db.service.findUnique({
-        where: { slug },
+        where: { slug: targetSlug },
         include: {
           projects: { include: { attraction: true } },
           gallery: { orderBy: { orderIndex: "asc" } }
@@ -88,61 +100,72 @@ export default async function ServiceMicrositePage({
     console.error("Error fetching service detail data:", error);
   }
 
-  // If service does not exist in canonical taxonomy and does not exist in DB, 404
-  if (!canonical && !dbService) {
+  if (!dbService && isCanonicalSlug(targetSlug)) {
+    dbService = getCanonicalService(targetSlug);
+  }
+
+  if (!dbService || dbService.isVisible === false || dbService.isPublished === false) {
     notFound();
   }
 
-  // If DB service exists but is marked explicitly hidden and there is no canonical mapping
-  if (dbService && dbService.isVisible === false && !canonical) {
-    notFound();
+  // Parse structured CMS payload from database `process` field
+  const cms: ServiceCmsPayload = (() => {
+    try {
+      if (typeof dbService.process === "object" && dbService.process !== null) {
+        return dbService.process;
+      } else if (typeof dbService.process === "string") {
+        return JSON.parse(dbService.process);
+      }
+    } catch (_e) {}
+    return {};
+  })();
+
+  // Filter curated or eligible case studies
+  let relatedCases: any[] = [];
+  const eligibleCases = (allCaseStudies || []).filter(isCaseStudyEligible);
+
+  if (cms.caseStudySelectionMode === "MANUAL" && Array.isArray(cms.selectedCaseStudyIds) && cms.selectedCaseStudyIds.length > 0) {
+    relatedCases = cms.selectedCaseStudyIds
+      .map((id) => eligibleCases.find((cs) => cs.id === id))
+      .filter(Boolean);
+  } else {
+    // Automatic mode: take top 3 eligible case studies
+    relatedCases = eligibleCases.slice(0, 3);
   }
 
-  // Use canonical service or adapt DB service into canonical structure
-  const activeService: CanonicalService = canonical || {
-    id: dbService.id,
-    slug: dbService.slug,
-    aliases: [],
-    titleEn: dbService.titleEn,
-    titleAr: dbService.titleAr || dbService.titleEn,
-    categoryEn: dbService.category || "Enterprise Service",
-    categoryAr: dbService.category || "خدمات قطاع الأعمال",
-    taglineEn: dbService.taglineEn || "",
-    taglineAr: dbService.taglineAr || "",
-    heroOutcomeEn: dbService.taglineEn || dbService.titleEn,
-    heroOutcomeAr: dbService.taglineAr || dbService.titleAr,
-    supportingStatementEn: dbService.contentEn || "",
-    supportingStatementAr: dbService.contentAr || "",
-    heroMediaUrl: dbService.heroMediaUrl || dbService.thumbnail || "",
-    heroMediaType: (dbService.heroMediaType as any) || "IMAGE",
-    verifiedProofPoints: [],
-    wowHow: [],
-    objectives: [],
-    capabilities: [],
-    engagementModels: [],
-    deliverables: [],
-    lifecycleStages: [],
-    serviceSpecificModule: {
-      type: "scale-explorer",
-      titleEn: "Scope & Specifications",
-      titleAr: "المواصفات ونطاق العمل",
-      subtitleEn: "Production overview",
-      subtitleAr: "نظرة عامة على التنفيذ",
-      data: {}
-    },
-    enterpriseReadiness: [],
-    relatedServiceSlugs: []
-  };
-
-  // Filter relevant case studies (match by tag or take top featured case studies)
-  const relatedCases = allCaseStudies.slice(0, 3);
+  // Fetch related services strictly from database
+  let relatedDbServices: any[] = [];
+  if (cms.relatedServiceSlugs && cms.relatedServiceSlugs.length > 0) {
+    try {
+      relatedDbServices = await db.service.findMany({
+        where: {
+          slug: { in: cms.relatedServiceSlugs },
+          isVisible: true,
+        },
+        select: {
+          id: true,
+          slug: true,
+          titleEn: true,
+          titleAr: true,
+          category: true,
+          taglineEn: true,
+          taglineAr: true,
+          thumbnail: true,
+          heroMediaUrl: true,
+        }
+      });
+    } catch (e) {
+      console.error("Error fetching related services:", e);
+    }
+  }
 
   return (
     <ServiceMicrositeClient
-      service={activeService}
+      serviceRecord={dbService}
+      cmsPayload={cms}
       locale={locale}
       relatedCaseStudies={relatedCases}
-      dbOverrides={dbService}
+      relatedServices={relatedDbServices}
     />
   );
 }

@@ -103,15 +103,35 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
 
-      // 2. Services Aliases & FEC
+      // 2. Services Aliases & Canonical Routing
       {
         source: '/:locale(en|ar)/b2b/services/fec',
-        destination: '/:locale/b2b/services/family-entertainment-centers',
+        destination: '/:locale/b2b/services/fec-development',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/family-entertainment-centers',
+        destination: '/:locale/b2b/services/fec-development',
         permanent: true,
       },
       {
         source: '/:locale(en|ar)/services/fec',
-        destination: '/:locale/b2b/services/family-entertainment-centers',
+        destination: '/:locale/b2b/services/fec-development',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/services/family-entertainment-centers',
+        destination: '/:locale/b2b/services/fec-development',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/design-research',
+        destination: '/:locale/b2b/services/feasibility-design-research',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/services/e3-rentals',
+        destination: '/:locale/b2b/services/av-stage-rentals',
         permanent: true,
       },
       {

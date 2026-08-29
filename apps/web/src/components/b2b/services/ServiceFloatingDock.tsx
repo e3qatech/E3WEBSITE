@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { FileText, PhoneCall, Download, ChevronUp } from "lucide-react";
+import { FileText, PhoneCall, ChevronUp } from "lucide-react";
 import { localizeHref } from "@/lib/url-helper";
-import { cn } from "@/lib/utils";
 
 interface ServiceFloatingDockProps {
   locale: string;

@@ -2,284 +2,282 @@
 
 import React, { useState } from "react";
 import {
-  Sparkles,
   Sliders,
   CheckCircle2,
-  Layers,
   ArrowRight,
-  Shield,
-  Zap,
-  Users,
-  Compass,
-  Cpu,
-  Ticket
+  Info,
 } from "lucide-react";
-import { ServiceSpecificModuleConfig } from "@/lib/services/canonical-services";
+import { ServiceSpecificModuleConfig, isApprovedClaim } from "@/lib/services/canonical-services";
 import { cn } from "@/lib/utils";
+import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 
 interface ServiceSpecificModuleProps {
-  moduleConfig: ServiceSpecificModuleConfig;
+  moduleConfig?: ServiceSpecificModuleConfig | null;
   locale: string;
 }
 
 export function ServiceSpecificModule({ moduleConfig, locale }: ServiceSpecificModuleProps) {
   const isAr = locale === "ar";
-  const [activeTab, setActiveTab] = useState<number>(0);
 
-  if (!moduleConfig || !moduleConfig.data) return null;
+  // State management for user-driven exploration across CMS-configured options
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
+  const [selectedSectionIndex, setSelectedSectionIndex] = useState<number>(0);
 
-  const { type, data } = moduleConfig;
+
+  if (!moduleConfig) return null;
+
+  const title = isAr ? moduleConfig.titleAr || moduleConfig.titleEn : moduleConfig.titleEn;
+  const subtitle = isAr ? moduleConfig.subtitleAr || moduleConfig.subtitleEn : moduleConfig.subtitleEn;
+  const disclaimer = isAr ? moduleConfig.disclaimerAr || moduleConfig.disclaimerEn : moduleConfig.disclaimerEn;
+
+  const options = Array.isArray(moduleConfig.options) ? moduleConfig.options : [];
+  const sections = Array.isArray(moduleConfig.sections) ? moduleConfig.sections : [];
+
+  // Suppress section if no CMS content or options exist
+  if (!title && options.length === 0 && sections.length === 0) {
+    return null;
+  }
+
+  const activeOption = options[selectedOptionIndex] || options[0];
+  const activeSection = sections[selectedSectionIndex] || sections[0];
 
   return (
-    <section className="py-20 bg-[var(--bg-level-2)] border-b border-[var(--border-level-1)] transition-colors">
+    <section id="specialist-section" className="py-24 bg-[var(--bg-level-2)] border-b border-[var(--border-level-1)] transition-colors">
       <div className="container mx-auto px-4 md:px-8">
+        {/* Module Header */}
         <div className="max-w-3xl mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-3">
             <Sliders className="w-3.5 h-3.5" />
-            {isAr ? "وحدة تفاعلية متخصصة" : "Specialist Interactive Tool"}
+            <span>{isAr ? "أداة التخطيط والاستكشاف التفاعلي" : "Interactive Planning Module"}</span>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-black text-[var(--text-primary)] tracking-tight mb-3">
-            {isAr ? moduleConfig.titleAr : moduleConfig.titleEn}
-          </h2>
-          <p className="text-base text-[var(--text-secondary)]">
-            {isAr ? moduleConfig.subtitleAr : moduleConfig.subtitleEn}
-          </p>
+          {title && (
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-[var(--text-primary)] tracking-tight mb-3">
+              {title}
+            </h2>
+          )}
+          {subtitle && (
+            <p className="text-base text-[var(--text-secondary)] leading-relaxed">
+              {subtitle}
+            </p>
+          )}
         </div>
 
-        {/* 1. SCALE EXPLORER (Mega Events) */}
-        {type === "scale-explorer" && data.scales && (
-          <div className="space-y-6">
-            <div className="flex flex-wrap gap-2 mb-6">
-              {data.scales.map((scale: any, idx: number) => (
-                <button
-                  key={scale.id || idx}
-                  onClick={() => setActiveTab(idx)}
-                  className={cn(
-                    "px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer",
-                    activeTab === idx
-                      ? "bg-emerald-700 text-white shadow-md"
-                      : "bg-[var(--surface-default)] text-[var(--text-secondary)] hover:bg-[var(--surface-raised)]"
-                  )}
-                >
-                  {isAr ? scale.labelAr : scale.labelEn}
-                </button>
-              ))}
+        {/* 1. Primary Interactive Options / Tiers Grid */}
+        {options.length > 0 && (
+          <div className="space-y-8 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {options.map((option, idx) => {
+                const label = isAr ? option.labelAr || option.labelEn : option.labelEn;
+                const tag = isAr ? option.tagAr || option.tagEn : option.tagEn;
+                const isSelected = selectedOptionIndex === idx;
+
+                return (
+                  <button
+                    key={option.id || idx}
+                    type="button"
+                    onClick={() => setSelectedOptionIndex(idx)}
+                    className={cn(
+                      "p-4 rounded-2xl border text-start transition-all cursor-pointer flex flex-col justify-between",
+                      isSelected
+                        ? "bg-emerald-700 text-white border-emerald-700 shadow-md shadow-emerald-700/20 ring-2 ring-emerald-500/30"
+                        : "bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-emerald-500/40"
+                    )}
+                  >
+                    <div>
+                      {tag && (
+                        <span
+                          className={cn(
+                            "text-[10px] font-mono font-bold uppercase tracking-wider block mb-1.5",
+                            isSelected ? "text-emerald-200" : "text-emerald-700 dark:text-emerald-400"
+                          )}
+                        >
+                          {tag}
+                        </span>
+                      )}
+                      <h3 className="text-sm font-bold leading-snug">{label}</h3>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between text-[11px] font-semibold opacity-90">
+                      <span>{isAr ? "استكشاف الخيار" : "Explore Option"}</span>
+                      <ArrowRight className={cn("w-3.5 h-3.5 rtl:rotate-180 transition-transform", isSelected && "translate-x-1 rtl:-translate-x-1")} />
+                    </div>
+                  </button>
+                );
+              })}
             </div>
 
-            {data.scales[activeTab] && (
-              <div className="p-8 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[var(--border-level-2)]">
-                  <h3 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
-                    {isAr ? data.scales[activeTab].labelAr : data.scales[activeTab].labelEn}
-                  </h3>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
-                    <span>{isAr ? "الجدول الزمني الموصى به:" : "Production Lead Time:"}</span>
-                    <span>{isAr ? data.scales[activeTab].leadTimeAr : data.scales[activeTab].leadTimeEn}</span>
+            {/* Active Option Detail Card */}
+            {activeOption && (
+              <div className="p-6 sm:p-8 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs space-y-6">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+                  <div className="max-w-2xl">
+                    <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 block mb-2">
+                      {isAr ? activeOption.tagAr || activeOption.tagEn : activeOption.tagEn || (isAr ? "التفاصيل المعتمدة" : "Planning Guidance")}
+                    </span>
+                    <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-3">
+                      {isAr ? activeOption.labelAr || activeOption.labelEn : activeOption.labelEn}
+                    </h3>
+                    {(activeOption.descriptionEn || activeOption.descriptionAr) && (
+                      <p className="text-sm text-[var(--text-secondary)] leading-relaxed font-medium">
+                        {isAr ? activeOption.descriptionAr || activeOption.descriptionEn : activeOption.descriptionEn}
+                      </p>
+                    )}
                   </div>
-                </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {(isAr ? data.scales[activeTab].featuresAr : data.scales[activeTab].featuresEn).map(
-                    (feat: string, i: number) => (
-                      <div key={i} className="flex items-center gap-3 p-3.5 rounded-xl bg-[var(--surface-raised)] text-xs sm:text-sm font-semibold text-[var(--text-primary)]">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                        <span>{feat}</span>
-                      </div>
-                    )
+                  {activeOption.mediaUrl && (
+                    <div className="w-full md:w-64 h-40 rounded-2xl overflow-hidden shrink-0 border border-[var(--border-level-2)]">
+                      <UniversalMediaRenderer
+                        type="IMAGE"
+                        src={activeOption.mediaUrl}
+                        alt={isAr ? activeOption.labelAr : activeOption.labelEn}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   )}
                 </div>
+
+                {/* Structured Specifications Matrix */}
+                {Array.isArray(activeOption.specs) && activeOption.specs.length > 0 && (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-[var(--border-level-2)]">
+                    {activeOption.specs.map((spec, sIdx) => {
+                      const specLabel = isAr ? spec.labelAr || spec.labelEn : spec.labelEn;
+                      const specValue = isAr ? spec.valueAr || spec.valueEn : spec.valueEn;
+
+                      return (
+                        <div
+                          key={sIdx}
+                          className="p-4 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-level-2)]"
+                        >
+                          <span className="text-[10px] font-mono font-bold uppercase text-[var(--text-tertiary)] block mb-1">
+                            {specLabel}
+                          </span>
+                          <span className="text-sm font-bold text-[var(--text-primary)] font-mono">
+                            {specValue}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Deliverables / Checklist Items */}
+                {Array.isArray(activeOption.outputsEn) && activeOption.outputsEn.length > 0 && (
+                  <div className="pt-4 border-t border-[var(--border-level-2)]">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] block mb-3">
+                      {isAr ? "المخرجات والاشتراطات الاسترشادية:" : "Indicative Deliverables & Clearances:"}
+                    </span>
+                    <div className="grid sm:grid-cols-2 gap-2.5">
+                      {(isAr ? activeOption.outputsAr || activeOption.outputsEn : activeOption.outputsEn).map((output, oIdx) => (
+                        <div key={oIdx} className="flex items-start gap-2 text-xs text-[var(--text-secondary)] font-medium">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                          <span>{output}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Approved Claim Reference Badge */}
+                {activeOption.claim && isApprovedClaim(activeOption.claim) && (
+                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span className="font-bold text-emerald-800 dark:text-emerald-300">
+                        {isAr ? activeOption.claim.titleAr || activeOption.claim.titleEn : activeOption.claim.titleEn}
+                      </span>
+                    </div>
+                    {activeOption.claim.evidence && (
+                      <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400">
+                        {isAr ? "المرجع: " : "Ref: "}{activeOption.claim.evidence}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
 
-        {/* 2. FEC LIFECYCLE (FEC Development) */}
-        {type === "fec-lifecycle" && data.milestones && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {data.milestones.map((m: any, i: number) => (
-              <div key={i} className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between text-xs font-extrabold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest mb-2">
-                    <span>{m.phase}</span>
-                    <span className="text-[11px] text-[var(--text-tertiary)]">{isAr ? m.durationAr : m.durationEn}</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">
-                    {isAr ? m.titleAr : m.titleEn}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
-                    {isAr ? m.descAr : m.descEn}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* 2. Structured Sections / Stages Walkthrough */}
+        {sections.length > 0 && (
+          <div className="space-y-6 mb-8">
+            <div className="flex flex-wrap gap-2">
+              {sections.map((section, sIdx) => {
+                const sTitle = isAr ? section.titleAr || section.titleEn : section.titleEn;
+                const isSelected = selectedSectionIndex === sIdx;
 
-        {/* 3. KIDS AGE MATRIX (Kids' Concepts) */}
-        {type === "kids-age-matrix" && data.brackets && (
-          <div className="grid md:grid-cols-3 gap-6">
-            {data.brackets.map((b: any, i: number) => (
-              <div key={i} className="p-6 sm:p-8 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs flex flex-col justify-between">
-                <div>
-                  <h3 className="text-xl font-bold text-[var(--text-primary)] mb-1">
-                    {isAr ? b.ageAr : b.ageEn}
-                  </h3>
-                  <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 block mb-6">
-                    {isAr ? b.focusAr : b.focusEn}
-                  </span>
-                  <ul className="space-y-2.5">
-                    {(isAr ? b.itemsAr || b.itemsEn : b.itemsEn).map((it: string, j: number) => (
-                      <li key={j} className="flex items-center gap-2 text-xs sm:text-sm text-[var(--text-secondary)]">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                        <span>{it}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                return (
+                  <button
+                    key={section.id || sIdx}
+                    type="button"
+                    onClick={() => setSelectedSectionIndex(sIdx)}
+                    className={cn(
+                      "px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                      isSelected
+                        ? "bg-emerald-700 text-white shadow-xs"
+                        : "bg-[var(--surface-default)] border border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                    )}
+                  >
+                    {sTitle}
+                  </button>
+                );
+              })}
+            </div>
 
-        {/* 4. ACTIVATION MAPPER (Experiential Activations) */}
-        {type === "activation-mapper" && data.dimensions && (
-          <div className="grid md:grid-cols-3 gap-6">
-            {data.dimensions.map((dim: any, i: number) => (
-              <div key={i} className="p-6 sm:p-8 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
-                <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 block mb-2">
-                  {isAr ? "الهدف التسويقي:" : "Strategic Goal:"}
-                </span>
-                <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">
-                  {isAr ? dim.goalAr : dim.goalEn}
-                </h3>
-                <div className="p-4 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-level-2)]">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-tertiary)] block mb-1">
-                    {isAr ? "التنفيذ المقترح:" : "Recommended Format:"}
-                  </span>
-                  <p className="text-xs sm:text-sm font-semibold text-[var(--text-primary)]">
-                    {isAr ? dim.formatAr : dim.formatEn}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+            {activeSection && Array.isArray(activeSection.items) && activeSection.items.length > 0 && (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {activeSection.items.map((item, iIdx) => {
+                  const iLabel = isAr ? item.labelAr || item.labelEn : item.labelEn;
+                  const iDesc = isAr ? item.descriptionAr || item.descriptionEn : item.descriptionEn;
+                  const iTag = isAr ? item.tagAr || item.tagEn : item.tagEn;
 
-        {/* 5. PERFORMANCE CATALOGUE (Shows) */}
-        {type === "performance-catalogue" && data.categories && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {data.categories.map((cat: any, i: number) => (
-              <div key={i} className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs flex flex-col justify-between">
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] mb-2">
-                    {isAr ? cat.nameAr : cat.nameEn}
-                  </h3>
-                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-4">
-                    {isAr ? cat.descAr : cat.descEn}
-                  </p>
-                </div>
-                <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
-                  {isAr ? "متوفر للعروض الخاصة والفعاليات" : "Available for Live Booking"}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                  return (
+                    <div
+                      key={item.id || iIdx}
+                      className="p-5 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex flex-col justify-between"
+                    >
+                      <div>
+                        {iTag && (
+                          <span className="text-[10px] font-mono font-bold uppercase text-emerald-700 dark:text-emerald-400 block mb-2">
+                            {iTag}
+                          </span>
+                        )}
+                        <h4 className="text-base font-bold text-[var(--text-primary)] mb-2">{iLabel}</h4>
+                        {iDesc && (
+                          <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed mb-3">
+                            {iDesc}
+                          </p>
+                        )}
+                      </div>
 
-        {/* 6. AV VENUE SELECTOR (AV & Stage) */}
-        {type === "av-venue-selector" && data.venues && (
-          <div className="grid md:grid-cols-3 gap-6">
-            {data.venues.map((v: any, i: number) => (
-              <div key={i} className="p-6 sm:p-8 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs flex flex-col justify-between">
-                <div>
-                  <h3 className="text-lg sm:text-xl font-bold text-[var(--text-primary)] mb-4 pb-3 border-b border-[var(--border-level-2)]">
-                    {isAr ? v.typeAr : v.typeEn}
-                  </h3>
-                  <div className="space-y-3 text-xs sm:text-sm">
-                    <div>
-                      <span className="font-bold text-[var(--text-primary)] block mb-0.5">{isAr ? "الصوتيات:" : "Audio:"}</span>
-                      <span className="text-[var(--text-secondary)]">{v.audioEn}</span>
+                      {Array.isArray(item.outputsEn) && item.outputsEn.length > 0 && (
+                        <div className="space-y-1.5 pt-3 border-t border-[var(--border-level-2)]">
+                          {(isAr ? item.outputsAr || item.outputsEn : item.outputsEn).map((out, oI) => (
+                            <div key={oI} className="flex items-center gap-1.5 text-[11px] text-[var(--text-secondary)]">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                              <span>{out}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <span className="font-bold text-[var(--text-primary)] block mb-0.5">{isAr ? "الإضاءة:" : "Lighting:"}</span>
-                      <span className="text-[var(--text-secondary)]">{v.lightingEn}</span>
-                    </div>
-                    <div>
-                      <span className="font-bold text-[var(--text-primary)] block mb-0.5">{isAr ? "الشاشات:" : "Video:"}</span>
-                      <span className="text-[var(--text-secondary)]">{v.videoEn}</span>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
-            ))}
+            )}
           </div>
         )}
 
-        {/* 7. OPERATIONS SOP MODEL (Attraction Operations) */}
-        {type === "operations-sop-model" && data.roles && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {data.roles.map((r: any, i: number) => (
-              <div key={i} className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
-                <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] mb-2">
-                  {isAr ? r.titleAr : r.titleEn}
-                </h3>
-                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                  {isAr ? r.dutiesAr || r.dutiesEn : r.dutiesEn}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* 8. TICKETING FLOW (BookingQube) */}
-        {type === "ticketing-flow" && data.steps && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {data.steps.map((st: any, i: number) => (
-              <div key={i} className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
-                <span className="text-2xl font-black text-emerald-500 font-mono block mb-2">{st.step}</span>
-                <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] mb-2">
-                  {isAr ? st.titleAr : st.titleEn}
-                </h3>
-                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                  {isAr ? st.descAr : st.descEn}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* 9. FABRICATION MATERIALS (Fabrication & Branding) */}
-        {type === "fabrication-materials" && data.materials && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {data.materials.map((mat: any, i: number) => (
-              <div key={i} className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
-                <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] mb-2">
-                  {isAr ? mat.nameAr : mat.nameEn}
-                </h3>
-                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                  {isAr ? mat.descAr : mat.descEn}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* 10. RESEARCH STUDY GATES (Feasibility & Research) */}
-        {type === "research-study-gates" && data.gates && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {data.gates.map((g: any, i: number) => (
-              <div key={i} className="p-6 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xs">
-                <span className="text-xs font-extrabold uppercase text-emerald-700 dark:text-emerald-400 tracking-wider block mb-1">
-                  {g.gate}
-                </span>
-                <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] mb-2">
-                  {isAr ? g.titleAr : g.titleEn}
-                </h3>
-                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                  {isAr ? g.descAr : g.descEn}
-                </p>
-              </div>
-            ))}
+        {/* 3. Indicative Planning Disclaimer */}
+        {disclaimer && (
+          <div className="p-4 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-start gap-3 text-xs text-[var(--text-secondary)] font-medium">
+            <Info className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+            <div className="leading-relaxed">
+              <span className="font-bold text-[var(--text-primary)] block mb-0.5">
+                {isAr ? "إشعار تخطيطي استرشادي:" : "Indicative Planning Disclaimer:"}
+              </span>
+              <span>{disclaimer}</span>
+            </div>
           </div>
         )}
       </div>

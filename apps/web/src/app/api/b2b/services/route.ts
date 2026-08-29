@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const all = searchParams.get("all") === "true"
 
-    const where = all ? {} : { isVisible: true }
+    const where = all ? {} : { isVisible: true, isPublished: true }
     
     const services = await db.service.findMany({
       where,

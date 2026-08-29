@@ -106,10 +106,10 @@ export function LivingHeroHeadline({
                     <AnimatePresence mode="wait">
                       <motion.span
                         key={wordIndex}
-                        initial={shouldReduceMotion ? {} : { opacity: 0, y: 14, filter: "blur(6px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        exit={shouldReduceMotion ? {} : { opacity: 0, y: -14, filter: "blur(6px)" }}
-                        transition={{ duration: 0.45, ease: "easeOut" }}
+                        initial={shouldReduceMotion ? {} : { opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={shouldReduceMotion ? {} : { opacity: 0, y: -10 }}
+                        transition={{ duration: 0.35, ease: "easeInOut" }}
                         className={gradientClass}
                       >
                         {currentWord}
@@ -134,10 +134,10 @@ export function LivingHeroHeadline({
                     <AnimatePresence mode="wait">
                       <motion.span
                         key={wordIndex}
-                        initial={shouldReduceMotion ? {} : { opacity: 0, y: 14, filter: "blur(6px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        exit={shouldReduceMotion ? {} : { opacity: 0, y: -14, filter: "blur(6px)" }}
-                        transition={{ duration: 0.45, ease: "easeOut" }}
+                        initial={shouldReduceMotion ? {} : { opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={shouldReduceMotion ? {} : { opacity: 0, y: -10 }}
+                        transition={{ duration: 0.35, ease: "easeInOut" }}
                         className={gradientClass}
                       >
                         {currentWord}

@@ -1,4 +1,3 @@
-import React from "react";
 import { describe, it, expect } from "vitest";
 import { getMergedCMSPageContent, DEFAULT_B2B_SERVICES_CONTENT } from "@/lib/cms-default-pages";
 
