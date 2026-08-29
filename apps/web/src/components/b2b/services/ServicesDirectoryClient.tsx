@@ -430,7 +430,7 @@ export function ServicesDirectoryClient({
                 const tagline = isAr ? svc.taglineAr || svc.taglineEn : svc.taglineEn;
 
                 return (
-                  <button
+                  <div
                     key={svc.slug}
                     onClick={() => setActiveServiceIdx(idx)}
                     onMouseEnter={() => setActiveServiceIdx(idx)}
@@ -454,14 +454,15 @@ export function ServicesDirectoryClient({
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2 mb-1">
-                        <h3
+                        <Link
+                          href={`/${locale}/b2b/services/${svc.slug}`}
                           className={cn(
-                            "font-bold font-syne text-base sm:text-lg transition-colors truncate",
+                            "font-bold font-syne text-base sm:text-lg transition-colors truncate hover:underline",
                             isActive ? "text-emerald-400" : "text-[var(--text-primary)] group-hover:text-emerald-400"
                           )}
                         >
                           {title}
-                        </h3>
+                        </Link>
                         {svc.category && (
                           <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--surface-raised)] text-[var(--text-tertiary)] shrink-0 hidden sm:inline">
                             {svc.category}
@@ -474,7 +475,7 @@ export function ServicesDirectoryClient({
                         </p>
                       )}
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
