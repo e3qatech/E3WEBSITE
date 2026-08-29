@@ -172,7 +172,7 @@ export function adaptDbCaseStudyToPresentation(dbCase: any): CaseStudyPresentati
   const metrics: VerifiedCaseStudyMetric[] = [];
   if (Array.isArray(rawMetrics)) {
     rawMetrics.forEach((m, idx) => {
-      const val = m.valueEn || m.value || m.val || "";
+      const val = m.valueEn || m.value || m.val || m.valueAr || "";
       const labelEn = m.labelEn || m.label || "";
       const labelAr = m.labelAr || m.label || labelEn;
       if (val && (labelEn || labelAr)) {
@@ -201,10 +201,20 @@ export function adaptDbCaseStudyToPresentation(dbCase: any): CaseStudyPresentati
     scaleAr: rawTechnicalSpecs?.scaleAr || rawTechnicalSpecs?.scale || undefined,
     locationEn: rawTechnicalSpecs?.locationEn || rawTechnicalSpecs?.location || undefined,
     locationAr: rawTechnicalSpecs?.locationAr || rawTechnicalSpecs?.location || undefined,
-    deliverablesEn: Array.isArray(rawTechnicalSpecs?.deliverablesEn) ? rawTechnicalSpecs.deliverablesEn : undefined,
-    deliverablesAr: Array.isArray(rawTechnicalSpecs?.deliverablesAr) ? rawTechnicalSpecs.deliverablesAr : undefined,
+    deliverablesEn: Array.isArray(rawTechnicalSpecs?.deliverablesEn)
+      ? rawTechnicalSpecs.deliverablesEn
+      : typeof rawTechnicalSpecs?.deliverablesEn === "string"
+      ? rawTechnicalSpecs.deliverablesEn.split("\n").map((s: string) => s.trim()).filter(Boolean)
+      : undefined,
+    deliverablesAr: Array.isArray(rawTechnicalSpecs?.deliverablesAr)
+      ? rawTechnicalSpecs.deliverablesAr
+      : typeof rawTechnicalSpecs?.deliverablesAr === "string"
+      ? rawTechnicalSpecs.deliverablesAr.split("\n").map((s: string) => s.trim()).filter(Boolean)
+      : undefined,
     disciplines: Array.isArray(rawServicesUsed)
       ? rawServicesUsed.map((s: any) => (typeof s === "string" ? s : s.slug || s.id)).filter(Boolean)
+      : typeof rawServicesUsed === "string"
+      ? rawServicesUsed.split(",").map((s: string) => s.trim()).filter(Boolean)
       : [],
   };
 

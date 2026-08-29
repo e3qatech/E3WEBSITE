@@ -29,7 +29,7 @@ export async function PUT(
     const body = await request.json();
 
     // Find existing case study by id or slug
-    let existing = await db.caseStudy.findFirst({
+    const existing = await db.caseStudy.findFirst({
       where: {
         OR: [{ id }, { slug: id }],
       },
@@ -71,7 +71,7 @@ export async function PUT(
       clientLogoUrl,
       challengeEn, challengeAr, solutionEn, solutionAr, resultEn, resultAr,
       isFeatured, isPublished,
-      gallery, metrics, technicalSpecs, servicesUsed,
+      gallery, metrics, technicalSpecs, servicesUsed, beforeAfter,
       attractionId, teamMembers, testimonials, seo
     } = body;
 
@@ -111,6 +111,7 @@ export async function PUT(
           ...(metrics !== undefined && { metrics }),
           ...(technicalSpecs !== undefined && { technicalSpecs }),
           ...(servicesUsed !== undefined && { servicesUsed }),
+          ...(beforeAfter !== undefined && { beforeAfter }),
           ...(testimonials !== undefined && { testimonials }),
           ...(seo !== undefined && { seo }),
           ...(teamMembers && teamMembers.length > 0 && {

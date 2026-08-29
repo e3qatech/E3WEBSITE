@@ -69,12 +69,19 @@ export function CaseEditor({
   const [isVisible, setIsVisible] = useState(initialData?.isPublished ?? true);
 
   // Metrics
-  const [metrics, setMetrics] = useState<any[]>(
-    Array.isArray(initialData?.metrics) ? initialData.metrics : []
-  );
+  const [metrics, setMetrics] = useState<any[]>(() => {
+    let raw = initialData?.metrics;
+    if (typeof raw === "string") {
+      try { raw = JSON.parse(raw); } catch { raw = []; }
+    }
+    return Array.isArray(raw) ? raw : [];
+  });
 
   // Scope & Timeline
-  const rawTech = initialData?.technicalSpecs || {};
+  const rawTech = typeof initialData?.technicalSpecs === "string"
+    ? (() => { try { return JSON.parse(initialData.technicalSpecs); } catch { return {}; } })()
+    : (typeof initialData?.technicalSpecs === "object" && initialData?.technicalSpecs !== null ? initialData.technicalSpecs : {});
+
   const [durationEn, setDurationEn] = useState(rawTech?.durationEn || rawTech?.duration || "");
   const [durationAr, setDurationAr] = useState(rawTech?.durationAr || rawTech?.duration || "");
   const [scaleEn, setScaleEn] = useState(rawTech?.scaleEn || rawTech?.scale || "");
@@ -82,21 +89,37 @@ export function CaseEditor({
   const [locationEn, setLocationEn] = useState(rawTech?.locationEn || rawTech?.location || "");
   const [locationAr, setLocationAr] = useState(rawTech?.locationAr || rawTech?.location || "");
   const [deliverablesTextEn, setDeliverablesTextEn] = useState(
-    Array.isArray(rawTech?.deliverablesEn) ? rawTech.deliverablesEn.join("\n") : ""
+    Array.isArray(rawTech?.deliverablesEn)
+      ? rawTech.deliverablesEn.join("\n")
+      : typeof rawTech?.deliverablesEn === "string"
+      ? rawTech.deliverablesEn
+      : ""
   );
   const [deliverablesTextAr, setDeliverablesTextAr] = useState(
-    Array.isArray(rawTech?.deliverablesAr) ? rawTech.deliverablesAr.join("\n") : ""
-  );
-
-  // Services Used
-  const [servicesUsedInput, setServicesUsedInput] = useState(
-    Array.isArray(initialData?.servicesUsed)
-      ? initialData.servicesUsed.map((s: any) => (typeof s === "string" ? s : s.slug || s.id)).join(", ")
+    Array.isArray(rawTech?.deliverablesAr)
+      ? rawTech.deliverablesAr.join("\n")
+      : typeof rawTech?.deliverablesAr === "string"
+      ? rawTech.deliverablesAr
       : ""
   );
 
+  // Services Used
+  const [servicesUsedInput, setServicesUsedInput] = useState(() => {
+    let raw = initialData?.servicesUsed;
+    if (typeof raw === "string") {
+      try { raw = JSON.parse(raw); } catch { return raw; }
+    }
+    if (Array.isArray(raw)) {
+      return raw.map((s: any) => (typeof s === "string" ? s : s.slug || s.id)).join(", ");
+    }
+    return "";
+  });
+
   // Before & After
-  const rawBeforeAfter = initialData?.beforeAfter || {};
+  const rawBeforeAfter = typeof initialData?.beforeAfter === "string"
+    ? (() => { try { return JSON.parse(initialData.beforeAfter); } catch { return {}; } })()
+    : (typeof initialData?.beforeAfter === "object" && initialData?.beforeAfter !== null ? initialData.beforeAfter : {});
+
   const [beforeAfterEnabled, setBeforeAfterEnabled] = useState(rawBeforeAfter?.enabled ?? false);
   const [beforeImageUrl, setBeforeImageUrl] = useState(rawBeforeAfter?.beforeImageUrl || "");
   const [afterImageUrl, setAfterImageUrl] = useState(rawBeforeAfter?.afterImageUrl || "");
@@ -185,7 +208,8 @@ export function CaseEditor({
       };
 
       if (isEditing) {
-        const res = await fetch(`/api/b2b/cases/${initialData.id}`, {
+        const targetId = initialData?.id || initialData?.slug || slug;
+        const res = await fetch(`/api/b2b/cases/${encodeURIComponent(targetId)}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),

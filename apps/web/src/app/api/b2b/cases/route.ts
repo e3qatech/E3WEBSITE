@@ -58,7 +58,8 @@ export async function POST(request: Request) {
       clientLogoUrl,
       challengeEn, challengeAr, solutionEn, solutionAr, resultEn, resultAr,
       isFeatured, isPublished,
-      attractionId, technicalSpecs, servicesUsed, metrics, gallery, testimonials
+      attractionId, technicalSpecs, servicesUsed, metrics, gallery, testimonials,
+      beforeAfter, seo
     } = body
 
     if (!slug || !titleEn || !titleAr) {
@@ -92,11 +93,13 @@ export async function POST(request: Request) {
         isFeatured: Boolean(isFeatured),
         isPublished: Boolean(isPublished),
         attractionId: attractionId || null,
-        technicalSpecs: technicalSpecs || [],
+        technicalSpecs: technicalSpecs || {},
         servicesUsed: servicesUsed || [],
+        beforeAfter: beforeAfter || null,
         metrics: metrics || [],
         gallery: gallery || [],
-        testimonials: testimonials || []
+        testimonials: testimonials || [],
+        seo: seo || {}
       }
     })
 

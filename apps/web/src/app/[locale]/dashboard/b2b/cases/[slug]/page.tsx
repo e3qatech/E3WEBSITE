@@ -151,8 +151,9 @@ export default async function EditCasePage({
       metrics: [],
       testimonials: [],
       gallery: [],
-      technicalSpecs: [],
+      technicalSpecs: {},
       servicesUsed: [],
+      beforeAfter: null,
       teamMembers: [],
       seo: {}
     }
@@ -162,7 +163,13 @@ export default async function EditCasePage({
 
   // Defensive array normalizer for metrics (handles object dictionary vs array)
   let rawMetrics: any[] = []
-  if (Array.isArray(caseStudy.metrics)) {
+  if (typeof caseStudy.metrics === "string") {
+    try {
+      rawMetrics = JSON.parse(caseStudy.metrics);
+    } catch {
+      rawMetrics = [];
+    }
+  } else if (Array.isArray(caseStudy.metrics)) {
     rawMetrics = caseStudy.metrics
   } else if (typeof caseStudy.metrics === "object" && caseStudy.metrics !== null) {
     rawMetrics = Object.entries(caseStudy.metrics).map(([key, val]) => ({
@@ -174,15 +181,27 @@ export default async function EditCasePage({
   }
 
   const normalizedMetrics = rawMetrics.map((m: any) => ({
+    id: m?.id || undefined,
+    prefix: m?.prefix || "",
+    valueEn: m?.valueEn || m?.value || m?.val || "",
+    valueAr: m?.valueAr || m?.value || m?.val || "",
+    suffix: m?.suffix || "",
     labelEn: m?.labelEn || m?.label || "",
-    valueEn: m?.valueEn || m?.value || "",
-    labelAr: m?.labelAr || "",
-    valueAr: m?.valueAr || ""
+    labelAr: m?.labelAr || m?.label || "",
+    sourceEn: m?.sourceEn || m?.source || "",
+    sourceAr: m?.sourceAr || m?.source || "",
+    isHighlighted: Boolean(m?.isHighlighted),
   }))
 
   // Defensive normalizer for testimonials
   let rawTestimonials: any[] = []
-  if (Array.isArray(caseStudy.testimonials)) {
+  if (typeof caseStudy.testimonials === "string") {
+    try {
+      rawTestimonials = JSON.parse(caseStudy.testimonials);
+    } catch {
+      rawTestimonials = [];
+    }
+  } else if (Array.isArray(caseStudy.testimonials)) {
     rawTestimonials = caseStudy.testimonials
   } else if (typeof caseStudy.testimonials === "object" && caseStudy.testimonials !== null) {
     rawTestimonials = Object.entries(caseStudy.testimonials).map(([author, quote]) => ({
@@ -194,22 +213,37 @@ export default async function EditCasePage({
   }
 
   const normalizedTestimonials = rawTestimonials.map((t: any) => ({
-    authorName: t?.authorName || t?.author || "",
+    authorName: t?.authorName || t?.author || t?.name || "",
     quoteEn: t?.quoteEn || t?.quote || "",
     quoteAr: t?.quoteAr || "",
+    authorEn: t?.authorEn || t?.authorName || t?.author || "",
+    authorAr: t?.authorAr || "",
+    roleEn: t?.roleEn || t?.role || "",
+    roleAr: t?.roleAr || "",
+    companyEn: t?.companyEn || t?.company || "",
+    companyAr: t?.companyAr || "",
+    avatarUrl: t?.avatarUrl || "",
+    companyLogoUrl: t?.companyLogoUrl || "",
     isVisible: t?.isVisible !== false
   }))
 
   // Defensive normalizer for gallery
   let rawGallery: any[] = []
-  if (Array.isArray(caseStudy.gallery)) {
+  if (typeof caseStudy.gallery === "string") {
+    try {
+      rawGallery = JSON.parse(caseStudy.gallery);
+    } catch {
+      rawGallery = [];
+    }
+  } else if (Array.isArray(caseStudy.gallery)) {
     rawGallery = caseStudy.gallery
   }
 
   const normalizedGallery = rawGallery.map((g: any) => ({
-    url: typeof g === "string" ? g : (g?.url || ""),
-    captionEn: g?.captionEn || g?.caption || "",
-    captionAr: g?.captionAr || ""
+    url: typeof g === "string" ? g : (g?.url || g?.mediaUrl || g?.imageUrl || ""),
+    captionEn: g?.captionEn || g?.caption || g?.titleEn || "",
+    captionAr: g?.captionAr || g?.titleAr || "",
+    mediaType: g?.mediaType || "IMAGE",
   }))
 
   // Defensive normalizer for team members
@@ -220,6 +254,40 @@ export default async function EditCasePage({
         roleAr: tm?.roleAr || ""
       }))
     : []
+
+  // Defensive normalizer for technicalSpecs
+  let rawTechnicalSpecs: any = caseStudy.technicalSpecs;
+  if (typeof rawTechnicalSpecs === "string") {
+    try {
+      rawTechnicalSpecs = JSON.parse(rawTechnicalSpecs);
+    } catch {
+      rawTechnicalSpecs = {};
+    }
+  }
+  if (!rawTechnicalSpecs || typeof rawTechnicalSpecs !== "object") {
+    rawTechnicalSpecs = {};
+  }
+
+  // Defensive normalizer for servicesUsed
+  let rawServicesUsed: any = caseStudy.servicesUsed;
+  if (typeof rawServicesUsed === "string") {
+    try {
+      rawServicesUsed = JSON.parse(rawServicesUsed);
+    } catch {
+      rawServicesUsed = rawServicesUsed.split(",").map((s: string) => s.trim()).filter(Boolean);
+    }
+  }
+  const normalizedServicesUsed = Array.isArray(rawServicesUsed) ? rawServicesUsed : [];
+
+  // Defensive normalizer for beforeAfter
+  let rawBeforeAfter: any = caseStudy.beforeAfter;
+  if (typeof rawBeforeAfter === "string") {
+    try {
+      rawBeforeAfter = JSON.parse(rawBeforeAfter);
+    } catch {
+      rawBeforeAfter = null;
+    }
+  }
 
   const formattedData = {
     id: caseStudy.id,
@@ -246,10 +314,11 @@ export default async function EditCasePage({
     metrics: normalizedMetrics,
     testimonials: normalizedTestimonials,
     gallery: normalizedGallery,
-    technicalSpecs: Array.isArray(caseStudy.technicalSpecs) ? caseStudy.technicalSpecs : [],
-    servicesUsed: Array.isArray(caseStudy.servicesUsed) ? caseStudy.servicesUsed : [],
+    technicalSpecs: rawTechnicalSpecs,
+    servicesUsed: normalizedServicesUsed,
+    beforeAfter: rawBeforeAfter,
     teamMembers,
-    seo: caseStudy.seo || {}
+    seo: typeof caseStudy.seo === "string" ? (() => { try { return JSON.parse(caseStudy.seo); } catch { return {}; } })() : (caseStudy.seo || {})
   }
 
   return <CaseEditor initialData={formattedData} attractions={attractions} teamMembers={teamMembersDb} />
