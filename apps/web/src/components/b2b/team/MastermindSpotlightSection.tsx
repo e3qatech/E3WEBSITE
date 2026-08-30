@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Sparkles, Briefcase, ArrowRight, Quote, Award } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, Briefcase, ArrowRight, Quote, Award, Play, Pause } from "lucide-react";
 import { SafePublicTeamMember } from "@/lib/team/team-resolver";
 import { resolveDepartmentAura } from "@/lib/team/department-aura";
 import { cn } from "@/lib/utils";
@@ -20,8 +20,10 @@ export function MastermindSpotlightSection({
   const isAr = locale === "ar";
   const shouldReduceMotion = useReducedMotion();
   const spotlightRef = useRef<HTMLElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
-  // Filter members who are featured or have story content
+  // Filter members who are featured or have rich content
   const stories = featuredMembers.filter(
     (m) => m.isFeatured || m.aboutSummary || m.aboutSummaryAr || (m.projects && m.projects.length > 0)
   );
@@ -43,6 +45,10 @@ export function MastermindSpotlightSection({
     setCurrentIndex((prev) => (prev - 1 + total) % total);
   }, [total]);
 
+  const togglePause = useCallback(() => {
+    setIsPaused((prev) => !prev);
+  }, []);
+
   // Auto-advance spotlight every 7 seconds when not paused or motion reduced
   useEffect(() => {
     if (shouldReduceMotion || isPaused || total <= 1) return;
@@ -50,20 +56,63 @@ export function MastermindSpotlightSection({
     return () => clearInterval(interval);
   }, [shouldReduceMotion, isPaused, total, handleNext]);
 
+  // Touch Swipe Handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const deltaX = endX - touchStartX.current;
+    const deltaY = endY - touchStartY.current;
+
+    // Trigger only if horizontal swipe dominates vertical scroll
+    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+      if (deltaX > 0) {
+        // Swiped Right
+        if (isAr) {
+          handleNext();
+        } else {
+          handlePrev();
+        }
+      } else {
+        // Swiped Left
+        if (isAr) {
+          handlePrev();
+        } else {
+          handleNext();
+        }
+      }
+    }
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.key === "ArrowRight") {
+      e.preventDefault();
       if (isAr) {
         handlePrev();
       } else {
         handleNext();
       }
     } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
       if (isAr) {
         handleNext();
       } else {
         handlePrev();
       }
+    } else if (e.key === " " || e.key === "Spacebar") {
+      // Toggle pause on spacebar
+      e.preventDefault();
+      togglePause();
     }
   };
 
@@ -83,23 +132,25 @@ export function MastermindSpotlightSection({
       ref={spotlightRef}
       dir={isAr ? "rtl" : "ltr"}
       onKeyDown={handleKeyDown}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       tabIndex={0}
       data-testid="mastermind-spotlight-section"
       aria-label={isAr ? "أضواء على القيادة والابتكار" : "Featured Mastermind Spotlight"}
-      className="relative w-full max-w-7xl mx-auto my-12 sm:my-16 md:my-24 px-4 sm:px-6 lg:px-8 focus:outline-none"
+      className="relative w-full max-w-7xl mx-auto my-12 sm:my-16 md:my-20 px-4 sm:px-6 lg:px-8 focus:outline-none"
     >
       <div
         className={cn(
-          "relative w-full rounded-3xl lg:rounded-[2.5rem] overflow-hidden p-6 sm:p-8 md:p-12 lg:p-14",
+          "relative w-full rounded-3xl lg:rounded-[2.5rem] overflow-hidden p-6 sm:p-8 md:p-10 lg:p-12",
           "border border-white/10 shadow-2xl transition-colors duration-1000",
-          "bg-slate-950 text-white"
+          "bg-[#080b12] text-white"
         )}
       >
-        {/* Dynamic Department Aura Background Morph */}
+        {/* Subtle Background Radial Glow */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-40 transition-all duration-1000 ease-out"
+          className="absolute inset-0 pointer-events-none opacity-25 transition-all duration-1000 ease-out"
           style={{
             background: aura.auraGradient,
           }}
@@ -116,18 +167,34 @@ export function MastermindSpotlightSection({
 
         {/* Top Header Bar with Carousel Controls */}
         <div className="relative z-10 flex items-center justify-between mb-8 pb-4 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            </div>
             <span className="text-xs font-mono font-bold uppercase tracking-widest text-cyan-300">
               {isAr ? "أضواء على القيادة والابتكار" : "Featured Mastermind Spotlight"}
             </span>
           </div>
 
-          {/* Carousel Controls */}
+          {/* Accessible Carousel Controls */}
           <div className="flex items-center gap-3">
-            <span className="text-xs font-mono font-bold text-slate-400">
+            <span className="text-xs font-mono font-bold text-slate-400 hidden sm:inline">
               {currentIndex + 1} / {total}
             </span>
+
+            {/* Pause/Play Toggle Button */}
+            <button
+              type="button"
+              onClick={togglePause}
+              aria-label={isPaused ? (isAr ? "تشغيل التبديل التلقائي" : "Play auto-advance") : (isAr ? "إيقاف مؤقت" : "Pause auto-advance")}
+              aria-pressed={isPaused}
+              data-testid="spotlight-pause-btn"
+              className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 flex items-center justify-center text-slate-300 hover:text-white transition-colors cursor-pointer"
+              title={isPaused ? "Play" : "Pause"}
+            >
+              {isPaused ? <Play className="w-3.5 h-3.5 fill-current" /> : <Pause className="w-3.5 h-3.5 fill-current" />}
+            </button>
+
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
@@ -154,22 +221,23 @@ export function MastermindSpotlightSection({
         {/* 40% Portrait / 60% Content Asymmetric Grid */}
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
-          {/* 40% PORTRAIT COLUMN (5 cols on lg) */}
+          {/* PORTRAIT COLUMN (5 cols on lg) - 4:5 Aspect Ratio */}
           <div className="lg:col-span-5 flex justify-center">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentMember.id || currentMember.slug}
-                initial={shouldReduceMotion ? {} : { opacity: 0, scale: 0.95 }}
+                initial={shouldReduceMotion ? {} : { opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={shouldReduceMotion ? {} : { opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.5 }}
-                className="relative w-full max-w-sm aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl border border-white/15 bg-zinc-900 group"
+                exit={shouldReduceMotion ? {} : { opacity: 0, scale: 1.04 }}
+                transition={{ duration: 0.45 }}
+                className="relative w-full max-w-xs sm:max-w-sm aspect-[4/5] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/15 bg-zinc-950 group"
               >
                 {currentMember.profileImage ? (
                   <img
                     src={currentMember.profileImage}
                     alt={displayName}
-                    className="w-full h-full object-cover object-top filter grayscale-0 contrast-105 group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-cover object-top filter grayscale-0 contrast-[1.03] group-hover:scale-105 transition-transform duration-700"
+                    loading="eager"
                   />
                 ) : (
                   <div
@@ -179,7 +247,7 @@ export function MastermindSpotlightSection({
                     }}
                   >
                     <div
-                      className="w-24 h-24 rounded-full border-2 flex items-center justify-center text-4xl font-black mb-3"
+                      className="w-24 h-24 rounded-2xl border-2 flex items-center justify-center text-3xl font-black mb-3 bg-white/5"
                       style={{
                         borderColor: aura.primaryColor,
                         color: aura.primaryColor,
@@ -193,25 +261,28 @@ export function MastermindSpotlightSection({
                   </div>
                 )}
 
+                {/* Ambient subtle vignette scrim */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none opacity-60" />
+
                 {/* Glowing border highlight */}
                 <div
-                  className="absolute inset-0 rounded-3xl pointer-events-none border-2 opacity-50"
-                  style={{ borderColor: `${aura.primaryColor}55` }}
+                  className="absolute inset-0 rounded-2xl sm:rounded-3xl pointer-events-none border opacity-40 transition-colors duration-700"
+                  style={{ borderColor: aura.primaryColor }}
                 />
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* 60% CONTENT COLUMN (7 cols on lg) */}
+          {/* CONTENT COLUMN (7 cols on lg) */}
           <div className="lg:col-span-7 flex flex-col items-start text-start">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentMember.id || currentMember.slug}
-                initial={shouldReduceMotion ? {} : { opacity: 0, y: 15 }}
+                initial={shouldReduceMotion ? {} : { opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={shouldReduceMotion ? {} : { opacity: 0, y: -15 }}
-                transition={{ duration: 0.4 }}
-                className="space-y-5 w-full"
+                exit={shouldReduceMotion ? {} : { opacity: 0, y: -12 }}
+                transition={{ duration: 0.35 }}
+                className="space-y-4 sm:space-y-5 w-full"
               >
                 {/* Department pill & Experience Badge */}
                 <div className="flex flex-wrap items-center gap-2">
@@ -220,14 +291,14 @@ export function MastermindSpotlightSection({
                     style={{
                       backgroundColor: `${aura.primaryColor}15`,
                       color: aura.primaryColor,
-                      borderColor: `${aura.primaryColor}30`,
+                      borderColor: `${aura.primaryColor}35`,
                     }}
                   >
                     {displayDepartment}
                   </span>
-                  {currentMember.yearsOfExperience && (
+                  {currentMember.yearsOfExperience > 0 && (
                     <span className="px-3 py-1 rounded-full text-xs font-mono font-medium text-slate-300 bg-white/5 border border-white/10 flex items-center gap-1.5">
-                      <Award className="w-3.5 h-3.5 text-amber-400" />
+                      <Award className="w-3.5 h-3.5 text-cyan-400" />
                       <span>
                         {currentMember.yearsOfExperience} {isAr ? "سنوات خبرة" : "Years Experience"}
                       </span>
@@ -237,7 +308,7 @@ export function MastermindSpotlightSection({
 
                 {/* Name & Designation */}
                 <div>
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight font-syne">
                     {displayName}
                   </h2>
                   <p className="text-sm sm:text-base text-cyan-300 font-semibold mt-1">
@@ -245,19 +316,19 @@ export function MastermindSpotlightSection({
                   </p>
                 </div>
 
-                {/* Quote / Tagline */}
+                {/* Tagline */}
                 {displayTagline && (
-                  <div className="relative ps-4 sm:ps-6 py-2 border-s-2 border-cyan-400/60 bg-white/5 rounded-e-2xl">
-                    <Quote className="w-4 h-4 text-cyan-400/60 absolute -top-1 start-2" />
-                    <p className="text-sm sm:text-base italic text-slate-200 font-medium">
+                  <div className="relative ps-4 py-2 border-s-2 border-cyan-400/60 bg-white/5 rounded-e-xl">
+                    <Quote className="w-3.5 h-3.5 text-cyan-400/60 absolute -top-1 start-2" />
+                    <p className="text-xs sm:text-sm italic text-slate-200 font-medium leading-relaxed">
                       &ldquo;{displayTagline}&rdquo;
                     </p>
                   </div>
                 )}
 
-                {/* Biography / About Summary */}
+                {/* Shortened Biography (2-3 lines max) */}
                 {displayAbout && (
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl line-clamp-4">
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl line-clamp-3">
                     {displayAbout}
                   </p>
                 )}
@@ -267,7 +338,7 @@ export function MastermindSpotlightSection({
                   <div>
                     <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
                       <Briefcase className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>{isAr ? "مشاريع رئيسية" : "Key Project Deliverables"}</span>
+                      <span>{isAr ? "مشاريع معتمدة" : "Key Project Deliverables"}</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {currentMember.projects.slice(0, 3).map((project: any, idx: number) => {
@@ -276,7 +347,7 @@ export function MastermindSpotlightSection({
                         return (
                           <span
                             key={idx}
-                            className="px-2.5 py-1 rounded-xl text-xs bg-slate-900/80 border border-white/10 text-slate-200"
+                            className="px-2.5 py-1 rounded-lg text-xs bg-white/5 border border-white/10 text-slate-200"
                           >
                             {projectName}
                           </span>
@@ -291,7 +362,7 @@ export function MastermindSpotlightSection({
                   <Link
                     href={profileUrl}
                     data-testid="spotlight-profile-cta"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white text-slate-950 hover:bg-cyan-400 font-bold text-xs sm:text-sm transition-all shadow-lg hover:shadow-cyan-400/20"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs sm:text-sm transition-all shadow-lg hover:shadow-cyan-400/25 active:scale-[0.98]"
                   >
                     <span>{isAr ? "استعرض الملف الكامل والخبرات" : "View Full Profile & Experience"}</span>
                     <ArrowRight className={cn("w-4 h-4", isAr && "rotate-180")} />

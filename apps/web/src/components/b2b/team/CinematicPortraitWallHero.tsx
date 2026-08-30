@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Users } from "lucide-react";
 import { SafePublicTeamMember } from "@/lib/team/team-resolver";
 import { parseTwoLineHeadline } from "@/components/b2c/hero/E3LivingHero";
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
@@ -35,33 +34,29 @@ interface CinematicPortraitWallHeroProps {
 
 export function CinematicPortraitWallHero({
   locale = "en",
-  eyebrowEn = "THE TALENT BEHIND THE EXPERIENCES",
-  eyebrowAr = "فريق العمل وصناع التجارب الاستثنائية",
-  fixedHeadlineEn = "Meet the Minds Shaping",
-  fixedHeadlineAr = "نخبة العقول الهندسية التي تصنع",
+  eyebrowEn = "PEOPLE OF E3",
+  eyebrowAr = "فريق عمل إي ثري",
+  fixedHeadlineEn = "THE PEOPLE BEHIND EVERY E3 EXPERIENCE",
+  fixedHeadlineAr = "العقول والشخصيات وراء كل تجربة تصنعها إي ثري",
   headlineTemplateEn,
   headlineTemplateAr,
-  rotatingWordsEn = ["Extraordinary Moments", "Iconic Activations", "Sensory Spectacles", "Global Pavilions", "Cultural Landmarks"],
-  rotatingWordsAr = ["اللحظات الاستثنائية", "الفعاليات الكبرى", "العروض البصرية", "الأجنحة العالمية", "المعالم الثقافية"],
-  descriptionEn = "A multidisciplinary collective of spatial designers, AV engineers, project directors, and event architects orchestrating Qatar's most ambitious live experiences.",
-  descriptionAr = "فريق متكامل من مهندسي المساحات، خبراء التقنيات السمعية والبصرية، ومديري المشاريع الذين يقودون أضخم الفعاليات والتجارب الحية في قطر.",
-  primaryCtaLabelEn = "Join the Atelier",
-  primaryCtaLabelAr = "انضم إلى الفريق",
-  primaryCtaUrl,
-  secondaryCtaLabelEn = "Explore Directory ↓",
-  secondaryCtaLabelAr = "استكشف الدليل ↓",
-  secondaryCtaUrl = "#team-directory",
-  animationSpeed = 3000,
+  descriptionEn = "From the first sketch to the final guest, our strategists, designers, producers, technicians and operators build every moment together.",
+  descriptionAr = "من المخطط الأول حتى آخر زائر، يبتكر خبراؤنا ومصممونا ومنتجونا وتقنيونا كل لحظة وتفصيل بتناغم متكامل.",
+  primaryCtaLabelEn = "Meet the Teams",
+  primaryCtaLabelAr = "تعرف على الفرق",
+  primaryCtaUrl = "#how-e3-works",
+  secondaryCtaLabelEn = "Join E3",
+  secondaryCtaLabelAr = "انضم إلى إي ثري",
+  secondaryCtaUrl,
   media,
   heroMedia,
 }: CinematicPortraitWallHeroProps) {
   const isAr = locale === "ar";
-  const shouldReduceMotion = useReducedMotion();
 
   // 1. Resolve raw headline string
   const rawHeadline = isAr
-    ? (headlineTemplateAr || fixedHeadlineAr || "نخبة العقول الهندسية التي تصنع")
-    : (headlineTemplateEn || fixedHeadlineEn || "Meet the Minds Shaping");
+    ? (headlineTemplateAr || fixedHeadlineAr || "العقول والشخصيات وراء كل تجربة تصنعها إي ثري")
+    : (headlineTemplateEn || fixedHeadlineEn || "THE PEOPLE BEHIND EVERY E3 EXPERIENCE");
 
   const hasExplicitTemplate = rawHeadline.includes("{{animated}}") || rawHeadline.includes("\n");
 
@@ -71,37 +66,20 @@ export function CinematicPortraitWallHero({
     return parseTwoLineHeadline(rawHeadline);
   }, [rawHeadline, hasExplicitTemplate]);
 
-  // 3. Rotating Kinetic Words
-  const words = isAr
-    ? (Array.isArray(rotatingWordsAr) && rotatingWordsAr.length > 0 ? rotatingWordsAr : ["اللحظات الاستثنائية", "الفعاليات الكبرى", "العروض البصرية"])
-    : (Array.isArray(rotatingWordsEn) && rotatingWordsEn.length > 0 ? rotatingWordsEn : ["Extraordinary Moments", "Iconic Activations", "Sensory Spectacles"]);
-
-  const [wordIndex, setWordIndex] = useState(0);
-
-  useEffect(() => {
-    if (shouldReduceMotion || !words || words.length <= 1) return;
-    const interval = setInterval(() => {
-      setWordIndex((prev) => (prev + 1) % words.length);
-    }, animationSpeed);
-    return () => clearInterval(interval);
-  }, [words, animationSpeed, shouldReduceMotion]);
-
-  const defaultPrimaryUrl = primaryCtaUrl || `/${locale}/careers`;
+  const defaultSecondaryUrl = secondaryCtaUrl || `/${locale}/b2b/careers`;
   const activeMedia = heroMedia || media;
-  const currentWord = words[wordIndex] || words[0] || "";
 
   return (
     <section
       dir={isAr ? "rtl" : "ltr"}
       data-testid="cinematic-portrait-wall-hero"
       aria-label={isAr ? "دليل فريق العمل الرئيسي" : "Team Directory Hero"}
-      className="relative min-h-[52svh] lg:min-h-[62svh] w-full bg-[#090c13] text-white flex flex-col items-center justify-center pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative min-h-[52svh] lg:min-h-[58svh] w-full bg-[#080b12] text-white flex flex-col items-center justify-center pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       {/* ============================================================ */}
-      {/* 1. ATMOSPHERIC GRAPHITE BACKDROP & MEDIA RENDERER             */}
+      {/* 1. ATMOSPHERIC BACKDROP & MEDIA RENDERER                     */}
       {/* ============================================================ */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        {/* Active Hero Atmospheric Backdrop Media */}
         {activeMedia && activeMedia.mediaUrl ? (
           <div className="absolute inset-0 w-full h-full">
             <UniversalMediaRenderer
@@ -111,16 +89,16 @@ export function CinematicPortraitWallHero({
               autoPlay
               loop
               muted
-              className="w-full h-full object-cover scale-105 filter blur-[1px] brightness-[0.45] transition-all duration-1000"
+              className="w-full h-full object-cover scale-105 filter blur-[1px] brightness-[0.4] transition-all duration-1000"
             />
             {/* Cinematic Gradient Scrim */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#090c13]/90 via-[#090c13]/70 to-[#090c13]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#080b12]/90 via-[#080b12]/75 to-[#080b12]" />
           </div>
         ) : null}
 
         {/* Subtle film grain texture overlay */}
         <div
-          className="absolute inset-0 opacity-[0.035] mix-blend-overlay"
+          className="absolute inset-0 opacity-[0.03] mix-blend-overlay"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
           }}
@@ -128,13 +106,13 @@ export function CinematicPortraitWallHero({
 
         {/* Top Radial Glow Fields */}
         <div
-          className="absolute -top-32 start-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full blur-3xl opacity-30 pointer-events-none"
+          className="absolute -top-32 start-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full blur-3xl opacity-25 pointer-events-none"
           style={{
-            background: "radial-gradient(circle, rgba(6,182,212,0.45) 0%, rgba(99,102,241,0.25) 50%, transparent 75%)",
+            background: "radial-gradient(circle, rgba(6,182,212,0.4) 0%, rgba(99,102,241,0.2) 50%, transparent 75%)",
           }}
         />
         <div
-          className="absolute -bottom-24 inset-x-0 h-40 bg-gradient-to-t from-[#090c13] to-transparent pointer-events-none"
+          className="absolute -bottom-24 inset-x-0 h-40 bg-gradient-to-t from-[#080b12] to-transparent pointer-events-none"
         />
       </div>
 
@@ -143,81 +121,22 @@ export function CinematicPortraitWallHero({
       {/* ============================================================ */}
       <div className="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto w-full">
         {/* Eyebrow Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold tracking-wider text-cyan-400 uppercase mb-5 shadow-sm">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-mono font-bold tracking-wider text-cyan-400 uppercase mb-5 shadow-sm">
           <Sparkles className="w-3.5 h-3.5 shrink-0" />
           <span>{isAr ? eyebrowAr : eyebrowEn}</span>
         </div>
 
-        {/* Kinetic Two-Line or Inline Headline with Safe Token Interpolation */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.18] max-w-3xl">
+        {/* Headline */}
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15] max-w-3xl font-syne">
           {parsedHeadline ? (
             <div className="flex flex-col items-center justify-center gap-1 sm:gap-2">
               {/* Line 1 */}
-              {parsedHeadline.line1.hasToken ? (
-                <span className="inline-flex items-baseline flex-wrap justify-center gap-x-2.5">
-                  {parsedHeadline.line1.prefix && <span>{parsedHeadline.line1.prefix}</span>}
-                  <span className="inline-block relative min-h-[1.2em]">
-                    <AnimatePresence mode="wait">
-                      <motion.span
-                        key={wordIndex}
-                        initial={shouldReduceMotion ? {} : { opacity: 0, y: 14, filter: "blur(6px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        exit={shouldReduceMotion ? {} : { opacity: 0, y: -14, filter: "blur(6px)" }}
-                        transition={{ duration: 0.45, ease: "easeOut" }}
-                        className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300"
-                      >
-                        {currentWord}
-                      </motion.span>
-                    </AnimatePresence>
-                  </span>
-                  {parsedHeadline.line1.suffix && <span>{parsedHeadline.line1.suffix}</span>}
-                </span>
-              ) : (
-                <span>{parsedHeadline.line1.text}</span>
-              )}
-
+              <span>{parsedHeadline.line1.text}</span>
               {/* Line 2 */}
-              {parsedHeadline.line2.hasToken ? (
-                <span className="inline-flex items-baseline flex-wrap justify-center gap-x-2.5">
-                  {parsedHeadline.line2.prefix && <span>{parsedHeadline.line2.prefix}</span>}
-                  <span className="inline-block relative min-h-[1.2em]">
-                    <AnimatePresence mode="wait">
-                      <motion.span
-                        key={wordIndex}
-                        initial={shouldReduceMotion ? {} : { opacity: 0, y: 14, filter: "blur(6px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        exit={shouldReduceMotion ? {} : { opacity: 0, y: -14, filter: "blur(6px)" }}
-                        transition={{ duration: 0.45, ease: "easeOut" }}
-                        className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300"
-                      >
-                        {currentWord}
-                      </motion.span>
-                    </AnimatePresence>
-                  </span>
-                  {parsedHeadline.line2.suffix && <span>{parsedHeadline.line2.suffix}</span>}
-                </span>
-              ) : parsedHeadline.line2.text ? (
-                <span>{parsedHeadline.line2.text}</span>
-              ) : null}
+              {parsedHeadline.line2.text && <span>{parsedHeadline.line2.text}</span>}
             </div>
           ) : (
-            <span className="inline-flex items-baseline flex-wrap justify-center gap-x-2.5">
-              <span>{rawHeadline}</span>
-              <span className="inline-block relative min-h-[1.2em]">
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={wordIndex}
-                    initial={shouldReduceMotion ? {} : { opacity: 0, y: 14, filter: "blur(6px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    exit={shouldReduceMotion ? {} : { opacity: 0, y: -14, filter: "blur(6px)" }}
-                    transition={{ duration: 0.45, ease: "easeOut" }}
-                    className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300"
-                  >
-                    {currentWord}
-                  </motion.span>
-                </AnimatePresence>
-              </span>
-            </span>
+            <span>{rawHeadline}</span>
           )}
         </h1>
 
@@ -228,18 +147,19 @@ export function CinematicPortraitWallHero({
 
         {/* Action Buttons */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-          <Link
-            href={defaultPrimaryUrl}
+          <a
+            href={primaryCtaUrl}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-sm transition-all shadow-lg shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98]"
           >
+            <Users className="w-4 h-4" />
             <span>{isAr ? primaryCtaLabelAr : primaryCtaLabelEn}</span>
-            <ArrowRight className={cn("w-4 h-4", isAr && "rotate-180")} />
-          </Link>
+          </a>
           <Link
-            href={secondaryCtaUrl}
+            href={defaultSecondaryUrl}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-sm border border-white/15 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             <span>{isAr ? secondaryCtaLabelAr : secondaryCtaLabelEn}</span>
+            <ArrowRight className={cn("w-4 h-4", isAr && "rotate-180")} />
           </Link>
         </div>
       </div>
