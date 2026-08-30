@@ -1,4 +1,4 @@
-const base = 'https://e3-qatar-cerk2prj4-e3qatechs-projects.vercel.app';
+const base = process.argv[2] || 'https://e3-qatar-2b0egzxq4-e3qatechs-projects.vercel.app';
 
 async function runAudit() {
   console.log('=== 1. Services Directory (EN & AR) ===');
