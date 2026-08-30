@@ -28,7 +28,7 @@ const MARQUEE_LOGOS = [
   "Qatar Tourism", "Supreme Committee", "Qatar Airways", "Katara", "Qatar Museums", "Aspire Zone"
 ];
 
-export function ServicesClient({ services }: { services: ServiceItem[] }) {
+export function ServicesClient({ services, locale = "en" }: { services: ServiceItem[], locale?: string }) {
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -196,7 +196,7 @@ export function ServicesClient({ services }: { services: ServiceItem[] }) {
 
                     <div className="mt-8">
                       <Link 
-                        href={`/b2b/services/${service.slug}`}
+                        href={localizeHref(`/b2b/services/${service.slug}`, locale)}
                         className="inline-flex items-center font-medium text-[var(--color-primary)] group/link"
                       >
                         Learn More 

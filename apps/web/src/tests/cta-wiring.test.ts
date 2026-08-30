@@ -89,40 +89,46 @@ describe('QF-02-C: Semantic CTA Wiring & Destination Verification', () => {
       expect(arHref).toBe('/ar/b2b/contact');
     });
 
-    it('preserves View All Case Studies pointing to Cases route', () => {
+    it('preserves View All Case Studies pointing to Case Studies canonical route', () => {
       const enHref = localizeHref('/b2b/cases', 'en');
       const arHref = localizeHref('/b2b/cases', 'ar');
 
-      expect(enHref === '/en/b2b/case-studies' || enHref === '/en/b2b/cases').toBe(true);
-      expect(arHref === '/ar/b2b/case-studies' || arHref === '/ar/b2b/cases').toBe(true);
+      expect(enHref).toBe('/en/b2b/case-studies');
+      expect(arHref).toBe('/ar/b2b/case-studies');
     });
 
     it('renders B2BHeader with correct localized routes in English and Arabic', () => {
       const htmlEn = renderToString(React.createElement(B2BHeader, { locale: 'en' }));
       assertAllInternalHrefsLocalized(htmlEn, 'en');
       expect(htmlEn).toContain('/en/b2b/services');
-      expect(htmlEn.includes('/en/b2b/case-studies') || htmlEn.includes('/en/b2b/cases')).toBe(true);
+      expect(htmlEn).toContain('/en/b2b/case-studies');
       expect(htmlEn).toContain('/en/b2b/contact');
+      expect(htmlEn).not.toContain('href="/b2b/');
 
       const htmlAr = renderToString(React.createElement(B2BHeader, { locale: 'ar' }));
       assertAllInternalHrefsLocalized(htmlAr, 'ar');
       expect(htmlAr).toContain('/ar/b2b/services');
-      expect(htmlAr.includes('/ar/b2b/case-studies') || htmlAr.includes('/ar/b2b/cases')).toBe(true);
+      expect(htmlAr).toContain('/ar/b2b/case-studies');
       expect(htmlAr).toContain('/ar/b2b/contact');
+      expect(htmlAr).not.toContain('href="/b2b/');
     });
 
-    it('renders B2BFooter with correct localized routes in English and Arabic', () => {
+    it('renders B2BFooter with correct localized routes and no raw &rarr; entities', () => {
       const htmlEn = renderToString(React.createElement(B2BFooter, { locale: 'en' }));
       assertAllInternalHrefsLocalized(htmlEn, 'en');
       expect(htmlEn).toContain('/en/b2b/services');
-      expect(htmlEn.includes('/en/b2b/case-studies') || htmlEn.includes('/en/b2b/cases')).toBe(true);
+      expect(htmlEn).toContain('/en/b2b/case-studies');
       expect(htmlEn).toContain('/en/b2b/contact');
+      expect(htmlEn).not.toContain('&rarr;');
+      expect(htmlEn).not.toContain('href="/b2b/');
 
       const htmlAr = renderToString(React.createElement(B2BFooter, { locale: 'ar' }));
       assertAllInternalHrefsLocalized(htmlAr, 'ar');
       expect(htmlAr).toContain('/ar/b2b/services');
-      expect(htmlAr.includes('/ar/b2b/case-studies') || htmlAr.includes('/ar/b2b/cases')).toBe(true);
+      expect(htmlAr).toContain('/ar/b2b/case-studies');
       expect(htmlAr).toContain('/ar/b2b/contact');
+      expect(htmlAr).not.toContain('&rarr;');
+      expect(htmlAr).not.toContain('href="/b2b/');
     });
 
     it('renders B2BBrandPortfolio partnership link localized in English and Arabic', () => {

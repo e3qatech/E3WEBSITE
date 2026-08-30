@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ShieldCheck, FileCheck, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, FileCheck } from "lucide-react";
 import { EnterpriseReadinessItem } from "@/lib/services/canonical-services";
 
 interface ServiceEnterpriseReadinessProps {
@@ -27,8 +27,8 @@ export function ServiceEnterpriseReadiness({ items, locale }: ServiceEnterpriseR
           </h2>
           <p className="text-base text-[var(--text-secondary)]">
             {isAr
-              ? "نلتزم بأعلى معايير السلامة والصحة المهنية، وإجراءات العمل الآمن المعتمدة من الجهات المختصة في قطر."
-              : "Documented working practices, formal HSE management, certified load testing, and direct authority coordination protocols."}
+              ? "نلتزم بأعلى معايير السلامة والصحة المهنية، وإجراءات العمل المؤسسي المعتمدة."
+              : "Documented working practices, formal HSE management, and structured execution protocols."}
           </p>
         </div>
 

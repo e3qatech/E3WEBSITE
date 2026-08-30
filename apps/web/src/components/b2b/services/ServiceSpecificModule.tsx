@@ -1,19 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Sparkles,
-  Sliders,
-  CheckCircle2,
-  Layers,
-  ArrowRight,
-  Shield,
-  Zap,
-  Users,
-  Compass,
-  Cpu,
-  Ticket
-} from "lucide-react";
+import { Sliders, CheckCircle2 } from "lucide-react";
 import { ServiceSpecificModuleConfig } from "@/lib/services/canonical-services";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +14,7 @@ export function ServiceSpecificModule({ moduleConfig, locale }: ServiceSpecificM
   const isAr = locale === "ar";
   const [activeTab, setActiveTab] = useState<number>(0);
 
-  if (!moduleConfig || !moduleConfig.data) return null;
+  if (!moduleConfig || !moduleConfig.data || !moduleConfig.type || moduleConfig.type === 'none') return null;
 
   const { type, data } = moduleConfig;
 

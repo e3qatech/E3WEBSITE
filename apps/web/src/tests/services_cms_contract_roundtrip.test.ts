@@ -5,7 +5,7 @@ import {
   resolveServiceSlug,
 } from "@/lib/services/canonical-services";
 import { adaptDbServiceToPresentation, decodeHtmlEntities } from "@/lib/services/service-adapters";
-import { canonicalizeRoute } from "@/lib/url-helper";
+import { canonicalizeRoute, localizeHref } from "@/lib/url-helper";
 
 describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
   // 1. Canonical Services Taxonomy Count
@@ -438,5 +438,102 @@ describe("Services CMS Contract & Persistence Round-Trip Suite", () => {
     const availableServices = Array.from(publishedMap.values());
     expect(availableServices.some((s) => s.slug === "attraction-operations")).toBe(false);
     expect(availableServices.length).toBe(4);
+  });
+
+  // 12. Public Internal Link Validation: Reject any link beginning with unlocalized /b2b/
+  it("12. localizeHref rejects raw /b2b/ internal paths and attaches active locale", () => {
+    const rawPaths = [
+      "/b2b/contact",
+      "/b2b/cases",
+      "/b2b/case-studies",
+      "/b2b/services",
+      "/b2b/services/mega-events",
+      "/b2b/about",
+      "/b2b/team",
+    ];
+
+    for (const p of rawPaths) {
+      const localizedEn = localizeHref(p, "en");
+      const localizedAr = localizeHref(p, "ar");
+
+      expect(localizedEn).not.toMatch(/^\/b2b(\/|$)/);
+      expect(localizedEn).toMatch(/^\/en\/b2b(\/|$)/);
+      expect(localizedAr).not.toMatch(/^\/b2b(\/|$)/);
+      expect(localizedAr).toMatch(/^\/ar\/b2b(\/|$)/);
+    }
+  });
+
+  // 13. Hardcoded & Unverified Claims Suppression
+  it("13. Suppresses optional enhancement sections when absent from DB without hardcoded fallbacks", () => {
+    const fecDbWithoutEnhancements: any = {
+      id: "srv-fec-pure-db",
+      slug: "fec",
+      titleEn: "Family Entertainment Centers",
+      titleAr: "مراكز الترفيه العائلي",
+      taglineEn: "Turnkey development of family entertainment centers.",
+      taglineAr: "تطوير شامل لمراكز الترفيه العائلي.",
+      isVisible: true,
+      process: {}, // No proof points, no enterprise readiness, no custom capabilities in DB
+    };
+
+    const adapted = adaptDbServiceToPresentation(fecDbWithoutEnhancements);
+
+    // Verified proof points must be empty when not verified in DB
+    expect(adapted.verifiedProofPoints).toEqual([]);
+    // Enterprise readiness must be empty (suppressed)
+    expect(adapted.enterpriseReadiness).toEqual([]);
+    // Capabilities bento must be empty (suppressed)
+    expect(adapted.capabilities).toEqual([]);
+    // Deliverables roster must be empty (suppressed)
+    expect(adapted.deliverables).toEqual([]);
+    // Lifecycle stages must be empty (suppressed)
+    expect(adapted.lifecycleStages).toEqual([]);
+    // Engagement models must be empty (suppressed)
+    expect(adapted.engagementModels).toEqual([]);
+    // Specialist module must be none (suppressed)
+    expect(adapted.serviceSpecificModule.type).toBe("none");
+
+    // Objectives are retained for Brief Builder
+    expect(adapted.objectives.length).toBe(2);
+    expect(adapted.objectives.map((o) => o.id)).toContain("obj-mall-anchor");
+    expect(adapted.objectives.map((o) => o.id)).toContain("obj-venue-retrofit");
+  });
+
+  // 14. Primary Capability Navigator Renders Exactly 9 Published Services
+  it("14. Capability navigator renders all 9 database-backed canonical services", () => {
+    const dbPublishedServices = [
+      { id: "s1", slug: "mega-events", isVisible: true },
+      { id: "s2", slug: "fec", isVisible: true }, // maps to family-entertainment-centers
+      { id: "s3", slug: "av-stage-rentals", isVisible: true },
+      { id: "s4", slug: "kids-play-concepts", isVisible: true }, // maps to kids-concepts
+      { id: "s5", slug: "experiential-activations", isVisible: true },
+      { id: "s6", slug: "shows-performances", isVisible: true },
+      { id: "s7", slug: "ticketing-solutions", isVisible: true },
+      { id: "s8", slug: "fabrication-branding", isVisible: true },
+      { id: "s9", slug: "feasibility-design-research", isVisible: true },
+    ];
+
+    const servicesMap = new Map<string, any>();
+    dbPublishedServices.forEach((dbs) => {
+      if (dbs.isVisible !== false) {
+        const canonical = getCanonicalService(dbs.slug);
+        const targetSlug = canonical ? canonical.slug : dbs.slug;
+        servicesMap.set(targetSlug, { ...dbs, slug: targetSlug });
+      }
+    });
+
+    const navigatorServices = Array.from(servicesMap.values());
+    expect(navigatorServices.length).toBe(9);
+    expect(navigatorServices.map((s) => s.slug)).toEqual([
+      "mega-events",
+      "family-entertainment-centers",
+      "av-stage-rentals",
+      "kids-concepts",
+      "experiential-activations",
+      "shows-performances",
+      "ticketing-solutions",
+      "fabrication-branding",
+      "feasibility-design-research",
+    ]);
   });
 });

@@ -120,7 +120,7 @@ export function ServiceMicrositeClient({
       )}
 
       {/* 9. SERVICE-SPECIFIC UNIQUE MODULE */}
-      {visibility.specialistModule !== false && mergedService.serviceSpecificModule && (
+      {visibility.specialistModule !== false && mergedService.serviceSpecificModule && mergedService.serviceSpecificModule.type && mergedService.serviceSpecificModule.type !== 'none' && (
         <ServiceSpecificModule moduleConfig={mergedService.serviceSpecificModule} locale={locale} />
       )}
 

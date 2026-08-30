@@ -109,15 +109,15 @@ export function adaptDbServiceToPresentation(
   const ctaSecondaryTextAr = decodeHtmlEntities(dbService.ctaSecondaryTextAr || proc.ctaSecondaryTextAr || canonicalBase?.ctaSecondaryTextAr);
   const ctaSecondaryUrl = dbService.ctaSecondaryUrl || proc.ctaSecondaryUrl || canonicalBase?.ctaSecondaryUrl;
 
-  // Proof points with strict factual verification filter
+  // Proof points with strict factual verification filter (database only)
   const rawProofPoints = safeJsonParse<any[]>(
     dbService.verifiedProofPoints ?? proc.verifiedProofPoints ?? proc.proofPoints,
-    canonicalBase?.verifiedProofPoints || []
+    []
   );
   // Suppress unverified claims (strictly require isVerified === true)
   const verifiedProofPoints: VerifiedProofPoint[] = (rawProofPoints || []).filter((p: any) => p && p.isVerified === true);
 
-  // Safe JSON extraction for optional enhancement structures
+  // Safe JSON extraction for optional enhancement structures (database-only, suppress if absent)
   const objectives = safeJsonParse<ServiceObjective[]>(
     dbService.objectives ?? proc.objectives,
     canonicalBase?.objectives || []
@@ -125,44 +125,44 @@ export function adaptDbServiceToPresentation(
 
   const capabilities = safeJsonParse<CapabilityBentoItem[]>(
     dbService.capabilities ?? proc.capabilities,
-    canonicalBase?.capabilities || []
+    []
   );
 
   const deliverables = safeJsonParse<DeliverableCategory[]>(
     dbService.deliverables ?? proc.deliverables,
-    canonicalBase?.deliverables || []
+    []
   );
 
   const lifecycleStages = safeJsonParse<LifecycleStage[]>(
     dbService.lifecycleStages ?? proc.lifecycleStages,
-    canonicalBase?.lifecycleStages || []
+    []
   );
 
   const engagementModels = safeJsonParse<EngagementModel[]>(
     dbService.engagementModels ?? proc.engagementModels,
-    canonicalBase?.engagementModels || []
+    []
   );
 
   const wowHow = safeJsonParse<any[]>(
     dbService.wowHow ?? proc.wowHow,
-    canonicalBase?.wowHow || []
+    []
   );
 
   const serviceSpecificModule: ServiceSpecificModuleConfig = safeJsonParse<ServiceSpecificModuleConfig>(
     dbService.serviceSpecificModule ?? proc.serviceSpecificModule,
-    canonicalBase?.serviceSpecificModule || {
-      type: 'scale-explorer',
-      titleEn: 'Scope & Specifications',
-      titleAr: 'المواصفات ونطاق العمل',
-      subtitleEn: 'Production overview',
-      subtitleAr: 'نظرة عامة على التنفيذ',
+    {
+      type: 'none',
+      titleEn: '',
+      titleAr: '',
+      subtitleEn: '',
+      subtitleAr: '',
       data: {}
     }
   );
 
   const enterpriseReadiness = safeJsonParse<EnterpriseReadinessItem[]>(
     dbService.enterpriseReadiness ?? proc.enterpriseReadiness,
-    canonicalBase?.enterpriseReadiness || []
+    []
   );
 
   const rawRelatedSlugs = safeJsonParse<string[]>(

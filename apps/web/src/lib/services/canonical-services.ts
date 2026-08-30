@@ -99,7 +99,8 @@ export type ServiceModuleType =
   | 'operations-sop-model'    // Operations Support: Staffing structure, SOPs & reporting model
   | 'ticketing-flow'          // Ticketing: BookingQube journey, integrations & demo request
   | 'fabrication-materials'   // Fabrication: Materials, finishes & fabrication-stage gallery
-  | 'research-study-gates';   // Feasibility & Research: Study outputs, decision gates & sample report
+  | 'research-study-gates'    // Feasibility & Research: Study outputs, decision gates & sample report
+  | 'none';                   // No specific module enabled
 
 export interface ServiceSpecificModuleConfig {
   type: ServiceModuleType;

@@ -130,7 +130,7 @@ function BeforeAfterSlider({ beforeUrl, afterUrl }: { beforeUrl: string, afterUr
   );
 }
 
-export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseStudy: any, relatedCaseStudies: any[] }) {
+export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies, locale = "en" }: { caseStudy: any, relatedCaseStudies: any[], locale?: string }) {
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   
@@ -328,7 +328,7 @@ export function CaseStudyDetailClient({ caseStudy, relatedCaseStudies }: { caseS
             <h2 className="text-4xl md:text-6xl font-black mb-6 text-white">Want Results Like These?</h2>
             <p className="text-xl text-gray-300 mb-12">Let&apos;s discuss how our engineering and creative teams can deliver impact for your next project.</p>
             <Button size="lg" variant="primary" asChild className="rounded-full h-14 px-10 text-lg shadow-[0_0_40px_var(--color-primary)]">
-               <Link href="/b2b/contact">Start Your Project <ArrowRight className="ms-2 rtl:-scale-x-100" /></Link>
+               <Link href={localizeHref("/b2b/contact", locale)}>Start Your Project <ArrowRight className="ms-2 rtl:-scale-x-100" /></Link>
             </Button>
          </div>
       </section>

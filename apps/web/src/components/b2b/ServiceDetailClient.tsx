@@ -11,7 +11,7 @@ import { localizeHref } from "@/lib/url-helper";
 // Dynamically import Three.js components to prevent bundle bloat on non-3D pages
 const Scene3D = dynamic(() => import("@/components/b2b/Scene3D"), { ssr: false });
 
-export function ServiceDetailClient({ service }: { service: any }) {
+export function ServiceDetailClient({ service, locale = "en" }: { service: any, locale?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Sections Refs for Scroll Spy
@@ -264,13 +264,13 @@ export function ServiceDetailClient({ service }: { service: any }) {
               </Button>
             ) : (
               <Button size="lg" variant="primary" asChild className="rounded-full h-14 px-8 text-lg">
-                <Link href={`/b2b/contact?service=${service.slug}`}>Contact Sales</Link>
+                <Link href={localizeHref(`/b2b/contact?service=${service.slug}`, locale)}>Contact Sales</Link>
               </Button>
             )}
             
             {service.ctaSecondary && (
               <Button size="lg" variant="outline" asChild className="rounded-full h-14 px-8 text-lg bg-transparent">
-                <Link href={service.ctaSecondary}>{service.ctaSecondary.replace(/-/g, ' ')}</Link>
+                <Link href={localizeHref(service.ctaSecondary, locale)}>{service.ctaSecondary.replace(/-/g, ' ')}</Link>
               </Button>
             )}
           </div>

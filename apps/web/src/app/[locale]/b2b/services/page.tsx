@@ -21,6 +21,7 @@ import { getPublicCaseStudies, isCaseStudyEligible } from '@/lib/case-studies'
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
 import { getCanonicalService } from '@/lib/services/canonical-services'
 import { decodeHtmlEntities } from '@/lib/services/service-adapters'
+import { localizeHref } from '@/lib/url-helper'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -157,23 +158,15 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
   const engineeringSub = isAr ? (phil.engineeringSubAr || phil.engineeringSubEn) : phil.engineeringSubEn
   const engineeringBullets: any[] = phil.engineeringBullets || []
 
-  // 4. BENTO NAVIGATOR DATA
+  // 4. BENTO NAVIGATOR DATA (Render all 9 published, visible database-backed services)
   const nav = cms.navigator || {}
   const navEyebrow = isAr ? (nav.eyebrowAr || nav.eyebrowEn) : nav.eyebrowEn
   const navTitle = isAr ? (nav.titleAr || nav.titleEn) : nav.titleEn
   const navDesc = isAr ? (nav.descriptionAr || nav.descriptionEn) : nav.descriptionEn
   const navCardCta = isAr ? (nav.cardCtaAr || nav.cardCtaEn) : nav.cardCtaEn
 
-  // Filter services based on CMS selection mode
-  let navigatorServices = effectiveServices
-  if (nav.sourceMode === 'MANUAL' && Array.isArray(nav.selectedServiceIds) && nav.selectedServiceIds.length > 0) {
-    const selected = nav.selectedServiceIds
-      .map((id: string) => effectiveServices.find((s) => s.id === id || s.slug === id))
-      .filter(Boolean)
-    if (selected.length > 0) {
-      navigatorServices = selected
-    }
-  }
+  // Render all 9 database-backed services without limits or subsets
+  const navigatorServices = effectiveServices
 
   // 5. FEATURED SPOTLIGHTS DATA
   const spotlightsConfig = cms.featuredSpotlights || {}
@@ -282,7 +275,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                 
                 {heroSecondaryCta && (
                   <Link 
-                    href={hero.secondaryLink || `/${locale}/b2b/contact`} 
+                    href={localizeHref(hero.secondaryLink || '/b2b/contact', locale)}
                     className="inline-flex items-center gap-3 px-8 py-4 bg-[var(--surface-default)]/90 backdrop-blur-md border border-[var(--border-level-2)] text-[var(--text-primary)] font-bold text-base rounded-full hover:bg-[var(--surface-hover)] transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
                   >
                     <span>{heroSecondaryCta}</span>
@@ -525,7 +518,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                           <ArrowRight className="w-4 h-4 rtl:-scale-x-100" />
                         </Link>
                         <Link 
-                          href={`/${locale}/b2b/contact`}
+                          href={localizeHref('/b2b/contact', locale)}
                           className="px-6 py-3 bg-[var(--surface-raised)] text-[var(--text-primary)] border border-[var(--border-level-2)] font-bold rounded-full hover:bg-[var(--surface-hover)] transition-colors text-sm"
                         >
                           {requestCta || (isAr ? "اطلب هذا التخصص" : "Request This Discipline")}
@@ -607,7 +600,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                 </h2>
               </div>
               <Link 
-                href={proofConfig.viewAllLink || `/${locale}/b2b/case-studies`} 
+                href={localizeHref(proofConfig.viewAllLink || '/b2b/case-studies', locale)}
                 className="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-base hover:text-emerald-500 transition-colors group"
               >
                 <span>{viewAllCaseStudiesCta || (isAr ? "عرض جميع المشاريع" : "View All Case Studies")}</span>
@@ -674,7 +667,7 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
 
             <div className="flex flex-wrap justify-center gap-4">
               <Link 
-                href={ctaConfig.primaryLink || `/${locale}/b2b/contact`}
+                href={localizeHref(ctaConfig.primaryLink || '/b2b/contact', locale)}
                 className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-emerald-500 text-zinc-950 font-bold text-lg rounded-full hover:bg-emerald-400 transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]"
               >
                 <span>{ctaPrimaryBtn}</span>

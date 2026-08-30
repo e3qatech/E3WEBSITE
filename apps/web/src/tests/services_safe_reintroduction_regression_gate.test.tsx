@@ -74,7 +74,6 @@ describe("Phase 4: Whole-Site Regression Gates & Contract Integrity", () => {
 
   // 4. Optional Microsite Sections Suppress Independently
   it("4. Optional microsite sections suppress independently when configuration is absent", () => {
-    const serviceWithoutGallery = getCanonicalService("mega-events")!;
     const emptyGalleryHtml = renderToStaticMarkup(
       <ServiceMediaGallery items={[]} locale="en" />
     );
@@ -198,6 +197,11 @@ describe("Phase 4: Whole-Site Regression Gates & Contract Integrity", () => {
       heroMediaType: "IMAGE",
       isVisible: true,
       isFeatured: true,
+      process: {
+        wowHow: [{ id: "w1", titleEn: "Audience Immersion" }],
+        capabilities: [{ id: "c1", titleEn: "Spatial BIM" }],
+        deliverables: [{ id: "d1", titleEn: "Clearance Dossier" }],
+      },
       gallery: [
         {
           id: "gal-1",
