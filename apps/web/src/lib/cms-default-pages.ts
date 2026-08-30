@@ -2843,9 +2843,23 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       seo: { ...defaults.seo, ...(raw.seo || {}) }
     };
   }
-  if (slug === 'b2c-discover' || slug === 'discover') {
+  if (slug === 'b2c-discover' || slug === 'discover' || slug === 'b2b-discover') {
     const discoverDefaults = DEFAULT_B2C_DISCOVER_CONTENT;
     const raw = rawContent || {};
+
+    let sectionOrder = Array.isArray(raw.sectionOrder) && raw.sectionOrder.length > 0 
+      ? [...raw.sectionOrder] 
+      : [...discoverDefaults.sectionOrder];
+      
+    if (!sectionOrder.includes("e3Rentals")) {
+      const bqIdx = sectionOrder.indexOf("bookingQube");
+      if (bqIdx !== -1) {
+        sectionOrder.splice(bqIdx + 1, 0, "e3Rentals");
+      } else {
+        sectionOrder.push("e3Rentals");
+      }
+    }
+
     return {
       ...discoverDefaults,
       ...raw,
@@ -2875,7 +2889,17 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
       },
       bookingQube: {
         ...discoverDefaults.bookingQube,
-        ...(raw.bookingQube || {})
+        ...(raw.bookingQube || {}),
+        featureItems: Array.isArray(raw.bookingQube?.featureItems) && raw.bookingQube.featureItems.length > 0
+          ? raw.bookingQube.featureItems
+          : discoverDefaults.bookingQube.featureItems
+      },
+      e3Rentals: {
+        ...discoverDefaults.e3Rentals,
+        ...(raw.e3Rentals || {}),
+        featureItems: Array.isArray(raw.e3Rentals?.featureItems) && raw.e3Rentals.featureItems.length > 0
+          ? raw.e3Rentals.featureItems
+          : discoverDefaults.e3Rentals.featureItems
       },
       connect: {
         ...discoverDefaults.connect,
@@ -2893,6 +2917,7 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
         ...discoverDefaults.finalGateway,
         ...(raw.finalGateway || {})
       },
+      sectionOrder,
       seo: {
         ...discoverDefaults.seo,
         ...(raw.seo || {})

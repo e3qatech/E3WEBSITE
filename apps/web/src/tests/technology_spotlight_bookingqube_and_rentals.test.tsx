@@ -47,4 +47,43 @@ describe("BookingQube & E3 Rentals Technology Spotlights", () => {
     expect(htmlAr).toContain("هندسة التعليق والسلامة الإنشائية");
     expect(htmlAr).toContain("شبكات الطاقة والتوزيع المتزامن");
   });
+
+  it("automatically renders E3 Rentals directly after BookingQube even if DB has legacy sectionOrder without e3Rentals", () => {
+    const legacyDBSettings = {
+      sectionOrder: [
+        "hero",
+        "about",
+        "leadership",
+        "visionMissionValues",
+        "recordBreaking",
+        "impactMilestones",
+        "bookingQube",
+        "connect",
+        "trustedAcrossQatar",
+        "latestInsights",
+        "finalGateway"
+      ]
+    };
+
+    const html = renderToStaticMarkup(
+      <DiscoverClient
+        locale="en"
+        initialSettings={legacyDBSettings}
+      />
+    );
+
+    expect(html).toContain("BookingQube™");
+    expect(html).toContain("E3 Rentals™");
+    expect(html).toContain("Rapid Asset &amp; Fleet Deployment");
+    
+    const bqPos = html.indexOf("id=\"bookingQube\"");
+    const rentPos = html.indexOf("id=\"e3Rentals\"");
+    const connPos = html.indexOf("id=\"connect\"");
+
+    expect(bqPos).toBeGreaterThan(-1);
+    expect(rentPos).toBeGreaterThan(-1);
+    expect(connPos).toBeGreaterThan(-1);
+    expect(bqPos).toBeLessThan(rentPos);
+    expect(rentPos).toBeLessThan(connPos);
+  });
 });

@@ -53,21 +53,57 @@ export function DiscoverClient({
   const [activeLeaderModal, setActiveLeaderModal] = useState<any | null>(null);
   const [activeBQModal, setActiveBQModal] = useState<any | null>(null);
 
-  const content = initialSettings || {};
-  const sectionOrder: string[] = content.sectionOrder || [
-    "hero",
-    "about",
-    "leadership",
-    "visionMissionValues",
-    "recordBreaking",
-    "impactMilestones",
-    "bookingQube",
-    "e3Rentals",
-    "connect",
-    "trustedAcrossQatar",
-    "latestInsights",
-    "finalGateway"
-  ];
+  const content = {
+    ...DEFAULT_B2C_DISCOVER_CONTENT,
+    ...(initialSettings || {}),
+    hero: { ...DEFAULT_B2C_DISCOVER_CONTENT.hero, ...(initialSettings?.hero || {}) },
+    about: { ...DEFAULT_B2C_DISCOVER_CONTENT.about, ...(initialSettings?.about || initialSettings?.heritage || {}) },
+    leadership: { ...DEFAULT_B2C_DISCOVER_CONTENT.leadership, ...(initialSettings?.leadership || {}) },
+    visionMissionValues: { 
+      ...DEFAULT_B2C_DISCOVER_CONTENT.visionMissionValues, 
+      ...(initialSettings?.visionMissionValues || {}),
+      vision: { ...DEFAULT_B2C_DISCOVER_CONTENT.visionMissionValues.vision, ...(initialSettings?.visionMissionValues?.vision || {}) },
+      mission: { ...DEFAULT_B2C_DISCOVER_CONTENT.visionMissionValues.mission, ...(initialSettings?.visionMissionValues?.mission || {}) }
+    },
+    recordBreaking: { ...DEFAULT_B2C_DISCOVER_CONTENT.recordBreaking, ...(initialSettings?.recordBreaking || {}) },
+    impactMilestones: { ...DEFAULT_B2C_DISCOVER_CONTENT.impactMilestones, ...(initialSettings?.impactMilestones || {}) },
+    bookingQube: { ...DEFAULT_B2C_DISCOVER_CONTENT.bookingQube, ...(initialSettings?.bookingQube || {}) },
+    e3Rentals: { ...DEFAULT_B2C_DISCOVER_CONTENT.e3Rentals, ...(initialSettings?.e3Rentals || {}) },
+    connect: { ...DEFAULT_B2C_DISCOVER_CONTENT.connect, ...(initialSettings?.connect || {}) },
+    trustedAcrossQatar: { ...DEFAULT_B2C_DISCOVER_CONTENT.trustedAcrossQatar, ...(initialSettings?.trustedAcrossQatar || {}) },
+    latestInsights: { ...DEFAULT_B2C_DISCOVER_CONTENT.latestInsights, ...(initialSettings?.latestInsights || {}) },
+    finalGateway: { ...DEFAULT_B2C_DISCOVER_CONTENT.finalGateway, ...(initialSettings?.finalGateway || {}) },
+  };
+
+  const rawSectionOrder: string[] = Array.isArray(initialSettings?.sectionOrder) && initialSettings.sectionOrder.length > 0
+    ? initialSettings.sectionOrder
+    : [
+        "hero",
+        "about",
+        "leadership",
+        "visionMissionValues",
+        "recordBreaking",
+        "impactMilestones",
+        "bookingQube",
+        "e3Rentals",
+        "connect",
+        "trustedAcrossQatar",
+        "latestInsights",
+        "finalGateway"
+      ];
+
+  // Guarantee e3Rentals is always in the section order directly after bookingQube
+  const sectionOrder = rawSectionOrder.includes("e3Rentals")
+    ? rawSectionOrder
+    : (() => {
+        const idx = rawSectionOrder.indexOf("bookingQube");
+        if (idx !== -1) {
+          const next = [...rawSectionOrder];
+          next.splice(idx + 1, 0, "e3Rentals");
+          return next;
+        }
+        return [...rawSectionOrder, "e3Rentals"];
+      })();
 
   // Helper map to match EmployeeProfiles to Leadership Messages
   const employeeProfileMap = new Map(employeeProfiles.map(e => [e.id, e]));
