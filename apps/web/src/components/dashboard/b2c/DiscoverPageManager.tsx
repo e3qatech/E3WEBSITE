@@ -47,13 +47,14 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
       recordBreaking: { ...DEFAULT_B2C_DISCOVER_CONTENT.recordBreaking, ...(initialData?.recordBreaking || {}) },
       impactMilestones: { ...DEFAULT_B2C_DISCOVER_CONTENT.impactMilestones, ...(initialData?.impactMilestones || {}) },
       bookingQube: { ...DEFAULT_B2C_DISCOVER_CONTENT.bookingQube, ...(initialData?.bookingQube || {}) },
+      e3Rentals: { ...DEFAULT_B2C_DISCOVER_CONTENT.e3Rentals, ...(initialData?.e3Rentals || {}) },
       connect: { ...DEFAULT_B2C_DISCOVER_CONTENT.connect, ...(initialData?.connect || {}) },
       trustedAcrossQatar: { ...DEFAULT_B2C_DISCOVER_CONTENT.trustedAcrossQatar, ...(initialData?.trustedAcrossQatar || {}) },
       latestInsights: { ...DEFAULT_B2C_DISCOVER_CONTENT.latestInsights, ...(initialData?.latestInsights || {}) },
       finalGateway: { ...DEFAULT_B2C_DISCOVER_CONTENT.finalGateway, ...(initialData?.finalGateway || {}) },
       sectionOrder: initialData?.sectionOrder || [
         "hero", "about", "leadership", "visionMissionValues", "recordBreaking", 
-        "impactMilestones", "bookingQube", "connect", "trustedAcrossQatar", 
+        "impactMilestones", "bookingQube", "e3Rentals", "connect", "trustedAcrossQatar", 
         "latestInsights", "finalGateway"
       ],
     }
@@ -225,13 +226,14 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
     { id: "recordBreaking", label: "5. Guinness Record" },
     { id: "impactMilestones", label: "6. Impact & Milestones" },
     { id: "bookingQube", label: "7. BookingQube Tech" },
-    { id: "connect", label: "8. Connect Gateways" },
-    { id: "trustedAcrossQatar", label: "9. Clients & Partners" },
-    { id: "latestInsights", label: "10. Insights & News" },
-    { id: "finalGateway", label: "11. Final Gateway" },
-    { id: "ordering", label: "12. Section Ordering" },
-    { id: "seo", label: "13. SEO & AEO Settings" },
-    { id: "footer", label: "14. Footer Media" }
+    { id: "e3Rentals", label: "8. E3 Rentals Tech Spotlight" },
+    { id: "connect", label: "9. Connect Gateways" },
+    { id: "trustedAcrossQatar", label: "10. Clients & Partners" },
+    { id: "latestInsights", label: "11. Insights & News" },
+    { id: "finalGateway", label: "12. Final Gateway" },
+    { id: "ordering", label: "13. Section Ordering" },
+    { id: "seo", label: "14. SEO & AEO Settings" },
+    { id: "footer", label: "15. Footer Media" }
   ]
 
   return (
@@ -1385,7 +1387,324 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
           </div>
         )}
 
-        {/* 8. CONNECT GATEWAYS TAB */}
+        {/* 8. E3 RENTALS TECH SPOTLIGHT TAB */}
+        {activeTab === "e3Rentals" && (
+          <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
+            <div className="flex justify-between items-center pb-4 border-b border-border-default">
+              <h2 className="text-lg font-bold text-text-primary">8. E3 Rentals Technology Spotlight</h2>
+              <button 
+                onClick={() => toggleSectionEnabled("e3Rentals")}
+                className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold ${
+                  data.e3Rentals?.enabled ?? true ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                }`}
+              >
+                {data.e3Rentals?.enabled ?? true ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {data.e3Rentals?.enabled ?? true ? "Enabled" : "Disabled"}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Heading (En)</label>
+                <input 
+                  type="text" 
+                  value={data.e3Rentals?.headingEn || "POWERED BY E3 RENTALS™"} 
+                  onChange={e => updateSectionField("e3Rentals", "headingEn", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase">Heading (Ar)</label>
+                <input 
+                  type="text" 
+                  dir="rtl"
+                  value={data.e3Rentals?.headingAr || "مدعوم بمنظومة إي ثري للتأجير والتجهيز™"} 
+                  onChange={e => updateSectionField("e3Rentals", "headingAr", e.target.value)}
+                  className="w-full bg-surface-hover border border-border-default rounded-lg px-4 py-2 text-sm text-text-primary focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-text-secondary uppercase">Summary (En)</label>
+              <textarea 
+                value={data.e3Rentals?.summaryEn || ""} 
+                onChange={e => updateSectionField("e3Rentals", "summaryEn", e.target.value)}
+                rows={2}
+                className="w-full bg-surface-hover border border-border-default rounded-lg p-3 text-sm text-text-primary focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-text-secondary uppercase">E3 Rentals Section Logo</label>
+              <AdminMediaPicker
+                value={data.e3Rentals?.logoUrl || ""}
+                onChange={url => updateSectionField("e3Rentals", "logoUrl", url)}
+                accept="image/*"
+              />
+            </div>
+
+            {/* Feature Cards Manager */}
+            <div className="space-y-4 pt-4 border-t border-border-default">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-bold text-text-primary">E3 Rentals Feature Cards</h3>
+                <AdminButton 
+                  variant="secondary" 
+                  size="sm" 
+                  onClick={() => {
+                    const feats = [...(data.e3Rentals?.featureItems || [])]
+                    feats.push({
+                      id: `rent-${Date.now()}`,
+                      titleEn: "New Rentals Feature",
+                      titleAr: "ميزة تأجير جديدة",
+                      descriptionEn: "Feature description...",
+                      descriptionAr: "وصف الميزة...",
+                      imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg",
+                      architectureLabelEn: "E3 RENTALS™ ARCHITECTURE",
+                      architectureLabelAr: "هندسة إي ثري للتأجير",
+                      specs: [
+                        { keyEn: "FLEET TELEMETRY", keyAr: "تتبع الأصول والمعدات", valueEn: "Real-Time RFID & GPS Asset Tracking", valueAr: "تتبع رقمي دقيق لكافة الأصول والمعدات" },
+                        { keyEn: "RIGGING & LOAD SAFETY", keyAr: "أمان التحميل والتعليق", valueEn: "Automated Structural Load & Wind Simulation", valueAr: "محاكاة رقمية للأحمال الإنشائية وسرعة الرياح" },
+                        { keyEn: "POWER REDUNDANCY", keyAr: "استمرارية الطاقة", valueEn: "Dual-Grid Synchronized Distribution Telemetry", valueAr: "توزيع طاقة مزدوج متزامن يمنع انقطاع التيار" },
+                        { keyEn: "DISPATCH TIMELINE", keyAr: "سرعة التجهيز والتوريد", valueEn: "24-Hour Rapid Staging & Mobilization Protocol", valueAr: "جاهزية تشغيلية وتوريد سريع خلال ٢٤ ساعة" }
+                      ]
+                    })
+                    updateSectionField("e3Rentals", "featureItems", feats)
+                  }}
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1" /> Add Rentals Feature Card
+                </AdminButton>
+              </div>
+
+              {(data.e3Rentals?.featureItems || []).map((feat: any, idx: number) => (
+                <div key={feat.id || idx} className="bg-surface-hover border border-border-default rounded-xl p-4 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-text-secondary">Card #{idx + 1}</span>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        const feats = data.e3Rentals?.featureItems.filter((_: any, i: number) => i !== idx)
+                        updateSectionField("e3Rentals", "featureItems", feats)
+                      }}
+                      className="text-rose-400 hover:text-rose-300 p-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-text-secondary uppercase">Title (En)</label>
+                      <input 
+                        type="text" 
+                        value={feat.titleEn || ""} 
+                        onChange={e => {
+                          const feats = [...data.e3Rentals.featureItems]
+                          feats[idx].titleEn = e.target.value
+                          updateSectionField("e3Rentals", "featureItems", feats)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-text-secondary uppercase">Title (Ar)</label>
+                      <input 
+                        type="text" 
+                        dir="rtl"
+                        value={feat.titleAr || ""} 
+                        onChange={e => {
+                          const feats = [...data.e3Rentals.featureItems]
+                          feats[idx].titleAr = e.target.value
+                          updateSectionField("e3Rentals", "featureItems", feats)
+                        }}
+                        className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-sm text-text-primary focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-text-secondary uppercase">Description (En)</label>
+                      <textarea 
+                        value={feat.descriptionEn || ""} 
+                        onChange={e => {
+                          const feats = [...data.e3Rentals.featureItems]
+                          feats[idx].descriptionEn = e.target.value
+                          updateSectionField("e3Rentals", "featureItems", feats)
+                        }}
+                        rows={2}
+                        className="w-full bg-surface-default border border-border-default rounded-lg p-2 text-xs text-text-primary focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-text-secondary uppercase">Description (Ar)</label>
+                      <textarea 
+                        value={feat.descriptionAr || ""} 
+                        dir="rtl"
+                        onChange={e => {
+                          const feats = [...data.e3Rentals.featureItems]
+                          feats[idx].descriptionAr = e.target.value
+                          updateSectionField("e3Rentals", "featureItems", feats)
+                        }}
+                        rows={2}
+                        className="w-full bg-surface-default border border-border-default rounded-lg p-2 text-xs text-text-primary focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Technical Specs Customizer */}
+                  <div className="space-y-3 pt-2 border-t border-border-default/60">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider block mb-1">
+                          Architecture Eyebrow Tag (EN)
+                        </label>
+                        <input
+                          type="text"
+                          value={feat.architectureLabelEn || "E3 RENTALS™ FLEET LOGISTICS"}
+                          placeholder="e.g. E3 RENTALS™ FLEET LOGISTICS"
+                          onChange={e => {
+                            const feats = [...data.e3Rentals.featureItems]
+                            feats[idx].architectureLabelEn = e.target.value
+                            updateSectionField("e3Rentals", "featureItems", feats)
+                          }}
+                          className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider block mb-1">
+                          Architecture Eyebrow Tag (AR)
+                        </label>
+                        <input
+                          type="text"
+                          dir="rtl"
+                          value={feat.architectureLabelAr || "لوجستيات أسطول إي ثري للتأجير"}
+                          placeholder="مثال: لوجستيات أسطول إي ثري للتأجير"
+                          onChange={e => {
+                            const feats = [...data.e3Rentals.featureItems]
+                            feats[idx].architectureLabelAr = e.target.value
+                            updateSectionField("e3Rentals", "featureItems", feats)
+                          }}
+                          className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[11px] font-bold text-text-secondary uppercase">
+                          Live Architecture Telemetry & Specs (4 Slots)
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const feats = [...data.e3Rentals.featureItems]
+                            const currentSpecs = Array.isArray(feats[idx].specs) ? [...feats[idx].specs] : []
+                            currentSpecs.push({
+                              keyEn: "NEW SPEC KEY",
+                              keyAr: "مواصفة جديدة",
+                              valueEn: "Real-Time Value",
+                              valueAr: "قيمة المواصفة اللحظية"
+                            })
+                            feats[idx].specs = currentSpecs
+                            updateSectionField("e3Rentals", "featureItems", feats)
+                          }}
+                          className="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer"
+                        >
+                          <Plus className="w-3 h-3" /> Add Spec
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {(Array.isArray(feat.specs) && feat.specs.length > 0 ? feat.specs : [
+                          { keyEn: "FLEET TELEMETRY", keyAr: "تتبع الأصول والمعدات", valueEn: "Real-Time RFID & GPS Asset Tracking", valueAr: "تتبع رقمي دقيق لكافة الأصول والمعدات" },
+                          { keyEn: "DISPATCH TIMELINE", keyAr: "سرعة التجهيز والتوريد", valueEn: "24-Hour Rapid Staging & Mobilization Protocol", valueAr: "جاهزية تشغيلية وتوريد سريع خلال ٢٤ ساعة" },
+                          { keyEn: "MAINTENANCE AUDIT", keyAr: "فحص الجودة والسلامة", valueEn: "ISO-Certified Cycle Inspection & Load Testing", valueAr: "فحص دوري معتمد واختبارات للأحمال والتحمل" },
+                          { keyEn: "WAREHOUSE INVENTORY", keyAr: "إدارة المخزون الفوري", valueEn: "Real-Time Centralized ERP Cloud Sync", valueAr: "مزامنة سحابية مباشرة لحالة وتوفر الأصول" }
+                        ]).map((spec: any, sIdx: number) => (
+                          <div key={sIdx} className="grid grid-cols-5 gap-2 items-center bg-surface-default p-2 rounded-lg border border-border-default/70">
+                            <input
+                              type="text"
+                              value={spec.keyEn || ""}
+                              placeholder="Spec Key En (e.g. FLEET TELEMETRY)"
+                              onChange={e => {
+                                const feats = [...data.e3Rentals.featureItems]
+                                const currentSpecs = Array.isArray(feats[idx].specs) ? [...feats[idx].specs] : [
+                                  { keyEn: "FLEET TELEMETRY", keyAr: "تتبع الأصول والمعدات", valueEn: "Real-Time RFID & GPS Asset Tracking", valueAr: "تتبع رقمي دقيق لكافة الأصول والمعدات" },
+                                  { keyEn: "DISPATCH TIMELINE", keyAr: "سرعة التجهيز والتوريد", valueEn: "24-Hour Rapid Staging & Mobilization Protocol", valueAr: "جاهزية تشغيلية وتوريد سريع خلال ٢٤ ساعة" },
+                                  { keyEn: "MAINTENANCE AUDIT", keyAr: "فحص الجودة والسلامة", valueEn: "ISO-Certified Cycle Inspection & Load Testing", valueAr: "فحص دوري معتمد واختبارات للأحمال والتحمل" },
+                                  { keyEn: "WAREHOUSE INVENTORY", keyAr: "إدارة المخزون الفوري", valueEn: "Real-Time Centralized ERP Cloud Sync", valueAr: "مزامنة سحابية مباشرة لحالة وتوفر الأصول" }
+                                ]
+                                currentSpecs[sIdx] = { ...currentSpecs[sIdx], keyEn: e.target.value }
+                                feats[idx].specs = currentSpecs
+                                updateSectionField("e3Rentals", "featureItems", feats)
+                              }}
+                              className="col-span-2 bg-surface-hover border border-border-default rounded px-2 py-1 text-[11px] text-text-primary focus:outline-none font-mono"
+                            />
+                            <input
+                              type="text"
+                              value={spec.valueEn || ""}
+                              placeholder="Spec Value En"
+                              onChange={e => {
+                                const feats = [...data.e3Rentals.featureItems]
+                                const currentSpecs = Array.isArray(feats[idx].specs) ? [...feats[idx].specs] : [
+                                  { keyEn: "FLEET TELEMETRY", keyAr: "تتبع الأصول والمعدات", valueEn: "Real-Time RFID & GPS Asset Tracking", valueAr: "تتبع رقمي دقيق لكافة الأصول والمعدات" },
+                                  { keyEn: "DISPATCH TIMELINE", keyAr: "سرعة التجهيز والتوريد", valueEn: "24-Hour Rapid Staging & Mobilization Protocol", valueAr: "جاهزية تشغيلية وتوريد سريع خلال ٢٤ ساعة" },
+                                  { keyEn: "MAINTENANCE AUDIT", keyAr: "فحص الجودة والسلامة", valueEn: "ISO-Certified Cycle Inspection & Load Testing", valueAr: "فحص دوري معتمد واختبارات للأحمال والتحمل" },
+                                  { keyEn: "WAREHOUSE INVENTORY", keyAr: "إدارة المخزون الفوري", valueEn: "Real-Time Centralized ERP Cloud Sync", valueAr: "مزامنة سحابية مباشرة لحالة وتوفر الأصول" }
+                                ]
+                                currentSpecs[sIdx] = { ...currentSpecs[sIdx], valueEn: e.target.value }
+                                feats[idx].specs = currentSpecs
+                                updateSectionField("e3Rentals", "featureItems", feats)
+                              }}
+                              className="col-span-2 bg-surface-hover border border-border-default rounded px-2 py-1 text-[11px] text-text-primary focus:outline-none font-bold"
+                            />
+                            <div className="flex justify-end">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const feats = [...data.e3Rentals.featureItems]
+                                  const currentSpecs = (Array.isArray(feats[idx].specs) ? feats[idx].specs : [
+                                    { keyEn: "FLEET TELEMETRY", keyAr: "تتبع الأصول والمعدات", valueEn: "Real-Time RFID & GPS Asset Tracking", valueAr: "تتبع رقمي دقيق لكافة الأصول والمعدات" },
+                                    { keyEn: "DISPATCH TIMELINE", keyAr: "سرعة التجهيز والتوريد", valueEn: "24-Hour Rapid Staging & Mobilization Protocol", valueAr: "جاهزية تشغيلية وتوريد سريع خلال ٢٤ ساعة" },
+                                    { keyEn: "MAINTENANCE AUDIT", keyAr: "فحص الجودة والسلامة", valueEn: "ISO-Certified Cycle Inspection & Load Testing", valueAr: "فحص دوري معتمد واختبارات للأحمال والتحمل" },
+                                    { keyEn: "WAREHOUSE INVENTORY", keyAr: "إدارة المخزون الفوري", valueEn: "Real-Time Centralized ERP Cloud Sync", valueAr: "مزامنة سحابية مباشرة لحالة وتوفر الأصول" }
+                                  ]).filter((_: any, sI: number) => sI !== sIdx)
+                                  feats[idx].specs = currentSpecs
+                                  updateSectionField("e3Rentals", "featureItems", feats)
+                                }}
+                                className="text-rose-400 hover:text-rose-300 p-1 cursor-pointer"
+                                title="Remove Spec"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-text-secondary uppercase">Card Image (Header Cover)</label>
+                    <AdminMediaPicker
+                      value={feat.imageUrl || feat.mediaUrl || ""}
+                      onChange={url => {
+                        const feats = [...data.e3Rentals.featureItems]
+                        feats[idx].imageUrl = url
+                        feats[idx].mediaUrl = url
+                        updateSectionField("e3Rentals", "featureItems", feats)
+                      }}
+                      accept="image/*"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 9. CONNECT GATEWAYS TAB */}
         {activeTab === "connect" && (
           <div className="bg-surface-default border border-border-default rounded-xl p-6 space-y-6">
             <div className="flex justify-between items-center pb-4 border-b border-border-default">
@@ -1676,7 +1995,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
             <div className="space-y-2">
               {(data.sectionOrder || [
                 "hero", "about", "leadership", "visionMissionValues", "recordBreaking", 
-                "impactMilestones", "bookingQube", "connect", "trustedAcrossQatar", 
+                "impactMilestones", "bookingQube", "e3Rentals", "connect", "trustedAcrossQatar", 
                 "latestInsights", "finalGateway"
               ]).map((secKey: string, idx: number) => (
                 <div key={secKey} className="flex justify-between items-center p-3 bg-surface-hover border border-border-default rounded-lg">

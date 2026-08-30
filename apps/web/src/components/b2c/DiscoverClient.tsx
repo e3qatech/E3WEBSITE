@@ -20,6 +20,7 @@ import { useB2CTheme } from "@/components/ui/B2CThemeComponents";
 import { E3LivingHero } from "@/components/b2c/hero/E3LivingHero";
 import { InteractiveCard } from "@/components/ui/InteractiveCard";
 import { B2CGrid } from "@/components/ui/B2CGrid";
+import { DEFAULT_B2C_DISCOVER_CONTENT } from "@/lib/cms-default-pages";
 
 export function DiscoverClient({
   locale,
@@ -61,6 +62,7 @@ export function DiscoverClient({
     "recordBreaking",
     "impactMilestones",
     "bookingQube",
+    "e3Rentals",
     "connect",
     "trustedAcrossQatar",
     "latestInsights",
@@ -424,7 +426,9 @@ export function DiscoverClient({
         // 7. BOOKINGQUBE SPOTLIGHT SECTION
         if (sectionKey === "bookingQube" && content.bookingQube?.enabled !== false) {
           const bq = content.bookingQube || {};
-          const features = Array.isArray(bq.featureItems) ? bq.featureItems : [];
+          const features = Array.isArray(bq.featureItems) && bq.featureItems.length > 0 
+            ? bq.featureItems 
+            : DEFAULT_B2C_DISCOVER_CONTENT.bookingQube.featureItems;
 
           return (
             <section key="bookingQube" id="bookingQube" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--bg-level-1)]">
@@ -446,8 +450,8 @@ export function DiscoverClient({
                   </p>
                 </div>
 
-                {/* Responsive Grid for Proprietary Ecosystem Tech Features (4 Cards) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Centered Responsive Grid for Proprietary Ecosystem Tech Features */}
+                <div className="flex flex-wrap justify-center items-stretch gap-6 max-w-7xl mx-auto">
                   {features.map((item: any) => {
                     let itemImg = item.imageUrl || item.mediaUrl;
                     if (!itemImg || typeof itemImg !== "string" || itemImg.trim() === "") {
@@ -464,39 +468,134 @@ export function DiscoverClient({
                     }
 
                     return (
-                      <InteractiveCard key={item.id} className="overflow-hidden p-6 flex flex-col justify-between h-full border border-[var(--border-level-2)] rounded-3xl bg-[var(--surface-default)] shadow-2xl space-y-4" glowColor="rgba(26, 31, 214, 0.3)">
-                        <div className="space-y-4">
-                          {/* Image Frame */}
-                          <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] shrink-0 shadow-lg flex items-center justify-center">
-                            {itemImg ? (
-                              <img src={itemImg} alt={item.titleEn} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-[var(--e3-royal-blue)]/10">
-                                <Smartphone className="w-12 h-12 text-[var(--e3-royal-blue)]" />
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                      <div key={item.id} className="w-full sm:w-[calc(50%-16px)] lg:w-[calc(25%-18px)] max-w-sm flex">
+                        <InteractiveCard className="w-full overflow-hidden p-6 flex flex-col justify-between h-full border border-[var(--border-level-2)] rounded-3xl bg-[var(--surface-default)] shadow-2xl space-y-4" glowColor="rgba(26, 31, 214, 0.3)">
+                          <div className="space-y-4">
+                            {/* Image Frame */}
+                            <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] shrink-0 shadow-lg flex items-center justify-center">
+                              {itemImg ? (
+                                <img src={itemImg} alt={item.titleEn} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-[var(--e3-royal-blue)]/10">
+                                  <Smartphone className="w-12 h-12 text-[var(--e3-royal-blue)]" />
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                            </div>
+
+                            <div>
+                              <h3 className="text-base font-bold text-[var(--text-primary)] mb-2 font-display uppercase">
+                                {isAr ? item.titleAr : item.titleEn}
+                              </h3>
+                              <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium line-clamp-3">
+                                {isAr ? item.descriptionAr : item.descriptionEn}
+                              </p>
+                            </div>
                           </div>
 
-                          <div>
-                            <h3 className="text-base font-bold text-[var(--text-primary)] mb-2 font-display uppercase">
-                              {isAr ? item.titleAr : item.titleEn}
-                            </h3>
-                            <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium line-clamp-3">
-                              {isAr ? item.descriptionAr : item.descriptionEn}
-                            </p>
-                          </div>
-                        </div>
+                          {/* Technical Details Popup Trigger Button */}
+                          <button
+                            onClick={() => setActiveBQModal(item)}
+                            className="w-full py-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-[var(--text-primary)] hover:text-white border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-[11px] font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group mt-2 cursor-pointer"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-[var(--e3-royal-blue)] group-hover:text-white transition-colors" />
+                            <span>{isAr ? "تفاصيل التقنية" : "Technical Specifications"}</span>
+                          </button>
+                        </InteractiveCard>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          );
+        }
 
-                        {/* Technical Details Popup Trigger Button */}
-                        <button
-                          onClick={() => setActiveBQModal(item)}
-                          className="w-full py-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-[var(--text-primary)] hover:text-white border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-[11px] font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group mt-2 cursor-pointer"
-                        >
-                          <FileText className="w-3.5 h-3.5 text-[var(--e3-royal-blue)] group-hover:text-white transition-colors" />
-                          <span>{isAr ? "تفاصيل التقنية" : "Technical Specifications"}</span>
-                        </button>
-                      </InteractiveCard>
+        // 7b. E3 RENTALS SPOTLIGHT SECTION
+        if (sectionKey === "e3Rentals" && content.e3Rentals?.enabled !== false) {
+          const rentals = content.e3Rentals || {};
+          const features = Array.isArray(rentals.featureItems) && rentals.featureItems.length > 0 
+            ? rentals.featureItems 
+            : DEFAULT_B2C_DISCOVER_CONTENT.e3Rentals.featureItems;
+
+          return (
+            <section key="e3Rentals" id="e3Rentals" className="relative py-24 border-t border-[var(--border-level-2)] bg-[var(--surface-default)]/60">
+              <div className="max-w-7xl mx-auto px-4 md:px-8">
+                <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                  {rentals.logoUrl ? (
+                    <div className="flex justify-center mb-4">
+                      <img src={rentals.logoUrl} alt="E3 Rentals Logo" className="h-16 object-contain" />
+                    </div>
+                  ) : (
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 mb-2">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                      <span className="text-xs font-black font-syne tracking-widest text-cyan-400 uppercase">E3 RENTALS™</span>
+                    </div>
+                  )}
+                  <span className="text-xs font-bold text-cyan-400 tracking-widest uppercase font-mono block">
+                    {isAr ? (rentals.eyebrowAr || "تكنولوجيا أسطول ومعدات الفعاليات الحصرية") : (rentals.eyebrowEn || "PROPRIETARY FLEET & STAGING TECH")}
+                  </span>
+                  <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] font-display uppercase">
+                    {isAr ? (rentals.headingAr || "مدعوم بمنظومة إي ثري للتأجير والتجهيز™") : (rentals.headingEn || "POWERED BY E3 RENTALS™")}
+                  </h2>
+                  <p className="text-[var(--text-secondary)] text-sm font-medium leading-relaxed">
+                    {isAr ? (rentals.summaryAr || "منظومة إي ثري لتأجير وتجهيز أحدث معدات الصوت والضوء والمسارح والأصول الترفيهية في قطر.") : (rentals.summaryEn || "E3 Rentals is Qatar's advanced equipment, staging, AV rigging, inflatable asset, and rapid production logistics ecosystem.")}
+                  </p>
+                </div>
+
+                {/* Centered Responsive Grid for E3 Rentals Features */}
+                <div className="flex flex-wrap justify-center items-stretch gap-6 max-w-7xl mx-auto">
+                  {features.map((item: any) => {
+                    let itemImg = item.imageUrl || item.mediaUrl;
+                    if (!itemImg || typeof itemImg !== "string" || itemImg.trim() === "") {
+                      const t = (item.titleEn || "").toLowerCase();
+                      if (t.includes("fleet") || t.includes("rapid") || t.includes("asset")) {
+                        itemImg = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg";
+                      } else if (t.includes("audio") || t.includes("sound") || t.includes("lighting") || t.includes("fx")) {
+                        itemImg = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80";
+                      } else if (t.includes("rigging") || t.includes("structural") || t.includes("safety")) {
+                        itemImg = "https://images.unsplash.com/photo-1508997449629-303059a039c0?auto=format&fit=crop&w=1200&q=80";
+                      } else {
+                        itemImg = "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80";
+                      }
+                    }
+
+                    return (
+                      <div key={item.id} className="w-full sm:w-[calc(50%-16px)] lg:w-[calc(25%-18px)] max-w-sm flex">
+                        <InteractiveCard className="w-full overflow-hidden p-6 flex flex-col justify-between h-full border border-[var(--border-level-2)] rounded-3xl bg-[var(--surface-default)] shadow-2xl space-y-4" glowColor="rgba(6, 182, 212, 0.3)">
+                          <div className="space-y-4">
+                            {/* Image Frame */}
+                            <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-gradient-to-br from-[#0c1222] to-[#04060a] shrink-0 shadow-lg flex items-center justify-center">
+                              {itemImg ? (
+                                <img src={itemImg} alt={item.titleEn} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-cyan-500/10">
+                                  <Smartphone className="w-12 h-12 text-cyan-400" />
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                            </div>
+
+                            <div>
+                              <h3 className="text-base font-bold text-[var(--text-primary)] mb-2 font-display uppercase">
+                                {isAr ? item.titleAr : item.titleEn}
+                              </h3>
+                              <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium line-clamp-3">
+                                {isAr ? item.descriptionAr : item.descriptionEn}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Technical Details Popup Trigger Button */}
+                          <button
+                            onClick={() => setActiveBQModal(item)}
+                            className="w-full py-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-cyan-500 text-[var(--text-primary)] hover:text-black border border-[var(--border-level-2)] hover:border-cyan-400 text-[11px] font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group mt-2 cursor-pointer"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-cyan-400 group-hover:text-black transition-colors" />
+                            <span>{isAr ? "تفاصيل التقنية" : "Technical Specifications"}</span>
+                          </button>
+                        </InteractiveCard>
+                      </div>
                     );
                   })}
                 </div>

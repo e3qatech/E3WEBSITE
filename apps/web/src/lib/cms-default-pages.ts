@@ -930,6 +930,7 @@ export const DEFAULT_B2C_DISCOVER_CONTENT = {
     "recordBreaking",
     "impactMilestones",
     "bookingQube",
+    "e3Rentals",
     "connect",
     "trustedAcrossQatar",
     "latestInsights",
@@ -1243,6 +1244,107 @@ export const DEFAULT_B2C_DISCOVER_CONTENT = {
       { id: "js1", titleEn: "1. Select Attraction", titleAr: "١. اختيار الوجهة", descriptionEn: "Guest chooses experience & time slot.", descriptionAr: "يقوم الزائر باختيار التوقيت والفعالية.", enabled: true, sortOrder: 1 },
       { id: "js2", titleEn: "2. Instant Pass", titleAr: "٢. التذكرة الفورية", descriptionEn: "Receive QR pass with zero friction.", descriptionAr: "استلام التذكرة مباشرة دون تعقيد.", enabled: true, sortOrder: 2 },
       { id: "js3", titleEn: "3. Fast Turnstile Access", titleAr: "٣. الدخول السريع", descriptionEn: "Tap and enter the arena seamlessly.", descriptionAr: "مسح التذكرة والدخول السلس.", enabled: true, sortOrder: 3 }
+    ],
+    theme: "DARK"
+  },
+  e3Rentals: {
+    id: "e3Rentals",
+    enabled: true,
+    eyebrowEn: "PROPRIETARY FLEET & STAGING TECH",
+    eyebrowAr: "تكنولوجيا أسطول ومعدات الفعاليات الحصرية",
+    headingEn: "Powered By E3 Rentals™",
+    headingAr: "مدعوم بمنظومة إي ثري للتأجير والتجهيز™",
+    summaryEn: "E3 Rentals is Qatar's advanced equipment, staging, AV rigging, inflatable asset, and rapid production logistics ecosystem.",
+    summaryAr: "منظومة إي ثري لتأجير وتجهيز أحدث معدات الصوت والضوء والمسارح والأصول الترفيهية في قطر.",
+    fullDescriptionEn: "Engineered for Qatar's high-stakes landmark activations, E3 Rentals delivers verified structural rigging, synchronized power grids, concert-grade acoustic line arrays, and rapid mobilization fleets.",
+    fullDescriptionAr: "صُممت المنظومة خصيصاً للفعاليات الوطنية الكبرى لتقديم أعلى معايير الأمان الإنشائي وتجهيز المسارح والصوتيات والإضاءة بكفاءة عالية.",
+    websiteUrl: "https://e3.qa",
+    logoUrl: "",
+    featureItems: [
+      {
+        id: "rent1",
+        titleEn: "Rapid Asset & Fleet Deployment",
+        titleAr: "تجهيز وتوريد الأصول والأسطول",
+        descriptionEn: "24/7 rapid mobilization fleet with live GPS and automated inventory allocation.",
+        descriptionAr: "أسطول توريد ونشر سريع على مدار الساعة مع تتبع GPS وتخصيص آلي للمخزون.",
+        architectureLabelEn: "E3 RENTALS™ FLEET LOGISTICS",
+        architectureLabelAr: "لوجستيات أسطول إي ثري للتأجير",
+        icon: "Truck",
+        imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg",
+        detailedTextEn: "E3 Rentals operates a centralized logistics hub in Doha with a dedicated transport fleet, digital inventory allocation, and 24/7 on-call dispatch protocols. Every staging, seating, and inflatable asset is tracked end-to-end to ensure zero delay on-site.",
+        detailedTextAr: "تدير منظومة إي ثري مركزاً لوجستياً متطوراً في الدوحة مع أسطول نقل مخصص ونظام تتبع رقمي فوري يضمن وصول وتركيب كافة المعدات والمسارح في الوقت المحدد.",
+        specs: [
+          { keyEn: "FLEET TELEMETRY", keyAr: "تتبع الأسطول والأصول", valueEn: "Real-Time RFID & GPS Asset Tracking", valueAr: "تتبع رقمي دقيق لكافة الأصول والمعدات" },
+          { keyEn: "DISPATCH TIMELINE", keyAr: "سرعة التجهيز والتوريد", valueEn: "24-Hour Rapid Staging & Mobilization Protocol", valueAr: "جاهزية تشغيلية وتوريد سريع خلال ٢٤ ساعة" },
+          { keyEn: "MAINTENANCE AUDIT", keyAr: "فحص الجودة والسلامة", valueEn: "ISO-Certified Cycle Inspection & Load Testing", valueAr: "فحص دوري معتمد واختبارات للأحمال والتحمل" },
+          { keyEn: "WAREHOUSE INVENTORY", keyAr: "إدارة المخزون الفوري", valueEn: "Real-Time Centralized ERP Cloud Sync", valueAr: "مزامنة سحابية مباشرة لحالة وتوفر الأصول" }
+        ],
+        enabled: true,
+        sortOrder: 1
+      },
+      {
+        id: "rent2",
+        titleEn: "Concert Audio, Lighting & FX",
+        titleAr: "أنظمة الصوت والإضاءة والمؤثرات",
+        descriptionEn: "Concert-grade line arrays, moving heads, and weather-sealed IP65 luminaires.",
+        descriptionAr: "أنظمة صوتية متطورة للحفلات الكبرى وإضاءة تفاعلية مقاومة للعوامل الجوية.",
+        architectureLabelEn: "E3 RENTALS™ ACOUSTIC & LIGHTING TECH",
+        architectureLabelAr: "تكنولوجيا الصوت والإضاءة الاحترافية",
+        icon: "Volume2",
+        imageUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
+        detailedTextEn: "From high-SPL outdoor festival line arrays to dynamic kinetic winches and stadium-grade beam luminaires, E3 Rentals delivers end-to-end AV infrastructure with multi-protocol DMX, Art-Net, and Dante network integration.",
+        detailedTextAr: "توفر إي ثري أحدث أنظمة الصوت المحيطية والإضاءة المتحركة وشاشات LED العملاقة مع شبكات تحكم متزامنة تلبي متطلبات أضخم المهرجانات والحفلات العالمية.",
+        specs: [
+          { keyEn: "ACOUSTIC COVERAGE", keyAr: "التغطية الصوتية", valueEn: "110dB+ Uniform SPL Stadium Arrays", valueAr: "توزيع صوتي متجانس ومثالي للساحات الكبرى" },
+          { keyEn: "LIGHTING PROTOCOLS", keyAr: "بروتوكولات التحكم", valueEn: "GrandMA3 / Art-Net / sACN Dual Redundancy", valueAr: "تحكم رقمي مزدوج يمنع أي انقطاع في العرض" },
+          { keyEn: "WEATHER RESISTANCE", keyAr: "مقاومة العوامل الجوية", valueEn: "IP65 Desert & Humidity Shielded Fixtures", valueAr: "حماية متكاملة ضد درجات الحرارة والرطوبة والغبار" },
+          { keyEn: "SPECIAL EFFECTS", keyAr: "المؤثرات الخاصة", valueEn: "Cold Spark, Cryo Jets & Laser Array Sync", valueAr: "شرر بارد وأعمدة كربونات وليزر متزامن آمن" }
+        ],
+        enabled: true,
+        sortOrder: 2
+      },
+      {
+        id: "rent3",
+        titleEn: "Structural Rigging & Load Safety",
+        titleAr: "هندسة التعليق والسلامة الإنشائية",
+        descriptionEn: "Engineered aluminum trussing, certified chain hoists, and real-time wind telemetry.",
+        descriptionAr: "هياكل مسارح ألمنيوم ومحركات تعليق معتمدة ومراقبة لحظية لسرعة الرياح.",
+        architectureLabelEn: "E3 RENTALS™ STRUCTURAL RIGGING",
+        architectureLabelAr: "منظومة الأمان الإنشائي والتعليق",
+        icon: "ShieldAlert",
+        imageUrl: "https://images.unsplash.com/photo-1508997449629-303059a039c0?auto=format&fit=crop&w=1200&q=80",
+        detailedTextEn: "Safety is non-negotiable. Every roof grid, ground support system, and kinetic suspension structure is engineered with computerized finite element analysis and monitored by real-time load-cell sensors and wind anemometers.",
+        detailedTextAr: "السلامة هي أساس كل مشروع. تخضع كافة هياكل المسارح وأنظمة التعليق لحسابات هندسية دقيقة مع مجسات قياس الوزن وسرعة الرياح لضمان أقصى درجات الأمان.",
+        specs: [
+          { keyEn: "RIGGING & LOAD SAFETY", keyAr: "أمان التحميل والتعليق", valueEn: "Automated Structural Load & Wind Simulation", valueAr: "محاكاة رقمية للأحمال الإنشائية وسرعة الرياح" },
+          { keyEn: "REGULATORY COMPLIANCE", keyAr: "الاعتمادات والتراخيص", valueEn: "TÜV Rheinland & Qatar Civil Defense Certified", valueAr: "شهادات اعتماد من TÜV والدفاع المدني القطري" },
+          { keyEn: "HOIST REDUNDANCY", keyAr: "محركات الرفع الذكية", valueEn: "Variable Speed D8+ Motorized Hoists", valueAr: "محركات رفع ذكية فائقة الأمان بمعايير D8+" },
+          { keyEn: "LOAD CELL TELEMETRY", keyAr: "مراقبة الأوزان اللحظية", valueEn: "Wireless Continuous Tension & Weight Telemetry", valueAr: "مراقبة لاسلكية مستمرة لتوزيع الأوزان على الهيكل" }
+        ],
+        enabled: true,
+        sortOrder: 3
+      },
+      {
+        id: "rent4",
+        titleEn: "Synchronized Power & Grid Distribution",
+        titleAr: "شبكات الطاقة والتوزيع المتزامن",
+        descriptionEn: "Twin-pack silenced generators with automatic failover and power telemetry.",
+        descriptionAr: "مولدات طاقة صامتة مزدوجة مع تحويل تلقائي لحظي عند الطوارئ.",
+        architectureLabelEn: "E3 RENTALS™ POWER GRIDS",
+        architectureLabelAr: "شبكات الطاقة وتوزيع الأحمال",
+        icon: "Zap",
+        imageUrl: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80",
+        detailedTextEn: "Continuous, uninterrupted power for high-intensity activations. E3 Rentals deploys twin-pack synchronized diesel generators with automatic transfer switches (ATS) and real-time load telemetry to prevent voltage drops or blackouts.",
+        detailedTextAr: "توفير طاقة كهربائية مستمرة ومستقرة بدون انقطاع عبر مولدات متزامنة مزدوجة وأنظمة تحويل تلقائي فورية تضمن عمل كافة التجهيزات الحساسة بكفاءة تامة.",
+        specs: [
+          { keyEn: "POWER REDUNDANCY", keyAr: "استمرارية الطاقة", valueEn: "Dual-Grid Synchronized Distribution Telemetry", valueAr: "توزيع طاقة مزدوج متزامن يمنع انقطاع التيار" },
+          { keyEn: "AUTOMATIC FAILOVER", keyAr: "التحويل التلقائي", valueEn: "Sub-Cycle ATS Seamless Switchover", valueAr: "تحويل فوري بدون انقطاع للتيار (Sub-Cycle ATS)" },
+          { keyEn: "ACOUSTIC DAMPING", keyAr: "العزل الصوتي للمولدات", valueEn: "Super-Silenced Enclosures (<65dB @ 7m)", valueAr: "كواتم صوت فائقة الكفاءة لا تؤثر على الفعالية" },
+          { keyEn: "TELEMETRY MONITORING", keyAr: "مراقبة التردد والجهد", valueEn: "Real-Time Phase Balance & Voltage Alerting", valueAr: "مراقبة لحظية للجهد الكهربائي والتوازن بين الأطوار" }
+        ],
+        enabled: true,
+        sortOrder: 4
+      }
     ],
     theme: "DARK"
   },
