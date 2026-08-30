@@ -221,8 +221,31 @@ export function EmployeeFormModal({
       };
 
       const payload = {
-        ...formData,
+        slug: formData.slug?.trim(),
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        designation: formData.designation,
+        department: formData.department,
         yearsOfExperience: parseInt(formData.yearsOfExperience.toString()) || 0,
+        contactEmail: formData.contactEmail || null,
+        linkedinUrl: formData.linkedinUrl || null,
+
+        firstNameAr: formData.firstNameAr || null,
+        lastNameAr: formData.lastNameAr || null,
+        designationAr: formData.designationAr || null,
+        departmentAr: formData.departmentAr || null,
+        taglineAr: formData.taglineAr || formData.heroTaglineAr || null,
+        heroTaglineAr: formData.heroTaglineAr || formData.taglineAr || null,
+        aboutSummaryAr: formData.aboutSummaryAr || null,
+        careerJourneyAr: formData.careerJourneyAr || null,
+        keyStrengthsAr: formData.keyStrengthsAr || null,
+
+        profileImage: formData.profileImage || null,
+        tagline: formData.tagline,
+        aboutSummary: formData.aboutSummary,
+        careerJourney: formData.careerJourney,
+        keyStrengths: formData.keyStrengths,
+
         order: parseInt(formData.order.toString()) || 0,
         displayOrder: parseInt(formData.displayOrder.toString()) || 0,
         isActive: Boolean(formData.isActive),
@@ -445,13 +468,14 @@ export function EmployeeFormModal({
                       }
                       className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-medium"
                     >
-                      <option value="">Auto-resolve from Department</option>
-                      <option value="leadership">Leadership (القيادة والإدارة التنفيذية)</option>
-                      <option value="creative-marketing">Creative & Marketing (الإبداع والتسويق)</option>
-                      <option value="events-production">Events & Production (الفعاليات والإنتاج)</option>
-                      <option value="operations-guest-exp">Operations & Guest Experience (العمليات وتجربة الزوار)</option>
-                      <option value="technology-systems">Technology & Systems (التكنولوجيا والأنظمة)</option>
-                      <option value="food-beverage">Food & Beverage (الأغذية والمشروبات)</option>
+                      <option value="">Auto-resolve (Safe Deterministic Fallback)</option>
+                      <option value="direction">01. Direction — Leadership & Strategy (التوجيه)</option>
+                      <option value="imagine">02. Imagine — Creative, Brand & Growth (الابتكار)</option>
+                      <option value="plan">03. Plan — Projects & Events (التخطيط)</option>
+                      <option value="build">04. Build — Production & Logistics (التنفيذ)</option>
+                      <option value="operate">05. Operate — Operations & Guest Experience (التشغيل)</option>
+                      <option value="amplify">06. Amplify — Technology & Systems (التطوير)</option>
+                      <option value="corporate-enablement">07. Corporate Enablement (التمكين المؤسسي)</option>
                     </select>
                   </div>
                 </div>

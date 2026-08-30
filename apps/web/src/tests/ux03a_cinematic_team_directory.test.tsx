@@ -285,7 +285,7 @@ describe("UX-03A-C — E3 Team Page Approved Redesign Suite", () => {
       );
 
       expect(html).toContain('data-testid="mastermind-spotlight-section"');
-      expect(html).toContain("Featured Mastermind Spotlight");
+      expect(html).toContain("FEATURED TEAM SPOTLIGHT");
       expect(html).toContain('data-testid="spotlight-prev-btn"');
       expect(html).toContain('data-testid="spotlight-next-btn"');
       expect(html).toContain('data-testid="spotlight-pause-btn"');
@@ -305,7 +305,7 @@ describe("UX-03A-C — E3 Team Page Approved Redesign Suite", () => {
       );
 
       expect(html).toContain('dir="rtl"');
-      expect(html).toContain("أضواء على القيادة والابتكار");
+      expect(html).toContain("أضواء على فريق العمل والقيادة");
       expect(html).toContain("طارق المنصور");
       expect(html).toContain("الرئيس التنفيذي والمؤسس");
       expect(html).toContain("استعرض الملف الكامل والخبرات");

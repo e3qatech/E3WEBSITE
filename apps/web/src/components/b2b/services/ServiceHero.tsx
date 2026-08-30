@@ -42,19 +42,21 @@ export function ServiceHero({ service, locale, onOpenBriefBuilder }: ServiceHero
   return (
     <section className="relative min-h-[75vh] flex items-center pt-28 pb-16 overflow-hidden border-b border-[var(--border-level-1)] bg-[var(--bg-level-1)]">
       {/* Background Media Layer with Adaptive Gradient Overlay */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         {service.heroMediaUrl ? (
           <UniversalMediaRenderer
             type={service.heroMediaType || "IMAGE"}
             src={service.heroMediaUrl}
             alt={title}
-            className="w-full h-full object-cover opacity-25 dark:opacity-20 scale-105 transition-transform duration-1000"
+            className="w-full h-full object-cover opacity-60 dark:opacity-50 scale-105 transition-transform duration-1000"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-emerald-950/20 via-[var(--surface-default)] to-[var(--bg-level-1)]" />
+          <div className="w-full h-full bg-gradient-to-br from-emerald-950/30 via-[var(--surface-default)] to-[var(--bg-level-1)]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-level-1)] via-[var(--bg-level-1)]/70 to-transparent" />
+        {/* Soft bottom grounding gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/50 to-transparent" />
+        {/* Directional gradient to ensure text readability on the left (or right in RTL) */}
+        <div className="absolute inset-0 bg-gradient-to-r rtl:bg-gradient-to-l from-[var(--bg-level-1)]/90 via-[var(--bg-level-1)]/45 to-transparent/20" />
       </div>
 
       <div className="container relative z-10 mx-auto px-4 md:px-8">

@@ -30,8 +30,8 @@ interface HumanConstellationHeroProps {
 export function HumanConstellationHero({
   featuredMembers,
   locale = "en",
-  eyebrowEn = "E3 MASTERMINDS & LEADERSHIP",
-  eyebrowAr = "قيادة وفريق عمل إي ثري",
+  eyebrowEn = "E3 TEAM & LEADERSHIP",
+  eyebrowAr = "فريق عمل وقيادة إي ثري",
   fixedHeadlineEn = "MEET THE PEOPLE WHO BUILD",
   fixedHeadlineAr = "تعرّف على الأشخاص الذين يصنعون",
   rotatingWordsEn = ["EXPERIENCES", "DESTINATIONS", "MOMENTS", "THE IMPOSSIBLE"],

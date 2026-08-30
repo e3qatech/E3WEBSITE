@@ -95,7 +95,7 @@ export function CaseStudiesHero({ hero, totalDeliveredCount, locale }: CaseStudi
             src={heroMediaUrl}
             poster={heroPoster || undefined}
             alt={title}
-            className="w-full h-full object-cover filter brightness-[0.55] contrast-[1.1] scale-105"
+            className="w-full h-full object-cover filter brightness-[0.78] contrast-[1.08] scale-105 transition-all duration-1000"
           />
         </div>
 
@@ -107,18 +107,18 @@ export function CaseStudiesHero({ hero, totalDeliveredCount, locale }: CaseStudi
               src={heroMobileMediaUrl}
               poster={heroPoster || undefined}
               alt={title}
-              className="w-full h-full object-cover filter brightness-[0.55] contrast-[1.1] scale-105"
+              className="w-full h-full object-cover filter brightness-[0.78] contrast-[1.08] scale-105 transition-all duration-1000"
             />
           </div>
         )}
 
         {/* Atmospheric Overlays */}
         <div
-          className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/75 to-transparent"
+          className="absolute inset-0 bg-gradient-to-t from-[var(--bg-level-1)] via-[var(--bg-level-1)]/45 to-transparent"
           style={{ opacity: overlayOpacity }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-level-1)]/90 via-[var(--bg-level-1)]/60 to-transparent rtl:bg-gradient-to-l" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-level-1)]/80 via-[var(--bg-level-1)]/40 to-transparent rtl:bg-gradient-to-l" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/15 via-transparent to-transparent opacity-70" />
       </div>
 
       {/* Hero Foreground Content */}
@@ -153,7 +153,7 @@ export function CaseStudiesHero({ hero, totalDeliveredCount, locale }: CaseStudi
             {subtitle}
           </p>
 
-          {description && (
+          {description && description.trim() !== subtitle.trim() && (
             <p className="text-sm md:text-base text-[var(--text-secondary)] max-w-2xl leading-relaxed mb-8">
               {description}
             </p>

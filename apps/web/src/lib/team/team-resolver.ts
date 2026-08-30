@@ -272,6 +272,129 @@ export function validateBilingualTeamMemberInput(
 }
 
 /**
+ * Strips unknown properties, relation arrays, computed properties (e.g. dataQuality, presentationGroup)
+ * and normalizes values strictly to the Prisma EmployeeProfile schema columns.
+ */
+export function sanitizeEmployeeProfileUpdateData(
+  input: Record<string, any>
+): Record<string, any> {
+  const allowedKeys = new Set([
+    'slug',
+    'firstName',
+    'lastName',
+    'designation',
+    'department',
+    'yearsOfExperience',
+    'tagline',
+    'profileImage',
+    'aboutSummary',
+    'careerJourney',
+    'keyStrengths',
+    'expertiseTags',
+    'coreCompetencies',
+    'experience',
+    'projects',
+    'certifications',
+    'education',
+    'awards',
+    'skillsMatrix',
+    'mediaGallery',
+    'testimonials',
+    'contactEmail',
+    'linkedinUrl',
+    'isActive',
+    'showOnTeamPage',
+    'isFeatured',
+    'order',
+    'displayOrder',
+    'firstNameAr',
+    'lastNameAr',
+    'designationAr',
+    'departmentAr',
+    'taglineAr',
+    'heroTaglineAr',
+    'aboutSummaryAr',
+    'careerJourneyAr',
+    'keyStrengthsAr',
+    'expertiseTagsAr',
+    'coreCompetenciesAr',
+    'experienceAr',
+    'projectsAr',
+    'certificationsAr',
+    'educationAr',
+    'awardsAr',
+    'skillsMatrixAr',
+  ]);
+
+  const sanitized: Record<string, any> = {};
+
+  for (const [key, value] of Object.entries(input)) {
+    if (!allowedKeys.has(key) || value === undefined) {
+      continue;
+    }
+
+    if (key === 'yearsOfExperience' || key === 'order' || key === 'displayOrder') {
+      const num = Number(value);
+      sanitized[key] = isNaN(num) ? 0 : num;
+    } else if (key === 'isActive' || key === 'showOnTeamPage' || key === 'isFeatured') {
+      sanitized[key] = Boolean(value);
+    } else if (key === 'slug') {
+      if (typeof value === 'string' && value.trim()) {
+        sanitized[key] = value.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-|-$/g, '');
+      }
+    } else if (
+      key === 'expertiseTags' ||
+      key === 'coreCompetencies' ||
+      key === 'experience' ||
+      key === 'projects' ||
+      key === 'certifications' ||
+      key === 'education' ||
+      key === 'awards' ||
+      key === 'skillsMatrix' ||
+      key === 'mediaGallery' ||
+      key === 'testimonials'
+    ) {
+      if (Array.isArray(value)) {
+        sanitized[key] = value;
+      } else if (typeof value === 'string') {
+        try {
+          sanitized[key] = JSON.parse(value);
+        } catch {
+          sanitized[key] = [];
+        }
+      } else {
+        sanitized[key] = [];
+      }
+    } else if (
+      key === 'expertiseTagsAr' ||
+      key === 'coreCompetenciesAr' ||
+      key === 'experienceAr' ||
+      key === 'projectsAr' ||
+      key === 'certificationsAr' ||
+      key === 'educationAr' ||
+      key === 'awardsAr' ||
+      key === 'skillsMatrixAr'
+    ) {
+      if (Array.isArray(value)) {
+        sanitized[key] = value;
+      } else if (typeof value === 'string' && value.trim()) {
+        try {
+          sanitized[key] = JSON.parse(value);
+        } catch {
+          sanitized[key] = null;
+        }
+      } else if (value === null) {
+        sanitized[key] = null;
+      }
+    } else {
+      sanitized[key] = value;
+    }
+  }
+
+  return sanitized;
+}
+
+/**
  * Narrow Allowlist for Latin Acronyms, Technologies, and Brand Names permitted in Arabic mode.
  */
 export const ALLOWED_LATIN_TERMS = new Set<string>([
@@ -329,7 +452,7 @@ export const CANONICAL_TEAM_CUID_MAP: Record<string, string> = {
 };
 
 /**
- * Set of active canonical slugs across the verified 22-person roster.
+ * Set of active canonical slugs across the verified 21-person roster (+ legacy aliases).
  */
 export const CANONICAL_TEAM_SLUGS = new Set<string>([
   'adil-ahmed',
@@ -350,10 +473,15 @@ export const CANONICAL_TEAM_SLUGS = new Set<string>([
   'mohasin-mohammadaly',
   'waqar-asghar',
   'ebrahim-karolia',
+  'izaan-shahid',
   'muhammad-izaan-shahid',
   'marcialou-macatangay',
   'lucian-moldovan',
   'ruben-yaralyan',
+  'mohamed-chakib-djerfaf',
+  'reycie-memije',
+  'reycie-mia-cenizal-memije',
+  'mohammed-abdulla',
 ]);
 
 export interface TeamRouteResolution {
@@ -548,36 +676,234 @@ export function getEmployeeInitials(firstName?: string | null, lastName?: string
 }
 
 /**
- * 6 Canonical Presentation Groups for E3 Qatar Team Directory
+ * Canonical Presentation Groups for E3 Qatar Team Directory (6 Connected Stages + Corporate Enablement)
  */
 export const PRESENTATION_GROUPS = [
-  { key: 'leadership', labelEn: 'Leadership', labelAr: 'القيادة والإدارة التنفيذية' },
-  { key: 'creative-marketing', labelEn: 'Creative & Marketing', labelAr: 'الإبداع والتسويق' },
-  { key: 'events-production', labelEn: 'Events & Production', labelAr: 'الفعاليات والإنتاج' },
-  { key: 'operations-guest-exp', labelEn: 'Operations & Guest Experience', labelAr: 'العمليات وتجربة الزوار' },
-  { key: 'technology-systems', labelEn: 'Technology & Systems', labelAr: 'التكنولوجيا والأنظمة' },
-  { key: 'food-beverage', labelEn: 'Food & Beverage', labelAr: 'الأغذية والمشروبات' },
+  {
+    key: 'direction',
+    stageId: 'direction',
+    stageNumber: '01',
+    labelEn: 'Direction',
+    labelAr: 'التوجيه',
+    subtitleEn: 'Leadership & Strategy',
+    subtitleAr: 'القيادة والاستراتيجية',
+  },
+  {
+    key: 'imagine',
+    stageId: 'imagine',
+    stageNumber: '02',
+    labelEn: 'Imagine',
+    labelAr: 'الابتكار',
+    subtitleEn: 'Creative, Brand & Growth',
+    subtitleAr: 'الإبداع والهوية والنمو',
+  },
+  {
+    key: 'plan',
+    stageId: 'plan',
+    stageNumber: '03',
+    labelEn: 'Plan',
+    labelAr: 'التخطيط',
+    subtitleEn: 'Projects & Events',
+    subtitleAr: 'المشاريع والفعاليات',
+  },
+  {
+    key: 'build',
+    stageId: 'build',
+    stageNumber: '04',
+    labelEn: 'Build',
+    labelAr: 'التنفيذ',
+    subtitleEn: 'Production & Logistics',
+    subtitleAr: 'الإنتاج واللوجستيات',
+  },
+  {
+    key: 'operate',
+    stageId: 'operate',
+    stageNumber: '05',
+    labelEn: 'Operate',
+    labelAr: 'التشغيل',
+    subtitleEn: 'Operations & Guest Experience',
+    subtitleAr: 'العمليات وتجربة الزوار',
+  },
+  {
+    key: 'amplify',
+    stageId: 'amplify',
+    stageNumber: '06',
+    labelEn: 'Amplify',
+    labelAr: 'التطوير',
+    subtitleEn: 'Technology & Systems',
+    subtitleAr: 'التكنولوجيا والأنظمة',
+  },
+  {
+    key: 'corporate-enablement',
+    stageId: 'corporate-enablement',
+    stageNumber: '07',
+    labelEn: 'Corporate Enablement',
+    labelAr: 'التمكين المؤسسي',
+    subtitleEn: 'Corporate Enablement',
+    subtitleAr: 'التمكين المؤسسي',
+  },
+  // Legacy Aliases for backwards compatibility
+  {
+    key: 'leadership',
+    stageId: 'direction',
+    stageNumber: '01',
+    labelEn: 'Leadership',
+    labelAr: 'القيادة والإدارة التنفيذية',
+    subtitleEn: 'Leadership & Strategy',
+    subtitleAr: 'القيادة والاستراتيجية',
+  },
+  {
+    key: 'creative-marketing',
+    stageId: 'imagine',
+    stageNumber: '02',
+    labelEn: 'Creative & Marketing',
+    labelAr: 'الإبداع والتسويق',
+    subtitleEn: 'Creative, Brand & Growth',
+    subtitleAr: 'الإبداع والهوية والنمو',
+  },
+  {
+    key: 'events-production',
+    stageId: 'plan',
+    stageNumber: '03',
+    labelEn: 'Events & Production',
+    labelAr: 'الفعاليات والإنتاج',
+    subtitleEn: 'Projects & Events',
+    subtitleAr: 'المشاريع والفعاليات',
+  },
+  {
+    key: 'operations-guest-exp',
+    stageId: 'operate',
+    stageNumber: '05',
+    labelEn: 'Operations & Guest Experience',
+    labelAr: 'العمليات وتجربة الزوار',
+    subtitleEn: 'Operations & Guest Experience',
+    subtitleAr: 'العمليات وتجربة الزوار',
+  },
+  {
+    key: 'technology-systems',
+    stageId: 'amplify',
+    stageNumber: '06',
+    labelEn: 'Technology & Systems',
+    labelAr: 'التكنولوجيا والأنظمة',
+    subtitleEn: 'Technology & Systems',
+    subtitleAr: 'التكنولوجيا والأنظمة',
+  },
+  {
+    key: 'food-beverage',
+    stageId: 'operate',
+    stageNumber: '05',
+    labelEn: 'Food & Beverage',
+    labelAr: 'الأغذية والمشروبات',
+    subtitleEn: 'Operations & Guest Experience',
+    subtitleAr: 'العمليات وتجربة الزوار',
+  },
 ] as const;
 
 export type PresentationGroupKey = (typeof PRESENTATION_GROUPS)[number]['key'];
 
 /**
- * Resolves an employee's Presentation Group deterministically from presentationGroup field or department/designation.
+ * Explicit Canonical Mapping Table for All 21 Active Roster Members
+ * (Direction: 3, Imagine: 5, Plan: 3, Build: 2, Operate: 4, Amplify: 2, Corporate Enablement: 2)
+ */
+export const CANONICAL_PERSON_PRESENTATION_GROUP_MAP: Record<string, string> = {
+  // Direction — Leadership & Strategy (3)
+  'abdullah-al-kubaisi': 'direction',
+  'abdulla-alkuwari': 'direction',
+  'adil-ahmed': 'direction',
+  'mohammad-ali-awada': 'direction',
+
+  // Imagine — Creative, Brand & Growth (5)
+  'ahmad-faraz': 'imagine',
+  'mohasin-mohammadaly-parayil': 'imagine',
+  'mohasin-mohammadaly': 'imagine',
+  'nicole-bernido': 'imagine',
+  'amaan-malik': 'imagine',
+  'mohamed-chakib-djerfaf': 'imagine',
+
+  // Plan — Projects & Events (3)
+  'ebrahim-karolia': 'plan',
+  'arslan-arshad': 'plan',
+  'marcialou-macatangay': 'plan',
+
+  // Build — Production & Logistics (2)
+  'quasain-ali': 'build',
+  'amal-jose': 'build',
+
+  // Operate — Operations & Guest Experience (4)
+  'lucian-moldovan': 'operate',
+  'ruben-yaralyan': 'operate',
+  'asghar-bhatti': 'operate',
+  'waqar-asghar': 'operate',
+
+  // Amplify — Technology & Systems (2)
+  'rajan-pathak': 'amplify',
+  'izaan-shahid': 'amplify',
+  'muhammad-izaan-shahid': 'amplify',
+
+  // Corporate Enablement (2)
+  'reycie-memije': 'corporate-enablement',
+  'reycie-mia-cenizal-memije': 'corporate-enablement',
+  'mohammed-abdulla': 'corporate-enablement',
+};
+
+/**
+ * Resolves an employee's Presentation Group deterministically with explicit dashboard overrides,
+ * canonical person mapping, and safe auto-resolution fallback so no stage is left empty.
  */
 export function resolvePresentationGroup(
   member: CanonicalEmployeeInput,
   locale: 'en' | 'ar' = 'en'
-): { key: PresentationGroupKey; label: string; labelEn: string; labelAr: string } {
+): { key: PresentationGroupKey; label: string; labelEn: string; labelAr: string; stageId: string } {
   const isAr = locale === 'ar';
 
-  if (member.presentationGroup) {
-    const rawVal = String(member.presentationGroup).toLowerCase().trim();
+  // 1. Check explicit override on member (field or skillsMatrix)
+  let overrideKey = member.presentationGroup;
+  if (!overrideKey && member.skillsMatrix) {
+    if (Array.isArray(member.skillsMatrix)) {
+      const match = member.skillsMatrix.find(
+        (s: any) => s && (s.skill === '__presentation_group__' || s.skill === 'presentationGroup')
+      );
+      if (match?.level) overrideKey = match.level;
+    } else if (typeof member.skillsMatrix === 'object' && member.skillsMatrix.presentationGroup) {
+      overrideKey = member.skillsMatrix.presentationGroup;
+    }
+  }
+
+  if (overrideKey) {
+    const rawVal = String(overrideKey).toLowerCase().trim();
     const rawKey = rawVal.replace(/\s+/g, '-').replace(/&/g, '');
+
+    // If legacy events-production, disambiguate between build (Production & Logistics) and plan (Projects & Events)
+    if (rawKey === 'events-production' || rawVal === 'events & production') {
+      const dept = (member.department || '').toLowerCase();
+      const desig = (member.designation || '').toLowerCase();
+      if (
+        dept.includes('production') ||
+        dept.includes('logistics') ||
+        dept.includes('technical') ||
+        dept.includes('av') ||
+        desig.includes('production') ||
+        desig.includes('logistics') ||
+        desig.includes('technical') ||
+        desig.includes('av')
+      ) {
+        const found = PRESENTATION_GROUPS.find((g) => g.key === 'build')!;
+        return {
+          key: found.key,
+          label: isAr ? found.labelAr : found.labelEn,
+          labelEn: found.labelEn,
+          labelAr: found.labelAr,
+          stageId: found.stageId,
+        };
+      }
+    }
+
     const found = PRESENTATION_GROUPS.find(
       (g) =>
         g.key === rawKey ||
+        g.key === rawVal ||
         g.labelEn.toLowerCase() === rawVal ||
-        g.labelAr === member.presentationGroup?.trim() ||
+        g.labelAr === overrideKey?.trim() ||
         g.key.replace(/-/g, '') === rawKey.replace(/-/g, '')
     );
     if (found) {
@@ -586,14 +912,89 @@ export function resolvePresentationGroup(
         label: isAr ? found.labelAr : found.labelEn,
         labelEn: found.labelEn,
         labelAr: found.labelAr,
+        stageId: found.stageId,
       };
     }
   }
 
+  // 2. Canonical mapping by slug
+  const slug = (member.slug || '').trim().toLowerCase();
+  if (slug && CANONICAL_PERSON_PRESENTATION_GROUP_MAP[slug]) {
+    const groupKey = CANONICAL_PERSON_PRESENTATION_GROUP_MAP[slug];
+    const found = PRESENTATION_GROUPS.find((g) => g.key === groupKey);
+    if (found) {
+      return {
+        key: found.key,
+        label: isAr ? found.labelAr : found.labelEn,
+        labelEn: found.labelEn,
+        labelAr: found.labelAr,
+        stageId: found.stageId,
+      };
+    }
+  }
+
+  // 3. Name-matching fallback
+  const fullName = `${member.firstName || ''} ${member.lastName || ''}`.toLowerCase().trim();
+  if (fullName.includes('kubaisi') || fullName.includes('adil ahmed') || fullName.includes('awada')) {
+    const found = PRESENTATION_GROUPS[0];
+    return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
+  }
+  if (
+    fullName.includes('faraz') ||
+    fullName.includes('mohasin') ||
+    fullName.includes('parayil') ||
+    fullName.includes('bernido') ||
+    fullName.includes('amaan') ||
+    fullName.includes('djerfaf') ||
+    fullName.includes('chakib')
+  ) {
+    const found = PRESENTATION_GROUPS[1];
+    return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
+  }
+  if (
+    fullName.includes('ebrahim') ||
+    fullName.includes('karolia') ||
+    fullName.includes('arslan') ||
+    fullName.includes('macatangay') ||
+    fullName.includes('marcialou')
+  ) {
+    const found = PRESENTATION_GROUPS[2];
+    return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
+  }
+  if (fullName.includes('quasain') || fullName.includes('amal jose')) {
+    const found = PRESENTATION_GROUPS[3];
+    return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
+  }
+  if (
+    fullName.includes('lucian') ||
+    fullName.includes('moldovan') ||
+    fullName.includes('ruben') ||
+    fullName.includes('yaralyan') ||
+    fullName.includes('asghar bhatti') ||
+    fullName.includes('waqar')
+  ) {
+    const found = PRESENTATION_GROUPS[4];
+    return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
+  }
+  if (fullName.includes('rajan') || fullName.includes('pathak') || fullName.includes('izaan') || fullName.includes('shahid')) {
+    const found = PRESENTATION_GROUPS[5];
+    return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
+  }
+  if (
+    fullName.includes('reycie') ||
+    fullName.includes('memije') ||
+    fullName.includes('mohammed abdulla') ||
+    fullName.includes('abdulla')
+  ) {
+    const found = PRESENTATION_GROUPS[6];
+    return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
+  }
+
+  // 4. Safe Auto-Resolution from Department / Designation
   const dept = (member.department || '').toLowerCase().trim();
   const desig = (member.designation || '').toLowerCase().trim();
 
-  // 1. Leadership
+  // Leadership / Direction
   if (
     dept.includes('executive') ||
     dept.includes('leadership') ||
@@ -603,15 +1004,13 @@ export function resolvePresentationGroup(
     desig.includes('general manager') ||
     desig.includes('chairman') ||
     desig.includes('managing director') ||
-    desig.includes('president') ||
-    desig.includes('coo') ||
-    desig.includes('cfo')
+    desig.includes('president')
   ) {
     const g = PRESENTATION_GROUPS[0];
-    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr };
+    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
   }
 
-  // 2. Creative & Marketing
+  // Creative, Brand & Growth / Imagine
   if (
     dept.includes('marketing') ||
     dept.includes('branding') ||
@@ -627,10 +1026,10 @@ export function resolvePresentationGroup(
     desig.includes('brand')
   ) {
     const g = PRESENTATION_GROUPS[1];
-    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr };
+    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
   }
 
-  // 3. Technology & Systems
+  // Technology & Systems / Amplify
   if (
     dept.includes('technology') ||
     dept.includes('it') ||
@@ -643,45 +1042,57 @@ export function resolvePresentationGroup(
     desig.includes('full-stack') ||
     desig.includes('systems')
   ) {
-    const g = PRESENTATION_GROUPS[4];
-    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr };
-  }
-
-  // 4. Food & Beverage
-  if (
-    dept.includes('food') ||
-    dept.includes('beverage') ||
-    dept.includes('f&b') ||
-    dept.includes('catering') ||
-    dept.includes('culinary') ||
-    dept.includes('hospitality') ||
-    desig.includes('chef') ||
-    desig.includes('f&b') ||
-    desig.includes('hospitality')
-  ) {
     const g = PRESENTATION_GROUPS[5];
-    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr };
+    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
   }
 
-  // 5. Operations & Guest Experience
+  // Corporate Enablement
+  if (
+    dept.includes('corporate') ||
+    dept.includes('enablement') ||
+    dept.includes('finance') ||
+    dept.includes('compliance') ||
+    dept.includes('government') ||
+    desig.includes('finance') ||
+    desig.includes('relations') ||
+    desig.includes('compliance')
+  ) {
+    const g = PRESENTATION_GROUPS[6];
+    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
+  }
+
+  // Production & Logistics / Build
+  if (
+    dept.includes('logistics') ||
+    dept.includes('production') ||
+    desig.includes('logistics') ||
+    desig.includes('production') ||
+    desig.includes('supervisor') ||
+    desig.includes('site manager')
+  ) {
+    const g = PRESENTATION_GROUPS[3];
+    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
+  }
+
+  // Operations & Guest Experience / Operate
   if (
     dept.includes('operations') ||
     dept.includes('guest') ||
     dept.includes('facility') ||
     dept.includes('venue') ||
-    dept.includes('logistics') ||
+    dept.includes('food') ||
+    dept.includes('beverage') ||
     desig.includes('operations') ||
     desig.includes('guest') ||
-    desig.includes('logistics') ||
-    desig.includes('site')
+    desig.includes('f&b')
   ) {
-    const g = PRESENTATION_GROUPS[3];
-    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr };
+    const g = PRESENTATION_GROUPS[4];
+    return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
   }
 
-  // 6. Events & Production (default for event atelier)
+  // Projects & Events / Plan (Default safe fallback)
   const g = PRESENTATION_GROUPS[2];
-  return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr };
+  return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
 }
 
 /**
@@ -946,10 +1357,15 @@ export const CANONICAL_NAME_LOCALIZATION_MAP: Record<string, string> = {
   'mohasin-mohammadaly': 'محاسن محمد علي',
   'waqar-asghar': 'وقار أصغر',
   'ebrahim-karolia': 'إبراهيم كاروليا',
+  'izaan-shahid': 'محمد إذعان شاهد',
   'muhammad-izaan-shahid': 'محمد إذعان شاهد',
   'marcialou-macatangay': 'مارسيالو ماكاتانغاي',
   'lucian-moldovan': 'لوسيان مولدوفان',
   'ruben-yaralyan': 'روبين ياراليان',
+  'mohamed-chakib-djerfaf': 'محمد شكيب جرفاف',
+  'reycie-memije': 'ريسي ميا سينيزال ميميجي',
+  'reycie-mia-cenizal-memije': 'ريسي ميا سينيزال ميميجي',
+  'mohammed-abdulla': 'محمد عبدالله',
 };
 
 /**

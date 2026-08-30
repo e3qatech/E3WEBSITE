@@ -40,6 +40,8 @@ export function CinematicPortraitWallHero({
   fixedHeadlineAr = "العقول والشخصيات وراء كل تجربة تصنعها إي ثري",
   headlineTemplateEn,
   headlineTemplateAr,
+  rotatingWordsEn = ["EXPERIENCES"],
+  rotatingWordsAr = ["تجارب استثنائية"],
   descriptionEn = "From the first sketch to the final guest, our strategists, designers, producers, technicians and operators build every moment together.",
   descriptionAr = "من المخطط الأول حتى آخر زائر، يبتكر خبراؤنا ومصممونا ومنتجونا وتقنيونا كل لحظة وتفصيل بتناغم متكامل.",
   primaryCtaLabelEn = "Meet the Teams",
@@ -53,12 +55,24 @@ export function CinematicPortraitWallHero({
 }: CinematicPortraitWallHeroProps) {
   const isAr = locale === "ar";
 
-  // 1. Resolve raw headline string
-  const rawHeadline = isAr
-    ? (headlineTemplateAr || fixedHeadlineAr || "العقول والشخصيات وراء كل تجربة تصنعها إي ثري")
-    : (headlineTemplateEn || fixedHeadlineEn || "THE PEOPLE BEHIND EVERY E3 EXPERIENCE");
+  // 1. Resolve raw headline string safely (ensuring {{animated}} can never appear)
+  let rawHeadline = isAr
+    ? (headlineTemplateAr || fixedHeadlineAr || "تعرف على صناع التجارب الاستثنائية")
+    : (headlineTemplateEn || fixedHeadlineEn || "MEET THE PEOPLE WHO BUILD EXPERIENCES");
 
-  const hasExplicitTemplate = rawHeadline.includes("{{animated}}") || rawHeadline.includes("\n");
+  if (rawHeadline.includes("{{animated}}")) {
+    const fallbackWord = isAr ? "تجارب استثنائية" : "EXPERIENCES";
+    const dynamicWord = (isAr ? rotatingWordsAr?.[0] : rotatingWordsEn?.[0]) || fallbackWord;
+    rawHeadline = rawHeadline.replace(/\{\{animated\}\}/g, dynamicWord);
+  }
+
+  if (/\{\{.*?\}\}/.test(rawHeadline) || !rawHeadline.trim()) {
+    rawHeadline = isAr
+      ? "تعرف على صناع التجارب الاستثنائية"
+      : "MEET THE PEOPLE WHO BUILD EXPERIENCES";
+  }
+
+  const hasExplicitTemplate = rawHeadline.includes("\n");
 
   // 2. Parse into clean lines if template or multi-line
   const parsedHeadline = useMemo(() => {

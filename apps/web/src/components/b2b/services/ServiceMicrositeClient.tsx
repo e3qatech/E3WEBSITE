@@ -158,7 +158,49 @@ export function ServiceMicrositeClient({
                 const title = isAr ? study.titleAr || study.titleEn : study.titleEn;
                 const clientName = isAr ? study.clientNameAr || study.clientNameEn : study.clientNameEn;
                 const summary = isAr ? study.summaryAr || study.summaryEn : study.summaryEn;
-                const image = study.heroMediaUrl || study.heroThumbnailUrl || study.thumbnailImage || study.thumbnail;
+                
+                // Comprehensive thumbnail resolution across CaseStudy, Attraction, and Project models
+                const directImage =
+                  study.thumbnailUrl ||
+                  study.heroImageUrl ||
+                  study.heroThumbnailUrl ||
+                  study.heroMediaUrl ||
+                  study.heroFallbackUrl ||
+                  study.thumbnail ||
+                  study.thumbnailImage ||
+                  study.image ||
+                  study.imageUrl ||
+                  (Array.isArray(study.gallery) && (study.gallery[0]?.url || study.gallery[0]?.mediaUrl)) ||
+                  (Array.isArray(study.mediaGallery) && (study.mediaGallery[0]?.url || study.mediaGallery[0]?.mediaUrl));
+
+                // Contextual landmark image fallback for Qatar executions
+                let image = directImage;
+                if (!image || typeof image !== "string" || image.trim() === "") {
+                  const identifier = `${study.slug || ""} ${study.titleEn || ""} ${study.category || ""}`.toLowerCase();
+                  if (identifier.includes("balloon") || identifier.includes("parade")) {
+                    image = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DJI_0189.jpg";
+                  } else if (identifier.includes("urban") || identifier.includes("arena")) {
+                    image = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/_Urban%20Arena-Profile%20%281%29_Page_18_Image_0006.jpg";
+                  } else if (identifier.includes("splash") || identifier.includes("paw") || identifier.includes("spongebob") || identifier.includes("meryal")) {
+                    image = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/2809137c-b6cd-48f0-94d4-80e19c038e4e.JPG";
+                  } else if (identifier.includes("sport") || identifier.includes("pearl") || identifier.includes("udc") || identifier.includes("carnival")) {
+                    image = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg";
+                  } else if (identifier.includes("space") || identifier.includes("tribe") || identifier.includes("vendome")) {
+                    image = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/IMG_3029-Edit.jpg";
+                  } else if (identifier.includes("lego")) {
+                    image = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/stage.jpg";
+                  } else if (identifier.includes("kidz") || identifier.includes("driving") || identifier.includes("city center")) {
+                    image = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/37759cc3-0252-4e1e-8764-d0b7c9788e89.jpg";
+                  } else if (identifier.includes("crayon") || identifier.includes("brick")) {
+                    image = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/79a8b014-64b7-4d8f-97f3-0fedca268e8a.jpeg";
+                  } else if (identifier.includes("inflata")) {
+                    image = "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop";
+                  } else if (identifier.includes("tudor") || identifier.includes("racing")) {
+                    image = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/AQ0I0091.jpg";
+                  } else {
+                    image = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg";
+                  }
+                }
 
                 return (
                   <Link

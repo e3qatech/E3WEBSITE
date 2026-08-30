@@ -1235,6 +1235,135 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                         className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none resize-none"
                       />
                     </div>
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border-default/60">
+                      <div>
+                        <label className="text-[10px] font-bold text-text-secondary uppercase">Architecture / Badge Label (En)</label>
+                        <input 
+                          type="text"
+                          value={feat.architectureLabelEn || "BOOKINGQUBE™ ARCHITECTURE"}
+                          placeholder="e.g. BOOKINGQUBE™ ARCHITECTURE"
+                          onChange={e => {
+                            const feats = [...data.bookingQube.featureItems]
+                            feats[idx].architectureLabelEn = e.target.value
+                            updateSectionField("bookingQube", "featureItems", feats)
+                          }}
+                          className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-text-secondary uppercase">Architecture / Badge Label (Ar)</label>
+                        <input 
+                          type="text"
+                          dir="rtl"
+                          value={feat.architectureLabelAr || "هندسة بوكينج كيوب™"}
+                          placeholder="مثال: هندسة بوكينج كيوب™"
+                          onChange={e => {
+                            const feats = [...data.bookingQube.featureItems]
+                            feats[idx].architectureLabelAr = e.target.value
+                            updateSectionField("bookingQube", "featureItems", feats)
+                          }}
+                          className="w-full bg-surface-default border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Technical Specifications Grid Editor */}
+                    <div className="space-y-3 pt-2 border-t border-border-default/60">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-bold text-text-secondary uppercase">Technical Specifications Matrix</label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const feats = [...data.bookingQube.featureItems]
+                            const currentSpecs = Array.isArray(feats[idx].specs) ? [...feats[idx].specs] : [
+                              { keyEn: "LATENCY & VALIDATION", keyAr: "سرعة الاستجابة والتحقق", valueEn: "Sub-200ms NFC & Offline Token Scanning", valueAr: "مسح فوري للرموز وتقنية NFC بدون إنترنت" },
+                              { keyEn: "WALLET INTEGRATION", keyAr: "التوافق مع المحافظ الرقمية", valueEn: "Native Apple Wallet & Google Pass Sync", valueAr: "مزامنة مباشرة مع Apple Wallet و Google Pass" },
+                              { keyEn: "SECURITY PROTOCOL", keyAr: "بروتوكول الأمان والحماية", valueEn: "Dynamic Encrypted QR Code Anti-Screenshot", valueAr: "رمز QR ديناميكي مشفر لمنع لقطات الشاشة" },
+                              { keyEn: "ANALYTICS ENGINE", keyAr: "محرك التحليلات والبيانات", valueEn: "Real-Time Heatmaps & Density Telemetry", valueAr: "خرائط حرارية ومؤشرات كثافة لحظية" }
+                            ]
+                            currentSpecs.push({
+                              keyEn: "NEW SPEC",
+                              keyAr: "مواصفة جديدة",
+                              valueEn: "Specification Value",
+                              valueAr: "قيمة المواصفة"
+                            })
+                            feats[idx].specs = currentSpecs
+                            updateSectionField("bookingQube", "featureItems", feats)
+                          }}
+                          className="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
+                        >
+                          <Plus className="w-3 h-3" /> Add Spec Metric
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {(Array.isArray(feat.specs) && feat.specs.length > 0 ? feat.specs : [
+                          { keyEn: "LATENCY & VALIDATION", keyAr: "سرعة الاستجابة والتحقق", valueEn: "Sub-200ms NFC & Offline Token Scanning", valueAr: "مسح فوري للرموز وتقنية NFC بدون إنترنت" },
+                          { keyEn: "WALLET INTEGRATION", keyAr: "التوافق مع المحافظ الرقمية", valueEn: "Native Apple Wallet & Google Pass Sync", valueAr: "مزامنة مباشرة مع Apple Wallet و Google Pass" },
+                          { keyEn: "SECURITY PROTOCOL", keyAr: "بروتوكول الأمان والحماية", valueEn: "Dynamic Encrypted QR Code Anti-Screenshot", valueAr: "رمز QR ديناميكي مشفر لمنع لقطات الشاشة" },
+                          { keyEn: "ANALYTICS ENGINE", keyAr: "محرك التحليلات والبيانات", valueEn: "Real-Time Heatmaps & Density Telemetry", valueAr: "خرائط حرارية ومؤشرات كثافة لحظية" }
+                        ]).map((spec: any, sIdx: number) => (
+                          <div key={sIdx} className="grid grid-cols-1 sm:grid-cols-5 gap-2 p-2 rounded-lg bg-surface-default border border-border-default/60 items-center">
+                            <input
+                              type="text"
+                              value={spec.keyEn || ""}
+                              placeholder="Spec Label En (e.g. LATENCY & VALIDATION)"
+                              onChange={e => {
+                                const feats = [...data.bookingQube.featureItems]
+                                const currentSpecs = Array.isArray(feats[idx].specs) ? [...feats[idx].specs] : [
+                                  { keyEn: "LATENCY & VALIDATION", keyAr: "سرعة الاستجابة والتحقق", valueEn: "Sub-200ms NFC & Offline Token Scanning", valueAr: "مسح فوري للرموز وتقنية NFC بدون إنترنت" },
+                                  { keyEn: "WALLET INTEGRATION", keyAr: "التوافق مع المحافظ الرقمية", valueEn: "Native Apple Wallet & Google Pass Sync", valueAr: "مزامنة مباشرة مع Apple Wallet و Google Pass" },
+                                  { keyEn: "SECURITY PROTOCOL", keyAr: "بروتوكول الأمان والحماية", valueEn: "Dynamic Encrypted QR Code Anti-Screenshot", valueAr: "رمز QR ديناميكي مشفر لمنع لقطات الشاشة" },
+                                  { keyEn: "ANALYTICS ENGINE", keyAr: "محرك التحليلات والبيانات", valueEn: "Real-Time Heatmaps & Density Telemetry", valueAr: "خرائط حرارية ومؤشرات كثافة لحظية" }
+                                ]
+                                currentSpecs[sIdx] = { ...currentSpecs[sIdx], keyEn: e.target.value }
+                                feats[idx].specs = currentSpecs
+                                updateSectionField("bookingQube", "featureItems", feats)
+                              }}
+                              className="col-span-2 bg-surface-hover border border-border-default rounded px-2 py-1 text-[11px] text-text-primary focus:outline-none font-mono"
+                            />
+                            <input
+                              type="text"
+                              value={spec.valueEn || ""}
+                              placeholder="Spec Value En (e.g. Sub-200ms NFC & Offline...)"
+                              onChange={e => {
+                                const feats = [...data.bookingQube.featureItems]
+                                const currentSpecs = Array.isArray(feats[idx].specs) ? [...feats[idx].specs] : [
+                                  { keyEn: "LATENCY & VALIDATION", keyAr: "سرعة الاستجابة والتحقق", valueEn: "Sub-200ms NFC & Offline Token Scanning", valueAr: "مسح فوري للرموز وتقنية NFC بدون إنترنت" },
+                                  { keyEn: "WALLET INTEGRATION", keyAr: "التوافق مع المحافظ الرقمية", valueEn: "Native Apple Wallet & Google Pass Sync", valueAr: "مزامنة مباشرة مع Apple Wallet و Google Pass" },
+                                  { keyEn: "SECURITY PROTOCOL", keyAr: "بروتوكول الأمان والحماية", valueEn: "Dynamic Encrypted QR Code Anti-Screenshot", valueAr: "رمز QR ديناميكي مشفر لمنع لقطات الشاشة" },
+                                  { keyEn: "ANALYTICS ENGINE", keyAr: "محرك التحليلات والبيانات", valueEn: "Real-Time Heatmaps & Density Telemetry", valueAr: "خرائط حرارية ومؤشرات كثافة لحظية" }
+                                ]
+                                currentSpecs[sIdx] = { ...currentSpecs[sIdx], valueEn: e.target.value }
+                                feats[idx].specs = currentSpecs
+                                updateSectionField("bookingQube", "featureItems", feats)
+                              }}
+                              className="col-span-2 bg-surface-hover border border-border-default rounded px-2 py-1 text-[11px] text-text-primary focus:outline-none font-bold"
+                            />
+                            <div className="flex justify-end">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const feats = [...data.bookingQube.featureItems]
+                                  const currentSpecs = (Array.isArray(feats[idx].specs) ? feats[idx].specs : [
+                                    { keyEn: "LATENCY & VALIDATION", keyAr: "سرعة الاستجابة والتحقق", valueEn: "Sub-200ms NFC & Offline Token Scanning", valueAr: "مسح فوري للرموز وتقنية NFC بدون إنترنت" },
+                                    { keyEn: "WALLET INTEGRATION", keyAr: "التوافق مع المحافظ الرقمية", valueEn: "Native Apple Wallet & Google Pass Sync", valueAr: "مزامنة مباشرة مع Apple Wallet و Google Pass" },
+                                    { keyEn: "SECURITY PROTOCOL", keyAr: "بروتوكول الأمان والحماية", valueEn: "Dynamic Encrypted QR Code Anti-Screenshot", valueAr: "رمز QR ديناميكي مشفر لمنع لقطات الشاشة" },
+                                    { keyEn: "ANALYTICS ENGINE", keyAr: "محرك التحليلات والبيانات", valueEn: "Real-Time Heatmaps & Density Telemetry", valueAr: "خرائط حرارية ومؤشرات كثافة لحظية" }
+                                  ]).filter((_: any, sI: number) => sI !== sIdx)
+                                  feats[idx].specs = currentSpecs
+                                  updateSectionField("bookingQube", "featureItems", feats)
+                                }}
+                                className="text-rose-400 hover:text-rose-300 p-1 cursor-pointer"
+                                title="Remove Spec"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-2">

@@ -177,27 +177,24 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { id, ...data } = body;
+    const url = new URL(request.url);
+    const id = body.id || url.searchParams.get("id");
 
     if (!id) {
       return NextResponse.json({ error: "Missing ID" }, { status: 400 });
     }
 
-    const validation = validateBilingualTeamMemberInput(data);
+    const validation = validateBilingualTeamMemberInput(body);
     if (!validation.valid) {
       return NextResponse.json({ error: "Validation failed", details: validation.errors }, { status: 400 });
     }
 
+    const { sanitizeEmployeeProfileUpdateData } = await import("@/lib/team/team-resolver");
+    const updateData = sanitizeEmployeeProfileUpdateData(body);
+
     const member = await db.employeeProfile.update({
       where: { id },
-      data: {
-        ...data,
-        displayOrder: data.displayOrder !== undefined ? Number(data.displayOrder) : undefined,
-        order: data.order !== undefined ? Number(data.order) : undefined,
-        isActive: data.isActive !== undefined ? Boolean(data.isActive) : undefined,
-        showOnTeamPage: data.showOnTeamPage !== undefined ? Boolean(data.showOnTeamPage) : undefined,
-        isFeatured: data.isFeatured !== undefined ? Boolean(data.isFeatured) : undefined,
-      },
+      data: updateData,
     });
 
     return NextResponse.json(member);

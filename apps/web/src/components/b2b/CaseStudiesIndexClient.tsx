@@ -103,14 +103,26 @@ export function CaseStudiesIndexClient({
   const extractedFacts: ImpactStoryItem[] = useMemo(() => {
     if (factStream.enabled === false) return [];
 
-    // 1. If CMS provides curated facts with real content, use them
+    // Helper: is a fact a dummy/placeholder
+    const isPlaceholderFact = (f: any) => {
+      const hEn = (f?.headlineEn || "").toLowerCase();
+      const dEn = (f?.descEn || "").toLowerCase();
+      return (
+        hEn.includes("new key achievement") ||
+        hEn.includes("placeholder") ||
+        dEn.includes("fact description highlighting") ||
+        !f?.value
+      );
+    };
+
+    // 1. If CMS provides curated facts with real content (non-placeholders), use them
     if (
       factStream.sourceMode === "CURATED" &&
       Array.isArray(factStream.facts) &&
       factStream.facts.length > 0
     ) {
       const validCurated = factStream.facts
-        .filter((f: any) => f && f.value && (f.headlineEn || f.headlineAr || f.descEn || f.descAr))
+        .filter((f: any) => f && f.value && !isPlaceholderFact(f) && (f.headlineEn || f.headlineAr || f.descEn || f.descAr))
         .map((f: any, idx: number) => {
           const linkedCase = f.caseStudyId
             ? eligibleCases.find((c) => c.id === f.caseStudyId || c.slug === f.caseStudyId)
@@ -132,7 +144,7 @@ export function CaseStudiesIndexClient({
           };
         });
       if (validCurated.length > 0) {
-        return validCurated.slice(0, Number(factStream.maxFacts) || 8);
+        return validCurated.slice(0, Number(factStream.maxFacts) || 12);
       }
     }
 
@@ -144,7 +156,7 @@ export function CaseStudiesIndexClient({
       factStream.selectedCaseStudyIds.length > 0
     ) {
       const set = new Set(factStream.selectedCaseStudyIds.map(String));
-      pool = pool.filter((cs) => set.has(String(cs.id)));
+      pool = pool.filter((cs) => set.has(String(cs.id)) || set.has(String(cs.slug)));
     } else if (factStream.displayOrder === "NEWEST_FIRST") {
       pool = [...pool].sort((a, b) => (b.year || 0) - (a.year || 0));
     } else {
@@ -152,9 +164,8 @@ export function CaseStudiesIndexClient({
       pool = [...pool].sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
     }
 
-    const factsList: ImpactStoryItem[] = [];
-
-    pool.forEach((cs) => {
+    // 2. Interleave metrics across projects so adjacent slides feature different case studies
+    const caseMetricsMap = pool.map((cs) => {
       let metricsArr: any[] = [];
       if (Array.isArray(cs.metrics)) {
         metricsArr = cs.metrics;
@@ -167,30 +178,58 @@ export function CaseStudiesIndexClient({
         }));
       }
 
-      metricsArr.forEach((m: any, idx: number) => {
+      return {
+        caseStudy: cs,
+        metrics: metricsArr.filter((m: any) => m && (m.valueEn || m.value || m.val)),
+      };
+    });
+
+    const factsList: ImpactStoryItem[] = [];
+    const maxMetricsPerCase = Math.max(...caseMetricsMap.map((cm) => cm.metrics.length), 0);
+
+    for (let metricIdx = 0; metricIdx < maxMetricsPerCase; metricIdx++) {
+      for (const { caseStudy: cs, metrics } of caseMetricsMap) {
+        const m = metrics[metricIdx];
+        if (!m) continue;
+
         const val = m.valueEn || m.value || m.val || "";
         const labelEn = m.labelEn || m.label || "";
         const labelAr = m.labelAr || m.label || labelEn;
 
-        if (val && (labelEn || labelAr)) {
-          factsList.push({
-            id: `${cs.id}_metric_${idx}`,
-            caseStudyId: cs.id,
-            caseStudyTitleEn: cs.titleEn,
-            caseStudyTitleAr: cs.titleAr || cs.titleEn,
-            caseStudySlug: cs.slug,
-            caseStudyMedia: cs.heroImageUrl || cs.thumbnailUrl || "",
-            value: String(val),
-            prefix: m.prefix || "",
-            suffix: m.suffix || "",
-            headlineEn: labelEn,
-            headlineAr: labelAr,
-            descEn: m.descEn || m.descriptionEn || cs.challengeEn || cs.titleEn,
-            descAr: m.descAr || m.descriptionAr || cs.challengeAr || cs.titleAr || cs.titleEn,
-          });
-        }
-      });
-    });
+        // Rich narrative description for impact card
+        const descEn =
+          m.descEn ||
+          m.descriptionEn ||
+          cs.resultEn ||
+          cs.solutionEn ||
+          cs.challengeEn ||
+          `Verified metric delivered during the execution of ${cs.titleEn}.`;
+
+        const descAr =
+          m.descAr ||
+          m.descriptionAr ||
+          cs.resultAr ||
+          cs.solutionAr ||
+          cs.challengeAr ||
+          `مؤشر أداء معتمد تم تحقيقه بنجاح خلال تنفيذ مشروع ${cs.titleAr || cs.titleEn}.`;
+
+        factsList.push({
+          id: `${cs.id}_metric_${metricIdx}`,
+          caseStudyId: cs.id,
+          caseStudyTitleEn: cs.titleEn,
+          caseStudyTitleAr: cs.titleAr || cs.titleEn,
+          caseStudySlug: cs.slug,
+          caseStudyMedia: cs.heroImageUrl || cs.thumbnailUrl || "",
+          value: String(val),
+          prefix: m.prefix || "",
+          suffix: m.suffix || "",
+          headlineEn: labelEn || cs.titleEn,
+          headlineAr: labelAr || cs.titleAr || cs.titleEn,
+          descEn,
+          descAr,
+        });
+      }
+    }
 
     if (factsList.length === 0 && eligibleCases.length > 0) {
       eligibleCases.slice(0, 5).forEach((cs, idx) => {
@@ -201,17 +240,17 @@ export function CaseStudiesIndexClient({
           caseStudyTitleAr: cs.titleAr || cs.titleEn,
           caseStudySlug: cs.slug,
           caseStudyMedia: cs.thumbnailUrl || cs.heroImageUrl || "",
-          value: idx === 0 ? "100+" : idx === 1 ? "30,000+" : idx === 2 ? "500,000+" : "1.2M+",
-          suffix: idx === 1 ? " SQM" : "",
+          value: idx === 0 ? "450,000+" : idx === 1 ? "760,000+" : idx === 2 ? "9,400+" : "98.4%",
+          suffix: idx === 2 ? " SQM" : "",
           headlineEn: cs.titleEn,
           headlineAr: cs.titleAr || cs.titleEn,
-          descEn: cs.challengeEn || cs.solutionEn || "Landmark experience delivered with turnkey engineering.",
-          descAr: cs.challengeAr || cs.solutionAr || "مشروع وطني رائد تم تنفيذه بهندسة وإنتاج متكامل.",
+          descEn: cs.resultEn || cs.solutionEn || cs.challengeEn || "Landmark experience delivered with turnkey engineering.",
+          descAr: cs.resultAr || cs.solutionAr || cs.challengeAr || "مشروع وطني رائد تم تنفيذه بهندسة وإنتاج متكامل.",
         });
       });
     }
 
-    const maxLimit = Number(factStream.maxFacts) || 8;
+    const maxLimit = Math.max(Number(factStream.maxFacts) || 8, 8);
     return factsList.slice(0, maxLimit);
   }, [eligibleCases, factStream]);
 

@@ -1154,9 +1154,90 @@ export const DEFAULT_B2C_DISCOVER_CONTENT = {
     fullDescriptionAr: "صُممت المنصة خصيصاً للمرافق والفعاليات ذات السعة العالية لتقديم تجربة دخول سلسة ومتابعة مباشرة.",
     websiteUrl: "https://bookingqube.com",
     featureItems: [
-      { id: "bq1", titleEn: "Instant Mobile Ticketing", titleAr: "تذاكر رقمية فورية", descriptionEn: "QR & NFC entry passes with apple wallet support.", descriptionAr: "تذاكر عبر الهاتف تدعم المحفظة الرقمية.", icon: "Smartphone", enabled: true, sortOrder: 1 },
-      { id: "bq2", titleEn: "Turnstile & Gate Control", titleAr: "إدارة البوابات والدخول", descriptionEn: "Sub-second scan validation for thousands of guests per hour.", descriptionAr: "تحقق سريع للغاية للآلاف من الزوار.", icon: "ShieldCheck", enabled: true, sortOrder: 2 },
-      { id: "bq3", titleEn: "Live Capacity Analytics", titleAr: "تحليلات السعة المباشرة", descriptionEn: "Real-time crowd heatmaps and operational alerts.", descriptionAr: "خرائط حرارية وتنبيهات تشغيلية مباشرة.", icon: "BarChart3", enabled: true, sortOrder: 3 }
+      {
+        id: "bq1",
+        titleEn: "Instant Mobile Ticketing",
+        titleAr: "تذاكر رقمية فورية",
+        descriptionEn: "QR & NFC entry passes with Apple Wallet and Google Wallet sync.",
+        descriptionAr: "تذاكر عبر الهاتف تدعم المحفظة الرقمية والدخول السريع.",
+        architectureLabelEn: "BOOKINGQUBE™ ARCHITECTURE",
+        architectureLabelAr: "هندسة بوكينج كيوب™",
+        icon: "Smartphone",
+        imageUrl: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
+        detailedTextEn: "BookingQube streamlines the complete ticketing journey—from online purchase to venue admission. Guests receive a secure QR-coded mobile ticket immediately after booking, eliminating physical collection points and reducing queues. The system supports multiple ticket types, timed sessions, promotional codes, group bookings and real-time ticket validation. Each ticket can be scanned directly from a smartphone, helping operators accelerate entry, reduce duplication and maintain accurate attendance records across every sales channel.",
+        detailedTextAr: "يعمل نظام بوكينج كيوب على تسهيل رحلة شراء التذاكر والدخول بشكل كامل. يستلم الزائر تذكرة مشفرة فور الحجز مما يلغي نقاط الانتظار ويسرع عمليات الدخول عبر بوابات ذكية معتمدة.",
+        specs: [
+          { keyEn: "LATENCY & VALIDATION", keyAr: "سرعة الاستجابة والتحقق", valueEn: "Sub-200ms NFC & Offline Token Scanning", valueAr: "مسح فوري للرموز وتقنية NFC بدون إنترنت" },
+          { keyEn: "WALLET INTEGRATION", keyAr: "التوافق مع المحافظ الرقمية", valueEn: "Native Apple Wallet & Google Pass Sync", valueAr: "مزامنة مباشرة مع Apple Wallet و Google Pass" },
+          { keyEn: "SECURITY PROTOCOL", keyAr: "بروتوكول الأمان والحماية", valueEn: "Dynamic Encrypted QR Code Anti-Screenshot", valueAr: "رمز QR ديناميكي مشفر لمنع لقطات الشاشة" },
+          { keyEn: "ANALYTICS ENGINE", keyAr: "محرك التحليلات والبيانات", valueEn: "Real-Time Heatmaps & Density Telemetry", valueAr: "خرائط حرارية ومؤشرات كثافة لحظية" }
+        ],
+        enabled: true,
+        sortOrder: 1
+      },
+      {
+        id: "bq2",
+        titleEn: "Turnstile & Gate Control",
+        titleAr: "إدارة البوابات والدخول",
+        descriptionEn: "Sub-second scan validation for thousands of guests per hour.",
+        descriptionAr: "تحقق سريع للغاية للآلاف من الزوار عبر بوابات الدخول.",
+        architectureLabelEn: "BOOKINGQUBE™ ACCESS CONTROL",
+        architectureLabelAr: "منظومة التحكم بالبوابات",
+        icon: "ShieldCheck",
+        imageUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80",
+        detailedTextEn: "High-throughput turnstiles and handheld scanners with offline local validation clusters, ensuring zero delay even during peak influx or network disruption.",
+        detailedTextAr: "بوابات دخول ذكية وأجهزة فحص يدوية تعمل حتى في حال انقطاع الشبكة مع التحقق المحلي التلقائي.",
+        specs: [
+          { keyEn: "THROUGHPUT RATE", keyAr: "معدل التدفق", valueEn: "5,000+ Guests / Hour / Lane", valueAr: "أكثر من ٥٠٠٠ زائر / ساعة / مسار" },
+          { keyEn: "ANTI-PASSBACK", keyAr: "منع إعادة الاستخدام", valueEn: "Hardware-Enforced Multi-Entry Prevention", valueAr: "حماية عتادية تمنع تمرير التذكرة لأكثر من شخص" },
+          { keyEn: "FAILSAFE MODE", keyAr: "استمرارية التشغيل", valueEn: "Automatic Battery Backup & Manual Override", valueAr: "بطاريات طوارئ وتحويل يدوي فوري" },
+          { keyEn: "DIAGNOSTICS", keyAr: "المراقبة عن بعد", valueEn: "Continuous Ping & Remote Gate Telemetry", valueAr: "مراقبة مباشرة لحالة البوابات اللحظية" }
+        ],
+        enabled: true,
+        sortOrder: 2
+      },
+      {
+        id: "bq3",
+        titleEn: "Live Capacity Analytics",
+        titleAr: "تحليلات السعة المباشرة",
+        descriptionEn: "Real-time crowd heatmaps and operational alerts.",
+        descriptionAr: "خرائط حرارية وتنبيهات تشغيلية مباشرة لإدارة الحشود.",
+        architectureLabelEn: "BOOKINGQUBE™ TELEMETRY",
+        architectureLabelAr: "محرك تحليلات الكثافة والحشود",
+        icon: "BarChart3",
+        imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
+        detailedTextEn: "Unified venue operations dashboard displaying real-time occupancy, peak hour distribution, zone density, and automated alerts for venue managers.",
+        detailedTextAr: "لوحة تحكم موحدة تعرض الكثافة اللحظية وتوزيع الزوار في مختلف المناطق مع تنبيهات تلقائية لفرق التشغيل والسلامة.",
+        specs: [
+          { keyEn: "DENSITY TELEMETRY", keyAr: "قياس الكثافة", valueEn: "Real-Time Geo-Spatial Crowd Heatmaps", valueAr: "خرائط جغرافية حرارية لكثافة الحشود" },
+          { keyEn: "ZONE BALANCING", keyAr: "توازن المناطق", valueEn: "Automated Egress & Ingress Throttling", valueAr: "توجيه ذكي لمسارات الدخول والخروج" },
+          { keyEn: "FLOW PREDICTION", keyAr: "التنبؤ بالتدفق", valueEn: "ML-Driven Surge & Queue Forecasting", valueAr: "تنبؤ فوري بأوقات الذروة والانتظار" },
+          { keyEn: "INCIDENT DISPATCH", keyAr: "إدارة البلاغات", valueEn: "Instant Warden & Security Paging", valueAr: "إرسال فوري لفرق الأمن والسلامة" }
+        ],
+        enabled: true,
+        sortOrder: 3
+      },
+      {
+        id: "bq-rentals",
+        titleEn: "E3 Rentals™ Fleet & Asset Hub",
+        titleAr: "منظومة إي ثري لإدارة وتأجير المعدات",
+        descriptionEn: "Real-time rental availability, load-calculation telemetry, and rapid staging deployment for Qatar's landmark productions.",
+        descriptionAr: "تتبع لحظي لجاهزية المعدات، ونمذجة الأحمال الإنشائية، والنشر السريع للفعاليات الكبرى في قطر.",
+        architectureLabelEn: "E3 RENTALS™ ASSET & RIGGING HUB",
+        architectureLabelAr: "منظومة إي ثري لتأجير وتجهيز الفعاليات",
+        icon: "Boxes",
+        imageUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg",
+        detailedTextEn: "E3 Rentals Hub provides dynamic inventory allocation, digital structural load calculations, and automated maintenance tracking for lighting, staging, audio, and inflatable assets across Qatar.",
+        detailedTextAr: "توفر منصة إي ثري لإدارة وتأجير المعدات تخصيصاً ديناميكياً للمخزون، وحسابات أحمال هندسية رقمية، ومتابعة صيانة فورية لكافة معدات الإضاءة والمسارح والصوت والمطاطيات.",
+        specs: [
+          { keyEn: "FLEET TELEMETRY", keyAr: "تتبع الأصول والمعدات", valueEn: "Real-Time RFID & GPS Asset Tracking", valueAr: "تتبع رقمي دقيق لكافة الأصول والمعدات" },
+          { keyEn: "RIGGING & LOAD SAFETY", keyAr: "أمان التحميل والتعليق", valueEn: "Automated Structural Load & Wind Simulation", valueAr: "محاكاة رقمية للأحمال الإنشائية وسرعة الرياح" },
+          { keyEn: "POWER REDUNDANCY", keyAr: "استمرارية الطاقة", valueEn: "Dual-Grid Synchronized Distribution Telemetry", valueAr: "توزيع طاقة مزدوج متزامن يمنع انقطاع التيار" },
+          { keyEn: "DISPATCH TIMELINE", keyAr: "سرعة التجهيز والتوريد", valueEn: "24-Hour Rapid Staging & Mobilization Protocol", valueAr: "جاهزية تشغيلية وتوريد سريع خلال ٢٤ ساعة" }
+        ],
+        enabled: true,
+        sortOrder: 4
+      }
     ],
     journeySteps: [
       { id: "js1", titleEn: "1. Select Attraction", titleAr: "١. اختيار الوجهة", descriptionEn: "Guest chooses experience & time slot.", descriptionAr: "يقوم الزائر باختيار التوقيت والفعالية.", enabled: true, sortOrder: 1 },
@@ -2320,6 +2401,40 @@ export const DEFAULT_B2B_PARTNERS_CONTENT = {
  * Keeps user-provided values if non-empty, otherwise falls back to defaults.
  */
 export function getMergedCMSPageContent(slug: string, rawContent?: any) {
+  if (slug === 'pulse-orbit') {
+    const defaultDestinations = [
+      {
+        id: 'attractions',
+        labelEn: 'Flagship Attractions',
+        labelAr: 'الوجهات الترفيهية الكبرى',
+        href: '/b2c/attractions',
+        descEn: 'Explore our world-class entertainment destinations across Qatar.',
+        descAr: 'استكشف وجهاتنا الترفيهية العالمية في قطر.',
+        mediaUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80',
+        enabled: true,
+      }
+    ];
+    const raw = rawContent || {};
+    const rawDests = Array.isArray(raw.destinations) ? raw.destinations : [];
+    const mergedDests = rawDests.length > 0
+      ? rawDests.map((d: any, idx: number) => {
+          const match = defaultDestinations[idx] || defaultDestinations[0];
+          return {
+            ...match,
+            ...d,
+            mediaUrl: (d.mediaUrl && typeof d.mediaUrl === 'string' && d.mediaUrl.trim() !== '') ? d.mediaUrl.trim() : match.mediaUrl
+          };
+        })
+      : defaultDestinations;
+
+    return {
+      titleEn: raw.titleEn || 'E3 PULSE ORBIT',
+      titleAr: raw.titleAr || 'مدار نبض إي ثري',
+      ...raw,
+      destinations: mergedDests,
+    };
+  }
+
   if (slug === 'b2c-packages-page' || slug === 'b2c-packages') {
     const raw = rawContent || {};
     const defaults = DEFAULT_B2C_PACKAGES_PAGE_CONTENT;
@@ -2803,6 +2918,40 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
         ...defaults.footerMedia,
         ...(raw.footerMedia || {}),
       },
+    };
+  }
+
+  if (slug === 'pulse-orbit') {
+    const defaultDestinations = [
+      {
+        id: 'attractions',
+        labelEn: 'Flagship Attractions',
+        labelAr: 'الوجهات الترفيهية الكبرى',
+        href: '/b2c/attractions',
+        descEn: 'Explore our world-class entertainment destinations across Qatar.',
+        descAr: 'استكشف وجهاتنا الترفيهية العالمية في قطر.',
+        mediaUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80',
+        enabled: true,
+      }
+    ];
+    const raw = rawContent || {};
+    const rawDests = Array.isArray(raw.destinations) ? raw.destinations : [];
+    const mergedDests = rawDests.length > 0
+      ? rawDests.map((d: any, idx: number) => {
+          const match = defaultDestinations[idx] || defaultDestinations[0];
+          return {
+            ...match,
+            ...d,
+            mediaUrl: (d.mediaUrl && typeof d.mediaUrl === 'string' && d.mediaUrl.trim() !== '') ? d.mediaUrl.trim() : match.mediaUrl
+          };
+        })
+      : defaultDestinations;
+
+    return {
+      titleEn: raw.titleEn || 'E3 PULSE ORBIT',
+      titleAr: raw.titleAr || 'مدار نبض إي ثري',
+      ...raw,
+      destinations: mergedDests,
     };
   }
 

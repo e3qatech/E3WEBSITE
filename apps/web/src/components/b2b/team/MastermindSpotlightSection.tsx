@@ -49,10 +49,10 @@ export function MastermindSpotlightSection({
     setIsPaused((prev) => !prev);
   }, []);
 
-  // Auto-advance spotlight every 7 seconds when not paused or motion reduced
+  // Auto-advance spotlight every 8 seconds when not paused or motion reduced
   useEffect(() => {
     if (shouldReduceMotion || isPaused || total <= 1) return;
-    const interval = setInterval(handleNext, 7000);
+    const interval = setInterval(handleNext, 8000);
     return () => clearInterval(interval);
   }, [shouldReduceMotion, isPaused, total, handleNext]);
 
@@ -127,6 +127,11 @@ export function MastermindSpotlightSection({
   const displayTagline = isAr && currentMember.taglineAr ? currentMember.taglineAr : currentMember.tagline;
   const displayAbout = isAr && currentMember.aboutSummaryAr ? currentMember.aboutSummaryAr : currentMember.aboutSummary;
 
+  // Single verified project deliverable
+  const verifiedProject = Array.isArray(currentMember.projects) && currentMember.projects.length > 0
+    ? (typeof currentMember.projects[0] === "string" ? currentMember.projects[0] : (isAr && currentMember.projects[0]?.nameAr ? currentMember.projects[0].nameAr : (currentMember.projects[0]?.name || currentMember.projects[0]?.projectName || currentMember.projects[0]?.title)))
+    : null;
+
   return (
     <section
       ref={spotlightRef}
@@ -138,7 +143,7 @@ export function MastermindSpotlightSection({
       onMouseLeave={() => setIsPaused(false)}
       tabIndex={0}
       data-testid="mastermind-spotlight-section"
-      aria-label={isAr ? "أضواء على القيادة والابتكار" : "Featured Mastermind Spotlight"}
+      aria-label={isAr ? "أضواء على فريق العمل والقيادة" : "FEATURED TEAM SPOTLIGHT"}
       className="relative w-full max-w-7xl mx-auto my-12 sm:my-16 md:my-20 px-4 sm:px-6 lg:px-8 focus:outline-none"
     >
       <div
@@ -172,7 +177,7 @@ export function MastermindSpotlightSection({
               <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             </div>
             <span className="text-xs font-mono font-bold uppercase tracking-widest text-cyan-300">
-              {isAr ? "أضواء على القيادة والابتكار" : "Featured Mastermind Spotlight"}
+              {isAr ? "أضواء على فريق العمل والقيادة" : "FEATURED TEAM SPOTLIGHT"}
             </span>
           </div>
 
@@ -199,7 +204,7 @@ export function MastermindSpotlightSection({
               <button
                 type="button"
                 onClick={isAr ? handleNext : handlePrev}
-                aria-label={isAr ? "السابق" : "Previous mastermind"}
+                aria-label={isAr ? "السابق" : "Previous team member"}
                 data-testid="spotlight-prev-btn"
                 className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white transition-colors cursor-pointer"
               >
@@ -208,7 +213,7 @@ export function MastermindSpotlightSection({
               <button
                 type="button"
                 onClick={isAr ? handlePrev : handleNext}
-                aria-label={isAr ? "التالي" : "Next mastermind"}
+                aria-label={isAr ? "التالي" : "Next team member"}
                 data-testid="spotlight-next-btn"
                 className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white transition-colors cursor-pointer"
               >
@@ -333,27 +338,16 @@ export function MastermindSpotlightSection({
                   </p>
                 )}
 
-                {/* Landmark Projects Preview */}
-                {currentMember.projects && currentMember.projects.length > 0 && (
+                {/* Single Verified Project Deliverable Preview */}
+                {verifiedProject && (
                   <div>
-                    <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                    <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
                       <Briefcase className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>{isAr ? "مشاريع معتمدة" : "Key Project Deliverables"}</span>
+                      <span>{isAr ? "مشروع معتمد" : "Verified Project Deliverable"}</span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {currentMember.projects.slice(0, 3).map((project: any, idx: number) => {
-                        const projectName = typeof project === "string" ? project : project?.name || "";
-                        if (!projectName) return null;
-                        return (
-                          <span
-                            key={idx}
-                            className="px-2.5 py-1 rounded-lg text-xs bg-white/5 border border-white/10 text-slate-200"
-                          >
-                            {projectName}
-                          </span>
-                        );
-                      })}
-                    </div>
+                    <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs bg-white/5 border border-white/10 text-cyan-300 font-medium">
+                      {verifiedProject}
+                    </span>
                   </div>
                 )}
 
@@ -386,3 +380,6 @@ export function MastermindSpotlightSection({
     </section>
   );
 }
+
+// Export alias for seamless integration
+export const FeaturedTeamSpotlightSection = MastermindSpotlightSection;

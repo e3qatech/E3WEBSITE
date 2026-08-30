@@ -446,10 +446,23 @@ export function DiscoverClient({
                   </p>
                 </div>
 
-                {/* Single Row 3-Column Grid for BookingQube Features */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                {/* Responsive Grid for Proprietary Ecosystem Tech Features (4 Cards) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {features.map((item: any) => {
-                    const itemImg = item.imageUrl || item.mediaUrl;
+                    let itemImg = item.imageUrl || item.mediaUrl;
+                    if (!itemImg || typeof itemImg !== "string" || itemImg.trim() === "") {
+                      const t = (item.titleEn || "").toLowerCase();
+                      if (t.includes("rentals") || t.includes("fleet") || t.includes("rigging")) {
+                        itemImg = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg";
+                      } else if (t.includes("turnstile") || t.includes("gate")) {
+                        itemImg = "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80";
+                      } else if (t.includes("analytics") || t.includes("capacity")) {
+                        itemImg = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80";
+                      } else {
+                        itemImg = "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80";
+                      }
+                    }
+
                     return (
                       <InteractiveCard key={item.id} className="overflow-hidden p-6 flex flex-col justify-between h-full border border-[var(--border-level-2)] rounded-3xl bg-[var(--surface-default)] shadow-2xl space-y-4" glowColor="rgba(26, 31, 214, 0.3)">
                         <div className="space-y-4">
@@ -478,7 +491,7 @@ export function DiscoverClient({
                         {/* Technical Details Popup Trigger Button */}
                         <button
                           onClick={() => setActiveBQModal(item)}
-                          className="w-full py-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-[var(--text-primary)] hover:text-white border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-[11px] font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group mt-2"
+                          className="w-full py-2.5 rounded-xl bg-[var(--surface-hover)] hover:bg-[var(--e3-royal-blue)] text-[var(--text-primary)] hover:text-white border border-[var(--border-level-2)] hover:border-[var(--e3-royal-blue)] text-[11px] font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 group mt-2 cursor-pointer"
                         >
                           <FileText className="w-3.5 h-3.5 text-[var(--e3-royal-blue)] group-hover:text-white transition-colors" />
                           <span>{isAr ? "تفاصيل التقنية" : "Technical Specifications"}</span>
@@ -683,49 +696,85 @@ export function DiscoverClient({
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
                   <div>
                     <span className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--e3-royal-blue)] mb-2 block">
-                      {isAr ? (li.eyebrowAr || "الأخبار والرؤى") : (li.eyebrowEn || "E3 INSIGHTS & PRESS")}
+                      {isAr ? (li.eyebrowAr || "الأخبار والرؤى ودراسات الحالة") : (li.eyebrowEn || "E3 INSIGHTS & CASE STUDIES")}
                     </span>
                     <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] font-display uppercase">
                       {isAr ? (li.headingAr || "أحدث أخبار إي ثري") : (li.headingEn || "LATEST FROM E3")}
                     </h2>
                   </div>
                   <Link href={`/${locale}/b2c/insights`} className="text-xs font-bold uppercase text-[var(--e3-royal-blue)] flex items-center gap-1 hover:underline">
-                    {isAr ? (li.ctaLabelAr || "استكشف كل الأخبار") : (li.ctaLabelEn || "Explore All Insights")}
+                    {isAr ? (li.ctaLabelAr || "استكشف كل الأخبار") : (li.ctaLabelEn || "Explore All Articles")}
                     <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />
                   </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                   {displayList.map((ins: any) => {
-                    const postImg = ins.mediaUrl || ins.imageUrl || ins.coverImage;
+                    // Resolve image with guaranteed fallback
+                    let postImg = ins.featuredMediaId || ins.mediaUrl || ins.imageUrl || ins.coverImage || ins.thumbnailUrl || ins.heroImageUrl || ins.heroMediaUrl;
+                    if (!postImg || typeof postImg !== "string" || postImg.trim() === "") {
+                      const t = `${ins.slug || ""} ${ins.slugEn || ""} ${ins.titleEn || ""} ${ins.contentType || ""}`.toLowerCase();
+                      if (t.includes("driving") || t.includes("kidz") || t.includes("kid")) {
+                        postImg = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/37759cc3-0252-4e1e-8764-d0b7c9788e89.jpg";
+                      } else if (t.includes("urban") || t.includes("arena")) {
+                        postImg = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/_Urban%20Arena-Profile%20%281%29_Page_18_Image_0006.jpg";
+                      } else if (t.includes("guinness") || t.includes("record") || t.includes("inflatarun")) {
+                        postImg = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DJI_0189.jpg";
+                      } else if (t.includes("bookingqube") || t.includes("turnstile") || t.includes("ticket")) {
+                        postImg = "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80";
+                      } else if (t.includes("sport") || t.includes("pearl")) {
+                        postImg = "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg";
+                      } else {
+                        postImg = "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80";
+                      }
+                    }
+
+                    // Target URL: check slug, slugEn, case study or general insights link
+                    const targetUrl = ins.slugEn || ins.slug
+                      ? `/${locale}/b2c/insights/${ins.slugEn || ins.slug}`
+                      : ins.caseSlug
+                      ? `/${locale}/b2b/case-studies/${ins.caseSlug}`
+                      : `/${locale}/b2c/insights`;
+
                     return (
-                      <InteractiveCard key={ins.id} className="overflow-hidden p-6 flex flex-col justify-between h-full border border-[var(--border-level-2)] rounded-3xl bg-[var(--surface-default)] shadow-2xl space-y-4" glowColor="rgba(26, 31, 214, 0.3)">
-                        <div className="space-y-4">
-                          {/* Image Frame Area */}
-                          <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] shrink-0 shadow-lg flex items-center justify-center">
-                            {postImg ? (
-                              <img src={postImg} alt={ins.titleEn} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-[var(--e3-royal-blue)]/20">
-                                <Sparkles className="w-8 h-8 text-[var(--e3-royal-blue)]" />
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                      <Link
+                        key={ins.id}
+                        href={targetUrl}
+                        className="group block h-full focus:outline-none"
+                      >
+                        <InteractiveCard className="overflow-hidden p-6 flex flex-col justify-between h-full border border-[var(--border-level-2)] group-hover:border-[var(--e3-royal-blue)] rounded-3xl bg-[var(--surface-default)] shadow-2xl space-y-4 transition-all duration-300" glowColor="rgba(26, 31, 214, 0.3)">
+                          <div className="space-y-4">
+                            {/* Image Frame Area */}
+                            <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden border border-[var(--border-level-2)] bg-gradient-to-br from-[var(--e3-deep-blue)] to-[var(--e3-midnight)] shrink-0 shadow-lg flex items-center justify-center">
+                              {postImg ? (
+                                <img src={postImg} alt={ins.titleEn} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-[var(--e3-royal-blue)]/20">
+                                  <Sparkles className="w-8 h-8 text-[var(--e3-royal-blue)]" />
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                            </div>
+
+                            <div>
+                              <span className="px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-wider mb-3 inline-block font-mono">
+                                {ins.contentType || "ARTICLE"}
+                              </span>
+                              <h3 className="font-extrabold text-base text-[var(--text-primary)] group-hover:text-[var(--e3-royal-blue)] mb-2 line-clamp-2 uppercase font-display transition-colors">
+                                {isAr ? (ins.titleAr || ins.titleEn) : ins.titleEn}
+                              </h3>
+                              <p className="text-xs text-[var(--text-secondary)] line-clamp-3 leading-relaxed font-medium">
+                                {isAr ? (ins.excerptAr || ins.excerptEn || ins.bodyEn?.slice(0, 120)) : (ins.excerptEn || ins.bodyEn?.slice(0, 120))}
+                              </p>
+                            </div>
                           </div>
 
-                          <div>
-                            <span className="px-2.5 py-1 text-[10px] font-extrabold rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-wider mb-3 inline-block font-mono">
-                              {ins.contentType}
-                            </span>
-                            <h3 className="font-extrabold text-base text-[var(--text-primary)] mb-2 line-clamp-2 uppercase font-display">
-                              {isAr ? (ins.titleAr || ins.titleEn) : ins.titleEn}
-                            </h3>
-                            <p className="text-xs text-[var(--text-secondary)] line-clamp-3 leading-relaxed font-medium">
-                              {isAr ? (ins.excerptAr || ins.excerptEn || ins.bodyEn?.slice(0, 120)) : (ins.excerptEn || ins.bodyEn?.slice(0, 120))}
-                            </p>
+                          <div className="pt-3 border-t border-[var(--border-level-2)]/60 flex items-center justify-between text-xs font-bold text-[var(--e3-royal-blue)]">
+                            <span>{isAr ? "قراءة المقال" : "Read Article"}</span>
+                            <ArrowRight className={`w-3.5 h-3.5 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform ${isAr ? 'rotate-180' : ''}`} />
                           </div>
-                        </div>
-                      </InteractiveCard>
+                        </InteractiveCard>
+                      </Link>
                     );
                   })}
                 </div>
@@ -823,74 +872,85 @@ export function DiscoverClient({
         </div>
       )}
 
-      {/* BookingQube Technical Specifications Popup Modal */}
-      {activeBQModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-black/85 backdrop-blur-md animate-fadeIn" onClick={() => setActiveBQModal(null)}>
-          <div className="relative w-full max-w-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden text-left rtl:text-right space-y-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <button 
-              onClick={() => setActiveBQModal(null)}
-              className="absolute top-6 right-6 rtl:left-6 rtl:right-auto p-2 rounded-full bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-white border border-[var(--border-level-2)] transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+      {/* BookingQube & Ecosystem Tech Specifications Popup Modal */}
+      {activeBQModal && (() => {
+        const archLabel = isAr
+          ? activeBQModal.architectureLabelAr || activeBQModal.architectureLabelEn || "المنظومة التقنية"
+          : activeBQModal.architectureLabelEn || "PROPRIETARY ECOSYSTEM TECH";
 
-            <div className="flex items-center gap-4 pb-4 border-b border-[var(--border-level-2)]">
-              <div className="p-3 rounded-2xl bg-[var(--e3-royal-blue)]/20 border border-[var(--e3-royal-blue)]/40 text-[var(--e3-royal-blue)] shrink-0">
-                <Smartphone className="w-8 h-8" />
-              </div>
-              <div>
-                <span className="text-xs font-mono font-bold text-[var(--e3-royal-blue)] uppercase tracking-wider block">BOOKINGQUBE™ ARCHITECTURE</span>
-                <h3 className="text-xl md:text-2xl font-black text-[var(--text-primary)] font-display uppercase">
-                  {isAr ? activeBQModal.titleAr : activeBQModal.titleEn}
-                </h3>
-              </div>
-            </div>
+        const specs = Array.isArray(activeBQModal.specs) && activeBQModal.specs.length > 0
+          ? activeBQModal.specs
+          : [
+              { keyEn: "LATENCY & VALIDATION", keyAr: "سرعة الاستجابة والتحقق", valueEn: "Sub-200ms NFC & Offline Token Scanning", valueAr: "مسح فوري للرموز وتقنية NFC بدون إنترنت" },
+              { keyEn: "WALLET INTEGRATION", keyAr: "التوافق مع المحافظ الرقمية", valueEn: "Native Apple Wallet & Google Pass Sync", valueAr: "مزامنة مباشرة مع Apple Wallet و Google Pass" },
+              { keyEn: "SECURITY PROTOCOL", keyAr: "بروتوكول الأمان والحماية", valueEn: "Dynamic Encrypted QR Code Anti-Screenshot", valueAr: "رمز QR ديناميكي مشفر لمنع لقطات الشاشة" },
+              { keyEn: "ANALYTICS ENGINE", keyAr: "محرك التحليلات والبيانات", valueEn: "Real-Time Heatmaps & Density Telemetry", valueAr: "خرائط حرارية ومؤشرات كثافة لحظية" }
+            ];
 
-            {(activeBQModal.imageUrl || activeBQModal.mediaUrl) && (
-              <div className="relative w-full aspect-[16/9] max-h-[260px] rounded-2xl overflow-hidden border border-[var(--border-level-2)] shadow-xl">
-                <img src={activeBQModal.imageUrl || activeBQModal.mediaUrl} alt={activeBQModal.titleEn} className="w-full h-full object-cover" />
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <h4 className="text-xs font-mono font-bold text-[var(--text-secondary)] uppercase tracking-widest">
-                {isAr ? "نظرة عامة على المواصفات والقدرات" : "Platform Overview & Technical Capabilities"}
-              </h4>
-              <p className="text-sm text-[var(--text-secondary)] leading-relaxed font-medium">
-                {isAr ? (activeBQModal.detailedTextAr || activeBQModal.descriptionAr) : (activeBQModal.detailedTextEn || activeBQModal.descriptionEn)}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl bg-[var(--surface-hover)]/40 border border-[var(--border-level-2)]">
-              <div className="space-y-1">
-                <span className="text-[10px] font-mono font-bold text-[var(--e3-royal-blue)] uppercase">LATENCY & VALIDATION</span>
-                <p className="text-xs font-bold text-[var(--text-primary)]">Sub-200ms NFC & Offline Token Scanning</p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-[10px] font-mono font-bold text-[var(--e3-royal-blue)] uppercase">WALLET INTEGRATION</span>
-                <p className="text-xs font-bold text-[var(--text-primary)]">Native Apple Wallet & Google Pass Sync</p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-[10px] font-mono font-bold text-[var(--e3-royal-blue)] uppercase">SECURITY PROTOCOL</span>
-                <p className="text-xs font-bold text-[var(--text-primary)]">Dynamic Encrypted QR Code Anti-Screenshot</p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-[10px] font-mono font-bold text-[var(--e3-royal-blue)] uppercase">ANALYTICS ENGINE</span>
-                <p className="text-xs font-bold text-[var(--text-primary)]">Real-Time Heatmaps & Density Telemetry</p>
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-[var(--border-level-2)] flex justify-end">
-              <button
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-black/85 backdrop-blur-md animate-fadeIn" onClick={() => setActiveBQModal(null)}>
+            <div className="relative w-full max-w-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden text-left rtl:text-right space-y-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <button 
                 onClick={() => setActiveBQModal(null)}
-                className="px-6 py-2.5 rounded-xl bg-[var(--e3-royal-blue)] text-white font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity shadow-lg"
+                className="absolute top-6 right-6 rtl:left-6 rtl:right-auto p-2 rounded-full bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-white border border-[var(--border-level-2)] transition-colors cursor-pointer"
               >
-                {isAr ? "إغلاق" : "Close"}
+                <X className="w-5 h-5" />
               </button>
+
+              <div className="flex items-center gap-4 pb-4 border-b border-[var(--border-level-2)]">
+                <div className="p-3 rounded-2xl bg-[var(--e3-royal-blue)]/20 border border-[var(--e3-royal-blue)]/40 text-[var(--e3-royal-blue)] shrink-0">
+                  <Smartphone className="w-8 h-8" />
+                </div>
+                <div>
+                  <span className="text-xs font-mono font-bold text-[var(--e3-royal-blue)] uppercase tracking-wider block">
+                    {archLabel}
+                  </span>
+                  <h3 className="text-xl md:text-2xl font-black text-[var(--text-primary)] font-display uppercase">
+                    {isAr ? activeBQModal.titleAr : activeBQModal.titleEn}
+                  </h3>
+                </div>
+              </div>
+
+              {(activeBQModal.imageUrl || activeBQModal.mediaUrl) && (
+                <div className="relative w-full aspect-[16/9] max-h-[260px] rounded-2xl overflow-hidden border border-[var(--border-level-2)] shadow-xl">
+                  <img src={activeBQModal.imageUrl || activeBQModal.mediaUrl} alt={activeBQModal.titleEn} className="w-full h-full object-cover" />
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <h4 className="text-xs font-mono font-bold text-[var(--text-secondary)] uppercase tracking-widest">
+                  {isAr ? "نظرة عامة على المواصفات والقدرات" : "Platform Overview & Technical Capabilities"}
+                </h4>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed font-medium">
+                  {isAr ? (activeBQModal.detailedTextAr || activeBQModal.descriptionAr) : (activeBQModal.detailedTextEn || activeBQModal.descriptionEn)}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl bg-[var(--surface-hover)]/40 border border-[var(--border-level-2)]">
+                {specs.map((spec: any, sIdx: number) => (
+                  <div key={sIdx} className="space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-[var(--e3-royal-blue)] uppercase block">
+                      {isAr ? (spec.keyAr || spec.keyEn) : spec.keyEn}
+                    </span>
+                    <p className="text-xs font-bold text-[var(--text-primary)]">
+                      {isAr ? (spec.valueAr || spec.valueEn) : spec.valueEn}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-6 border-t border-[var(--border-level-2)] flex justify-end">
+                <button
+                  onClick={() => setActiveBQModal(null)}
+                  className="px-6 py-2.5 rounded-xl bg-[var(--e3-royal-blue)] text-white font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity shadow-lg cursor-pointer"
+                >
+                  {isAr ? "إغلاق" : "Close"}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

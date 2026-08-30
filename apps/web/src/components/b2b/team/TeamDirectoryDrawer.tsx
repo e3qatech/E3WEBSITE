@@ -58,9 +58,9 @@ export function TeamDirectoryDrawer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Compute 6 stage counts + All
+  // Compute 6 stage counts + Corporate Enablement + All
   const stageCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: members.length };
+    const counts: Record<string, number> = { all: members.length, "corporate-enablement": 0 };
     E3_JOURNEY_STAGES.forEach((s) => {
       counts[s.id] = 0;
     });
@@ -183,7 +183,7 @@ export function TeamDirectoryDrawer({
             )}
           </div>
 
-          {/* 6 Consolidated Stage Filter Chips + All */}
+          {/* Consolidated Stage Filter Chips + Corporate Enablement + All */}
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
             <button
               type="button"
@@ -219,6 +219,23 @@ export function TeamDirectoryDrawer({
                 </button>
               );
             })}
+
+            {stageCounts["corporate-enablement"] > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedStage("corporate-enablement")}
+                data-testid="drawer-filter-corporate-enablement"
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0",
+                  selectedStage === "corporate-enablement"
+                    ? "bg-amber-500 text-black font-black"
+                    : "bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10"
+                )}
+              >
+                <span>{isAr ? "التمكين المؤسسي" : "Corporate"}</span>
+                <span className="ms-1.5 font-mono text-[11px] opacity-80">({stageCounts["corporate-enablement"]})</span>
+              </button>
+            )}
           </div>
         </div>
 

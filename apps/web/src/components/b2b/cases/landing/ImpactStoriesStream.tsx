@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, ExternalLink } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, ExternalLink, Play, Pause } from "lucide-react";
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 
 export interface ImpactStoryItem {
@@ -148,23 +148,21 @@ function AnimatedNumber({
 export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStreamProps) {
   const isAr = locale === "ar";
   const sectionRef = useRef<HTMLElement>(null);
-  const [isInView, setIsInView] = useState<boolean>(false);
+  const [isInView, setIsInView] = useState<boolean>(true);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+  const touchStartX = useRef<number | null>(null);
 
-  // Scroll trigger detection via IntersectionObserver
+  // IntersectionObserver to pause rotation when scrolled far out of view
   useEffect(() => {
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-        } else {
-          setIsInView(false);
-        }
+        setIsInView(entry.isIntersecting);
       },
-      { threshold: 0.15 }
+      { threshold: 0.05 }
     );
 
     const el = sectionRef.current;
@@ -177,7 +175,20 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
     };
   }, []);
 
-  const durationSec = Number(config?.rotationDuration) || 5;
+  // Pause rotation when tab is inactive
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        setIsInView(false);
+      } else {
+        setIsInView(true);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+
+  const durationSec = Math.max(Number(config?.rotationDuration) || 5, 3);
   const durationMs = durationSec * 1000;
   const intervalStepMs = 50;
 
@@ -201,7 +212,44 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
     goToSlide((currentIndex - 1 + facts.length) % facts.length);
   }, [facts.length, currentIndex, goToSlide]);
 
-  // Auto-rotation timer: Rotates every 5 seconds when in view
+  // Touch Swipe Handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    setIsPaused(true);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current !== null) {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX.current - touchEndX;
+      const threshold = 40;
+      if (Math.abs(diff) > threshold) {
+        if ((!isAr && diff > 0) || (isAr && diff < 0)) {
+          nextSlide();
+        } else {
+          prevSlide();
+        }
+      }
+      touchStartX.current = null;
+    }
+    setIsPaused(false);
+  };
+
+  // Keyboard navigation when focusing the section
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowLeft") {
+      if (isAr) nextSlide();
+      else prevSlide();
+    } else if (e.key === "ArrowRight") {
+      if (isAr) prevSlide();
+      else nextSlide();
+    } else if (e.key === " ") {
+      e.preventDefault();
+      setIsPaused((p) => !p);
+    }
+  };
+
+  // Auto-rotation timer: Continuous smooth rotation
   useEffect(() => {
     if (facts.length <= 1) return;
     if (!isInView || isPaused) return;
@@ -275,7 +323,11 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
 
         {/* Carousel Showcase Card */}
         <div
-          className={`bg-[var(--surface-default)]/95 border border-[var(--border-level-2)] rounded-3xl p-6 sm:p-10 md:p-14 relative overflow-hidden shadow-xl backdrop-blur-2xl transition-all duration-700 ${
+          tabIndex={0}
+          onKeyDown={handleKeyDown}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className={`bg-[var(--surface-default)]/95 border border-[var(--border-level-2)] rounded-3xl p-6 sm:p-10 md:p-14 relative overflow-hidden shadow-xl backdrop-blur-2xl transition-all duration-700 focus:outline-none focus:ring-1 focus:ring-amber-500/30 ${
             isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
@@ -392,10 +444,27 @@ export function ImpactStoriesStream({ config, facts, locale }: ImpactStoriesStre
                     >
                       <ChevronRight className="w-5 h-5 rtl:rotate-180" />
                     </button>
+
+                    {/* Play / Pause Toggle Button */}
+                    <button
+                      onClick={() => setIsPaused((p) => !p)}
+                      className="w-8 h-8 rounded-full border border-[var(--border-level-2)] bg-[var(--surface-raised)] hover:bg-[var(--surface-hover)] hover:border-amber-500/50 flex items-center justify-center text-[var(--text-tertiary)] hover:text-amber-500 transition-all cursor-pointer shadow-xs active:scale-95 ml-1 rtl:mr-1 rtl:ml-0"
+                      aria-label={isPaused ? "Play Rotation" : "Pause Rotation"}
+                      title={isPaused ? "Resume rotation" : "Pause rotation"}
+                    >
+                      {isPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
 
-                  <span className="text-[11px] font-mono text-[var(--text-tertiary)]">
-                    {isAr ? "يتم التدوير تلقائياً كل 5 ثوانٍ" : "Auto-rotates every 5s"}
+                  <span className="text-[11px] font-mono text-[var(--text-tertiary)] flex items-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${isPaused ? "bg-amber-400/50" : "bg-emerald-400 animate-pulse"}`} />
+                    {isPaused
+                      ? isAr
+                        ? "التدوير متوقف مؤقتاً"
+                        : "Rotation paused"
+                      : isAr
+                        ? `يتم التدوير تلقائياً كل ${durationSec} ثوانٍ`
+                        : `Auto-rotates every ${durationSec}s`}
                   </span>
                 </div>
               )}

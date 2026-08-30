@@ -15,7 +15,7 @@ import {
   Search,
   CheckCircle2,
 } from "lucide-react";
-import { SafePublicTeamMember } from "@/lib/team/team-resolver";
+import { SafePublicTeamMember, resolvePresentationGroup } from "@/lib/team/team-resolver";
 import { cn } from "@/lib/utils";
 
 export interface StageConfig {
@@ -107,128 +107,17 @@ export const E3_JOURNEY_STAGES: StageConfig[] = [
 ];
 
 /**
- * Maps any team member safely and deterministically to one of the 6 Journey Stages.
+ * Maps any team member safely and deterministically to one of the 6 Journey Stages or Corporate Enablement.
  */
-export function mapMemberToStage(member: SafePublicTeamMember): StageConfig["id"] {
-  const presGroup = (member.presentationGroupKey || "").toLowerCase();
-  const deptKey = (member.departmentKey || "").toLowerCase();
-  const dept = (member.department || "").toLowerCase();
-  const desig = (member.designation || "").toLowerCase();
-
-  // 1. Direction (Leadership & Strategy)
-  if (
-    presGroup === "leadership" ||
-    deptKey === "leadership" ||
-    deptKey === "executive" ||
-    dept.includes("executive") ||
-    dept.includes("leadership") ||
-    dept.includes("board") ||
-    desig.includes("chief") ||
-    desig.includes("ceo") ||
-    desig.includes("general manager") ||
-    desig.includes("managing director") ||
-    desig.includes("chairman") ||
-    desig.includes("president")
-  ) {
-    return "direction";
+export function mapMemberToStage(member: SafePublicTeamMember): StageConfig["id"] | "corporate-enablement" {
+  const resolved = resolvePresentationGroup(member as any, "en");
+  const stageId = resolved.stageId || resolved.key;
+  if (stageId === "corporate-enablement") {
+    return "corporate-enablement";
   }
-
-  // 2. Imagine (Creative, Brand & Growth)
-  if (
-    presGroup === "creative-marketing" ||
-    presGroup === "creative" ||
-    deptKey === "creative" ||
-    deptKey === "marketing" ||
-    dept.includes("creative") ||
-    dept.includes("design") ||
-    dept.includes("marketing") ||
-    dept.includes("branding") ||
-    desig.includes("creative") ||
-    desig.includes("graphic") ||
-    desig.includes("3d") ||
-    desig.includes("visualizer") ||
-    desig.includes("experiential design") ||
-    desig.includes("marketing") ||
-    desig.includes("brand")
-  ) {
-    return "imagine";
+  if (["direction", "imagine", "plan", "build", "operate", "amplify"].includes(stageId)) {
+    return stageId as StageConfig["id"];
   }
-
-  // 3. Amplify (Technology & Systems)
-  if (
-    presGroup === "technology-systems" ||
-    deptKey === "it" ||
-    deptKey === "technology" ||
-    deptKey === "systems" ||
-    deptKey === "software" ||
-    dept.includes("technology") ||
-    dept.includes("software") ||
-    dept.includes("systems") ||
-    dept === "it" ||
-    dept.includes("/ it") ||
-    dept.includes("/it") ||
-    desig.includes("software") ||
-    desig.includes("developer") ||
-    desig.includes("systems") ||
-    desig.includes("full-stack")
-  ) {
-    return "amplify";
-  }
-
-  // 4. Operate (Operations & Guest Experience)
-  if (
-    presGroup === "operations-guest-exp" ||
-    presGroup === "operations" ||
-    presGroup === "food-beverage" ||
-    presGroup === "hospitality" ||
-    deptKey === "food-beverage" ||
-    deptKey === "operations" ||
-    deptKey === "hospitality" ||
-    dept.includes("guest") ||
-    dept.includes("hospitality") ||
-    dept.includes("food") ||
-    dept.includes("beverage") ||
-    dept.includes("f&b") ||
-    desig.includes("operations") ||
-    desig.includes("hospitality") ||
-    desig.includes("guest") ||
-    desig.includes("f&b") ||
-    desig.includes("fec")
-  ) {
-    return "operate";
-  }
-
-  // 5. Build (Production & Logistics)
-  if (
-    (presGroup === "events-production" && (dept.includes("production") || dept.includes("logistics") || desig.includes("production") || desig.includes("logistics"))) ||
-    deptKey === "logistics" ||
-    deptKey === "production" ||
-    dept.includes("logistics") ||
-    dept.includes("production") ||
-    desig.includes("logistics") ||
-    desig.includes("production") ||
-    desig.includes("site manager") ||
-    desig.includes("supervisor") ||
-    desig.includes("av") ||
-    desig.includes("technical")
-  ) {
-    return "build";
-  }
-
-  // 6. Plan (Projects & Events)
-  if (
-    dept.includes("event") ||
-    dept.includes("project") ||
-    desig.includes("event") ||
-    desig.includes("coordinator") ||
-    desig.includes("planner") ||
-    desig.includes("director")
-  ) {
-    return "plan";
-  }
-
-  // Default fallback based on presentation group
-  if (presGroup === "operations-guest-exp") return "operate";
   return "plan";
 }
 
@@ -287,15 +176,16 @@ export function HowE3WorksJourneySection({
   const isAr = locale === "ar";
   const [activeStageId, setActiveStageId] = useState<string>("direction");
 
-  // Group members into the 6 connected stages
+  // Group members into the 6 connected stages + Corporate Enablement
   const stageGroups = useMemo(() => {
-    const map: Record<StageConfig["id"], SafePublicTeamMember[]> = {
+    const map: Record<StageConfig["id"] | "corporate-enablement", SafePublicTeamMember[]> = {
       direction: [],
       imagine: [],
       plan: [],
       build: [],
       operate: [],
       amplify: [],
+      "corporate-enablement": [],
     };
 
     members.forEach((m) => {
@@ -342,6 +232,8 @@ export function HowE3WorksJourneySection({
       });
     }
   };
+
+  const corporateMembers = stageGroups["corporate-enablement"] || [];
 
   return (
     <section
@@ -504,7 +396,7 @@ export function HowE3WorksJourneySection({
                 </div>
               </div>
 
-              {/* STAGE TEAM MEMBERS GRID (4:5 Ratio Cards) */}
+              {/* STAGE TEAM MEMBERS GRID (4:5 Ratio Cards, Single-column Mobile) */}
               {stageMembers.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
                   {stageMembers.map((member) => {
@@ -517,7 +409,7 @@ export function HowE3WorksJourneySection({
                       <div
                         key={member.id || member.slug}
                         data-testid={`team-card-${member.slug}`}
-                        className="group relative rounded-2xl bg-[#0b101e] border border-white/10 hover:border-cyan-500/50 transition-all duration-300 flex flex-col overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1"
+                        className="group relative rounded-2xl bg-[#0b101e] border border-white/10 hover:border-cyan-500/50 transition-all duration-300 flex flex-col overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 w-full"
                       >
                         {/* 4:5 Aspect Ratio Portrait */}
                         <div className="relative w-full aspect-[4/5] bg-zinc-950 overflow-hidden">
@@ -608,6 +500,133 @@ export function HowE3WorksJourneySection({
             </div>
           );
         })}
+
+        {/* ============================================================ */}
+        {/* CORPORATE ENABLEMENT (Outside the 6-Stage Journey)           */}
+        {/* ============================================================ */}
+        {corporateMembers.length > 0 && (
+          <div
+            id="stage-corporate-enablement"
+            data-testid="stage-corporate-enablement"
+            className="relative scroll-mt-28 sm:scroll-mt-36 pt-8 border-t border-white/10"
+          >
+            <div className="relative mb-8 sm:mb-10 pb-6 border-b border-white/10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div className="flex items-start gap-3.5 sm:gap-4">
+                <div className="relative shrink-0">
+                  <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl flex items-center justify-center font-mono font-black text-sm sm:text-base border shadow-xl bg-amber-500/10 border-amber-500/30 text-amber-400">
+                    CE
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <span className="text-xs font-mono font-bold uppercase tracking-widest text-amber-400">
+                      {isAr ? "التمكين المؤسسي" : "Corporate Enablement"}
+                    </span>
+                    <span className="text-slate-500 text-xs">•</span>
+                    <span className="text-xs font-medium text-slate-300">
+                      {isAr ? "الحوكمة والعلاقات المؤسسية" : "Governance & Operations"}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight font-syne">
+                    {isAr ? "التمكين المؤسسي والحوكمة" : "Corporate Enablement & Governance"}
+                  </h3>
+
+                  <p className="mt-1.5 text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                    {isAr
+                      ? "إدارة الامتثال المالي، وحوكمة الموارد، والتنسيق الحكومي الشامل الذي يدعم سلاسة العمليات الميدانية."
+                      : "Providing institutional compliance, financial stewardship, and sovereign liaison that anchor every E3 deployment."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 self-start md:self-end ps-14 md:ps-0 shrink-0">
+                <Users className="w-4 h-4 text-slate-400" />
+                <span className="text-xs font-mono font-bold text-slate-400">
+                  {corporateMembers.length} {isAr ? "كفاءة قيادية ومؤسسية" : "Specialists"}
+                </span>
+              </div>
+            </div>
+
+            {/* Corporate Enablement Members Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+              {corporateMembers.map((member) => {
+                const displayName = isAr && member.nameAr ? member.nameAr : member.name;
+                const displayDesignation = isAr && member.designationAr ? member.designationAr : member.designation;
+                const verifiedHighlight = getVerifiedHighlight(member, isAr);
+                const profileUrl = `/${locale}/b2b/team/${member.slug}`;
+
+                return (
+                  <div
+                    key={member.id || member.slug}
+                    data-testid={`team-card-${member.slug}`}
+                    className="group relative rounded-2xl bg-[#0b101e] border border-white/10 hover:border-amber-500/50 transition-all duration-300 flex flex-col overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 w-full"
+                  >
+                    {/* 4:5 Aspect Ratio Portrait */}
+                    <div className="relative w-full aspect-[4/5] bg-zinc-950 overflow-hidden">
+                      {member.profileImage ? (
+                        <img
+                          src={member.profileImage}
+                          alt={displayName}
+                          className="w-full h-full object-cover object-top filter grayscale-0 contrast-[1.02] group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-gradient-to-br from-slate-900 via-[#0b101e] to-black">
+                          <div className="w-16 h-16 rounded-2xl border-2 border-amber-400 text-amber-400 flex items-center justify-center text-2xl font-black mb-2">
+                            {member.initials}
+                          </div>
+                          <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">
+                            {isAr ? "التمكين المؤسسي" : "Corporate"}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0b101e] via-[#0b101e]/20 to-transparent opacity-90" />
+
+                      <div className="absolute top-3 start-3">
+                        <span className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-md border shadow-sm bg-amber-500/20 text-amber-300 border-amber-500/30">
+                          {isAr ? "تمكين مؤسسي" : "Enablement"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-5 flex flex-col flex-grow justify-between gap-4 -mt-6 relative z-10">
+                      <div>
+                        <h4 className="text-base sm:text-lg font-bold text-white group-hover:text-amber-400 transition-colors tracking-tight font-syne leading-snug">
+                          {displayName}
+                        </h4>
+
+                        <p className="text-xs text-amber-300/90 font-medium mt-0.5 leading-snug">
+                          {displayDesignation}
+                        </p>
+
+                        {verifiedHighlight && (
+                          <div className="mt-3 pt-3 border-t border-white/5 flex items-start gap-1.5 text-slate-300">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                            <span className="text-[11px] font-mono text-slate-300 line-clamp-2 leading-relaxed">
+                              {verifiedHighlight}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <Link
+                        href={profileUrl}
+                        className="w-full inline-flex items-center justify-between px-3.5 py-2 rounded-xl bg-white/5 group-hover:bg-amber-500 text-slate-200 group-hover:text-black font-bold text-xs transition-all border border-white/10 group-hover:border-amber-400 active:scale-[0.98]"
+                      >
+                        <span>{isAr ? "الملف الشخصي والخبرات" : "View Profile"}</span>
+                        <ArrowRight className={cn("w-3.5 h-3.5", isAr && "rotate-180")} />
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

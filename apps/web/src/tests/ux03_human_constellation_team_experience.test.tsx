@@ -198,35 +198,34 @@ describe('UX-03 — Human Constellation Team Experience', () => {
   });
 
   describe('2. Six Presentation Groups Engine', () => {
-    it('defines exactly six canonical presentation groups', () => {
-      expect(PRESENTATION_GROUPS.length).toBe(6);
+    it('defines canonical presentation groups including 6 journey stages and corporate enablement', () => {
+      expect(PRESENTATION_GROUPS.length).toBeGreaterThanOrEqual(7);
       const keys = PRESENTATION_GROUPS.map((g) => g.key);
-      expect(keys).toEqual([
-        'leadership',
-        'creative-marketing',
-        'events-production',
-        'operations-guest-exp',
-        'technology-systems',
-        'food-beverage',
-      ]);
+      expect(keys).toContain('direction');
+      expect(keys).toContain('imagine');
+      expect(keys).toContain('plan');
+      expect(keys).toContain('build');
+      expect(keys).toContain('operate');
+      expect(keys).toContain('amplify');
+      expect(keys).toContain('corporate-enablement');
     });
 
-    it('resolves CEO / Chairman / Executive to leadership group', () => {
+    it('resolves CEO / Chairman / Executive to direction group', () => {
       const group = resolvePresentationGroup(SAMPLE_ROSTER[0], 'en');
-      expect(group.key).toBe('leadership');
-      expect(group.label).toBe('Leadership');
+      expect(group.key).toBe('direction');
+      expect(group.label).toBe('Direction');
     });
 
-    it('resolves Marketing & Branding to creative-marketing group', () => {
+    it('resolves Marketing & Branding to imagine group', () => {
       const group = resolvePresentationGroup(SAMPLE_ROSTER[1], 'en');
-      expect(group.key).toBe('creative-marketing');
-      expect(group.label).toBe('Creative & Marketing');
+      expect(group.key).toBe('imagine');
+      expect(group.label).toBe('Imagine');
     });
 
     it('resolves Arabic labels without English leakage on Arabic locale', () => {
       const groupAr = resolvePresentationGroup(SAMPLE_ROSTER[0], 'ar');
-      expect(groupAr.key).toBe('leadership');
-      expect(groupAr.label).toBe('القيادة والإدارة التنفيذية');
+      expect(groupAr.key).toBe('direction');
+      expect(groupAr.label).toBe('التوجيه');
     });
   });
 

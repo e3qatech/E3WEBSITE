@@ -77,9 +77,17 @@ export async function PUT(
     const { id } = await params;
     const body = await req.json();
 
+    const { validateBilingualTeamMemberInput, sanitizeEmployeeProfileUpdateData } = await import("@/lib/team/team-resolver");
+    const validation = validateBilingualTeamMemberInput(body);
+    if (!validation.valid) {
+      return NextResponse.json({ error: "Validation failed", details: validation.errors }, { status: 400 });
+    }
+
+    const updateData = sanitizeEmployeeProfileUpdateData(body);
+
     const updated = await db.employeeProfile.update({
       where: { id },
-      data: body,
+      data: updateData,
     });
 
     await redis.del(`team:detail:${id}`).catch(() => {});
