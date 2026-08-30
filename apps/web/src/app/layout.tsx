@@ -1,9 +1,11 @@
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import { Manrope, IBM_Plex_Sans_Arabic } from "next/font/google"
 import Script from "next/script"
 import { SEO } from "@/components/shared/SEO"
 import { ThemeProvider } from "@/components/layout/ThemeProvider"
 import { AuthProvider } from "@/components/layout/AuthProvider"
+import { NavigationProgressBar } from "@/components/layout/NavigationProgressBar"
 import { auth } from "@/lib/auth"
 import db from "@/lib/db"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -104,6 +106,9 @@ export default async function RootLayout({
         </Script>
         <AuthProvider session={session}>
           <ThemeProvider>
+            <Suspense fallback={null}>
+              <NavigationProgressBar />
+            </Suspense>
             {/* Global Organization JSON-LD Schema */}
             <SEO 
               type="Organization" 
