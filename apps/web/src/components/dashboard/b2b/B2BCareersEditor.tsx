@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Trash2, Save, Globe, Users, FileCheck, HelpCircle, Sparkles, Briefcase } from "lucide-react";
+import Link from "next/link";
+import { Plus, Trash2, Save, Globe, Users, FileCheck, HelpCircle, Sparkles, Briefcase, ExternalLink, Edit, CheckCircle, MapPin, Clock } from "lucide-react";
 import { AdminMediaPicker } from "../ui/AdminMediaPicker";
 import { AdminSeoCustomizer } from "../ui/AdminSeoCustomizer";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
@@ -21,12 +22,13 @@ import {
 
 const SECTIONS: EditorSectionItem[] = [
   { id: "hero", label: "1. Hero Section", labelAr: "1. قسم البداية والواجهة" },
-  { id: "generalApplication", label: "2. General CV Intake", labelAr: "2. التقديم العام وبنك الكفاءات" },
-  { id: "portalBanner", label: "3. Candidate Portal Banner", labelAr: "3. بوابة المترشحين والمتابعة" },
-  { id: "lifeAtE3", label: "4. Life at E3 & Culture", labelAr: "4. بيئة العمل وكواليس الإنتاج" },
-  { id: "hiringJourney", label: "5. 4-Step Hiring Journey", labelAr: "5. مراحل وخطوات التوظيف" },
-  { id: "enquiries", label: "6. HR & Career Enquiries", labelAr: "6. استفسارات التوظيف والتواصل" },
-  { id: "seo", label: "7. SEO Metadata", labelAr: "7. بيانات محركات البحث (SEO)" },
+  { id: "activeJobs", label: "2. Active Jobs Roster", labelAr: "2. الشواغر والوظائف الحالية" },
+  { id: "generalApplication", label: "3. General CV Intake", labelAr: "3. التقديم العام وبنك الكفاءات" },
+  { id: "portalBanner", label: "4. Candidate Portal Banner", labelAr: "4. بوابة المترشحين والمتابعة" },
+  { id: "lifeAtE3", label: "5. Life at E3 & Culture", labelAr: "5. بيئة العمل وكواليس الإنتاج" },
+  { id: "hiringJourney", label: "6. 4-Step Hiring Journey", labelAr: "6. مراحل وخطوات التوظيف" },
+  { id: "enquiries", label: "7. HR & Career Enquiries", labelAr: "7. استفسارات التوظيف والتواصل" },
+  { id: "seo", label: "8. SEO Metadata", labelAr: "8. بيانات محركات البحث (SEO)" },
 ];
 
 export function B2BCareersEditor({ initialData }: { initialData: any }) {
@@ -302,7 +304,114 @@ export function B2BCareersEditor({ initialData }: { initialData: any }) {
         </DashboardSectionCard>
       )}
 
-      {/* 2. GENERAL CV INTAKE */}
+      {/* 2. ACTIVE JOBS ROSTER */}
+      {activeSectionId === "activeJobs" && (
+        <DashboardSectionCard
+          title="Active Job Openings & Vacancies"
+          description="Live database records currently published on the public careers portal (/b2b/careers)."
+          icon={<Briefcase className="w-5 h-5 text-cyan-400" />}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-1)] mb-6">
+            <div className="space-y-1">
+              <div className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
+                <span>Database Postings:</span>
+                <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-mono font-bold">
+                  {initialData?.jobs?.length || 0} Total ({initialData?.jobs?.filter((j: any) => j.isPublished)?.length || 0} Published)
+                </span>
+              </div>
+              <p className="text-xs text-[var(--text-secondary)]">
+                Job vacancies and requirements are managed centrally in the HR Postings module.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/en/dashboard/careers"
+                target="_blank"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--surface-default)] hover:bg-[var(--surface-selected)] border border-[var(--border-level-1)] text-xs font-bold text-[var(--text-primary)] transition-colors"
+              >
+                <span>Manage All Jobs</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+              <Link
+                href="/en/dashboard/careers/new"
+                target="_blank"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-xs font-bold transition-all shadow-sm"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Post New Job</span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {(!initialData?.jobs || initialData.jobs.length === 0) ? (
+              <div className="text-center py-10 rounded-xl border border-dashed border-[var(--border-level-1)] text-xs text-[var(--text-tertiary)]">
+                No active jobs currently in database. Click &ldquo;Post New Job&rdquo; to create your first vacancy.
+              </div>
+            ) : (
+              initialData.jobs.map((job: any) => (
+                <div
+                  key={job.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-1)] hover:border-cyan-500/40 transition-colors"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="text-sm font-bold text-[var(--text-primary)]">
+                        {job.title}
+                      </h4>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                        {job.department || "General"}
+                      </span>
+                      {job.isPublished ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          <CheckCircle className="w-3 h-3" /> Published
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                          Draft
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-[var(--text-tertiary)]">
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-cyan-400" />
+                        {job.location || "Doha (On-Site)"}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {job.type || "Full Time"}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Users className="w-3 h-3 text-blue-400" />
+                        {job._count?.applications || 0} Applicants
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Link
+                      href={`/en/dashboard/careers/${job.id}`}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[var(--surface-hover)] hover:bg-[var(--surface-selected)] border border-[var(--border-level-1)] text-xs font-medium text-[var(--text-primary)] transition-colors"
+                    >
+                      <Edit className="w-3 h-3" />
+                      <span>Edit Listing</span>
+                    </Link>
+                    <Link
+                      href={`/en/careers/${job.id}`}
+                      target="_blank"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[var(--surface-hover)] hover:bg-[var(--surface-selected)] border border-[var(--border-level-1)] text-xs font-medium text-[var(--text-primary)] transition-colors"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      <span>View Public</span>
+                    </Link>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </DashboardSectionCard>
+      )}
+
+      {/* 3. GENERAL CV INTAKE */}
       {activeSectionId === "generalApplication" && (
         <DashboardSectionCard
           title="General Application & Talent Pool Intake"

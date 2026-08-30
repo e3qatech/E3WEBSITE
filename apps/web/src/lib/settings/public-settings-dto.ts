@@ -14,11 +14,19 @@ export interface PublicSiteSettings {
   addressAr: string;
   workingHours: string;
   socialInstagram: string;
+  socialInstagramHandle?: string;
   socialTwitter: string;
+  socialTwitterHandle?: string;
   socialLinkedin: string;
+  socialLinkedinHandle?: string;
   socialYoutube: string;
+  socialYoutubeHandle?: string;
   socialSnapchat: string;
+  socialSnapchatHandle?: string;
   socialFacebook: string;
+  socialFacebookHandle?: string;
+  socialWhatsappNumber?: string;
+  socialWhatsappHandle?: string;
   bookingqubeWebsite: string;
   lightLogoUrl: string;
   darkLogoUrl: string;
@@ -110,11 +118,19 @@ export const PUBLIC_SETTINGS_KEYS = new Set<string>([
   'addressAr',
   'workingHours',
   'socialInstagram',
+  'socialInstagramHandle',
   'socialTwitter',
+  'socialTwitterHandle',
   'socialLinkedin',
+  'socialLinkedinHandle',
   'socialYoutube',
+  'socialYoutubeHandle',
   'socialSnapchat',
+  'socialSnapchatHandle',
   'socialFacebook',
+  'socialFacebookHandle',
+  'socialWhatsappNumber',
+  'socialWhatsappHandle',
   'bookingqubeWebsite',
   'lightLogoUrl',
   'darkLogoUrl',
@@ -364,11 +380,19 @@ export function resolvePublicSiteSettings(
     addressAr: typeof map.addressAr === 'string' ? map.addressAr.trim() : '',
     workingHours: typeof map.workingHours === 'string' && map.workingHours.trim() ? map.workingHours.trim() : 'Mon-Fri: 9am - 6pm',
     socialInstagram: typeof map.socialInstagram === 'string' ? map.socialInstagram.trim() : '',
+    socialInstagramHandle: typeof map.socialInstagramHandle === 'string' ? map.socialInstagramHandle.trim() : '',
     socialTwitter: typeof map.socialTwitter === 'string' ? map.socialTwitter.trim() : '',
+    socialTwitterHandle: typeof map.socialTwitterHandle === 'string' ? map.socialTwitterHandle.trim() : '',
     socialLinkedin: typeof map.socialLinkedin === 'string' ? map.socialLinkedin.trim() : '',
+    socialLinkedinHandle: typeof map.socialLinkedinHandle === 'string' ? map.socialLinkedinHandle.trim() : '',
     socialYoutube: typeof map.socialYoutube === 'string' ? map.socialYoutube.trim() : '',
+    socialYoutubeHandle: typeof map.socialYoutubeHandle === 'string' ? map.socialYoutubeHandle.trim() : '',
     socialSnapchat: typeof map.socialSnapchat === 'string' ? map.socialSnapchat.trim() : '',
+    socialSnapchatHandle: typeof map.socialSnapchatHandle === 'string' ? map.socialSnapchatHandle.trim() : '',
     socialFacebook: typeof map.socialFacebook === 'string' ? map.socialFacebook.trim() : '',
+    socialFacebookHandle: typeof map.socialFacebookHandle === 'string' ? map.socialFacebookHandle.trim() : '',
+    socialWhatsappNumber: typeof map.socialWhatsappNumber === 'string' ? map.socialWhatsappNumber.trim() : '',
+    socialWhatsappHandle: typeof map.socialWhatsappHandle === 'string' ? map.socialWhatsappHandle.trim() : '',
     bookingqubeWebsite: typeof map.bookingqubeWebsite === 'string' ? map.bookingqubeWebsite.trim() : '',
     lightLogoUrl: typeof map.lightLogoUrl === 'string' ? map.lightLogoUrl.trim() : '',
     darkLogoUrl: typeof map.darkLogoUrl === 'string' ? map.darkLogoUrl.trim() : '',

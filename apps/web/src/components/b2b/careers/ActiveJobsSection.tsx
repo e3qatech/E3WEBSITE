@@ -258,7 +258,7 @@ export function ActiveJobsSection({
 
                   {/* Description snippet */}
                   <p className="text-xs text-[var(--text-secondary)] line-clamp-3 leading-relaxed mb-4">
-                    {job.description}
+                    {job.description?.replace(/<[^>]*>?/gm, "").trim() || job.description}
                   </p>
                 </div>
 

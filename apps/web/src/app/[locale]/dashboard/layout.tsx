@@ -37,7 +37,7 @@ export default async function DashboardLayout({
         >
           
           {/* Layer 1: Sidebar (Clean, unblurred solid surface) */}
-          <div className="relative z-20 flex-shrink-0 bg-[var(--bg-level-2)] border-e border-[var(--border-level-1)] transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
+          <div className="relative z-20 flex-shrink-0 bg-[var(--bg-level-2)] transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]">
             <AdminSidebar />
           </div>
 

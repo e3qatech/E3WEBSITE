@@ -17,7 +17,6 @@ import {
   Sparkles,
   ArrowRight,
   Download,
-  FileText,
 } from "lucide-react";
 import { AdminMediaPicker } from "@/components/dashboard/ui/AdminMediaPicker";
 import { PackageMediaUploader } from "@/components/dashboard/b2c/PackageMediaUploader";
@@ -66,11 +65,18 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
     addressAr: initialSettings.addressAr || "الدوحة، دولة قطر",
     workingHours: initialSettings.workingHours || "Sun - Thu: 9:00 AM - 6:00 PM",
     socialInstagram: initialSettings.socialInstagram || "https://www.instagram.com/e3qatar/?hl=en",
+    socialInstagramHandle: initialSettings.socialInstagramHandle || "@e3qatar",
     socialTwitter: initialSettings.socialTwitter || "https://x.com/e3QatarOfficial",
+    socialTwitterHandle: initialSettings.socialTwitterHandle || "@e3QatarOfficial",
     socialLinkedin: initialSettings.socialLinkedin || "https://www.linkedin.com/company/e3qatar",
+    socialLinkedinHandle: initialSettings.socialLinkedinHandle || "E3 Qatar",
     socialYoutube: initialSettings.socialYoutube || "https://youtube.com/@e3qatar",
+    socialYoutubeHandle: initialSettings.socialYoutubeHandle || "@e3qatar",
     socialSnapchat: initialSettings.socialSnapchat || "https://snapchat.com/add/e3qatar",
+    socialSnapchatHandle: initialSettings.socialSnapchatHandle || "e3qatar",
     socialFacebook: initialSettings.socialFacebook || "https://facebook.com/e3qatar",
+    socialFacebookHandle: initialSettings.socialFacebookHandle || "e3qatar",
+    socialWhatsappHandle: initialSettings.socialWhatsappHandle || "+974 5113 8418",
     bookingqubeWebsite: initialSettings.bookingqubeWebsite || "https://bookingqube.com",
     bookingQubeApiKey: initialSettings.bookingQubeApiKey || "",
     mapsApiKey: initialSettings.mapsApiKey || "",
@@ -381,25 +387,42 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
-              { field: "socialInstagram", label: "Instagram URL", placeholder: "https://instagram.com/..." },
-              { field: "socialTwitter", label: "X (Twitter) URL", placeholder: "https://x.com/..." },
-              { field: "socialLinkedin", label: "LinkedIn URL", placeholder: "https://linkedin.com/company/..." },
-              { field: "socialYoutube", label: "YouTube URL", placeholder: "https://youtube.com/@..." },
-              { field: "socialSnapchat", label: "Snapchat URL", placeholder: "https://snapchat.com/..." },
-              { field: "socialFacebook", label: "Facebook URL", placeholder: "https://facebook.com/..." },
-              { field: "bookingqubeWebsite", label: "BookingQube Website URL", placeholder: "https://bookingqube.com/..." },
+              { field: "socialInstagram", handleField: "socialInstagramHandle", label: "Instagram", urlPlaceholder: "https://instagram.com/e3qatar", handlePlaceholder: "@e3qatar" },
+              { field: "socialYoutube", handleField: "socialYoutubeHandle", label: "YouTube", urlPlaceholder: "https://youtube.com/@e3qatar", handlePlaceholder: "@e3qatar" },
+              { field: "socialLinkedin", handleField: "socialLinkedinHandle", label: "LinkedIn", urlPlaceholder: "https://linkedin.com/company/e3qatar", handlePlaceholder: "E3 Qatar" },
+              { field: "socialFacebook", handleField: "socialFacebookHandle", label: "Facebook", urlPlaceholder: "https://facebook.com/e3qatar", handlePlaceholder: "e3qatar" },
+              { field: "contactWhatsapp", handleField: "socialWhatsappHandle", label: "WhatsApp Direct Chat", urlPlaceholder: "+974 5113 8418 (or wa.me/...)", handlePlaceholder: "+974 5113 8418" },
+              { field: "socialTwitter", handleField: "socialTwitterHandle", label: "X (Twitter)", urlPlaceholder: "https://x.com/e3QatarOfficial", handlePlaceholder: "@e3QatarOfficial" },
+              { field: "socialSnapchat", handleField: "socialSnapchatHandle", label: "Snapchat", urlPlaceholder: "https://snapchat.com/add/e3qatar", handlePlaceholder: "e3qatar" },
+              { field: "bookingqubeWebsite", label: "BookingQube Website URL", urlPlaceholder: "https://bookingqube.com/...", handlePlaceholder: "" },
             ].map((item) => (
-              <div key={item.field}>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">
-                  {item.label}
-                </label>
-                <input
-                  type="url"
-                  value={(data as any)[item.field]}
-                  onChange={(e) => handleChange(item.field, e.target.value)}
-                  placeholder={item.placeholder}
-                  className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
-                />
+              <div key={item.field} className="p-4 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-1)] space-y-3">
+                <div>
+                  <label className="block text-xs font-bold text-[var(--text-primary)] mb-1 uppercase tracking-wider">
+                    {item.label} — URL / Link
+                  </label>
+                  <input
+                    type="text"
+                    value={(data as any)[item.field]}
+                    onChange={(e) => handleChange(item.field, e.target.value)}
+                    placeholder={item.urlPlaceholder}
+                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                  />
+                </div>
+                {item.handleField && (
+                  <div>
+                    <label className="block text-[11px] font-bold text-[var(--text-secondary)] mb-1">
+                      Display User ID / Handle (Hover Badge)
+                    </label>
+                    <input
+                      type="text"
+                      value={(data as any)[item.handleField]}
+                      onChange={(e) => handleChange(item.handleField, e.target.value)}
+                      placeholder={item.handlePlaceholder}
+                      className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>

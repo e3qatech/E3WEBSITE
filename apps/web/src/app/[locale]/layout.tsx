@@ -1,6 +1,7 @@
 import { LocaleProvider } from "@/components/layout/LocaleProvider";
 import { ToastProvider } from "@/components/dashboard/ui/ToastProvider";
 import { MotionCapabilityProvider } from "@/lib/motion/capability-context";
+import { FloatingSocialDock } from "@/components/layout/FloatingSocialDock";
 
 export default async function LocaleLayout({
   children,
@@ -17,6 +18,7 @@ export default async function LocaleLayout({
       <MotionCapabilityProvider>
         <ToastProvider>
           {children}
+          <FloatingSocialDock />
         </ToastProvider>
       </MotionCapabilityProvider>
     </LocaleProvider>

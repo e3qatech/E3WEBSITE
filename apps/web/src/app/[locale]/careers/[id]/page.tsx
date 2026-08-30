@@ -107,9 +107,16 @@ export default async function JobDetailsPage(props: { params: Promise<{ locale: 
                 {locale === 'ar' ? 'عن الوظيفة' : 'About the Role'}
               </h2>
               <div className="prose prose-invert max-w-none text-[var(--text-secondary)]">
-                {formatted.description.split('\n').map((paragraph: string, idx: number) => (
-                  <p key={idx} className="mb-4">{paragraph}</p>
-                ))}
+                {formatted.description.includes("<") ? (
+                  <div
+                    className="space-y-4 [&>p]:mb-4"
+                    dangerouslySetInnerHTML={{ __html: formatted.description }}
+                  />
+                ) : (
+                  formatted.description.split("\n").map((paragraph: string, idx: number) => (
+                    <p key={idx} className="mb-4">{paragraph}</p>
+                  ))
+                )}
               </div>
             </section>
 

@@ -223,9 +223,10 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
           <div className="space-y-6">
             <Link href={localizeHref("/b2c", locale)} className="inline-block">
               <img
-                src={theme === "dark" ? (darkLogoUrl || lightLogoUrl) : (lightLogoUrl || darkLogoUrl)}
+                src={theme === "light" ? (lightLogoUrl || darkLogoUrl) : (darkLogoUrl || lightLogoUrl)}
                 alt={`${siteName} Logo`}
                 className="h-10 w-auto object-contain"
+                suppressHydrationWarning
                 onError={(e) => {
                   (e.target as HTMLElement).style.display = "none";
                 }}

@@ -12,18 +12,32 @@ export const revalidate = 0;
 
 export default async function B2BCareersPage() {
   let page: any = null;
+  let jobs: any[] = [];
   try {
-    page = await db.pages.findUnique({
-      where: { slug: "b2b-careers" },
-    });
+    const [pageRes, jobsRes] = await Promise.all([
+      db.pages.findUnique({
+        where: { slug: "b2b-careers" },
+      }),
+      db.job.findMany({
+        orderBy: { createdAt: "desc" },
+        include: {
+          _count: {
+            select: { applications: true },
+          },
+        },
+      }),
+    ]);
+    page = pageRes;
+    jobs = jobsRes;
   } catch (error) {
-    console.warn("[B2B Careers Dashboard] Error querying db.pages:", error);
+    console.warn("[B2B Careers Dashboard] Error querying db:", error);
   }
 
   const mergedContent = getMergedCMSPageContent("b2b-careers", page?.content);
   const initialData = {
     ...mergedContent,
     seo: page?.seo || mergedContent?.seo || {},
+    jobs,
   };
 
   return <B2BCareersEditor initialData={initialData} />;

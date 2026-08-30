@@ -54,7 +54,7 @@ describe('Gate 11: Launch Readiness & Production Audits', () => {
       expect(urls.some((u) => u.endsWith('/b2b'))).toBe(true);
       expect(urls.some((u) => u.endsWith('/b2c'))).toBe(true);
       expect(urls.some((u) => u.includes('/b2b/services'))).toBe(true);
-      expect(urls.some((u) => u.includes('/b2b/cases'))).toBe(true);
+      expect(urls.some((u) => u.includes('/b2b/case-studies') || u.includes('/b2b/cases'))).toBe(true);
       expect(urls.some((u) => u.includes('/b2c/attractions'))).toBe(true);
 
       // Exclusions

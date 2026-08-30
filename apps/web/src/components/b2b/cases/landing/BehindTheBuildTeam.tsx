@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Quote, ArrowRight, ArrowUpRight, UserCheck } from "lucide-react";
+import { Quote, ArrowUpRight, UserCheck } from "lucide-react";
 
 export interface BehindTheBuildTeamProps {
   config: {
@@ -29,16 +29,21 @@ export function BehindTheBuildTeam({
   const isAr = locale === "ar";
   if (config?.enabled === false) return null;
 
-  // Build public presentation list from stories or canonical case study team members
+  // Build presentation list from CMS curated stories or fallback to case study team members
   const rawTeamStories = Array.isArray(config?.stories) ? config.stories : [];
   const validTeamStories = rawTeamStories.filter(
     (s: any) =>
-      (s.teamMemberName && s.teamMemberName.trim().length > 0 && s.teamMemberName !== "E3 Execution Specialist") ||
-      (s.employeeProfileId && s.employeeProfileId.trim().length > 0) ||
-      (s.storyTitleEn && s.storyTitleEn !== "Behind the Build Story" && s.storyTitleEn.trim().length > 0)
+      Boolean(
+        (s.teamMemberName && s.teamMemberName.trim().length > 0) ||
+        (s.employeeProfileId && s.employeeProfileId.trim().length > 0) ||
+        (s.storyTitleEn && s.storyTitleEn.trim().length > 0) ||
+        (s.storyTitleAr && s.storyTitleAr.trim().length > 0) ||
+        (s.quoteEn && s.quoteEn.trim().length > 0) ||
+        (s.quoteAr && s.quoteAr.trim().length > 0)
+      )
   );
 
-  // If no valid stories are explicitly set in CMS, derive from published case studies' team assignments
+  // If no valid curated stories are set in CMS, derive from published case studies' team assignments
   const derivedAssignments: any[] = [];
   if (validTeamStories.length === 0) {
     caseStudies.forEach((cs) => {
@@ -122,33 +127,35 @@ export function BehindTheBuildTeam({
               : null;
 
             const linkedCaseStudy = story.caseStudyId
-              ? caseStudies.find((cs) => cs.id === story.caseStudyId)
+              ? caseStudies.find((cs) => cs.id === story.caseStudyId || cs.slug === story.caseStudyId)
               : story.caseStudySlug
               ? caseStudies.find((cs) => cs.slug === story.caseStudySlug)
               : null;
 
-            const memberName = linkedEmployee
+            const memberName = story.teamMemberName && story.teamMemberName.trim().length > 0
+              ? story.teamMemberName
+              : linkedEmployee
               ? `${linkedEmployee.firstName || ""} ${linkedEmployee.lastName || ""}`.trim()
-              : story.teamMemberName || "E3 Execution Specialist";
+              : "E3 Specialist";
 
             const profileImg =
-              linkedEmployee?.profileImage || story.profileImage || "";
+              story.profileImage || linkedEmployee?.profileImage || "";
             const designation =
-              linkedEmployee?.designation || story.designation || "";
+              story.designation || linkedEmployee?.designation || "";
             const department =
-              linkedEmployee?.department || story.department || "";
+              story.department || linkedEmployee?.department || "";
 
             const role = isAr
-              ? story.roleAr || story.roleEn || designation
-              : story.roleEn || designation || "Specialist";
+              ? story.roleAr || story.roleEn || designation || "مسؤول المشروع"
+              : story.roleEn || designation || "Project Lead";
 
             const quote = isAr
               ? story.quoteAr || story.quoteEn || "التنفيذ الدقيق هو الجوهر."
-              : story.quoteEn || "Execution is key.";
+              : story.quoteEn || story.quoteAr || "Execution is key.";
 
             const storyTitle = isAr
               ? story.storyTitleAr || story.storyTitleEn
-              : story.storyTitleEn;
+              : story.storyTitleEn || story.storyTitleAr;
 
             const caseTitle = linkedCaseStudy
               ? isAr
@@ -160,47 +167,47 @@ export function BehindTheBuildTeam({
 
             return (
               <div
-                key={i}
-                className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl p-5 sm:p-8 flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/50 transition-colors shadow-sm"
+                key={story.id || i}
+                className="bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-3xl p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/50 transition-colors shadow-sm"
               >
                 <Quote className="w-12 h-12 text-[var(--border-level-2)]/50 absolute top-6 end-6 -rotate-6 pointer-events-none" />
 
                 <div className="relative z-10 mb-8">
-                  <div className="text-xs font-mono font-bold text-purple-500 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <div className="text-xs font-mono font-bold text-purple-500 uppercase tracking-widest mb-2.5 flex items-center gap-1.5">
                     <UserCheck className="w-3.5 h-3.5" />
                     <span>{role}</span>
                   </div>
 
                   {storyTitle && (
-                    <h3 className="text-lg font-bold font-syne text-[var(--text-primary)] mb-3">
+                    <h3 className="text-lg sm:text-xl font-bold font-syne text-[var(--text-primary)] mb-3 leading-snug">
                       {storyTitle}
                     </h3>
                   )}
 
-                  <p className="text-base text-[var(--text-secondary)] italic leading-relaxed">
+                  <p className="text-sm sm:text-base text-[var(--text-secondary)] italic leading-relaxed">
                     &quot;{quote}&quot;
                   </p>
                 </div>
 
                 <div className="relative z-10 pt-6 border-t border-[var(--border-level-2)] flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     {profileImg ? (
                       <img
                         src={profileImg}
                         alt={memberName}
-                        className="w-11 h-11 rounded-full object-cover border border-[var(--border-level-2)]"
+                        className="w-11 h-11 rounded-full object-cover border border-[var(--border-level-2)] shrink-0"
                       />
                     ) : (
-                      <div className="w-11 h-11 rounded-full bg-[var(--bg-level-2)] border border-[var(--border-level-2)] flex items-center justify-center font-bold text-xs text-[var(--text-secondary)]">
+                      <div className="w-11 h-11 rounded-full bg-[var(--bg-level-2)] border border-[var(--border-level-2)] flex items-center justify-center font-bold text-xs text-[var(--text-secondary)] shrink-0">
                         {memberName.substring(0, 2).toUpperCase()}
                       </div>
                     )}
-                    <div>
-                      <div className="text-sm font-bold font-syne text-[var(--text-primary)]">
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold font-syne text-[var(--text-primary)] truncate">
                         {memberName}
                       </div>
-                      <div className="text-xs text-[var(--text-secondary)]">
-                        {department ? `${department} • ` : ""}{designation}
+                      <div className="text-xs text-[var(--text-secondary)] truncate">
+                        {department ? `${department} • ` : ""}{designation || role}
                       </div>
                     </div>
                   </div>
@@ -208,7 +215,7 @@ export function BehindTheBuildTeam({
                   {caseTitle && caseSlug && (
                     <Link
                       href={`/${locale}/b2b/case-studies/${caseSlug}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-purple-500 hover:text-purple-600 transition-colors"
+                      className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-purple-500 hover:text-purple-400 transition-colors shrink-0"
                     >
                       <span className="hidden sm:inline line-clamp-1 max-w-[140px]">
                         {caseTitle}

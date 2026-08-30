@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Briefcase,
-  Users,
   Activity,
   Database,
   Settings,
@@ -20,17 +19,11 @@ import {
   Radio,
   Search,
   X,
-  Compass,
   Building2,
-  Ticket,
-  ShieldCheck,
-  Globe,
-  SlidersHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminTheme } from "./AdminThemeProvider";
 import { useLocale } from "@/components/layout/LocaleProvider";
-import { useMounted } from "@/hooks/useMounted";
 import { E3Logo } from "@/components/shared/E3Logo";
 import { hasPermission } from "@/lib/permissions";
 
@@ -256,7 +249,6 @@ export function AdminSidebar() {
     [initialActiveGroup]: true,
   });
 
-  const isClient = useMounted();
   const { data: session } = useSession();
   const { resolvedTheme } = useAdminTheme();
 
@@ -603,15 +595,14 @@ export function AdminSidebar() {
     </>
   );
 
-  if (!isClient) return null;
-
   return (
     <>
       {/* Desktop Sidebar */}
       <motion.aside
         animate={{ width: collapsed ? 68 : 255 }}
+        initial={false}
         transition={{ type: "spring", stiffness: 340, damping: 34 }}
-        className="hidden md:flex flex-col h-full bg-[var(--surface-default)] border-e border-[var(--border-level-1)] z-30 overflow-hidden shrink-0"
+        className="hidden md:flex flex-col h-full bg-[var(--surface-default)] border-e border-[var(--border-level-1)] z-30 overflow-hidden shrink-0 w-[255px]"
       >
         {sidebarContent}
       </motion.aside>

@@ -275,6 +275,33 @@ const nextConfig: NextConfig = {
         destination: '/:locale/dashboard/social-media',
         permanent: true,
       },
+
+      // 6. Careers Canonical Aliases
+      {
+        source: '/careers',
+        destination: '/en/b2b/careers',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/careers',
+        destination: '/:locale/b2b/careers',
+        permanent: true,
+      },
+      {
+        source: '/b2c/careers',
+        destination: '/en/b2b/careers',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2c/careers',
+        destination: '/:locale/b2b/careers',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|ar)/b2b/careers/:id',
+        destination: '/:locale/careers/:id',
+        permanent: true,
+      },
     ];
   },
   experimental: {

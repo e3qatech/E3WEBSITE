@@ -50,7 +50,14 @@ export default async function CasesPageEditor(props: {
     }),
     db.employeeProfile.findMany({
       orderBy: { firstName: "asc" },
-      select: { id: true, firstName: true, lastName: true, designation: true },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        designation: true,
+        profileImage: true,
+        department: true,
+      },
     }),
   ]);
 
