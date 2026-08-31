@@ -423,18 +423,18 @@ export default async function ServicesIndexPage({ params }: { params: Promise<{ 
                         isAnchorTile ? "md:col-span-2 md:row-span-2 min-h-[440px]" : "min-h-[290px]"
                       )}
                     >
-                      <div className="absolute inset-0 z-0">
+                      <div className="absolute inset-0 z-0 overflow-hidden">
                         {service.thumbnail ? (
                           <UniversalMediaRenderer 
                             type="IMAGE"
                             src={service.thumbnail}
                             alt={name}
-                            className="w-full h-full object-cover opacity-20 dark:opacity-30 group-hover:opacity-40 dark:group-hover:opacity-50 transition-all duration-700 group-hover:scale-105"
+                            className="w-full h-full object-cover opacity-75 dark:opacity-80 group-hover:opacity-95 dark:group-hover:opacity-100 transition-all duration-700 group-hover:scale-105"
                           />
                         ) : (
                           <div className="w-full h-full bg-[var(--surface-raised)]" />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)] via-[var(--surface-default)]/85 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-default)]/95 via-[var(--surface-default)]/45 via-60% to-[var(--surface-default)]/15 group-hover:from-[var(--surface-default)]/90 group-hover:via-[var(--surface-default)]/30 transition-colors duration-500" />
                       </div>
 
                       <div className="relative z-10 h-full flex flex-col justify-between">

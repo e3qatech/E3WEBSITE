@@ -21,18 +21,20 @@ import { cn } from "@/lib/utils"
 export function PackagesClient({
   locale,
   initialSettings,
-  packages: initialPackages = []
+  packages: initialPackages = [],
+  categories: initialCategories = []
 }: {
   locale: string
   initialSettings?: any
   packages?: any[]
+  categories?: any[]
 }) {
   const isAr = locale === "ar"
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const [packagesList, setPackagesList] = useState<any[]>(initialPackages)
-  const [categoriesList, setCategoriesList] = useState<any[]>([])
+  const [categoriesList, setCategoriesList] = useState<any[]>(initialCategories)
 
   // Filters State synced with URL searchParams
   const [activeCategory, setActiveCategory] = useState<string>(searchParams.get("category") || "ALL")
@@ -60,13 +62,15 @@ export function PackagesClient({
       })
       .catch(console.error)
 
-    fetch("/api/b2c/package-categories")
-      .then(res => res.json())
-      .then(json => {
-        if (Array.isArray(json.data)) setCategoriesList(json.data)
-      })
-      .catch(console.error)
-  }, [])
+    if (initialCategories.length === 0) {
+      fetch("/api/b2c/package-categories")
+        .then(res => res.json())
+        .then(json => {
+          if (Array.isArray(json.data)) setCategoriesList(json.data)
+        })
+        .catch(console.error)
+    }
+  }, [initialCategories.length])
 
   // Sync category filter to URL params without page reload
   const handleCategoryChange = (cat: string) => {
@@ -80,15 +84,17 @@ export function PackagesClient({
   // Filter and Sort Logic
   const filteredPackages = useMemo(() => {
     return packagesList.filter(pkg => {
-      // 1. Category filter: support category string or categoryRel slug
+      // 1. Category filter: support category string, categoryRel slug, or dynamic category ID
       const matchesCategory = 
         activeCategory === "ALL" || 
         pkg.category === activeCategory ||
-        pkg.categoryRel?.slug === activeCategory.toLowerCase() ||
-        (activeCategory === "CELEBRATE" && pkg.category === "BIRTHDAY") ||
-        (activeCategory === "LEARN_EXPLORE" && pkg.category === "SCHOOL") ||
-        (activeCategory === "PLAY_TOGETHER" && pkg.category === "GROUP") ||
-        (activeCategory === "EVENTS" && pkg.category === "PRIVATE_EVENT")
+        pkg.categoryRel?.slug?.toLowerCase() === activeCategory.toLowerCase() ||
+        pkg.categoryRel?.id === activeCategory ||
+        pkg.categoryId === activeCategory ||
+        (activeCategory === "CELEBRATE" && (pkg.category === "BIRTHDAY" || pkg.categoryRel?.slug === "celebrate")) ||
+        (activeCategory === "LEARN_EXPLORE" && (pkg.category === "SCHOOL" || pkg.categoryRel?.slug === "learn-explore")) ||
+        (activeCategory === "PLAY_TOGETHER" && (pkg.category === "GROUP" || pkg.categoryRel?.slug === "play-together")) ||
+        (activeCategory === "EVENTS" && (pkg.category === "PRIVATE_EVENT" || pkg.categoryRel?.slug === "events"))
 
       // 2. Search query filter
       const matchesSearch = 
@@ -159,17 +165,43 @@ export function PackagesClient({
     router.replace(`/${locale}/b2c/packages`, { scroll: false })
   }
 
-  // Canonical Category Tabs
-  const categoryTabs = [
-    { id: "ALL", labelEn: "All Experiences", labelAr: "جميع الباقات", icon: Sparkles },
-    { id: "CELEBRATE", labelEn: "Celebrate", labelAr: "أعياد الميلاد", icon: PartyPopper },
-    { id: "LEARN_EXPLORE", labelEn: "Learn & Explore", labelAr: "التعليم والاستكشاف", icon: GraduationCap },
-    { id: "PLAY_TOGETHER", labelEn: "Play Together", labelAr: "المجموعات والأصدقاء", icon: Users },
-    { id: "CORPORATE", labelEn: "Corporate", labelAr: "الشركات وبناء الفرق", icon: Briefcase },
-    { id: "EVENTS", labelEn: "Events & Buyouts", labelAr: "الفعاليات الكبرى", icon: Building },
-    { id: "SEASONAL", labelEn: "Seasonal Camps", labelAr: "الباقات الموسمية", icon: CalendarRange },
-    { id: "CUSTOM", labelEn: "Custom", labelAr: "تجارب حسب الطلب", icon: Wand2 }
-  ]
+  // Dynamic Category Tabs from DB / API
+  const categoryTabs = useMemo(() => {
+    const allTab = { id: "ALL", labelEn: "All Experiences", labelAr: "جميع الباقات", icon: Sparkles }
+    if (categoriesList && categoriesList.length > 0) {
+      const dynamicTabs = categoriesList.map((cat: any) => {
+        let IconComponent = Sparkles
+        const s = (cat.slug || "").toLowerCase()
+        if (s.includes("celebrat") || s.includes("bday") || s.includes("birth")) IconComponent = PartyPopper
+        else if (s.includes("learn") || s.includes("school") || s.includes("educat")) IconComponent = GraduationCap
+        else if (s.includes("play") || s.includes("group") || s.includes("friend")) IconComponent = Users
+        else if (s.includes("corp") || s.includes("team") || s.includes("business")) IconComponent = Briefcase
+        else if (s.includes("event") || s.includes("buyout") || s.includes("festival")) IconComponent = Building
+        else if (s.includes("season") || s.includes("camp") || s.includes("holiday")) IconComponent = CalendarRange
+        else if (s.includes("custom") || s.includes("bespoke")) IconComponent = Wand2
+
+        return {
+          id: cat.slug ? cat.slug.toUpperCase() : cat.id,
+          slug: cat.slug,
+          labelEn: cat.nameEn || cat.titleEn || cat.name || cat.slug,
+          labelAr: cat.nameAr || cat.titleAr || cat.name || cat.slug,
+          icon: IconComponent
+        }
+      })
+      return [allTab, ...dynamicTabs]
+    }
+
+    return [
+      allTab,
+      { id: "CELEBRATE", slug: "celebrate", labelEn: "Celebrate", labelAr: "أعياد الميلاد", icon: PartyPopper },
+      { id: "LEARN_EXPLORE", slug: "learn-explore", labelEn: "Learn & Explore", labelAr: "التعليم والاستكشاف", icon: GraduationCap },
+      { id: "PLAY_TOGETHER", slug: "play-together", labelEn: "Play Together", labelAr: "المجموعات والأصدقاء", icon: Users },
+      { id: "CORPORATE", slug: "corporate", labelEn: "Corporate", labelAr: "الشركات وبناء الفرق", icon: Briefcase },
+      { id: "EVENTS", slug: "events", labelEn: "Events & Buyouts", labelAr: "الفعاليات الكبرى", icon: Building },
+      { id: "SEASONAL", slug: "seasonal", labelEn: "Seasonal Camps", labelAr: "الباقات الموسمية", icon: CalendarRange },
+      { id: "CUSTOM", slug: "custom", labelEn: "Custom", labelAr: "تجارب حسب الطلب", icon: Wand2 }
+    ]
+  }, [categoriesList])
 
   // FAQs Data (Bilingual)
   const faqs = [

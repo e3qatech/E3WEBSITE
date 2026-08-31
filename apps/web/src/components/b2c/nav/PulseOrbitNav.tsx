@@ -582,10 +582,10 @@ export function PulseOrbitNav({
                   rel={openInNewTab ? "noopener noreferrer" : undefined}
                   download={isDirectFile ? true : undefined}
                   onMouseEnter={() => playSpatialHoverSound(0.2, 'tab')}
-                  className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 h-8 sm:h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-3 sm:px-4 text-[10px] sm:text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
                   onClick={() => trackTelemetry(isB2B ? 'download_profile_clicked' : 'ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type: activePortalTab })}
                 >
-                  {isB2B ? <Download className="h-4 w-4" /> : <Ticket className="h-4 w-4" />}
+                  {isB2B ? <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <Ticket className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                   <span>{isAr ? bookTicketsLabelAr : bookTicketsLabelEn}</span>
                 </a>
               ) : (
@@ -593,10 +593,10 @@ export function PulseOrbitNav({
                   href={bookTicketsHref}
                   target={openInNewTab ? "_blank" : undefined}
                   onMouseEnter={() => playSpatialHoverSound(0.2, 'tab')}
-                  className="hidden sm:inline-flex items-center gap-2 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-4 text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 h-8 sm:h-9 rounded-full bg-gradient-to-r from-emerald-500 to-sky-500 px-3 sm:px-4 text-[10px] sm:text-xs font-extrabold text-slate-950 shadow-md hover:opacity-95 transition-opacity select-none cursor-pointer"
                   onClick={() => trackTelemetry(isB2B ? 'download_profile_clicked' : 'ticket_cta_clicked', { source: 'header', url: bookTicketsHref, type: activePortalTab })}
                 >
-                  {isB2B ? <Download className="h-4 w-4" /> : <Ticket className="h-4 w-4" />}
+                  {isB2B ? <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <Ticket className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                   <span>{isAr ? bookTicketsLabelAr : bookTicketsLabelEn}</span>
                 </Link>
               )
@@ -924,6 +924,31 @@ export function PulseOrbitNav({
               </div>
             </div>
           </div>
+
+          {/* Mobile Download Profile / Book Tickets CTA */}
+          {isBookTicketsEnabled && (
+            <div className="lg:hidden w-full max-w-7xl mx-auto py-2">
+              <a
+                href={bookTicketsHref}
+                target={openInNewTab ? "_blank" : "_self"}
+                rel={openInNewTab ? "noopener noreferrer" : undefined}
+                download={isDirectFile ? true : undefined}
+                onClick={() => {
+                  setMenuOpen(false);
+                  trackTelemetry(isB2B ? 'download_profile_clicked' : 'ticket_cta_clicked', { source: 'mobile_overlay', url: bookTicketsHref, type: activePortalTab });
+                }}
+                className={cn(
+                  "w-full flex items-center justify-center gap-2.5 p-3.5 rounded-2xl font-bold text-sm shadow-lg transition-all cursor-pointer",
+                  isB2B 
+                    ? "bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-sky-500/20 hover:from-sky-400 hover:to-blue-500"
+                    : "bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-500"
+                )}
+              >
+                {isB2B ? <Download className="h-4 w-4" /> : <Ticket className="h-4 w-4" />}
+                <span>{isAr ? bookTicketsLabelAr : bookTicketsLabelEn}</span>
+              </a>
+            </div>
+          )}
 
           {/* Bottom Bar inside Overlay */}
           <div className={cn(

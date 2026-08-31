@@ -38,6 +38,16 @@ export function ServiceFloatingDock({ locale, onOpenBriefBuilder }: ServiceFloat
           <span>{isAr ? "موجز المشروع" : "Build Project Brief"}</span>
         </button>
 
+        {/* Download Profile CTA */}
+        <Link
+          href={localizeHref("/b2b/discover", locale)}
+          className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer active:scale-95"
+          title={isAr ? "تحميل الملف التعريفي للشركة" : "Download Corporate Profile"}
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span>{isAr ? "البروفايل" : "Profile"}</span>
+        </Link>
+
         {/* Consultation Link */}
         <Link
           href={localizeHref("/b2b/contact", locale)}

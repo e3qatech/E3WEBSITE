@@ -51,9 +51,19 @@ export default async function PackagesPage(props: {
     console.warn("[PACKAGES PAGE DB NOTICE] Failed to query packages:", e);
   }
 
+  let categories: any[] = [];
+  try {
+    categories = await db.packageCategory.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: "asc" }
+    });
+  } catch (e) {
+    console.warn("[PACKAGES PAGE DB NOTICE] Failed to query package categories:", e);
+  }
+
   return (
     <div className="min-h-screen bg-[var(--surface-default)] pt-20">
-      <PackagesClient locale={locale} initialSettings={settings} packages={packages} />
+      <PackagesClient locale={locale} initialSettings={settings} packages={packages} categories={categories} />
     </div>
   );
 }
