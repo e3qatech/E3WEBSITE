@@ -104,7 +104,12 @@ export async function GET(req: NextRequest) {
         const user = await requirePermission("b2c.packages.read")
         hasAdminPermission = Boolean(user)
       } catch {
-        hasAdminPermission = false
+        try {
+          const user = await requirePermission("b2c.content.read")
+          hasAdminPermission = Boolean(user)
+        } catch {
+          hasAdminPermission = false
+        }
       }
     }
 
@@ -213,7 +218,7 @@ export async function GET(req: NextRequest) {
       include: {
         categoryRel: true,
         attraction: { select: { id: true, nameEn: true, nameAr: true, slug: true, logoUrl: true } },
-        brand: { select: { id: true, nameEn: true, nameAr: true, logoUrl: true } },
+        brand: { select: { id: true, nameEn: true, nameAr: true, primaryLogoUrl: true } },
         location: { select: { id: true, nameEn: true, nameAr: true, slug: true } }
       },
       orderBy

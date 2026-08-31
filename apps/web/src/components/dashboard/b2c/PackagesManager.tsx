@@ -22,7 +22,7 @@ import { PackageReferralsManager } from "@/components/dashboard/b2c/PackageRefer
 import { PackageQuotationBuilder } from "@/components/dashboard/b2c/PackageQuotationBuilder"
 import { PackageLeadsManager } from "@/components/dashboard/leads/PackageLeadsManager"
 
-export function PackagesManager() {
+export function PackagesManager({ initialData = [] }: { initialData?: any[] }) {
   let locale: 'en' | 'ar' = 'en'
   let dir: 'ltr' | 'rtl' = 'ltr'
   try {
@@ -41,9 +41,9 @@ export function PackagesManager() {
     "catalogue" | "templates" | "categories" | "promotions" | "referrals" | "leads" | "quotations"
   >("catalogue")
 
-  const [packages, setPackages] = useState<any[]>([])
-  const [templates, setTemplates] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [packages, setPackages] = useState<any[]>(initialData.filter((p: any) => !p.isTemplate))
+  const [templates, setTemplates] = useState<any[]>(initialData.filter((p: any) => p.isTemplate))
+  const [loading, setLoading] = useState(initialData.length === 0)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("ALL")
