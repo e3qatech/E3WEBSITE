@@ -316,22 +316,8 @@ export function PortalGateway({
               />
             </a>
 
-            {/* Quick Portal Homepage Tabs & Centered H1 (Desktop Only) */}
-            <div className="hidden md:flex items-center gap-3">
-              <Link
-                href={`/${activeLocale}/b2c`}
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-[11px] font-mono font-bold tracking-wider border transition-all flex items-center gap-1.5",
-                  isLight
-                    ? "border-purple-300 bg-purple-100/80 hover:bg-purple-600 hover:text-white text-purple-950"
-                    : "border-purple-400/40 bg-purple-950/40 hover:bg-purple-600 hover:text-white text-purple-200"
-                )}
-                title={isAr ? "الصفحة الرئيسية (B2C)" : "B2C Experiences Home"}
-              >
-                <Home className="w-3 h-3" />
-                <span>{isAr ? "رئيسية B2C" : "B2C Home"}</span>
-              </Link>
-
+            {/* Centered H1 Headline (Desktop Only) */}
+            <div className="hidden md:flex items-center">
               <h1
                 className={cn(
                   "flex items-center gap-2.5 px-4 md:px-5 py-2 rounded-full border text-xs md:text-sm font-mono font-bold tracking-widest uppercase m-0 shadow-sm transition-colors duration-350",
@@ -343,20 +329,6 @@ export function PortalGateway({
                 <span className={cn("w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 to-cyan-400", !isReducedMotion && "animate-pulse")} aria-hidden="true" />
                 <span>{headline}</span>
               </h1>
-
-              <Link
-                href={`/${activeLocale}/b2b`}
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-[11px] font-mono font-bold tracking-wider border transition-all flex items-center gap-1.5",
-                  isLight
-                    ? "border-blue-300 bg-blue-100/80 hover:bg-blue-600 hover:text-white text-blue-950"
-                    : "border-cyan-400/40 bg-cyan-950/40 hover:bg-cyan-600 hover:text-white text-cyan-200"
-                )}
-                title={isAr ? "الصفحة الرئيسية (B2B)" : "B2B Enterprise Home"}
-              >
-                <Home className="w-3 h-3" />
-                <span>{isAr ? "رئيسية B2B" : "B2B Home"}</span>
-              </Link>
             </div>
 
             {/* Controls: Language & Theme Switcher */}
