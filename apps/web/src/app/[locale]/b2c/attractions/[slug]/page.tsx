@@ -34,17 +34,9 @@ async function getAttractionData(slug: string) {
   const altSlug1 = normalizedSlug.replace('inflata-park', 'inflatapark')
   const altSlug2 = normalizedSlug.replace('inflatapark', 'inflata-park')
 
-  // Step 1: Exact match query
-  let attraction = await db.attraction.findFirst({
-    where: {
-      OR: [
-        { slug: normalizedSlug },
-        { slug: cleanDashSlug },
-        { slug: altSlug1 },
-        { slug: altSlug2 },
-        { slug: slug }
-      ]
-    },
+  // Step 1: Exact unique match query first
+  let attraction = await db.attraction.findUnique({
+    where: { slug: normalizedSlug },
     include: {
       pricing: true,
       offers: true,
@@ -71,7 +63,49 @@ async function getAttractionData(slug: string) {
     }
   })
 
-  // Step 2: Fallback to exact prefix match ONLY if no exact match found
+  // Step 2: Fallback query for slug variations, ordered by active/published with most recent updates
+  if (!attraction) {
+    attraction = await db.attraction.findFirst({
+      where: {
+        OR: [
+          { slug: cleanDashSlug },
+          { slug: altSlug1 },
+          { slug: altSlug2 },
+          { slug: slug }
+        ]
+      },
+      orderBy: [
+        { isPublished: "desc" },
+        { updatedAt: "desc" }
+      ],
+      include: {
+        pricing: true,
+        offers: true,
+        faqs: { orderBy: { orderIndex: "asc" } },
+        gallery: { orderBy: { orderIndex: "asc" } },
+        featuresList: {
+          include: {
+            storyTypes: true,
+            linkedBrand: true
+          },
+          orderBy: { orderIndex: "asc" }
+        },
+        temporalRules: true,
+        brandPlacements: {
+          include: {
+            brand: true
+          }
+        },
+        attractionLocations: {
+          include: {
+            location: true
+          }
+        }
+      }
+    })
+  }
+
+  // Step 3: Prefix fallback ONLY if still not found
   if (!attraction) {
     attraction = await db.attraction.findFirst({
       where: {
@@ -81,6 +115,10 @@ async function getAttractionData(slug: string) {
           { slug: { startsWith: altSlug2 } }
         ]
       },
+      orderBy: [
+        { isPublished: "desc" },
+        { updatedAt: "desc" }
+      ],
       include: {
         pricing: true,
         offers: true,
@@ -256,11 +294,22 @@ async function getAttractionData(slug: string) {
 
   const curated = getCuratedAttractionDetails(attraction.slug || slug)
 
-  const resolvedFeatures = (Array.isArray(attraction.featuresList) && attraction.featuresList.length > 0)
+  const rawFeatures = (Array.isArray(attraction.featuresList) && attraction.featuresList.length > 0)
     ? attraction.featuresList
     : (Array.isArray(attraction.features) && attraction.features.length > 0)
       ? attraction.features
       : (curated?.features || [])
+
+  // Defensive deduplication by unique ID or normalized title
+  const seenFeatureKeys = new Set<string>();
+  const resolvedFeatures = rawFeatures.filter((f: any) => {
+    if (!f) return false;
+    const titleKey = ((f.titleEn || f.nameEn || f.title || f.name || f.titleAr || f.id) || '').toLowerCase().trim();
+    if (!titleKey) return false;
+    if (seenFeatureKeys.has(titleKey)) return false;
+    seenFeatureKeys.add(titleKey);
+    return true;
+  });
 
   const resolvedPricing = (Array.isArray(attraction.pricing) && attraction.pricing.length > 0)
     ? attraction.pricing
@@ -276,8 +325,14 @@ async function getAttractionData(slug: string) {
     ? (attraction as any).socialPreviews
     : (curated?.socialLinks?.map(s => ({ platform: s.platform, url: s.url, title: s.handle || s.platform })) || [])
 
+  const resolvedLogoUrl = (attraction.logoUrl || '').trim() ||
+    ((curated as any)?.logoUrl || '').trim() ||
+    (attraction.heroThumbnailUrl || '').trim() ||
+    ((attraction as any).primaryLogoUrl || '').trim();
+
   const sanitizedAttraction = normalizeServerPartnerData({
     ...attraction,
+    logoUrl: resolvedLogoUrl,
     ticketingUrl: resolvedTicketingUrl,
     socialPreviews: resolvedSocialPreviews
   })
@@ -310,18 +365,28 @@ export async function generateMetadata(props: { params: Promise<{ slug: string, 
   const altSlug1 = normalizedSlug.replace('inflata-park', 'inflatapark')
   const altSlug2 = normalizedSlug.replace('inflatapark', 'inflata-park')
 
-  let attraction = await db.attraction.findFirst({
-    where: {
-      OR: [
-        { slug: normalizedSlug },
-        { slug: altSlug1 },
-        { slug: altSlug2 },
-        { slug: canonicalSlug },
-        { slug: slug }
-      ]
-    },
+  let attraction = await db.attraction.findUnique({
+    where: { slug: normalizedSlug },
     select: { nameEn: true, nameAr: true, descriptionEn: true, descriptionAr: true, slug: true, heroMediaUrl: true }
   })
+
+  if (!attraction) {
+    attraction = await db.attraction.findFirst({
+      where: {
+        OR: [
+          { slug: altSlug1 },
+          { slug: altSlug2 },
+          { slug: canonicalSlug },
+          { slug: slug }
+        ]
+      },
+      orderBy: [
+        { isPublished: "desc" },
+        { updatedAt: "desc" }
+      ],
+      select: { nameEn: true, nameAr: true, descriptionEn: true, descriptionAr: true, slug: true, heroMediaUrl: true }
+    })
+  }
 
   if (!attraction) {
     attraction = await db.attraction.findFirst({

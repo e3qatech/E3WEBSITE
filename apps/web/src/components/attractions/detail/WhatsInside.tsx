@@ -92,12 +92,26 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
     ? `${fullText.substring(0, maxCharLimit)}...`
     : fullText;
 
+  // Deduplicate features defensively by title/name (or ID fallback) to prevent duplicate card rendering
+  const uniqueFeatures = React.useMemo(() => {
+    if (!Array.isArray(features)) return [];
+    const seen = new Set<string>();
+    return features.filter(f => {
+      if (!f) return false;
+      const key = (f.titleEn || f.nameEn || f.title || f.name || f.titleAr || f.nameAr || f.id || '').toLowerCase().trim();
+      if (!key) return false;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [features]);
+
   // Extract unique active story tracks
   const activeStoryTracks = React.useMemo(() => {
-    if (!Array.isArray(features)) return [];
+    if (!Array.isArray(uniqueFeatures)) return [];
     const trackMap = new Map<string, { slug: string; titleEn: string; titleAr: string; color?: string }>();
 
-    features.forEach(f => {
+    uniqueFeatures.forEach(f => {
       if (Array.isArray(f.storyTypes) && f.storyTypes.length > 0) {
         f.storyTypes.forEach(st => {
           if (st && st.slug && !trackMap.has(st.slug)) {
@@ -121,20 +135,20 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
     });
 
     return Array.from(trackMap.values());
-  }, [features]);
+  }, [uniqueFeatures]);
 
   // Filter features based on active category
   const filteredFeatures = React.useMemo(() => {
-    if (!Array.isArray(features)) return [];
-    if (selectedTrackSlug === 'ALL') return features;
+    if (!Array.isArray(uniqueFeatures)) return [];
+    if (selectedTrackSlug === 'ALL') return uniqueFeatures;
 
-    return features.filter(f => {
+    return uniqueFeatures.filter(f => {
       const inTypes = Array.isArray(f.storyTypes) && f.storyTypes.some(st => st.slug === selectedTrackSlug);
       const inPrimarySlug = f.primaryStoryTrackSlug === selectedTrackSlug;
       const inSecondarySlugs = Array.isArray(f.secondaryStoryTrackSlugs) && f.secondaryStoryTrackSlugs.includes(selectedTrackSlug);
       return inTypes || inPrimarySlug || inSecondarySlugs;
     });
-  }, [features, selectedTrackSlug]);
+  }, [uniqueFeatures, selectedTrackSlug]);
 
   const toggleCard = (id: string) => {
     setExpandedCardId(prev => (prev === id ? null : id));
@@ -221,13 +235,13 @@ export function WhatsInside({ description, features, imageUrl, locale = 'en' }: 
               >
                 <span>{isAr ? "كافة الأنشطة" : "All Activities"}</span>
                 <span className={`text-[10px] font-mono px-1.5 rounded-md ${selectedTrackSlug === 'ALL' ? 'bg-slate-950/20 text-slate-950 font-bold' : 'text-[var(--text-tertiary)]'}`}>
-                  {features?.length || 0}
+                  {uniqueFeatures?.length || 0}
                 </span>
               </button>
 
               {activeStoryTracks.map(st => {
                 const trackTitle = getStoryTrackLabel(st, isAr);
-                const count = (features || []).filter(f => (f.storyTypes || []).some(t => t.slug === st.slug)).length;
+                const count = (uniqueFeatures || []).filter(f => (f.storyTypes || []).some(t => t.slug === st.slug)).length;
                 const isActive = selectedTrackSlug === st.slug;
 
                 return (

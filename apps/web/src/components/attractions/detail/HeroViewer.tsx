@@ -85,13 +85,14 @@ export function HeroViewer({
         }}
         preset="record-accent"
         accentColor={accentColor}
+        logoUrl={logoUrl}
         locale={locale}
       />
     );
   }
 
   return (
-    <section className="relative w-full min-h-screen overflow-hidden bg-zinc-950 flex flex-col items-center justify-between pt-24 pb-12 px-6">
+    <section className="relative w-full min-h-[100svh] overflow-hidden bg-zinc-950 flex flex-col items-center justify-between pt-28 sm:pt-32 pb-10 px-4 sm:px-6">
       {/* Ambient B2C Motion Preset Signature Layer */}
       <B2CSceneHost preset={motionPreset} colorAccent={accentColor} />
 
@@ -99,7 +100,7 @@ export function HeroViewer({
       <div className="absolute inset-0 z-0">
         {currentMediaType === 'IMAGE' && currentMediaUrl && (
           <motion.div
-            initial={{ scale: 1.1 }}
+            initial={{ scale: 1.08 }}
             animate={{ scale: 1 }}
             transition={{ duration: 10, ease: 'easeOut' }}
             className="w-full h-full"
@@ -147,22 +148,22 @@ export function HeroViewer({
       </div>
 
       {/* Gradient Scrim for Readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/75 to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-transparent z-10 pointer-events-none" />
 
       {/* Hero Content - Centered */}
-      <div className="relative z-20 flex-1 flex flex-col items-center justify-center text-center max-w-5xl mx-auto my-auto space-y-6">
+      <div className="relative z-20 flex-1 flex flex-col items-center justify-center text-center max-w-5xl mx-auto my-auto space-y-4 sm:space-y-6 px-2">
         {logoUrl && (
           <motion.div
-            initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+            initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-28 h-28 md:w-40 md:h-40 mb-2"
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="relative w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 mb-1"
           >
             <Image
               src={logoUrl}
               alt={`${title} Logo`}
               fill
-              className="object-contain drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+              className="object-contain drop-shadow-[0_0_24px_rgba(255,255,255,0.25)]"
               priority
             />
           </motion.div>
@@ -170,33 +171,33 @@ export function HeroViewer({
         
         {status && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
+            transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
             className="relative group"
           >
             <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl group-hover:bg-emerald-500/40 transition-colors duration-500" />
-            <span className="relative px-6 py-2 text-xs font-bold tracking-[0.2em] text-white uppercase bg-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-2xl">
+            <span className="relative px-5 py-1.5 text-[11px] sm:text-xs font-bold tracking-[0.2em] text-white uppercase bg-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-2xl">
               {status}
             </span>
           </motion.div>
         )}
         
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          className="text-balance text-4xl sm:text-6xl md:text-7xl lg:text-[clamp(3rem,7vw,5.5rem)] font-black text-white tracking-tighter uppercase leading-[0.92] drop-shadow-2xl max-w-5xl break-words"
+          transition={{ delay: 0.3, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          className="text-balance text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tighter uppercase leading-[0.95] drop-shadow-2xl max-w-5xl break-words"
         >
           {formatLocalizedText(title, locale)}
         </motion.h1>
 
         {tagline && (
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="text-lg sm:text-xl md:text-2xl text-zinc-300 max-w-3xl font-light leading-relaxed drop-shadow-lg"
+            transition={{ delay: 0.4, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="text-base sm:text-lg md:text-xl text-zinc-300 max-w-3xl font-light leading-relaxed drop-shadow-lg"
           >
             {formatLocalizedText(tagline, locale)}
           </motion.p>
@@ -204,17 +205,17 @@ export function HeroViewer({
 
         {ctaText && ctaLink && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="pt-4"
+            transition={{ delay: 0.5, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="pt-2 sm:pt-4"
           >
             {ctaLink.startsWith('http://') || ctaLink.startsWith('https://') ? (
               <a 
                 href={ctaLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 px-10 py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-base md:text-lg uppercase tracking-wider transition-all duration-300 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:scale-105"
+                className="inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-sm sm:text-base md:text-lg uppercase tracking-wider transition-all duration-300 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:scale-105"
               >
                 <Ticket className="w-5 h-5" />
                 <span>{ctaText}</span>
@@ -222,7 +223,7 @@ export function HeroViewer({
             ) : (
               <Link 
                 href={ctaLink}
-                className="inline-flex items-center justify-center gap-2.5 px-10 py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-base md:text-lg uppercase tracking-wider transition-all duration-300 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:scale-105"
+                className="inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-sm sm:text-base md:text-lg uppercase tracking-wider transition-all duration-300 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:scale-105"
               >
                 <Ticket className="w-5 h-5" />
                 <span>{ctaText}</span>
@@ -236,14 +237,14 @@ export function HeroViewer({
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 1 }}
-        className="relative z-20 flex flex-col items-center gap-1.5 pt-4 pointer-events-none"
+        transition={{ delay: 1.0, duration: 0.8 }}
+        className="relative z-20 flex flex-col items-center gap-1 pt-2 pointer-events-none"
       >
         <span className="text-[10px] text-zinc-400 uppercase tracking-[0.25em] font-mono font-bold">
           {isAr ? "مرر للأسفل" : "Scroll to Explore"}
         </span>
         <motion.div
-          animate={{ y: [0, 6, 0] }}
+          animate={{ y: [0, 5, 0] }}
           transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
         >
           <ChevronDown className="w-4 h-4 text-emerald-400" />

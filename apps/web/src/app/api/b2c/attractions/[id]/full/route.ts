@@ -165,10 +165,6 @@ export async function PUT(
           }
         })
 
-        if (safeFeatures.length > 0) {
-          await tx.attractionFeature.createMany({ data: safeFeatures })
-        }
-
         // Link canonical locations via AttractionLocation join model
         if (Array.isArray(locations) && locations.length > 0) {
           await tx.attractionLocation.deleteMany({ where: { attractionId: id } })

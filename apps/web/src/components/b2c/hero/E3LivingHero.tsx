@@ -75,6 +75,7 @@ export interface E3LivingHeroProps {
   theme?: 'dark' | 'light' | 'auto'
   scrollIndicator?: boolean
   locale?: string
+  logoUrl?: string | null
   className?: string
   eyebrowTestId?: string
   titleTestId?: string
@@ -250,6 +251,7 @@ export function E3LivingHero({
   theme = 'auto',
   scrollIndicator = true,
   locale = 'en',
+  logoUrl,
   className,
   eyebrowTestId,
   titleTestId,
@@ -664,6 +666,23 @@ export function E3LivingHero({
           alignmentStyles.inner
         )}
       >
+        {/* Brand / Attraction Emblem */}
+        {logoUrl && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className={cn("relative w-28 h-28 md:w-36 md:h-36 -mb-2 shrink-0 flex items-center", alignmentStyles.line)}
+          >
+            <img
+              src={logoUrl}
+              alt="Brand Emblem"
+              className="w-full h-full object-contain drop-shadow-[0_0_30px_rgba(255,255,255,0.25)]"
+              loading="eager"
+            />
+          </motion.div>
+        )}
+
         {/* Eyebrow Pill */}
         {eyebrow && (
           <motion.div
