@@ -105,7 +105,7 @@ export default async function CalendarPage({ params }: { params: Promise<{ local
   }
 
   return (
-    <div className="pt-20">
+    <div>
       <CalendarView 
         cmsContent={cmsContent}
         heroMediaType={cmsContent.hero?.mediaType || cmsContent.heroMedia?.mediaType || cmsContent.heroMediaType || "IMAGE"}

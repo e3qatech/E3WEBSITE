@@ -472,9 +472,9 @@ export function EmployeeFormModal({
                       <option value="direction">01. Direction — Leadership & Strategy (التوجيه)</option>
                       <option value="imagine">02. Imagine — Creative, Brand & Growth (الابتكار)</option>
                       <option value="plan">03. Plan — Projects & Events (التخطيط)</option>
-                      <option value="build">04. Build — Production & Logistics (التنفيذ)</option>
-                      <option value="operate">05. Operate — Operations & Guest Experience (التشغيل)</option>
-                      <option value="amplify">06. Amplify — Technology & Systems (التطوير)</option>
+                      <option value="amplify">04. Amplify — Technology & Systems (التطوير)</option>
+                      <option value="build">05. Build — Production & Logistics (التنفيذ)</option>
+                      <option value="operate">06. Operate — Operations & Guest Experience (التشغيل)</option>
                       <option value="corporate-enablement">07. Corporate Enablement (التمكين المؤسسي)</option>
                     </select>
                   </div>

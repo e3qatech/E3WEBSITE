@@ -62,7 +62,7 @@ export default async function PackagesPage(props: {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--surface-default)] pt-20">
+    <div className="min-h-screen bg-[var(--surface-default)]">
       <PackagesClient locale={locale} initialSettings={settings} packages={packages} categories={categories} />
     </div>
   );

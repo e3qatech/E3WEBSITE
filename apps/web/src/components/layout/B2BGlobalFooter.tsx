@@ -114,23 +114,33 @@ export function B2BGlobalFooter({ settings = {} }: B2BGlobalFooterProps) {
   const companyLinks = parseJsonLinks(settings.b2bFooterCompanyLinks, DEFAULT_COMPANY_LINKS);
 
   // Background Media Resolution (Image, Video, Iframe, 3D, Spline)
-  const bgMediaUrl = settings.b2bFooterMediaUrl || settings.footerMediaUrl || "";
-  const bgMediaType = (settings.b2bFooterMediaType || settings.footerMediaType || "IMAGE").toString().toUpperCase();
+  let bgMediaUrl = settings.b2bFooterMediaUrl || settings.footerMediaUrl || "";
+  if (typeof bgMediaUrl === "string" && bgMediaUrl.includes('<iframe') && bgMediaUrl.includes('src=')) {
+    const srcMatch = bgMediaUrl.match(/src=["']([^"']+)["']/i);
+    if (srcMatch && srcMatch[1]) {
+      bgMediaUrl = srcMatch[1].trim();
+    }
+  }
+  const isSpline = typeof bgMediaUrl === "string" && (bgMediaUrl.includes("spline.design") || bgMediaUrl.includes(".splinecode"));
+  let bgMediaType = (settings.b2bFooterMediaType || settings.footerMediaType || "IMAGE").toString().toUpperCase();
+  if (isSpline) bgMediaType = "SPLINE";
   const bgPosterUrl = settings.b2bFooterPosterUrl || settings.footerPosterUrl || "";
 
   return (
     <footer className="relative bg-neutral-950 text-neutral-200 border-t border-neutral-800/80 pt-16 pb-10 overflow-hidden font-sans">
       {/* Background Media Container (3D Spline, Video, Iframe, or Image) */}
       {bgMediaUrl && (
-        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden opacity-25 pointer-events-none">
-          <UniversalMediaRenderer
-            src={bgMediaUrl}
-            type={bgMediaType as any}
-            alt="B2B Footer Background Media"
-            className="w-full h-full object-cover"
-            poster={bgPosterUrl}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/95 via-neutral-950/90 to-neutral-950 z-[1] pointer-events-none" />
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-none">
+          <div className="w-full h-full opacity-65">
+            <UniversalMediaRenderer
+              src={bgMediaUrl}
+              type={bgMediaType as any}
+              alt="B2B Footer Background Media"
+              className="w-full h-full object-cover"
+              poster={bgPosterUrl}
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/75 via-neutral-950/30 to-neutral-950/85 z-[1] pointer-events-none" />
         </div>
       )}
 

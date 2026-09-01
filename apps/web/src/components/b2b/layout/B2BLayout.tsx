@@ -41,7 +41,7 @@ export function B2BLayout({
       >
         <PulseOrbitNav locale={locale} settings={settings} orbitData={orbitData} type="b2b" />
         
-        <main className="flex-1 flex flex-col pt-20 relative z-10">
+        <main className="flex-1 flex flex-col relative z-10">
           {children}
         </main>
         

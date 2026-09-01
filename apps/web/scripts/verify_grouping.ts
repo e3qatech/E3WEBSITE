@@ -14,7 +14,7 @@ async function main() {
   const resolved = resolvePublicTeamList(members as any, 'en');
   console.log('TOTAL RESOLVED MEMBERS:', resolved.length);
 
-  const groups = ['direction', 'imagine', 'plan', 'build', 'operate', 'amplify', 'corporate-enablement'];
+  const groups = ['direction', 'imagine', 'plan', 'amplify', 'build', 'operate', 'corporate-enablement'];
   const counts: Record<string, number> = {};
 
   for (const g of groups) {
@@ -25,10 +25,10 @@ async function main() {
   }
 
   console.log('\nFINAL COUNTS SUMMARY:', counts);
-  const pattern = `${counts['direction']}/${counts['imagine']}/${counts['plan']}/${counts['build']}/${counts['operate']}/${counts['amplify']} + ${counts['corporate-enablement']}`;
+  const pattern = `${counts['direction']}/${counts['imagine']}/${counts['plan']}/${counts['amplify']}/${counts['build']}/${counts['operate']} + ${counts['corporate-enablement']}`;
   console.log('PATTERN:', pattern);
-  console.log('EXPECTED: 3/5/3/2/4/2 + 2');
-  console.log('MATCHES EXACT SPEC:', pattern === '3/5/3/2/4/2 + 2');
+  console.log('EXPECTED: 3/5/2/2/3/4 + 2');
+  console.log('MATCHES EXACT SPEC:', pattern === '3/5/2/2/3/4 + 2');
 }
 
 main()

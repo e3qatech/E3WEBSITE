@@ -74,7 +74,7 @@ export default async function PackageMicrositePage(props: {
   });
 
   return (
-    <div className="min-h-screen bg-[var(--surface-default)] pt-20">
+    <div className="min-h-screen bg-[var(--surface-default)]">
       <PackageMicrositeClient
         locale={locale}
         pkg={pkg}

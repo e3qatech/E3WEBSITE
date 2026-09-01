@@ -707,9 +707,18 @@ export const PRESENTATION_GROUPS = [
     subtitleAr: 'المشاريع والفعاليات',
   },
   {
+    key: 'amplify',
+    stageId: 'amplify',
+    stageNumber: '04',
+    labelEn: 'Amplify',
+    labelAr: 'التطوير',
+    subtitleEn: 'Technology & Systems',
+    subtitleAr: 'التكنولوجيا والأنظمة',
+  },
+  {
     key: 'build',
     stageId: 'build',
-    stageNumber: '04',
+    stageNumber: '05',
     labelEn: 'Build',
     labelAr: 'التنفيذ',
     subtitleEn: 'Production & Logistics',
@@ -718,20 +727,11 @@ export const PRESENTATION_GROUPS = [
   {
     key: 'operate',
     stageId: 'operate',
-    stageNumber: '05',
+    stageNumber: '06',
     labelEn: 'Operate',
     labelAr: 'التشغيل',
     subtitleEn: 'Operations & Guest Experience',
     subtitleAr: 'العمليات وتجربة الزوار',
-  },
-  {
-    key: 'amplify',
-    stageId: 'amplify',
-    stageNumber: '06',
-    labelEn: 'Amplify',
-    labelAr: 'التطوير',
-    subtitleEn: 'Technology & Systems',
-    subtitleAr: 'التكنولوجيا والأنظمة',
   },
   {
     key: 'corporate-enablement',
@@ -771,27 +771,27 @@ export const PRESENTATION_GROUPS = [
     subtitleAr: 'المشاريع والفعاليات',
   },
   {
-    key: 'operations-guest-exp',
-    stageId: 'operate',
-    stageNumber: '05',
-    labelEn: 'Operations & Guest Experience',
-    labelAr: 'العمليات وتجربة الزوار',
-    subtitleEn: 'Operations & Guest Experience',
-    subtitleAr: 'العمليات وتجربة الزوار',
-  },
-  {
     key: 'technology-systems',
     stageId: 'amplify',
-    stageNumber: '06',
+    stageNumber: '04',
     labelEn: 'Technology & Systems',
     labelAr: 'التكنولوجيا والأنظمة',
     subtitleEn: 'Technology & Systems',
     subtitleAr: 'التكنولوجيا والأنظمة',
   },
   {
+    key: 'operations-guest-exp',
+    stageId: 'operate',
+    stageNumber: '06',
+    labelEn: 'Operations & Guest Experience',
+    labelAr: 'العمليات وتجربة الزوار',
+    subtitleEn: 'Operations & Guest Experience',
+    subtitleAr: 'العمليات وتجربة الزوار',
+  },
+  {
     key: 'food-beverage',
     stageId: 'operate',
-    stageNumber: '05',
+    stageNumber: '06',
     labelEn: 'Food & Beverage',
     labelAr: 'الأغذية والمشروبات',
     subtitleEn: 'Operations & Guest Experience',
@@ -803,7 +803,7 @@ export type PresentationGroupKey = (typeof PRESENTATION_GROUPS)[number]['key'];
 
 /**
  * Explicit Canonical Mapping Table for All 21 Active Roster Members
- * (Direction: 3, Imagine: 5, Plan: 3, Build: 2, Operate: 4, Amplify: 2, Corporate Enablement: 2)
+ * (Direction: 3, Imagine: 5, Plan: 2, Amplify: 2, Build: 3, Operate: 4, Corporate Enablement: 2)
  */
 export const CANONICAL_PERSON_PRESENTATION_GROUP_MAP: Record<string, string> = {
   // Direction — Leadership & Strategy (3)
@@ -820,25 +820,25 @@ export const CANONICAL_PERSON_PRESENTATION_GROUP_MAP: Record<string, string> = {
   'amaan-malik': 'imagine',
   'mohamed-chakib-djerfaf': 'imagine',
 
-  // Plan — Projects & Events (3)
+  // Plan — Projects & Events (2)
   'ebrahim-karolia': 'plan',
-  'arslan-arshad': 'plan',
   'marcialou-macatangay': 'plan',
 
-  // Build — Production & Logistics (2)
+  // Amplify — Technology & Systems (2)
+  'rajan-pathak': 'amplify',
+  'izaan-shahid': 'amplify',
+  'muhammad-izaan-shahid': 'amplify',
+
+  // Build — Production & Logistics (3)
   'quasain-ali': 'build',
   'amal-jose': 'build',
+  'arslan-arshad': 'build',
 
   // Operate — Operations & Guest Experience (4)
   'lucian-moldovan': 'operate',
   'ruben-yaralyan': 'operate',
   'asghar-bhatti': 'operate',
   'waqar-asghar': 'operate',
-
-  // Amplify — Technology & Systems (2)
-  'rajan-pathak': 'amplify',
-  'izaan-shahid': 'amplify',
-  'muhammad-izaan-shahid': 'amplify',
 
   // Corporate Enablement (2)
   'reycie-memije': 'corporate-enablement',
@@ -933,10 +933,13 @@ export function resolvePresentationGroup(
     }
   }
 
+  // Helper to find presentation group by canonical key
+  const findGroup = (key: string) => PRESENTATION_GROUPS.find((g) => g.key === key) || PRESENTATION_GROUPS[0];
+
   // 3. Name-matching fallback
   const fullName = `${member.firstName || ''} ${member.lastName || ''}`.toLowerCase().trim();
   if (fullName.includes('kubaisi') || fullName.includes('adil ahmed') || fullName.includes('awada')) {
-    const found = PRESENTATION_GROUPS[0];
+    const found = findGroup('direction');
     return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
   }
   if (
@@ -948,21 +951,24 @@ export function resolvePresentationGroup(
     fullName.includes('djerfaf') ||
     fullName.includes('chakib')
   ) {
-    const found = PRESENTATION_GROUPS[1];
+    const found = findGroup('imagine');
     return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
   }
   if (
     fullName.includes('ebrahim') ||
     fullName.includes('karolia') ||
-    fullName.includes('arslan') ||
     fullName.includes('macatangay') ||
     fullName.includes('marcialou')
   ) {
-    const found = PRESENTATION_GROUPS[2];
+    const found = findGroup('plan');
     return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
   }
-  if (fullName.includes('quasain') || fullName.includes('amal jose')) {
-    const found = PRESENTATION_GROUPS[3];
+  if (fullName.includes('rajan') || fullName.includes('pathak') || fullName.includes('izaan') || fullName.includes('shahid')) {
+    const found = findGroup('amplify');
+    return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
+  }
+  if (fullName.includes('quasain') || fullName.includes('amal jose') || fullName.includes('arslan')) {
+    const found = findGroup('build');
     return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
   }
   if (
@@ -973,11 +979,7 @@ export function resolvePresentationGroup(
     fullName.includes('asghar bhatti') ||
     fullName.includes('waqar')
   ) {
-    const found = PRESENTATION_GROUPS[4];
-    return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
-  }
-  if (fullName.includes('rajan') || fullName.includes('pathak') || fullName.includes('izaan') || fullName.includes('shahid')) {
-    const found = PRESENTATION_GROUPS[5];
+    const found = findGroup('operate');
     return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
   }
   if (
@@ -986,7 +988,7 @@ export function resolvePresentationGroup(
     fullName.includes('mohammed abdulla') ||
     fullName.includes('abdulla')
   ) {
-    const found = PRESENTATION_GROUPS[6];
+    const found = findGroup('corporate-enablement');
     return { key: found.key, label: isAr ? found.labelAr : found.labelEn, labelEn: found.labelEn, labelAr: found.labelAr, stageId: found.stageId };
   }
 
@@ -1006,7 +1008,7 @@ export function resolvePresentationGroup(
     desig.includes('managing director') ||
     desig.includes('president')
   ) {
-    const g = PRESENTATION_GROUPS[0];
+    const g = findGroup('direction');
     return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
   }
 
@@ -1025,7 +1027,7 @@ export function resolvePresentationGroup(
     desig.includes('visualizer') ||
     desig.includes('brand')
   ) {
-    const g = PRESENTATION_GROUPS[1];
+    const g = findGroup('imagine');
     return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
   }
 
@@ -1042,7 +1044,7 @@ export function resolvePresentationGroup(
     desig.includes('full-stack') ||
     desig.includes('systems')
   ) {
-    const g = PRESENTATION_GROUPS[5];
+    const g = findGroup('amplify');
     return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
   }
 
@@ -1057,7 +1059,7 @@ export function resolvePresentationGroup(
     desig.includes('relations') ||
     desig.includes('compliance')
   ) {
-    const g = PRESENTATION_GROUPS[6];
+    const g = findGroup('corporate-enablement');
     return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
   }
 
@@ -1070,7 +1072,7 @@ export function resolvePresentationGroup(
     desig.includes('supervisor') ||
     desig.includes('site manager')
   ) {
-    const g = PRESENTATION_GROUPS[3];
+    const g = findGroup('build');
     return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
   }
 
@@ -1086,12 +1088,12 @@ export function resolvePresentationGroup(
     desig.includes('guest') ||
     desig.includes('f&b')
   ) {
-    const g = PRESENTATION_GROUPS[4];
+    const g = findGroup('operate');
     return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
   }
 
   // Projects & Events / Plan (Default safe fallback)
-  const g = PRESENTATION_GROUPS[2];
+  const g = findGroup('plan');
   return { key: g.key, label: isAr ? g.labelAr : g.labelEn, labelEn: g.labelEn, labelAr: g.labelAr, stageId: g.stageId };
 }
 

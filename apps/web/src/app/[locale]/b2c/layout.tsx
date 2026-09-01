@@ -77,39 +77,39 @@ export default async function B2CLayout({
   const packagesContent = getMergedCMSPageContent("b2c-packages", pageContentMap["b2c-packages"]);
 
   const activeFooterMedia = 
+    settingsMap.b2cFooterMediaUrl || settingsMap.footerMediaUrl || settingsMap.footerBackgroundMediaUrl ||
     landingContent?.footerMedia?.mediaUrl || landingContent?.footerMediaUrl || landingContent?.footerBackgroundMediaUrl || landingContent?.footerMedia?.backgroundImage || landingContent?.cta?.backgroundImage || landingContent?.cta?.mediaUrl ||
     discoverContent?.footerMediaUrl || discoverContent?.footer?.backgroundMediaUrl ||
     attractionsContent?.footerMedia?.mediaUrl ||
     calendarContent?.footerMedia?.mediaUrl ||
-    packagesContent?.footerMedia?.mediaUrl ||
-    settingsMap.footerMediaUrl || settingsMap.footerBackgroundMediaUrl;
+    packagesContent?.footerMedia?.mediaUrl;
 
   const activeFooterMediaType = 
+    settingsMap.b2cFooterMediaType || settingsMap.footerMediaType || settingsMap.footerBackgroundMediaType ||
     landingContent?.footerMedia?.mediaType || landingContent?.footerMediaType || landingContent?.footerBackgroundMediaType || landingContent?.cta?.mediaType ||
     discoverContent?.footerMediaType || discoverContent?.footer?.backgroundMediaType ||
     attractionsContent?.footerMedia?.mediaType ||
     calendarContent?.footerMedia?.mediaType ||
-    packagesContent?.footerMedia?.mediaType ||
-    settingsMap.footerMediaType || settingsMap.footerBackgroundMediaType || "IMAGE";
+    packagesContent?.footerMedia?.mediaType || "IMAGE";
 
   const activeFooterPosterUrl = 
+    settingsMap.b2cFooterPosterUrl || settingsMap.footerPosterUrl || settingsMap.footerBackgroundPosterUrl ||
     landingContent?.footerMedia?.posterMediaUrl || landingContent?.footerPosterUrl || landingContent?.footerBackgroundPosterUrl || landingContent?.footerMedia?.posterUrl || landingContent?.cta?.posterMediaUrl ||
     discoverContent?.footerPosterUrl || discoverContent?.footer?.backgroundPosterUrl ||
     attractionsContent?.footerMedia?.posterMediaUrl ||
     calendarContent?.footerMedia?.posterMediaUrl ||
-    packagesContent?.footerMedia?.posterMediaUrl ||
-    settingsMap.footerPosterUrl || settingsMap.footerBackgroundPosterUrl;
+    packagesContent?.footerMedia?.posterMediaUrl;
 
   const activeFooterDescriptionEn = 
-    landingContent?.footerDescriptionEn || landingContent?.footerMedia?.descriptionEn || settingsMap.footerDescriptionEn;
+    settingsMap.footerDescriptionEn || landingContent?.footerDescriptionEn || landingContent?.footerMedia?.descriptionEn;
   const activeFooterDescriptionAr = 
-    landingContent?.footerDescriptionAr || landingContent?.footerMedia?.descriptionAr || settingsMap.footerDescriptionAr;
+    settingsMap.footerDescriptionAr || landingContent?.footerDescriptionAr || landingContent?.footerMedia?.descriptionAr;
 
   const mergedFooterSettings = resolvePublicSiteSettings({
     ...settingsMap,
-    ...(activeFooterMedia ? { footerMediaUrl: activeFooterMedia } : {}),
-    ...(activeFooterMediaType ? { footerMediaType: activeFooterMediaType } : {}),
-    ...(activeFooterPosterUrl ? { footerPosterUrl: activeFooterPosterUrl } : {}),
+    ...(activeFooterMedia ? { footerMediaUrl: activeFooterMedia, b2cFooterMediaUrl: activeFooterMedia } : {}),
+    ...(activeFooterMediaType ? { footerMediaType: activeFooterMediaType, b2cFooterMediaType: activeFooterMediaType } : {}),
+    ...(activeFooterPosterUrl ? { footerPosterUrl: activeFooterPosterUrl, b2cFooterPosterUrl: activeFooterPosterUrl } : {}),
     ...(activeFooterDescriptionEn ? { footerDescriptionEn: activeFooterDescriptionEn } : {}),
     ...(activeFooterDescriptionAr ? { footerDescriptionAr: activeFooterDescriptionAr } : {}),
   });
@@ -122,7 +122,7 @@ export default async function B2CLayout({
         <B2CPageShell className="flex flex-col min-h-screen relative text-[var(--text-primary)] bg-[var(--bg-level-1)] transition-colors duration-300">
           <B2CSceneHost preset="ambient-particles" colorAccent="#10b981" />
           <PulseOrbitNav locale={locale} settings={settingsMap} orbitData={orbitData} type="b2c" />
-          <main className="flex-1 pt-20 relative z-10">
+          <main className="flex-1 relative z-10">
             <B2CRouteTransition>{children}</B2CRouteTransition>
           </main>
           <Footer portal="b2c" settings={mergedFooterSettings} />

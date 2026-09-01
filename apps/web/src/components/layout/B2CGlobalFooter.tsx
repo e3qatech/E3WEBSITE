@@ -124,7 +124,7 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
 
   // Background Media Resolution (Image, Video, Iframe, 3D, Spline)
   const footerMediaObj: any = typeof settings.footerMedia === "object" ? settings.footerMedia : null;
-  const bgMediaUrl =
+  const rawMediaInput =
     settings.b2cFooterMediaUrl ||
     settings.footerMediaUrl ||
     settings.footerBackgroundMediaUrl ||
@@ -136,6 +136,15 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
     settings.backgroundPosterUrl ||
     footerMediaObj?.posterUrl ||
     "";
+
+  // Clean iframe tags if pasted raw
+  let bgMediaUrl = rawMediaInput;
+  if (typeof bgMediaUrl === "string" && bgMediaUrl.includes('<iframe') && bgMediaUrl.includes('src=')) {
+    const srcMatch = bgMediaUrl.match(/src=["']([^"']+)["']/i);
+    if (srcMatch && srcMatch[1]) {
+      bgMediaUrl = srcMatch[1].trim();
+    }
+  }
 
   const isSpline = typeof bgMediaUrl === "string" && (bgMediaUrl.includes("spline.design") || bgMediaUrl.includes(".splinecode"));
   let rawType = (settings.b2cFooterMediaType || settings.footerMediaType || footerMediaObj?.mediaType || "").toString().toUpperCase();
@@ -149,7 +158,7 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
   }
 
   const isIframe = rawType === "IFRAME" || rawType === "YOUTUBE" || rawType === "VIMEO" || rawType === "SPLINE" || rawType === "THREE_D";
-  const bgMediaType = isIframe ? rawType : rawType === "VIDEO" ? "VIDEO" : "IMAGE";
+  const bgMediaType = isIframe ? (isSpline ? "SPLINE" : rawType) : rawType === "VIDEO" ? "VIDEO" : "IMAGE";
   let effectiveSrc = bgMediaUrl;
   if (bgMediaType === "IMAGE") {
     effectiveSrc = bgPosterUrl || (!isSpline ? bgMediaUrl : "");
@@ -163,15 +172,18 @@ export function B2CGlobalFooter({ settings = {} }: B2CGlobalFooterProps) {
     <footer className="relative bg-neutral-950 text-neutral-200 border-t border-neutral-800/80 pt-16 pb-10 overflow-hidden font-sans">
       {/* Atmospheric Background Media Scrim (Image, Video, Iframe, 3D, Spline) */}
       {(effectiveSrc || bgPosterUrl) && (
-        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden opacity-30 pointer-events-none">
-          <UniversalMediaRenderer
-            src={effectiveSrc || bgPosterUrl}
-            type={bgMediaType as any}
-            alt="B2C Footer Atmospheric Media"
-            className="w-full h-full object-cover"
-            poster={bgPosterUrl}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950 via-neutral-950/90 to-neutral-950 z-[1] pointer-events-none" />
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-none">
+          <div className="w-full h-full opacity-65">
+            <UniversalMediaRenderer
+              src={effectiveSrc || bgPosterUrl}
+              type={bgMediaType as any}
+              alt="B2C Footer Atmospheric Media"
+              className="w-full h-full object-cover"
+              poster={bgPosterUrl}
+            />
+          </div>
+          {/* Soft translucent gradient to ensure crisp text readability while showcasing the 3D scene / video / image */}
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/75 via-neutral-950/30 to-neutral-950/85 z-[1] pointer-events-none" />
         </div>
       )}
 

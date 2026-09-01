@@ -69,8 +69,20 @@ export const E3_JOURNEY_STAGES: StageConfig[] = [
     accentColor: "#818cf8", // Indigo
   },
   {
-    id: "build",
+    id: "amplify",
     number: "04",
+    nameEn: "Amplify",
+    nameAr: "التطوير",
+    subtitleEn: "Technology & Systems",
+    subtitleAr: "التكنولوجيا والأنظمة",
+    descriptionEn: "Advanced AV infrastructure, interactive systems, software automation, and digital audience engagement.",
+    descriptionAr: "الشبكات السمعية والبصرية المتقدمة، والتقنيات التفاعلية، وأنظمة البرمجيات الرقمية.",
+    icon: Cpu,
+    accentColor: "#34d399", // Emerald
+  },
+  {
+    id: "build",
+    number: "05",
     nameEn: "Build",
     nameAr: "التنفيذ",
     subtitleEn: "Production & Logistics",
@@ -82,7 +94,7 @@ export const E3_JOURNEY_STAGES: StageConfig[] = [
   },
   {
     id: "operate",
-    number: "05",
+    number: "06",
     nameEn: "Operate",
     nameAr: "التشغيل",
     subtitleEn: "Operations & Guest Experience",
@@ -91,18 +103,6 @@ export const E3_JOURNEY_STAGES: StageConfig[] = [
     descriptionAr: "التشغيل الحي المتقن، وإدارة حركة الحشود، والضيافة الرفيعة، وبروتوكولات السلامة الميدانية.",
     icon: Activity,
     accentColor: "#a78bfa", // Purple
-  },
-  {
-    id: "amplify",
-    number: "06",
-    nameEn: "Amplify",
-    nameAr: "التطوير",
-    subtitleEn: "Technology & Systems",
-    subtitleAr: "التكنولوجيا والأنظمة",
-    descriptionEn: "Advanced AV infrastructure, interactive systems, software automation, and digital audience engagement.",
-    descriptionAr: "الشبكات السمعية والبصرية المتقدمة، والتقنيات التفاعلية، وأنظمة البرمجيات الرقمية.",
-    icon: Cpu,
-    accentColor: "#34d399", // Emerald
   },
 ];
 
