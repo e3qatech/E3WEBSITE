@@ -1422,7 +1422,9 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                       <MediaUploader
                         value={logoUrl}
                         onChange={url => { setLogoUrl(url); markDirty(); }}
-                        placeholder="Upload brand emblem"
+                        placeholder="Upload brand emblem (SVG, PNG, WebP)"
+                        context="brand_logo"
+                        accept="image/svg+xml,image/png,image/jpeg,image/webp,image/*"
                       />
                     </div>
 

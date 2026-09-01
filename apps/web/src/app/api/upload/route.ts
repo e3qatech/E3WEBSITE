@@ -57,12 +57,32 @@ async function checkUploadAuth(context?: string | null): Promise<boolean> {
     if (!session?.user) return false;
 
     const userRole = (session.user as any)?.role;
+    if (!userRole) return false;
+
+    // Direct role allowlist for all admin/staff roles
+    const adminRoles = [
+      'SUPER_ADMIN',
+      'ADMIN',
+      'SUPPORT_ADMIN',
+      'SALES_ADMIN',
+      'B2C_ADMIN',
+      'B2B_ADMIN',
+      'HR_ADMIN',
+      'OPERATIONS_ADMIN',
+      'MARKETING_DIRECTOR',
+      'STAFF'
+    ];
+
+    if (adminRoles.includes(userRole)) {
+      return true;
+    }
+
     return (
-      hasPermission(userRole, 'media.upload') ||
-      hasPermission(userRole, 'content.media.manage') ||
-      userRole === 'SUPER_ADMIN' ||
-      userRole === 'ADMIN' ||
-      userRole === 'MARKETING_DIRECTOR'
+      hasPermission(userRole, 'media.write') ||
+      hasPermission(userRole, 'media.read') ||
+      hasPermission(userRole, 'b2c.content.write') ||
+      hasPermission(userRole, 'b2c.attractions.manage') ||
+      hasPermission(userRole, 'b2b.content.write')
     );
   } catch (e) {
     console.error('[Upload Auth Exception]', e);
