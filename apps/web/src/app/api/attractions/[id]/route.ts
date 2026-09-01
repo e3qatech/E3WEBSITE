@@ -17,13 +17,17 @@ export async function GET(
     }
 
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
-    const baseSlugKey = (id || "").split('-')[0] || id;
-    const attraction = await db.attraction.findFirst({
+    const normalizedSlug = (id || "").toLowerCase().trim();
+    const altSlug1 = normalizedSlug.replace('inflata-park', 'inflatapark');
+    const altSlug2 = normalizedSlug.replace('inflatapark', 'inflata-park');
+
+    let attraction = await db.attraction.findFirst({
       where: isUuid ? { id } : {
         OR: [
           { slug: id },
-          { slug: { startsWith: id } },
-          { slug: { contains: baseSlugKey, mode: 'insensitive' } }
+          { slug: normalizedSlug },
+          { slug: altSlug1 },
+          { slug: altSlug2 }
         ]
       },
       include: {
@@ -34,6 +38,25 @@ export async function GET(
         temporalRules: true,
       },
     });
+
+    if (!attraction && !isUuid) {
+      attraction = await db.attraction.findFirst({
+        where: {
+          OR: [
+            { slug: { startsWith: normalizedSlug } },
+            { slug: { startsWith: altSlug1 } },
+            { slug: { startsWith: altSlug2 } }
+          ]
+        },
+        include: {
+          pricing: true,
+          offers: true,
+          faqs: { orderBy: { orderIndex: 'asc' } },
+          gallery: { orderBy: { orderIndex: 'asc' } },
+          temporalRules: true,
+        },
+      });
+    }
 
     if (!attraction || attraction.isHidden) {
       return NextResponse.json({ error: 'Attraction not found' }, { status: 404 });

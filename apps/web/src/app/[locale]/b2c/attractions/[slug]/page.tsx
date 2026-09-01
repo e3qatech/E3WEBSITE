@@ -30,16 +30,19 @@ import { getCuratedAttractionDetails } from "@/lib/attraction-curated-defaults"
 
 async function getAttractionData(slug: string) {
   const normalizedSlug = (slug || "").toLowerCase().trim()
-  const baseSlugKey = normalizedSlug.split('-')[0] || normalizedSlug
+  const cleanDashSlug = normalizedSlug.replace(/--+/g, '-')
+  const altSlug1 = normalizedSlug.replace('inflata-park', 'inflatapark')
+  const altSlug2 = normalizedSlug.replace('inflatapark', 'inflata-park')
 
-  const attraction = await db.attraction.findFirst({
+  // Step 1: Exact match query
+  let attraction = await db.attraction.findFirst({
     where: {
       OR: [
         { slug: normalizedSlug },
-        { slug: slug },
-        { slug: { startsWith: normalizedSlug } },
-        { slug: { contains: baseSlugKey, mode: 'insensitive' } },
-        { nameEn: { contains: baseSlugKey, mode: 'insensitive' } }
+        { slug: cleanDashSlug },
+        { slug: altSlug1 },
+        { slug: altSlug2 },
+        { slug: slug }
       ]
     },
     include: {
@@ -67,6 +70,43 @@ async function getAttractionData(slug: string) {
       }
     }
   })
+
+  // Step 2: Fallback to exact prefix match ONLY if no exact match found
+  if (!attraction) {
+    attraction = await db.attraction.findFirst({
+      where: {
+        OR: [
+          { slug: { startsWith: normalizedSlug } },
+          { slug: { startsWith: altSlug1 } },
+          { slug: { startsWith: altSlug2 } }
+        ]
+      },
+      include: {
+        pricing: true,
+        offers: true,
+        faqs: { orderBy: { orderIndex: "asc" } },
+        gallery: { orderBy: { orderIndex: "asc" } },
+        featuresList: {
+          include: {
+            storyTypes: true,
+            linkedBrand: true
+          },
+          orderBy: { orderIndex: "asc" }
+        },
+        temporalRules: true,
+        brandPlacements: {
+          include: {
+            brand: true
+          }
+        },
+        attractionLocations: {
+          include: {
+            location: true
+          }
+        }
+      }
+    })
+  }
 
   if (!attraction) return null
 
@@ -266,19 +306,35 @@ export async function generateMetadata(props: { params: Promise<{ slug: string, 
   const params = await props.params
   const { slug, locale } = params
   const canonicalSlug = slug === "urban-arena-doha-mall" ? "urban-arena" : slug
-  const baseSlugKey = (canonicalSlug || "").split('-')[0] || canonicalSlug
+  const normalizedSlug = (canonicalSlug || "").toLowerCase().trim()
+  const altSlug1 = normalizedSlug.replace('inflata-park', 'inflatapark')
+  const altSlug2 = normalizedSlug.replace('inflatapark', 'inflata-park')
 
-  const attraction = await db.attraction.findFirst({
+  let attraction = await db.attraction.findFirst({
     where: {
       OR: [
+        { slug: normalizedSlug },
+        { slug: altSlug1 },
+        { slug: altSlug2 },
         { slug: canonicalSlug },
-        { slug: slug },
-        { slug: { startsWith: canonicalSlug } },
-        { slug: { contains: baseSlugKey, mode: 'insensitive' } }
+        { slug: slug }
       ]
     },
     select: { nameEn: true, nameAr: true, descriptionEn: true, descriptionAr: true, slug: true, heroMediaUrl: true }
   })
+
+  if (!attraction) {
+    attraction = await db.attraction.findFirst({
+      where: {
+        OR: [
+          { slug: { startsWith: normalizedSlug } },
+          { slug: { startsWith: altSlug1 } },
+          { slug: { startsWith: altSlug2 } }
+        ]
+      },
+      select: { nameEn: true, nameAr: true, descriptionEn: true, descriptionAr: true, slug: true, heroMediaUrl: true }
+    })
+  }
   
   if (!attraction) return { title: "Attraction Not Found | E3 Qatar" }
 
@@ -327,7 +383,8 @@ export default async function AttractionDetailPage(props: { params: Promise<{ sl
     "urban-arena-doha-mall": "urban-arena",
     "rush-action-park": "urban-arena",
     "inflatarun-qatar": "inflatarun-2025",
-    "inflatacity-city-center": "inflatapark-city-center-doha",
+    "inflatacity-city-center": "inflata-park-city-center-doha",
+    "inflatapark-city-center-doha": "inflata-park-city-center-doha",
     "spongebob-squarepants-paw-patrol-activation-meryal": "winter-activation-place-vendome",
   };
 
