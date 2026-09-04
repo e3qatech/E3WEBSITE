@@ -279,10 +279,82 @@ export async function POST(req: NextRequest) {
     sendInternalPackageLeadAlert(notificationPayload).catch(console.warn)
     sendCustomerLeadAcknowledgement(notificationPayload).catch(console.warn)
 
-    // Return safe public reference without exposing internal CRM fields
+    // 10. Automatically generate official PackageQuotation for instant PDF, share, and payment
+    let quotation: any = null
+    try {
+      const datePrefix = new Date().toISOString().slice(2, 10).replace(/-/g, "")
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000)
+      const quoteNumber = `E3-QTE-${datePrefix}-${randomSuffix}`
+      const validUntil = new Date()
+      validUntil.setDate(validUntil.getDate() + 14)
+
+      const quoteItems: any[] = []
+      const basePrice = calculatedEstimatedValue || linkedPackage?.startingPrice || 1200
+
+      quoteItems.push({
+        itemType: "PACKAGE_TIER",
+        titleEn: `${linkedPackage?.titleEn || "Package Admission"} (${validated.selectedTierName || "Standard Tier"})`,
+        titleAr: `${linkedPackage?.titleAr || "رسوم الباقة"} (${validated.selectedTierName || "الفئة القياسية"})`,
+        quantity: 1,
+        unitPrice: basePrice,
+        totalPrice: basePrice,
+        sortOrder: 0
+      })
+
+      if (Array.isArray(validated.selectedAddOns)) {
+        validated.selectedAddOns.forEach((a: any, idx: number) => {
+          const qty = a.qty || a.quantity || 1
+          const price = a.price || 0
+          quoteItems.push({
+            itemType: "ADD_ON",
+            titleEn: a.titleEn || a.name || `Add-on #${idx + 1}`,
+            titleAr: a.titleAr || a.name || `إضافة #${idx + 1}`,
+            quantity: qty,
+            unitPrice: price,
+            totalPrice: price * qty,
+            sortOrder: idx + 1
+          })
+        })
+      }
+
+      const grandTotal = calculatedEstimatedValue || 1200
+      const depositAmount = Math.round(grandTotal * 0.5)
+
+      quotation = await db.packageQuotation.create({
+        data: {
+          quoteNumber,
+          version: 1,
+          leadId: lead.id,
+          packageId: validated.packageId || undefined,
+          customerName: validated.customerName,
+          customerEmail: validated.email,
+          customerPhone: validated.phone || null,
+          companyOrOrg: validated.companyOrOrg || null,
+          eventDate: validated.preferredDate ? new Date(validated.preferredDate) : null,
+          validUntil,
+          currency: "QAR",
+          subtotal: grandTotal,
+          discountTotal: 0,
+          grandTotal,
+          depositAmount,
+          status: "SENT",
+          sentAt: new Date(),
+          createdById: "Instant Customer Enquiry",
+          items: {
+            create: quoteItems
+          }
+        }
+      })
+    } catch (qErr) {
+      console.warn("[Package Lead Quote Auto-Creation Notice]:", qErr)
+    }
+
+    // Return safe public reference and quote details
     return NextResponse.json({
       success: true,
       referenceNumber: formattedLeadId,
+      quoteNumber: quotation?.quoteNumber || formattedLeadId,
+      quoteId: quotation?.id || null,
       customerName: lead.customerName,
       message: "Thank you! Your package inquiry has been received. Our team will contact you shortly."
     })

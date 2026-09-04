@@ -22,6 +22,7 @@ import { InteractiveCard } from "@/components/ui/InteractiveCard"
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer"
 import { PackageEnquiryModal } from "@/components/b2c/PackageEnquiryModal"
 import { E3LivingHero } from "@/components/b2c/hero/E3LivingHero"
+import { PackageGalleryShowcase } from "@/components/b2c/packages/PackageGalleryShowcase"
 import { cn } from "@/lib/utils"
 
 export function PackageMicrositeClient({
@@ -60,7 +61,7 @@ export function PackageMicrositeClient({
   const [couponLoading, setCouponLoading] = useState(false)
   const [couponError, setCouponError] = useState<string | null>(null)
   const [openFaqId, setOpenFaqId] = useState<string | null>(null)
-  const [_isTermsOpen, setIsTermsOpen] = useState(false)
+  const [isTermsOpen, setIsTermsOpen] = useState(false)
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false)
 
   // Dynamic Price Breakdown
@@ -666,7 +667,18 @@ export function PackageMicrositeClient({
           </div>
         </div>
 
-        {/* 5. FAQS ACCORDION */}
+        {/* 5. MEDIA & VIDEO GALLERY SHOWCASE */}
+        <PackageGalleryShowcase
+          gallery={Array.isArray(pkg.gallery) ? pkg.gallery : []}
+          coverMediaUrl={pkg.coverMediaUrl}
+          heroMediaUrl={pkg.heroMediaUrl}
+          heroMediaType={pkg.heroMediaType}
+          packageName={title}
+          locale={locale}
+          venueName={pkg.attraction ? (isAr ? (pkg.attraction.nameAr || pkg.attraction.nameEn) : pkg.attraction.nameEn) : undefined}
+        />
+
+        {/* 6. FAQS ACCORDION */}
         {faqs.length > 0 && (
           <div className="max-w-4xl mx-auto space-y-6">
             <h2 className="text-2xl md:text-3xl font-black font-display uppercase tracking-tight text-center">
@@ -697,15 +709,106 @@ export function PackageMicrositeClient({
           </div>
         )}
 
-        {/* 6. TERMS & CONDITIONS MODAL TRIGGER */}
+        {/* 7. TERMS & CONDITIONS MODAL TRIGGER */}
         <div className="text-center pt-8 border-t border-[var(--border-level-2)]">
           <button
             onClick={() => setIsTermsOpen(true)}
             className="text-xs font-bold uppercase text-[var(--text-secondary)] hover:text-[var(--e3-royal-blue)] underline transition-colors cursor-pointer"
           >
-            {isAr ? "عرض الشروط والأحكام الكاملة وسياسة الإلغاء" : "View Full Package Terms & Cancellation Policy"}
+            {isAr ? "عرض الشروط والأحكام الكاملة وسياسة الإلغاء للوجهة" : "View Full Venue Terms & Cancellation Policy"}
           </button>
         </div>
+
+        {/* VENUE-SPECIFIC TERMS & CONDITIONS MODAL */}
+        {isTermsOpen && (
+          <div
+            onClick={() => setIsTermsOpen(false)}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          >
+            <div
+              onClick={e => e.stopPropagation()}
+              className="relative w-full max-w-2xl bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] p-6 md:p-8 space-y-6 max-h-[85vh] overflow-y-auto text-[var(--text-primary)] shadow-2xl custom-scrollbar"
+            >
+              <div className="flex items-center justify-between border-b border-[var(--border-level-2)] pb-4">
+                <div>
+                  <span className="text-[10px] font-mono text-[var(--e3-royal-blue)] font-bold uppercase block">
+                    {isAr ? "شروط وقواعد الوجهة" : "Venue-Specific Policies"}
+                  </span>
+                  <h3 className="text-xl font-bold">
+                    {isAr ? `الشروط والأحكام - ${title}` : `Terms & Conditions — ${title}`}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setIsTermsOpen(false)}
+                  className="w-8 h-8 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] flex items-center justify-center text-[var(--text-secondary)] hover:text-white transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Venue Rules */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)]">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                  <span>{isAr ? "قواعد الوجهة وإرشادات السلامة" : "Venue & Safety Regulations"}</span>
+                </div>
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed p-4 rounded-2xl bg-[var(--surface-hover)]/40 border border-[var(--border-level-2)]">
+                  {pkg?.termsConditions?.venueRulesEn || (isAr
+                    ? "يجب على جميع المشاركين الالتزام بإرشادات السلامة العامة في الوجهة. يُشترط ارتداء الجوارب المانعة للانزلاق لجميع أنشطة الترامبولين والمغامرة الحركية. يمنع إدخال المأكولات والمشروبات من خارج الوجهة ما عدا كعكة الاحتفال المنسق لها مسبقاً. يجب مرافقة الأطفال دون سن السابعة من قبل شخص بالغ."
+                    : "All participants must adhere to venue safety protocols. Anti-slip grip socks are strictly required for active jumping and adventure arenas. Outside catering is not permitted with the exception of pre-coordinated celebration cakes. Children under 7 must be accompanied by an adult guardian.")
+                  }
+                </p>
+              </div>
+
+              {/* Cancellation Policy */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)]">
+                  <RotateCcw className="w-4 h-4 text-amber-500" />
+                  <span>{isAr ? "سياسة الإلغاء وتعديل الموعد" : "Cancellation & Rescheduling Policy"}</span>
+                </div>
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed p-4 rounded-2xl bg-[var(--surface-hover)]/40 border border-[var(--border-level-2)]">
+                  {pkg?.termsConditions?.cancellationPolicyEn || (isAr
+                    ? "تخضع الحجوزات لسياسة الإلغاء المرنة: استرداد كامل للدفعة المقدمة عند الإشعار قبل ٧ أيام تقويمية على الأقل من موعد الفعالية. في حال الإلغاء قبل ٤٨ إلى ٧٢ ساعة، يمكن إعادة جدولة الفعالية خلال ٦ أشهر دون رسوم إضافية. الإلغاء قبل أقل من ٤٨ ساعة غير قابل للاسترداد."
+                    : "Bookings are subject to our venue policy: 100% deposit refund for cancellations received 7+ calendar days in advance. Cancellations made 48-72 hours prior permit date rescheduling valid for up to 6 months at no fee. Cancellations with less than 48 hours notice forfeit the deposit.")
+                  }
+                </p>
+              </div>
+
+              {/* Custom Clauses */}
+              {Array.isArray(pkg?.termsConditions?.customClauses) && pkg.termsConditions.customClauses.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-xs font-bold text-[var(--text-primary)] block">
+                    {isAr ? "بنود إضافية خاصة بهذه الوجهة:" : "Specific Venue Clauses:"}
+                  </span>
+                  <div className="space-y-2">
+                    {pkg.termsConditions.customClauses.map((clause: any, idx: number) => (
+                      <div key={idx} className="p-3.5 rounded-xl bg-[var(--surface-hover)]/40 border border-[var(--border-level-2)] text-xs text-[var(--text-secondary)]">
+                        <strong className="text-[var(--text-primary)] block mb-1">
+                          {isAr ? (clause.titleAr || clause.titleEn) : clause.titleEn}
+                        </strong>
+                        <span>{isAr ? (clause.ruleAr || clause.ruleEn) : clause.ruleEn}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* PDPL Qatar Compliance */}
+              <div className="p-4 rounded-2xl bg-[var(--surface-hover)]/30 border border-[var(--border-level-2)] text-[11px] text-[var(--text-tertiary)] leading-relaxed">
+                <strong>{isAr ? "حماية البيانات الشخصية (PDPL):" : "Qatar PDPL Compliance:"}</strong>{" "}
+                {isAr
+                  ? "أوافق على شروط باقات إي ثري، قواعد الفعاليات، وسياسة حماية البيانات الشخصية في قطر (PDPL). يتم حفظ واستخدام البيانات حصرياً لإتمام وتنسيق الحجز."
+                  : "All booking details are maintained under Qatar Personal Data Privacy Law (PDPL) solely for reservation coordination and event execution."}
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button onClick={() => setIsTermsOpen(false)} className="text-xs font-bold px-6">
+                  {isAr ? "فهمت وموافق" : "Understood & Close"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* STICKY BOTTOM ENQUIRY BAR */}

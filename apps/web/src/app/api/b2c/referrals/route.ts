@@ -29,6 +29,14 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ valid: false, message: "Invalid or inactive referral code" }, { status: 400 })
       }
 
+      const now = new Date()
+      if (referral.programme.validFrom && now < new Date(referral.programme.validFrom)) {
+        return NextResponse.json({ valid: false, message: "Referral code is not yet active" }, { status: 400 })
+      }
+      if (referral.programme.validTo && now > new Date(referral.programme.validTo)) {
+        return NextResponse.json({ valid: false, message: "Referral code has expired" }, { status: 400 })
+      }
+
       // Return only public reward details without private owner identity
       return NextResponse.json({
         valid: true,
@@ -86,7 +94,11 @@ export async function POST(req: NextRequest) {
       code,
       ownerName,
       ownerEmail,
-      ownerPhone
+      ownerPhone,
+      validFrom,
+      validTo,
+      usageLimit,
+      notes
     } = body
 
     if (type === "code") {
@@ -124,6 +136,10 @@ export async function POST(req: NextRequest) {
         rewardType: rewardType || "DISCOUNT",
         referrerReward,
         referredCustomerReward,
+        validFrom: validFrom ? new Date(validFrom) : null,
+        validTo: validTo ? new Date(validTo) : null,
+        usageLimit: usageLimit ? parseInt(usageLimit) : null,
+        notes: notes ? String(notes).trim() : null,
         status: "ACTIVE"
       }
     })

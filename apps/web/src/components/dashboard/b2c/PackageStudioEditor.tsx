@@ -128,6 +128,13 @@ export function PackageStudioEditor({
     addOns: Array.isArray(initialData?.addOns) ? initialData.addOns : [],
     journeySteps: Array.isArray(initialData?.journeySteps) ? initialData.journeySteps : [],
     faqs: Array.isArray(initialData?.faqs) ? initialData.faqs : [],
+    termsConditions: initialData?.termsConditions || {
+      venueRulesEn: "",
+      venueRulesAr: "",
+      cancellationPolicyEn: "",
+      cancellationPolicyAr: "",
+      customClauses: []
+    },
     metaTitleEn: initialData?.seo?.metaTitleEn || "",
     metaTitleAr: initialData?.seo?.metaTitleAr || "",
     metaDescriptionEn: initialData?.seo?.metaDescriptionEn || "",
@@ -292,6 +299,57 @@ export function PackageStudioEditor({
       ...prev,
       journeySteps: prev.journeySteps.filter((_: any, i: number) => i !== index),
     }));
+  };
+
+  // Venue-Specific Terms & Conditions Management
+  const addCustomClause = () => {
+    const prevClauses = Array.isArray(form.termsConditions?.customClauses)
+      ? form.termsConditions.customClauses
+      : []
+    setForm((prev) => ({
+      ...prev,
+      termsConditions: {
+        ...prev.termsConditions,
+        customClauses: [
+          ...prevClauses,
+          {
+            id: `clause-${Date.now()}`,
+            titleEn: "Safety & Footwear",
+            titleAr: "إرشادات السلامة والأحذية",
+            ruleEn: "Grip socks are mandatory for all active attractions. Outside catering strictly restricted.",
+            ruleAr: "الجوارب المانعة للانزلاق إلزامية لجميع الأنشطة الحركية. يُمنع إدخال أطعمة من الخارج."
+          }
+        ]
+      }
+    }))
+  };
+
+  const removeCustomClause = (index: number) => {
+    const prevClauses = Array.isArray(form.termsConditions?.customClauses)
+      ? form.termsConditions.customClauses
+      : []
+    setForm((prev) => ({
+      ...prev,
+      termsConditions: {
+        ...prev.termsConditions,
+        customClauses: prevClauses.filter((_: any, i: number) => i !== index)
+      }
+    }))
+  };
+
+  const importVenueDefaults = () => {
+    const selectedAttraction = attractions.find(a => a.id === form.attractionId)
+    const venueName = selectedAttraction ? selectedAttraction.nameEn : "E3 Venue"
+    setForm((prev) => ({
+      ...prev,
+      termsConditions: {
+        ...prev.termsConditions,
+        venueRulesEn: `All participants at ${venueName} must adhere to on-site marshal instructions. Grip socks required in all adventure zones. Outside catering prohibited except celebration cake.`,
+        venueRulesAr: `يجب على جميع المشاركين في ${selectedAttraction?.nameAr || "وجهة إي ثري"} الالتزام بتوجيهات المشرفين. ارتداء الجوارب المانعة للانزلاق إلزامي. يُمنع إدخال أطعمة خارجية باستثناء كعكة الحفل المعتمدة.`,
+        cancellationPolicyEn: "100% deposit refund for cancellations received 7+ days prior to event. Rescheduling permitted within 48 hours notice for up to 6 months.",
+        cancellationPolicyAr: "استرداد كامل للدفعة المقدمة عند الإلغاء قبل ٧ أيام من موعد الفعالية. يُتاح إعادة الجدولة خلال ٤٨ ساعة لمدة تصل إلى ٦ أشهر."
+      }
+    }))
   };
 
   // Completion calculation
@@ -852,6 +910,161 @@ export function PackageStudioEditor({
                   className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
                 />
               </div>
+            </div>
+
+            {/* Venue-Specific Terms & Conditions */}
+            <div className="pt-6 border-t border-[var(--border-default)] space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-sm font-bold text-[var(--text-primary)]">
+                    {isAr ? "الشروط والأحكام الخاصة بالوجهة وسياسة الإلغاء" : "Venue-Specific Terms & Cancellation Rules"}
+                  </h4>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {isAr
+                      ? "تحديد القواعد الخاصة بكل وجهة (مثل الجوارب المانعة للانزلاق، سياسة المأكولات، شروط الإلغاء)."
+                      : "Configure per-package conditions tailored to the venue (e.g. grip socks, outside catering, refund window)."}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={importVenueDefaults}
+                    className="text-xs gap-1.5 cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    {isAr ? "استيراد الشروط الافتراضية" : "Import Venue Defaults"}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={addCustomClause}
+                    className="text-xs gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    {isAr ? "إضافة بند مخصص" : "Add Custom Clause"}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Venue Rules EN & AR */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    {isAr ? "قواعد وإرشادات الوجهة (إنجليزية)" : "Venue & Safety Rules (English)"}
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={form.termsConditions?.venueRulesEn || ""}
+                    onChange={(e) => setForm({
+                      ...form,
+                      termsConditions: { ...form.termsConditions, venueRulesEn: e.target.value }
+                    })}
+                    placeholder="e.g. All participants must wear venue grip socks. Outside food restricted."
+                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    {isAr ? "قواعد وإرشادات الوجهة (عربية)" : "Venue & Safety Rules (Arabic)"}
+                  </label>
+                  <textarea
+                    rows={3}
+                    dir="rtl"
+                    value={form.termsConditions?.venueRulesAr || ""}
+                    onChange={(e) => setForm({
+                      ...form,
+                      termsConditions: { ...form.termsConditions, venueRulesAr: e.target.value }
+                    })}
+                    placeholder="مثال: ارتداء الجوارب المانعة للانزلاق إلزامي. يُمنع إدخال أطعمة من الخارج."
+                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none font-arabic text-right"
+                  />
+                </div>
+              </div>
+
+              {/* Cancellation Policy EN & AR */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    {isAr ? "سياسة الإلغاء والاسترداد (إنجليزية)" : "Cancellation & Refund Policy (English)"}
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={form.termsConditions?.cancellationPolicyEn || ""}
+                    onChange={(e) => setForm({
+                      ...form,
+                      termsConditions: { ...form.termsConditions, cancellationPolicyEn: e.target.value }
+                    })}
+                    placeholder="e.g. 100% refund for cancellations 7+ days prior to event."
+                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    {isAr ? "سياسة الإلغاء والاسترداد (عربية)" : "Cancellation & Refund Policy (Arabic)"}
+                  </label>
+                  <textarea
+                    rows={2}
+                    dir="rtl"
+                    value={form.termsConditions?.cancellationPolicyAr || ""}
+                    onChange={(e) => setForm({
+                      ...form,
+                      termsConditions: { ...form.termsConditions, cancellationPolicyAr: e.target.value }
+                    })}
+                    placeholder="مثال: استرداد كامل عند الإلغاء قبل ٧ أيام من موعد الحفل."
+                    className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] resize-none font-arabic text-right"
+                  />
+                </div>
+              </div>
+
+              {/* Custom Clauses List */}
+              {Array.isArray(form.termsConditions?.customClauses) && form.termsConditions.customClauses.length > 0 && (
+                <div className="space-y-3 pt-2">
+                  <span className="text-xs font-bold text-[var(--text-secondary)] block">
+                    {isAr ? "البنود المخصصة الإضافية:" : "Custom Venue Clauses:"}
+                  </span>
+                  {form.termsConditions.customClauses.map((clause: any, idx: number) => (
+                    <div key={clause.id || idx} className="p-3 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                      <div className="sm:col-span-3">
+                        <input
+                          type="text"
+                          value={clause.titleEn || ""}
+                          onChange={(e) => {
+                            const next = [...form.termsConditions.customClauses]
+                            next[idx].titleEn = e.target.value
+                            setForm({ ...form, termsConditions: { ...form.termsConditions, customClauses: next } })
+                          }}
+                          placeholder="Clause title (EN)"
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
+                        />
+                      </div>
+                      <div className="sm:col-span-8">
+                        <input
+                          type="text"
+                          value={clause.ruleEn || ""}
+                          onChange={(e) => {
+                            const next = [...form.termsConditions.customClauses]
+                            next[idx].ruleEn = e.target.value
+                            setForm({ ...form, termsConditions: { ...form.termsConditions, customClauses: next } })
+                          }}
+                          placeholder="Specific rule requirement..."
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
+                        />
+                      </div>
+                      <div className="sm:col-span-1 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => removeCustomClause(idx)}
+                          className="p-1.5 text-rose-500 hover:bg-rose-500/10 rounded-lg cursor-pointer transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

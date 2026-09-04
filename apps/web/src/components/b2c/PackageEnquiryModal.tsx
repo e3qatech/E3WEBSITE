@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Check, Send, AlertCircle, Tag, Sparkles, Plus, Minus, Users } from "lucide-react"
+import { X, Check, Send, AlertCircle, Tag, Sparkles, Plus, Minus, Users, Download, Share2, Mail, CreditCard, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
 
@@ -82,6 +82,11 @@ export function PackageEnquiryModal({
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [referenceNumber, setReferenceNumber] = useState<string>("")
+  const [quoteNumber, setQuoteNumber] = useState<string>("")
+  const [quoteId, setQuoteId] = useState<string | null>(null)
+  const [copiedLink, setCopiedLink] = useState(false)
+  const [sendingEmail, setSendingEmail] = useState(false)
+  const [emailDispatched, setEmailDispatched] = useState(false)
   const [errorMsg, setErrorMsg] = useState("")
   const [honeypot, setHoneypot] = useState("")
 
@@ -272,12 +277,45 @@ export function PackageEnquiryModal({
 
       const data = await res.json()
       setReferenceNumber(data.referenceNumber || `E3-LEAD-${Date.now().toString().slice(-6)}`)
+      if (data.quoteNumber) setQuoteNumber(data.quoteNumber)
+      if (data.quoteId) setQuoteId(data.quoteId)
       setSuccess(true)
     } catch (err: any) {
       console.error(err)
       setErrorMsg(err.message || "Failed to submit enquiry. Please try again.")
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const quoteTarget = quoteNumber || referenceNumber
+  const quoteUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/${locale}/packages/quote/${quoteTarget}`
+    : `/${locale}/packages/quote/${quoteTarget}`
+
+  const handleCopyQuoteLink = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(quoteUrl)
+      setCopiedLink(true)
+      setTimeout(() => setCopiedLink(false), 2500)
+    }
+  }
+
+  const handleEmailCustomerQuote = async () => {
+    setSendingEmail(true)
+    try {
+      const qRef = quoteId || quoteTarget
+      await fetch(`/api/b2c/quotations/${qRef}/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, locale })
+      })
+      setEmailDispatched(true)
+      setTimeout(() => setEmailDispatched(false), 4000)
+    } catch {
+      // ignore
+    } finally {
+      setSendingEmail(false)
     }
   }
 
@@ -299,28 +337,84 @@ export function PackageEnquiryModal({
           </button>
 
           {success ? (
-            <div className="text-center py-8 space-y-4">
+            <div className="text-center py-6 space-y-5">
               <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
                 <Check className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-black font-display tracking-tight text-[var(--text-primary)]">
-                {isAr ? "تم استلام طلبك بنجاح!" : "Enquiry Received Successfully!"}
-              </h3>
-              <p className="text-xs text-[var(--text-secondary)] max-w-md mx-auto leading-relaxed">
-                {isAr 
-                  ? "شكراً لك! سيقوم فريق تنسيق الفعاليات في إي ثري بمراجعة التوافر والتواصل معك خلال ٢٤ ساعة لتأكيد التفاصيل."
-                  : "Thank you! Our E3 event concierge team is reviewing your requested dates and will contact you within 24 hours to confirm."
-                }
-              </p>
+              <div>
+                <h3 className="text-2xl font-black font-display tracking-tight text-[var(--text-primary)]">
+                  {isAr ? "تم إنشاء عرض السعر واستلام طلبك!" : "Quotation Generated & Enquiry Received!"}
+                </h3>
+                <p className="text-xs text-[var(--text-secondary)] max-w-md mx-auto mt-1.5 leading-relaxed">
+                  {isAr 
+                    ? "تم إعداد مقترح وعرض السعر الرسمي بنجاح. يمكنك تحميله بصيغة PDF، مشاركته مع الشركاء، أو سداد الدفعة المقدمة لتثبيت الموعد."
+                    : "Your official package quotation is ready! Download the PDF proposal, copy the shareable link, or secure your date with an instant deposit."
+                  }
+                </p>
+              </div>
 
-              {referenceNumber && (
-                <div className="p-3 bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl inline-block font-mono text-xs text-emerald-400 font-bold">
-                  {isAr ? "رقم المرجع:" : "Reference ID:"} {referenceNumber}
+              {/* Reference Badges */}
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <div className="p-2.5 px-3.5 bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl font-mono text-xs text-[var(--color-primary)] font-bold">
+                  {isAr ? "رقم عرض السعر:" : "Quote #:"} {quoteTarget}
                 </div>
-              )}
+                {referenceNumber && referenceNumber !== quoteTarget && (
+                  <div className="p-2.5 px-3.5 bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl font-mono text-xs text-[var(--text-secondary)]">
+                    {isAr ? "طلب حجز:" : "Lead #:"} {referenceNumber}
+                  </div>
+                )}
+              </div>
 
-              <div className="pt-4">
-                <Button onClick={onClose} className="text-xs font-bold">
+              {/* Action Buttons Hub */}
+              <div className="p-4 rounded-2xl bg-[var(--bg-level-1)] border border-[var(--border-level-2)] space-y-3 text-start">
+                <span className="text-[10px] font-mono uppercase text-[var(--text-tertiary)] block font-bold text-center">
+                  {isAr ? "خيارات عرض السعر والدفع" : "Quote Actions & Payment"}
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <a
+                    href={quoteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-[var(--color-primary)] text-xs font-bold text-[var(--text-primary)] transition-all cursor-pointer shadow-xs"
+                  >
+                    <Download className="w-4 h-4 text-sky-500" />
+                    <span>{isAr ? "تحميل عرض السعر (PDF)" : "Download Quote (PDF)"}</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={handleCopyQuoteLink}
+                    className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-[var(--color-primary)] text-xs font-bold text-[var(--text-primary)] transition-all cursor-pointer shadow-xs"
+                  >
+                    <Share2 className="w-4 h-4 text-purple-500" />
+                    <span>{copiedLink ? (isAr ? "تم نسخ الرابط!" : "Link Copied!") : (isAr ? "مشاركة رابط العرض" : "Share Quote Link")}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleEmailCustomerQuote}
+                    disabled={sendingEmail}
+                    className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-[var(--color-primary)] text-xs font-bold text-[var(--text-primary)] transition-all cursor-pointer shadow-xs"
+                  >
+                    <Mail className="w-4 h-4 text-amber-500" />
+                    <span>{emailDispatched ? (isAr ? "تم الإرسال بالبريد!" : "Email Sent!") : (isAr ? "إرسال العرض لإيميلي" : "Email Me Quote")}</span>
+                  </button>
+
+                  <a
+                    href={`${quoteUrl}#payment`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all cursor-pointer shadow-sm"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span>{isAr ? "سداد الدفعة المقدمة" : "Pay Deposit Online"}</span>
+                  </a>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Button onClick={onClose} variant="outline" className="text-xs font-bold">
                   {isAr ? "إغلاق النافذة" : "Close Window"}
                 </Button>
               </div>
