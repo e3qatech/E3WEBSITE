@@ -7,7 +7,23 @@ import {
 } from "@/components/dashboard/ui";
 import { AdminButton } from "../ui/AdminButton";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
-import { FileText, Download, Cpu, Search, Filter, Sparkles, AlertTriangle } from "lucide-react";
+import {
+  FileText,
+  Download,
+  Cpu,
+  Search,
+  Filter,
+  Sparkles,
+  AlertTriangle,
+  Calendar,
+  Video,
+  MapPin,
+  Clock,
+  X,
+  Plus,
+  Building,
+  CheckCircle2,
+} from "lucide-react";
 import { safeFetchJson } from "@/lib/utils";
 import { useLocale } from "@/components/layout/LocaleProvider";
 import { isLegacySimulatedMock } from "@/lib/careers/ai-cv-parser";
@@ -20,6 +36,18 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
   const { toast } = useToast();
   const { locale } = useLocale();
   const isAr = locale === "ar";
+
+  // Recruiter Interview Scheduling Dialog State
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [scheduleRoundName, setScheduleRoundName] = useState("Executive & Domain Assessment");
+  const [scheduleFormat, setScheduleFormat] = useState<"VIRTUAL" | "IN_PERSON">("VIRTUAL");
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleDuration, setScheduleDuration] = useState(45);
+  const [scheduleMeetingUrl, setScheduleMeetingUrl] = useState("https://meet.google.com/e3q-hr-interview");
+  const [scheduleLocation, setScheduleLocation] = useState("E3 Qatar HQ - Level 24, Lusail Marina, Doha");
+  const [scheduleInterviewers, setScheduleInterviewers] = useState("E3 Qatar Talent Board, Production Director");
+  const [scheduleNotes, setScheduleNotes] = useState("");
+  const [isScheduling, setIsScheduling] = useState(false);
 
   const selectedApp = applications.find((a) => a.id === selectedAppId);
 
@@ -67,6 +95,84 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
     }
   };
 
+  const handleOpenScheduleModal = () => {
+    // Default scheduled date to 2 days ahead at 10:00 AM
+    const nextDate = new Date();
+    nextDate.setDate(nextDate.getDate() + 2);
+    nextDate.setHours(10, 0, 0, 0);
+    const localIso = new Date(nextDate.getTime() - nextDate.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
+
+    setScheduleDate(localIso);
+    setIsScheduleModalOpen(true);
+  };
+
+  const handleScheduleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedApp) return;
+
+    if (!scheduleDate) {
+      toast(isAr ? "يرجى تحديد موعد المقابلة" : "Please select interview date and time", "error");
+      return;
+    }
+
+    setIsScheduling(true);
+    try {
+      const res = await fetch(`/api/careers/${selectedApp.id}/interview`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roundName: scheduleRoundName.trim(),
+          format: scheduleFormat,
+          scheduledAt: new Date(scheduleDate).toISOString(),
+          durationMinutes: Number(scheduleDuration) || 45,
+          meetingUrl: scheduleFormat === "VIRTUAL" ? scheduleMeetingUrl.trim() : undefined,
+          location: scheduleFormat === "IN_PERSON" ? scheduleLocation.trim() : undefined,
+          interviewers: scheduleInterviewers.split(",").map((s) => s.trim()).filter(Boolean),
+          notes: scheduleNotes.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to schedule interview");
+      }
+
+      // Update local state with the new interview and updated status
+      setApplications((prev) =>
+        prev.map((app) => {
+          if (app.id === selectedApp.id) {
+            const currentParsed = (app.cvParsedData as any) || {};
+            const existingInterviews = Array.isArray(currentParsed.interviews) ? currentParsed.interviews : [];
+            return {
+              ...app,
+              status: "INTERVIEW",
+              cvParsedData: {
+                ...currentParsed,
+                interviews: [data.interview, ...existingInterviews],
+              },
+            };
+          }
+          return app;
+        })
+      );
+
+      toast(
+        isAr
+          ? "تم جدولة المقابلة بنجاح وتحديث حالة الطلب إلى (مقابلة)."
+          : "Interview scheduled successfully! Application advanced to Interview stage.",
+        "success"
+      );
+      setIsScheduleModalOpen(false);
+    } catch (err: any) {
+      console.error(err);
+      toast(err.message || (isAr ? "فشل جدولة المقابلة" : "Failed to schedule interview"), "error");
+    } finally {
+      setIsScheduling(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "NEW":
@@ -84,6 +190,10 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
     }
   };
 
+  const selectedAppInterviews = Array.isArray(selectedApp?.cvParsedData?.interviews)
+    ? selectedApp.cvParsedData.interviews
+    : [];
+
   return (
     <DashboardPageShell variant="wide">
       <DashboardPageHeader
@@ -98,33 +208,29 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
           { label: isAr ? "طلبات التوظيف" : "Job Applications" },
         ]}
         badge={{
-          label: isAr ? `${applications.length} طلبات` : `${applications.length} Applicants`,
-          variant: "indigo",
+          label: `${applications.length} ${isAr ? "طلبات" : "Applications"}`,
+          variant: "purple",
         }}
       />
 
-      <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-200px)]">
-        {/* Applications List */}
-        <div className="w-full lg:w-1/3 flex flex-col gap-4 bg-surface-default border border-border-default rounded-xl overflow-hidden">
-          <div className="p-4 border-b border-border-default space-y-4">
-            <div className="relative">
-              <Search className="absolute start-3 top-2.5 h-4 w-4 text-text-secondary" />
-              <input 
-                placeholder={isAr ? "بحث في المترشحين..." : "Search candidates..."} 
-                className="w-full ps-9 pe-4 py-2 bg-surface-hover border border-border-default rounded-lg text-sm text-text-primary focus:border-primary focus:outline-none"
+      <div className="flex flex-col lg:flex-row gap-6 mt-6 min-h-[650px]">
+        {/* List View */}
+        <div className="w-full lg:w-1/3 bg-surface-default border border-border-default rounded-xl flex flex-col overflow-hidden">
+          <div className="p-4 border-b border-border-default flex gap-2">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute start-3 top-3 text-text-secondary" />
+              <input
+                type="text"
+                placeholder={isAr ? "بحث بالاسم أو التخصص..." : "Search applicant, role..."}
+                className="w-full bg-surface-hover border border-border-default rounded-lg ps-9 pe-4 py-2 text-sm text-white focus:outline-none focus:border-primary"
               />
             </div>
-            <div className="flex gap-2">
-              <button className="text-xs flex items-center px-3 py-1.5 bg-surface-hover rounded-md border border-border-default text-text-secondary hover:text-white transition-colors">
-                <Filter className="w-3 h-3 me-1" /> {isAr ? "جميع البوابات" : "All Portals"}
-              </button>
-              <button className="text-xs flex items-center px-3 py-1.5 bg-surface-hover rounded-md border border-border-default text-text-secondary hover:text-white transition-colors">
-                <Filter className="w-3 h-3 me-1" /> {isAr ? "الحالة" : "Status"}
-              </button>
-            </div>
+            <button className="p-2 bg-surface-hover border border-border-default rounded-lg text-text-secondary hover:text-white">
+              <Filter className="w-4 h-4" />
+            </button>
           </div>
-          
-          <div className="flex-1 overflow-y-auto">
+
+          <div className="flex-1 overflow-y-auto divide-y divide-border-default">
             {applications.length === 0 ? (
               <div className="p-8 text-center text-text-secondary">
                 {isAr ? "لا توجد طلبات تقديم حتى الآن." : "No applications found."}
@@ -158,12 +264,12 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
           {selectedApp ? (
             <div className="flex-1 overflow-y-auto p-6 space-y-8">
               {/* Header Info */}
-              <div className="flex justify-between items-start">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-1">{selectedApp.firstName} {selectedApp.lastName}</h2>
                   <p className="text-primary font-medium">{selectedApp.jobTitle} {selectedApp.department ? `· ${selectedApp.department}` : ''}</p>
                 </div>
-                <div className="flex gap-2 items-center">
+                <div className="flex flex-wrap gap-2 items-center">
                   <select 
                     value={selectedApp.status}
                     onChange={(e) => handleUpdateStatus(selectedApp.id, e.target.value)}
@@ -177,9 +283,19 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                     <option value="REJECTED">{isAr ? "مرفوض" : "Rejected"}</option>
                   </select>
 
+                  <button
+                    type="button"
+                    onClick={handleOpenScheduleModal}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-semibold transition-all shadow-md active:scale-95"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    <span>{isAr ? "جدولة مقابلة" : "Schedule Interview"}</span>
+                  </button>
+
                   <a href={selectedApp.cvUrl} target="_blank" rel="noopener noreferrer" className="flex items-center px-4 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors">
                     <Download className="w-4 h-4 me-2" /> {isAr ? "تحميل السيرة" : "Download CV"}
                   </a>
+
                   <AdminButton 
                     variant={selectedApp.cvParsedData ? "outline" : "primary"} 
                     onClick={() => handleParseCV(selectedApp.id)} 
@@ -216,6 +332,83 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                   <div className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">{isAr ? "تاريخ التقديم" : "Applied on"}</div>
                   <div className="text-sm text-white">{new Date(selectedApp.createdAt).toLocaleString()}</div>
                 </div>
+              </div>
+
+              {/* Scheduled Interviews Drawer Section */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-border-default/60">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-purple-400" />
+                    <h3 className="text-base font-bold text-white">
+                      {isAr ? "جدول المقابلات المسجلة" : "Scheduled Candidate Interviews"}
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleOpenScheduleModal}
+                    className="text-xs font-bold text-purple-400 hover:text-purple-300 inline-flex items-center gap-1"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>{isAr ? "إضافة جولة مقابلة" : "Add Interview Round"}</span>
+                  </button>
+                </div>
+
+                {selectedAppInterviews.length > 0 ? (
+                  <div className="space-y-3">
+                    {selectedAppInterviews.map((item: any, idx: number) => (
+                      <div
+                        key={item.id || idx}
+                        className="p-4 rounded-xl bg-purple-950/20 border border-purple-800/40 space-y-2"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-white">{item.roundName || "Interview Round"}</span>
+                            <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-mono font-bold">
+                              {item.format}
+                            </span>
+                            {item.status === "RESCHEDULE_REQUESTED" && (
+                              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold">
+                                {isAr ? "طلب إعادة جدولة من المترشح" : "Reschedule Requested by Candidate"}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-zinc-400 font-mono">
+                            {new Date(item.scheduledAt).toLocaleString(isAr ? "ar-QA" : "en-US", { dateStyle: "short", timeStyle: "short" })}
+                          </span>
+                        </div>
+
+                        {item.rescheduleReason && (
+                          <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">
+                            <span className="font-bold">{isAr ? "مبرر طلب التأجيل: " : "Candidate Reschedule Note: "}</span>
+                            {item.rescheduleReason}
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between text-xs text-zinc-400 pt-1">
+                          <div className="flex items-center gap-2">
+                            {item.meetingUrl && (
+                              <a
+                                href={item.meetingUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-purple-400 hover:text-purple-300 underline font-mono flex items-center gap-1"
+                              >
+                                <Video className="w-3.5 h-3.5" />
+                                <span>{item.meetingUrl}</span>
+                              </a>
+                            )}
+                            {item.location && <span>📍 {item.location}</span>}
+                          </div>
+                          <span>Duration: {item.durationMinutes || 45} mins</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-surface-hover/50 border border-dashed border-border-default text-center text-xs text-zinc-400">
+                    {isAr ? "لم يتم جدولة مقابلات بعد. اضغط 'جدولة مقابلة' لإرسال موعد للمترشح." : "No interviews scheduled yet. Click 'Schedule Interview' to book a slot with the candidate."}
+                  </div>
+                )}
               </div>
 
               {/* Parsed Data / AI Analysis */}
@@ -336,6 +529,164 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
           )}
         </div>
       </div>
+
+      {/* Recruiter Schedule Interview Modal Dialog */}
+      {isScheduleModalOpen && selectedApp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-zinc-900 border border-white/10 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div>
+                <h3 className="text-lg font-bold text-white">
+                  {isAr ? "جدولة مقابلة للمترشح" : "Schedule Candidate Interview"}
+                </h3>
+                <p className="text-xs text-zinc-400">
+                  {selectedApp.firstName} {selectedApp.lastName} • {selectedApp.jobTitle}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsScheduleModalOpen(false)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleScheduleSubmit} className="space-y-4 text-xs">
+              <div className="space-y-1.5">
+                <label className="text-zinc-300 font-bold block">
+                  {isAr ? "مسمى الجولة / التقييم *" : "Round Name *"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={scheduleRoundName}
+                  onChange={(e) => setScheduleRoundName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-zinc-300 font-bold block">
+                    {isAr ? "طبيعة المقابلة" : "Format"}
+                  </label>
+                  <select
+                    value={scheduleFormat}
+                    onChange={(e) => setScheduleFormat(e.target.value as any)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white focus:outline-none focus:border-purple-500"
+                  >
+                    <option value="VIRTUAL">{isAr ? "افتراضية (مكالمة مرئية)" : "Virtual Video Call"}</option>
+                    <option value="IN_PERSON">{isAr ? "حضور شخصي في المقر" : "In-Person (HQ)"}</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-zinc-300 font-bold block">
+                    {isAr ? "المدة المقدرة (بالدقائق)" : "Duration (Minutes)"}
+                  </label>
+                  <select
+                    value={scheduleDuration}
+                    onChange={(e) => setScheduleDuration(Number(e.target.value))}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white focus:outline-none focus:border-purple-500"
+                  >
+                    <option value={30}>30 mins</option>
+                    <option value={45}>45 mins</option>
+                    <option value={60}>60 mins</option>
+                    <option value={90}>90 mins</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-zinc-300 font-bold block">
+                  {isAr ? "التاريخ والوقت بتوقيت الدوحة *" : "Date & Time (Doha AST) *"}
+                </label>
+                <input
+                  type="datetime-local"
+                  required
+                  value={scheduleDate}
+                  onChange={(e) => setScheduleDate(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              {scheduleFormat === "VIRTUAL" ? (
+                <div className="space-y-1.5">
+                  <label className="text-zinc-300 font-bold block">
+                    {isAr ? "رابط المقابلة المرئية (Google Meet / Teams) *" : "Video Meeting URL *"}
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    value={scheduleMeetingUrl}
+                    onChange={(e) => setScheduleMeetingUrl(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <label className="text-zinc-300 font-bold block">
+                    {isAr ? "عنوان المقر أو القاعة *" : "Physical Location / Room *"}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={scheduleLocation}
+                    onChange={(e) => setScheduleLocation(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white text-xs focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label className="text-zinc-300 font-bold block">
+                  {isAr ? "لجنة المقابلة (مفصولة بفواصل)" : "Interviewers (Comma-separated)"}
+                </label>
+                <input
+                  type="text"
+                  value={scheduleInterviewers}
+                  onChange={(e) => setScheduleInterviewers(e.target.value)}
+                  placeholder="e.g., Jane Doe, John Smith"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white text-xs focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-zinc-300 font-bold block">
+                  {isAr ? "ملاحظات إضافية للمترشح (اختياري)" : "Instructions / Notes for Candidate (Optional)"}
+                </label>
+                <textarea
+                  rows={2}
+                  value={scheduleNotes}
+                  onChange={(e) => setScheduleNotes(e.target.value)}
+                  placeholder="e.g. Please bring your portfolio reel..."
+                  className="w-full px-3.5 py-2 rounded-xl bg-zinc-950 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setIsScheduleModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  {isAr ? "إلغاء" : "Cancel"}
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={isScheduling}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all disabled:opacity-50 cursor-pointer shadow-md"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>{isScheduling ? (isAr ? "جاري الحفظ..." : "Scheduling...") : (isAr ? "تأكيد وإرسال الموعد" : "Confirm & Dispatch")}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </DashboardPageShell>
   );
 }

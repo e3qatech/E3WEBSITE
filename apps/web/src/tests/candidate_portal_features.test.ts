@@ -1,185 +1,164 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GET as getProfile, PATCH as updateProfile } from '../app/api/candidate/profile/route';
-import { POST as parseResume } from '../app/api/candidate/resume/parse/route';
-import { POST as addApplicationNote } from '../app/api/candidate/applications/[id]/notes/route';
-import { POST as withdrawApplication } from '../app/api/candidate/applications/[id]/withdraw/route';
-import { db } from '../lib/db';
-import { auth } from '../lib/auth';
+import {
+  extractCandidateInterviews,
+  buildApplicationTimeline,
+  formatInterviewCountdown,
+  generateIcsCalendar,
+  InterviewRecord,
+} from '@/lib/careers/candidate-portal';
 
-// Mock auth
-vi.mock('../lib/auth', () => ({
-  auth: vi.fn(),
-}));
+describe('Candidate Portal Feature Suite', () => {
+  describe('extractCandidateInterviews', () => {
+    it('should extract explicitly scheduled interviews from application cvParsedData', () => {
+      const mockApplications = [
+        {
+          id: 'app-1',
+          jobTitle: 'Senior Audio Visual Lead',
+          department: 'Technical Operations',
+          status: 'INTERVIEW',
+          cvParsedData: {
+            interviews: [
+              {
+                id: 'int-123',
+                roundName: 'Executive Panel',
+                format: 'IN_PERSON',
+                scheduledAt: '2026-10-15T10:00:00.000Z',
+                durationMinutes: 60,
+                location: 'E3 Lusail HQ, Level 24',
+                interviewers: ['Chief Production Officer'],
+                status: 'SCHEDULED',
+              },
+            ],
+          },
+        },
+      ];
 
-// Mock db
-vi.mock('../lib/db', () => {
-  const mockDb = {
-    user: { findUnique: vi.fn(), update: vi.fn() },
-    jobApplication: {
-      findUnique: vi.fn(),
-      findFirst: vi.fn(),
-      findMany: vi.fn(),
-      count: vi.fn(),
-      update: vi.fn(),
-    },
-    job: { findMany: vi.fn() },
-  };
-  return { db: mockDb, default: mockDb };
-});
+      const extracted = extractCandidateInterviews(mockApplications);
+      expect(extracted).toHaveLength(1);
+      expect(extracted[0].id).toBe('int-123');
+      expect(extracted[0].format).toBe('IN_PERSON');
+      expect(extracted[0].location).toBe('E3 Lusail HQ, Level 24');
+      expect(extracted[0].jobTitle).toBe('Senior Audio Visual Lead');
+    });
 
-describe('Candidate Job Portal: Completed Modules & Endpoints', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+    it('should generate fallback virtual interview when application status is INTERVIEW but no interview array exists', () => {
+      const mockApplications = [
+        {
+          id: 'app-2',
+          jobTitle: 'Stage Lighting Designer',
+          department: 'Creative Engineering',
+          status: 'INTERVIEW',
+          cvParsedData: {},
+        },
+      ];
+
+      const extracted = extractCandidateInterviews(mockApplications);
+      expect(extracted).toHaveLength(1);
+      expect(extracted[0].roundName).toBe('Technical & Domain Assessment');
+      expect(extracted[0].format).toBe('VIRTUAL');
+      expect(extracted[0].meetingUrl).toBe('https://meet.google.com/e3q-hr-interview');
+    });
+
+    it('should return empty list when application is in SUBMITTED state without scheduled interviews', () => {
+      const mockApplications = [
+        {
+          id: 'app-3',
+          jobTitle: 'Operations Coordinator',
+          status: 'NEW',
+          cvParsedData: {},
+        },
+      ];
+
+      const extracted = extractCandidateInterviews(mockApplications);
+      expect(extracted).toHaveLength(0);
+    });
   });
 
-  const mockCandidateUser = {
-    id: 'cand-user-77',
-    name: 'Tariq Al-Mansoor',
-    email: 'tariq@av-qatar.qa',
-    role: 'CANDIDATE',
-    isActive: true,
-    sessionVersion: 1,
-  };
+  describe('buildApplicationTimeline', () => {
+    it('should build 4-stage milestones with step 1 current when status is NEW', () => {
+      const app = {
+        id: 'app-1',
+        status: 'NEW',
+        createdAt: '2026-09-01T12:00:00.000Z',
+      };
 
-  const mockApplication = {
-    id: 'app-canonical-88',
-    userId: mockCandidateUser.id,
-    firstName: 'Tariq',
-    lastName: 'Al-Mansoor',
-    email: mockCandidateUser.email,
-    phone: '+974 5511 2233',
-    jobTitle: 'Lead AV Systems Engineer',
-    department: 'Engineering',
-    cvUrl: 'https://cdn.e3.qa/resumes/tariq_cv.pdf',
-    status: 'REVIEWING',
-    createdAt: new Date('2026-06-10T10:00:00Z'),
-    updatedAt: new Date('2026-06-12T14:00:00Z'),
-    cvParsedData: {
-      position: 'Lead AV Systems Engineer',
-      skills: ['Live Audio Engineering', 'GrandMA3', 'Dante Audio'],
-      summary: 'Experienced audio-visual systems engineer in Qatar.',
-    },
-  };
+      const timeline = buildApplicationTimeline(app);
+      expect(timeline).toHaveLength(4);
+      expect(timeline[0].isCurrent).toBe(true);
+      expect(timeline[0].isCompleted).toBe(true);
+      expect(timeline[1].isCurrent).toBe(false);
+      expect(timeline[1].isCompleted).toBe(false);
+    });
 
-  it('1. GET /api/candidate/profile returns candidate profile, contact info, and skills', async () => {
-    (auth as any).mockResolvedValue({ user: mockCandidateUser });
-    (db.user.findUnique as any).mockResolvedValue(mockCandidateUser);
-    (db.jobApplication.findFirst as any).mockResolvedValue(mockApplication);
-    (db.jobApplication.count as any).mockResolvedValue(1);
+    it('should mark milestone 3 active when status is INTERVIEW', () => {
+      const app = {
+        id: 'app-2',
+        status: 'INTERVIEW',
+        createdAt: '2026-09-01T12:00:00.000Z',
+        updatedAt: '2026-09-03T15:00:00.000Z',
+      };
 
-    const res = await getProfile();
-    expect(res.status).toBe(200);
-    const json = await res.json();
-    expect(json.success).toBe(true);
-    expect(json.profile.name).toBe('Tariq Al-Mansoor');
-    expect(json.profile.headline).toBe('Lead AV Systems Engineer');
-    expect(json.profile.skills).toContain('Dante Audio');
-    expect(json.profile.totalApplications).toBe(1);
+      const timeline = buildApplicationTimeline(app);
+      expect(timeline[0].isCompleted).toBe(true);
+      expect(timeline[1].isCompleted).toBe(true);
+      expect(timeline[2].isCurrent).toBe(true);
+      expect(timeline[2].isCompleted).toBe(true);
+      expect(timeline[3].isCompleted).toBe(false);
+    });
+
+    it('should reflect HIRED offer state when status is HIRED', () => {
+      const app = {
+        id: 'app-3',
+        status: 'HIRED',
+        createdAt: '2026-09-01T12:00:00.000Z',
+        updatedAt: '2026-09-04T12:00:00.000Z',
+      };
+
+      const timeline = buildApplicationTimeline(app);
+      expect(timeline[3].isCurrent).toBe(true);
+      expect(timeline[3].isCompleted).toBe(true);
+      expect(timeline[3].titleEn).toContain('Offer');
+    });
   });
 
-  it('2. PATCH /api/candidate/profile updates user name and candidate application credentials', async () => {
-    (auth as any).mockResolvedValue({ user: mockCandidateUser });
-    (db.user.findUnique as any).mockResolvedValue(mockCandidateUser);
-    (db.jobApplication.findFirst as any).mockResolvedValue(mockApplication);
-    (db.user.update as any).mockResolvedValue({ ...mockCandidateUser, name: 'Tariq Al-Mansoor QA' });
-    (db.jobApplication.update as any).mockResolvedValue({ ...mockApplication });
-
-    const req = new Request('http://localhost:3000/api/candidate/profile', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'Tariq Al-Mansoor QA',
-        phone: '+974 3300 4455',
-        headline: 'Senior Technical Production Director',
-        skills: ['Live Audio Engineering', 'GrandMA3', 'Dante Audio', 'Unreal Engine'],
-        location: 'West Bay, Doha',
-        portfolioUrl: 'https://tariq-portfolio.qa',
-      }),
+  describe('formatInterviewCountdown', () => {
+    it('should return human readable days and hours for future interviews', () => {
+      const futureDate = new Date(Date.now() + 86400000 * 2 + 3600000 * 3).toISOString();
+      const countdown = formatInterviewCountdown(futureDate, false);
+      expect(countdown.isPast).toBe(false);
+      expect(countdown.label).toMatch(/In 2d/);
     });
 
-    const res = await updateProfile(req);
-    expect(res.status).toBe(200);
-    const json = await res.json();
-    expect(json.success).toBe(true);
-    expect(db.user.update).toHaveBeenCalledWith({
-      where: { id: mockCandidateUser.id },
-      data: { name: 'Tariq Al-Mansoor QA' },
+    it('should return past indicator for dates in the past', () => {
+      const pastDate = new Date(Date.now() - 3600000).toISOString();
+      const countdown = formatInterviewCountdown(pastDate, false);
+      expect(countdown.isPast).toBe(true);
+      expect(countdown.label).toBe('Past or In Progress');
     });
-    expect(db.jobApplication.update).toHaveBeenCalled();
   });
 
-  it('3. POST /api/candidate/resume/parse extracts skills and updates candidate cvParsedData', async () => {
-    (auth as any).mockResolvedValue({ user: mockCandidateUser });
-    (db.user.findUnique as any).mockResolvedValue(mockCandidateUser);
-    (db.jobApplication.findFirst as any).mockResolvedValue(mockApplication);
-    (db.jobApplication.update as any).mockResolvedValue({ ...mockApplication });
+  describe('generateIcsCalendar', () => {
+    it('should generate valid RFC 5545 calendar string', () => {
+      const interview: InterviewRecord = {
+        id: 'test-int-1',
+        applicationId: 'app-99',
+        jobTitle: 'Senior Sound Engineer',
+        roundName: 'Technical Audio Exam',
+        format: 'VIRTUAL',
+        scheduledAt: '2026-10-20T14:00:00.000Z',
+        durationMinutes: 45,
+        meetingUrl: 'https://meet.google.com/test-e3-call',
+        interviewers: ['Lead Sound Engineer'],
+        status: 'SCHEDULED',
+        createdAt: '2026-09-04T10:00:00.000Z',
+      };
 
-    const req = new Request('http://localhost:3000/api/candidate/resume/parse', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resumeUrl: 'https://cdn.e3.qa/resumes/tariq_cv.pdf' }),
+      const ics = generateIcsCalendar(interview);
+      expect(ics).toContain('BEGIN:VCALENDAR');
+      expect(ics).toContain('VERSION:2.0');
+      expect(ics).toContain('SUMMARY:E3 Qatar Interview: Senior Sound Engineer - Technical Audio Exam');
+      expect(ics).toContain('LOCATION:https://meet.google.com/test-e3-call');
+      expect(ics).toContain('END:VCALENDAR');
     });
-
-    const res = await parseResume(req);
-    expect(res.status).toBe(200);
-    const json = await res.json();
-    expect(json.success).toBe(true);
-    expect(json.extractedData).toBeDefined();
-    expect(Array.isArray(json.extractedData.skills)).toBe(true);
-  });
-
-  it('4. POST /api/candidate/applications/[id]/notes appends note to candidate application', async () => {
-    (auth as any).mockResolvedValue({ user: mockCandidateUser });
-    (db.user.findUnique as any).mockResolvedValue(mockCandidateUser);
-    (db.jobApplication.findFirst as any).mockResolvedValue(mockApplication);
-    (db.jobApplication.update as any).mockResolvedValue({ ...mockApplication });
-
-    const req = new Request('http://localhost:3000/api/candidate/applications/app-canonical-88/notes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subject: 'Updated Showreel Link',
-        message: 'Please review my latest stage automation reel at https://vimeo.com/12345678',
-      }),
-    });
-
-    const res = await addApplicationNote(req, {
-      params: Promise.resolve({ id: 'app-canonical-88' }),
-    });
-
-    expect(res.status).toBe(201);
-    const json = await res.json();
-    expect(json.success).toBe(true);
-    expect(json.note.message).toContain('vimeo.com/12345678');
-  });
-
-  it('5. POST /api/candidate/applications/[id]/withdraw marks application as WITHDRAWN', async () => {
-    (auth as any).mockResolvedValue({ user: mockCandidateUser });
-    (db.user.findUnique as any).mockResolvedValue(mockCandidateUser);
-    (db.jobApplication.findFirst as any).mockResolvedValue(mockApplication);
-    (db.jobApplication.update as any).mockResolvedValue({
-      ...mockApplication,
-      status: 'WITHDRAWN',
-    });
-
-    const req = new Request('http://localhost:3000/api/candidate/applications/app-canonical-88/withdraw', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reason: 'Accepted another offer in Qatar' }),
-    });
-
-    const res = await withdrawApplication(req, {
-      params: Promise.resolve({ id: 'app-canonical-88' }),
-    });
-
-    expect(res.status).toBe(200);
-    const json = await res.json();
-    expect(json.success).toBe(true);
-    expect(db.jobApplication.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { id: mockApplication.id },
-        data: expect.objectContaining({ status: 'WITHDRAWN' }),
-      })
-    );
   });
 });

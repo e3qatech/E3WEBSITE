@@ -18,8 +18,20 @@ import {
   AlertCircle,
   MessageSquare,
   XCircle,
+  Video,
+  Building,
+  CalendarPlus,
+  X,
+  Info,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  buildApplicationTimeline,
+  extractCandidateInterviews,
+  formatInterviewCountdown,
+  generateIcsCalendar,
+  InterviewRecord,
+} from "@/lib/careers/candidate-portal";
 
 interface ApplicationProps {
   application: {
@@ -63,6 +75,21 @@ export function CandidateApplicationDetailClient({
   const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false);
   const [withdrawSuccess, setWithdrawSuccess] = useState(false);
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
+
+  // Reschedule state
+  const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
+  const [rescheduleReason, setRescheduleReason] = useState("");
+  const [preferredDate, setPreferredDate] = useState("");
+  const [isSubmittingReschedule, setIsSubmittingReschedule] = useState(false);
+  const [rescheduleSuccess, setRescheduleSuccess] = useState<string | null>(null);
+  const [rescheduleError, setRescheduleError] = useState<string | null>(null);
+
+  // Milestone timeline
+  const milestones = buildApplicationTimeline(application);
+
+  // Interviews for this application
+  const interviews = extractCandidateInterviews([application]);
+  const activeInterview = interviews[0];
 
   const getStatusBadge = (status: string) => {
     const s = (status || "NEW").toUpperCase();
@@ -191,6 +218,81 @@ export function CandidateApplicationDetailClient({
     }
   };
 
+  const handleDownloadIcs = (interview: InterviewRecord) => {
+    const icsContent = generateIcsCalendar(interview);
+    const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `e3-interview-${interview.roundName.replace(/\s+/g, "_")}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleSubmitReschedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeInterview) return;
+    if (!rescheduleReason.trim()) {
+      setRescheduleError(isAr ? "يرجى ذكر سبب طلب التأجيل" : "Please provide a reason for the reschedule request");
+      return;
+    }
+
+    setIsSubmittingReschedule(true);
+    setRescheduleError(null);
+
+    try {
+      const res = await fetch(`/api/candidate/interviews/${activeInterview.id}/reschedule`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reason: rescheduleReason.trim(),
+          preferredDate: preferredDate.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to submit reschedule request");
+      }
+
+      setRescheduleSuccess(
+        isAr
+          ? "تم إرسال طلب إعادة الجدولة بنجاح إلى فريق التوظيف."
+          : "Reschedule request successfully submitted."
+      );
+
+      // Update local parsed data
+      const currentParsed = (application.cvParsedData as any) || {};
+      const updatedInterviews = Array.isArray(currentParsed.interviews) ? [...currentParsed.interviews] : [];
+      const idx = updatedInterviews.findIndex((i: any) => i.id === activeInterview.id);
+      if (idx !== -1) {
+        updatedInterviews[idx] = {
+          ...updatedInterviews[idx],
+          status: "RESCHEDULE_REQUESTED",
+          rescheduleReason: rescheduleReason.trim(),
+        };
+      }
+      setApplication((prev) => ({
+        ...prev,
+        cvParsedData: {
+          ...currentParsed,
+          interviews: updatedInterviews,
+        },
+      }));
+
+      setTimeout(() => {
+        setIsRescheduleOpen(false);
+        setRescheduleSuccess(null);
+      }, 2000);
+    } catch (err: any) {
+      setRescheduleError(err.message || "Network error");
+    } finally {
+      setIsSubmittingReschedule(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-6 md:p-10 font-sans" dir={dir}>
       <div className="max-w-4xl mx-auto space-y-8">
@@ -232,48 +334,176 @@ export function CandidateApplicationDetailClient({
           </div>
         </div>
 
-        {/* Status Progression Tracker */}
+        {/* ACTIVE SCHEDULED INTERVIEW SPOTLIGHT (If Scheduled or in Interview stage) */}
+        {activeInterview && (
+          <div className="bg-gradient-to-r from-purple-950/60 via-zinc-900 to-indigo-950/60 border border-purple-500/40 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 end-0 -mt-8 -me-8 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 text-xs font-mono font-bold uppercase">
+                    {activeInterview.roundName}
+                  </span>
+                  {activeInterview.status === "RESCHEDULE_REQUESTED" ? (
+                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold">
+                      {isAr ? "طلب إعادة الجدولة قيد المراجعة" : "Reschedule Requested"}
+                    </span>
+                  ) : (
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+                      {isAr ? "موعد مؤكد" : "Confirmed Interview"}
+                    </span>
+                  )}
+                </div>
+
+                <h3 className="text-xl font-bold text-white">
+                  {isAr ? "جلسة المقابلة والتقييم الفني المباشر" : "Live Interview Session Scheduled"}
+                </h3>
+              </div>
+
+              <div className="p-3 rounded-xl bg-zinc-950/80 border border-white/10 flex items-center gap-2.5 shrink-0">
+                <Clock className="w-4 h-4 text-purple-400 shrink-0" />
+                <div>
+                  <div className="text-[10px] font-bold uppercase text-zinc-400">
+                    {isAr ? "الوقت المتبقي" : "Countdown"}
+                  </div>
+                  <div className="text-xs font-mono font-bold text-white">
+                    {formatInterviewCountdown(activeInterview.scheduledAt, isAr).label}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+              <div className="bg-zinc-950/70 p-4 rounded-xl border border-white/5 space-y-1">
+                <span className="text-zinc-500 block uppercase font-bold text-[10px]">
+                  {isAr ? "التاريخ والوقت" : "Date & Time"}
+                </span>
+                <span className="text-sm font-bold text-white font-mono">
+                  {new Date(activeInterview.scheduledAt).toLocaleString(isAr ? "ar-QA" : "en-US", {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+                <span className="text-zinc-400 block text-[11px]">
+                  {activeInterview.durationMinutes} {isAr ? "دقيقة" : "minutes"} (Doha AST)
+                </span>
+              </div>
+
+              <div className="bg-zinc-950/70 p-4 rounded-xl border border-white/5 space-y-1">
+                <span className="text-zinc-500 block uppercase font-bold text-[10px]">
+                  {isAr ? "نوع اللقاء" : "Format & Location"}
+                </span>
+                <div className="text-sm font-bold text-emerald-400 flex items-center gap-1.5">
+                  {activeInterview.format === "VIRTUAL" ? <Video className="w-4 h-4" /> : <Building className="w-4 h-4" />}
+                  <span>{activeInterview.format === "VIRTUAL" ? (isAr ? "مقابلة افتراضية مرئية" : "Virtual Video Call") : (isAr ? "مقابلة حضورية" : "In-Person HQ")}</span>
+                </div>
+                <span className="text-zinc-400 block text-[11px] truncate">
+                  {activeInterview.format === "VIRTUAL" ? "Google Meet / Teams" : activeInterview.location || "E3 Qatar HQ - Lusail Marina"}
+                </span>
+              </div>
+
+              <div className="bg-zinc-950/70 p-4 rounded-xl border border-white/5 space-y-1">
+                <span className="text-zinc-500 block uppercase font-bold text-[10px]">
+                  {isAr ? "لجنة التقييم" : "Hiring Board"}
+                </span>
+                <div className="space-y-0.5">
+                  {activeInterview.interviewers.map((p, idx) => (
+                    <span key={idx} className="text-xs text-white block">
+                      • {p}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pt-2">
+              <div className="flex items-center gap-2">
+                {activeInterview.format === "VIRTUAL" && activeInterview.meetingUrl && (
+                  <a
+                    href={activeInterview.meetingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-lg"
+                  >
+                    <Video className="w-4 h-4" />
+                    <span>{isAr ? "الانضمام إلى مكالمة المقابلة" : "Join Video Call"}</span>
+                  </a>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => handleDownloadIcs(activeInterview)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition-all cursor-pointer"
+                >
+                  <CalendarPlus className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{isAr ? "إضافة للتقويم (.ics)" : "Add to Calendar"}</span>
+                </button>
+              </div>
+
+              {activeInterview.status !== "RESCHEDULE_REQUESTED" && (
+                <button
+                  type="button"
+                  onClick={() => setIsRescheduleOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-amber-500/40 text-zinc-400 hover:text-amber-300 text-xs font-bold transition-all cursor-pointer"
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{isAr ? "طلب موعد بديل" : "Request Reschedule"}</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Dynamic Multi-Milestone Progression Tracker */}
         <div className="bg-zinc-900/60 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-md space-y-6">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Clock className="w-5 h-5 text-emerald-400" />
-            <span>{isAr ? "مراحل متابعة الطلب" : "Application Progress"}</span>
-          </h2>
+          <div className="flex items-center justify-between border-b border-white/5 pb-4">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <Clock className="w-5 h-5 text-emerald-400" />
+              <span>{isAr ? "مراحل المخطط الزمني والتقييم" : "Application Timeline & Milestones"}</span>
+            </h2>
+
+            <span className="text-xs text-zinc-400 font-mono">
+              {isAr ? "مدة التقييم المعتادة: 3 - 5 أيام عمل" : "Target SLA: 3-5 Business Days"}
+            </span>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
-            {[
-              { num: 1, titleEn: "Submitted", titleAr: "تم الاستلام", descEn: "Application logged", descAr: "تم تسجيل الطلب" },
-              { num: 2, titleEn: "Reviewing", titleAr: "قيد المراجعة", descEn: "Profile evaluation", descAr: "مراجعة المؤهلات" },
-              { num: 3, titleEn: "Interview", titleAr: "المقابلة", descEn: "Technical stage", descAr: "المقابلة الفنية" },
-              { num: 4, titleEn: "Decision", titleAr: "القرار النهائي", descEn: "Status concluded", descAr: "اكتمال الإجراء" },
-            ].map((step) => {
-              const isCompleted = badge.step >= step.num;
-              const isCurrent = badge.step === step.num;
-
-              return (
-                <div
-                  key={step.num}
-                  className={cn(
-                    "p-4 rounded-xl border transition-all",
-                    isCurrent
-                      ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
-                      : isCompleted
-                      ? "bg-zinc-950/60 border-zinc-800 text-zinc-300"
-                      : "bg-zinc-950/30 border-zinc-900 text-zinc-600"
-                  )}
-                >
+            {milestones.map((m) => (
+              <div
+                key={m.stage}
+                className={cn(
+                  "p-4 rounded-xl border transition-all flex flex-col justify-between space-y-3",
+                  m.isCurrent
+                    ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
+                    : m.isCompleted
+                    ? "bg-zinc-950/60 border-zinc-800 text-zinc-300"
+                    : "bg-zinc-950/30 border-zinc-900 text-zinc-600"
+                )}
+              >
+                <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-mono font-bold">0{step.num}</span>
-                    {isCompleted && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                    <span className="text-xs font-mono font-bold">0{m.stage}</span>
+                    {m.isCompleted && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
                   </div>
-                  <h4 className={cn("text-sm font-bold", isCurrent ? "text-emerald-400" : isCompleted ? "text-white" : "text-zinc-500")}>
-                    {isAr ? step.titleAr : step.titleEn}
+                  <h4 className={cn("text-sm font-bold", m.isCurrent ? "text-emerald-400" : m.isCompleted ? "text-white" : "text-zinc-500")}>
+                    {isAr ? m.titleAr : m.titleEn}
                   </h4>
-                  <p className="text-xs text-zinc-500 mt-1">
-                    {isAr ? step.descAr : step.descEn}
+                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                    {isAr ? m.descAr : m.descEn}
                   </p>
                 </div>
-              );
-            })}
+
+                {m.timestamp && (
+                  <div className="text-[10px] font-mono text-zinc-500 pt-2 border-t border-white/5">
+                    {new Date(m.timestamp).toLocaleDateString(isAr ? "ar-QA" : "en-US", { month: "short", day: "numeric" })}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
@@ -357,7 +587,7 @@ export function CandidateApplicationDetailClient({
           </div>
         </div>
 
-        {/* AI Competency Extraction Display (if available) */}
+        {/* AI Competency Extraction Display */}
         {parsedData && (parsedData.skills || parsedData.summary) && (
           <div className="bg-zinc-900/60 border border-white/10 rounded-2xl p-6 sm:p-8 space-y-4 shadow-xl">
             <div className="flex items-center gap-2 text-emerald-400 font-bold text-base border-b border-white/5 pb-3">
@@ -525,6 +755,93 @@ export function CandidateApplicationDetailClient({
                 {withdrawError}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Reschedule Modal */}
+        {isRescheduleOpen && activeInterview && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-zinc-900 border border-white/10 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    {isAr ? "طلب موعد بديل للمقابلة" : "Request Alternative Interview Slot"}
+                  </h3>
+                  <p className="text-xs text-zinc-400">{activeInterview.roundName}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsRescheduleOpen(false)}
+                  className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {rescheduleSuccess ? (
+                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-medium space-y-1">
+                  <div className="font-bold flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>{isAr ? "تم إرسال طلبك بنجاح" : "Request Sent"}</span>
+                  </div>
+                  <p>{rescheduleSuccess}</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmitReschedule} className="space-y-4 text-xs">
+                  {rescheduleError && (
+                    <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{rescheduleError}</span>
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <label className="text-zinc-300 font-bold block">
+                      {isAr ? "سبب طلب التأجيل أو التغيير *" : "Reason for Reschedule *"}
+                    </label>
+                    <textarea
+                      required
+                      rows={3}
+                      value={rescheduleReason}
+                      onChange={(e) => setRescheduleReason(e.target.value)}
+                      placeholder={isAr ? "اشرح سبب حاجتك لموعد بديل..." : "Explain why you need an alternative slot..."}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500 resize-y"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-zinc-300 font-bold block">
+                      {isAr ? "الموعد المقترح البديل (اختياري)" : "Preferred Alternative Date & Time (Optional)"}
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={preferredDate}
+                      onChange={(e) => setPreferredDate(e.target.value)}
+                      className="w-full px-3.5 py-2 rounded-xl bg-zinc-950 border border-white/10 text-white focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsRescheduleOpen(false)}
+                      className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      {isAr ? "إلغاء" : "Cancel"}
+                    </button>
+
+                    <button
+                      type="submit"
+                      disabled={isSubmittingReschedule}
+                      className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs transition-all disabled:opacity-50 cursor-pointer shadow-md"
+                    >
+                      {isSubmittingReschedule ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                      <span>{isAr ? "إرسال طلب التأجيل" : "Submit Reschedule"}</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
         )}
       </div>
