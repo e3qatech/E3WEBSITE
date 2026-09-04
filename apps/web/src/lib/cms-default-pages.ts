@@ -1,4 +1,3 @@
-import { DEFAULT_SPATIAL_SECTIONS } from "@/components/spatial/spatial-experience.config";
 import { DEFAULT_SOCIAL_CHANNELS, DEFAULT_SOCIAL_POSTS } from "@/lib/cms-social";
 
 export interface B2CSectionItem {
@@ -602,10 +601,6 @@ export const DEFAULT_B2C_LANDING_CONTENT = {
     mediaType: "IMAGE",
     mediaUrl: "",
   },
-  spatialExperience: {
-    enabled: false,
-    faces: DEFAULT_SPATIAL_SECTIONS,
-  }
 };
 
 export const DEFAULT_B2B_TEAM_PAGE_CONTENT = {
@@ -3312,18 +3307,5 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
 
       return userOrdered;
     })(),
-    spatialExperience: {
-      enabled: raw.spatialExperience?.enabled ?? defaults.spatialExperience?.enabled ?? false,
-      faces: (Array.isArray(raw.spatialExperience?.faces) && raw.spatialExperience.faces.length > 0)
-        ? raw.spatialExperience.faces.map((f: any, idx: number) => {
-            const defaultFace = DEFAULT_SPATIAL_SECTIONS[idx] || DEFAULT_SPATIAL_SECTIONS[0];
-            return {
-              ...defaultFace,
-              ...f,
-              sortOrder: f.sortOrder !== undefined ? Number(f.sortOrder) : idx,
-            };
-          })
-        : DEFAULT_SPATIAL_SECTIONS,
-    },
   };
 }

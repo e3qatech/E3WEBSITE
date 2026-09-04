@@ -69,13 +69,12 @@ export function proxy(req: NextRequest) {
   if (normalizedPath === '/careers/login') {
     return NextResponse.redirect(new URL(`/${targetLocale}/login/careers`, nextUrl));
   }
-  if (normalizedPath === '/staff-login') {
-    return NextResponse.redirect(new URL(`/${targetLocale}/login/staff`, nextUrl));
+  if (normalizedPath === '/staff-login' || normalizedPath === '/login/staff') {
+    return NextResponse.redirect(new URL(`/${targetLocale}/login/admin`, nextUrl));
   }
   if (
     normalizedPath === '/login/admin' ||
     normalizedPath === '/login/business' ||
-    normalizedPath === '/login/staff' ||
     normalizedPath === '/login/careers'
   ) {
     return NextResponse.redirect(new URL(`/${targetLocale}${normalizedPath}`, nextUrl));
@@ -98,6 +97,11 @@ export function proxy(req: NextRequest) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
+  // Decommissioned Staff Portal -> redirect to localized dashboard
+  if (/^\/(?:en|ar)?\/?staff(?:\/.*)?$/i.test(normalizedPath)) {
+    return NextResponse.redirect(new URL(`/${targetLocale}/dashboard`, nextUrl));
+  }
+
   // 6. Protected Portal Route Edge Guards (Strict segment matching)
   if (!isLoggedIn) {
     const search = nextUrl.search || '';
@@ -111,17 +115,6 @@ export function proxy(req: NextRequest) {
       const fullCallback = explicitCallback || `${canonicalPath}${search}`;
       return NextResponse.redirect(
         new URL(`/${targetLocale}/login/admin?callbackUrl=${encodeURIComponent(fullCallback)}`, nextUrl)
-      );
-    }
-
-    // Staff Portal (/staff, /en/staff, /ar/staff)
-    if (/^\/(?:en|ar)?\/?staff(?:\/.*)?$/i.test(normalizedPath)) {
-      const canonicalPath = normalizedPath.startsWith('/en/') || normalizedPath.startsWith('/ar/')
-        ? normalizedPath
-        : `/${targetLocale}${normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`}`;
-      const fullCallback = explicitCallback || `${canonicalPath}${search}`;
-      return NextResponse.redirect(
-        new URL(`/${targetLocale}/login/staff?callbackUrl=${encodeURIComponent(fullCallback)}`, nextUrl)
       );
     }
 
@@ -154,7 +147,6 @@ export function proxy(req: NextRequest) {
     normalizedPath.startsWith('/b2b') ||
     normalizedPath.startsWith('/b2c') ||
     normalizedPath.startsWith('/business') ||
-    normalizedPath.startsWith('/staff') ||
     normalizedPath.startsWith('/candidate')
   ) {
     return NextResponse.redirect(new URL(`/${targetLocale}${nextUrl.pathname}${nextUrl.search}`, nextUrl));

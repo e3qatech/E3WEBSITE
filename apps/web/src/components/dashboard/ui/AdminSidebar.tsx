@@ -194,9 +194,7 @@ const sidebarConfig: NavGroupItem[] = [
     capability: "operations.events.manage",
     subItems: [
       { label: "Schedules & Capacity", labelAr: "جداول المواعيد والسعة", href: "/dashboard/operations/events", capability: "operations.events.manage" },
-      { label: "Recap Engine", labelAr: "محرك تقارير التشغيل", href: "/dashboard/operations/recap", capability: "operations.recap.manage" },
       { label: "Catalog Generator", labelAr: "مولد الكتالوجات والمطبوعات", href: "/dashboard/operations/catalog", capability: "operations.catalog.manage" },
-      { label: "Temporal Rules", labelAr: "القواعد والجدولة الزمنية", href: "/dashboard/operations/temporal-rules", capability: "operations.rules.manage" },
       { label: "System Broadcasts", labelAr: "البث والإشعارات المباشرة", href: "/dashboard/operations/broadcast", capability: "operations.broadcast.manage" },
     ],
   },

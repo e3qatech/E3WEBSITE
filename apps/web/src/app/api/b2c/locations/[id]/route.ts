@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { auth } from '@/lib/auth';
 
 export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
@@ -31,6 +32,12 @@ export async function GET(req: NextRequest, props: { params: Promise<{ id: strin
 
 export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
+    const session = await auth();
+    const userRole = (session?.user as any)?.role;
+    if (!session?.user || !['SUPER_ADMIN', 'ADMIN', 'SUPPORT_ADMIN', 'SALES_ADMIN', 'B2C_ADMIN', 'OPERATIONS'].includes(userRole)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const params = await props.params;
     const { id } = params;
     const body = await req.json();
@@ -123,6 +130,12 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
 
 export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
+    const session = await auth();
+    const userRole = (session?.user as any)?.role;
+    if (!session?.user || !['SUPER_ADMIN', 'ADMIN', 'SUPPORT_ADMIN', 'SALES_ADMIN', 'B2C_ADMIN', 'OPERATIONS'].includes(userRole)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const params = await props.params;
     const { id } = params;
 

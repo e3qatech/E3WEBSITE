@@ -1,8 +1,32 @@
 import { NextResponse } from "next/server"
 import db from "@/lib/db"
+import { auth } from "@/lib/auth"
+
+const ALLOWED_ADMIN_ROLES = [
+  "SUPER_ADMIN",
+  "ADMIN",
+  "SUPPORT_ADMIN",
+  "SALES_ADMIN",
+  "B2C_ADMIN",
+  "OPERATIONS",
+  "MARKETING",
+]
+
+async function verifyAttractionAdmin() {
+  const session = await auth()
+  const role = (session?.user as any)?.role
+  if (!session?.user || !ALLOWED_ADMIN_ROLES.includes(role)) {
+    return false
+  }
+  return true
+}
 
 export async function DELETE(req: Request) {
   try {
+    if (!await verifyAttractionAdmin()) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { ids } = await req.json()
     
     if (!ids || !Array.isArray(ids)) {
@@ -21,6 +45,10 @@ export async function DELETE(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
+    if (!await verifyAttractionAdmin()) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { ids, isPublished } = await req.json()
     
     if (!ids || !Array.isArray(ids) || typeof isPublished !== 'boolean') {

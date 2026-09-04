@@ -16,7 +16,9 @@ export function useTelemetry(attractionId?: string) {
   const [occupancy, setOccupancy] = useState<Record<string, OccupancyData>>({});
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || process.env.NEXT_PUBLIC_ENABLE_SOCKET_TELEMETRY !== 'true') {
+      return;
+    }
 
     if (!socketInstance) {
       socketInstance = io('/public', {

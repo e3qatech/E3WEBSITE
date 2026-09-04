@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
-import { cookies } from 'next/headers';
 
 export type SocialPermission =
   | 'VIEW_SOCIAL_MANAGER'
@@ -94,22 +93,6 @@ export async function checkSocialAdminAuth(
     console.debug('[Social Auth] Session evaluation error:', e);
   }
 
-  // Session cookie fallback check for edge environments
-  try {
-    const cookieStore = await cookies();
-    const allCookies = cookieStore.getAll();
-    const hasAuthCookie = allCookies.some(
-      (c) =>
-        c.name.includes('session-token') ||
-        c.name.includes('authjs') ||
-        c.name.includes('next-auth')
-    );
-    if (hasAuthCookie) {
-      return { isAuthed: true, role: 'STAFF' };
-    }
-  } catch (e) {
-    console.debug('[Social Auth] Cookie check error:', e);
-  }
-
   return { isAuthed: false };
 }
+

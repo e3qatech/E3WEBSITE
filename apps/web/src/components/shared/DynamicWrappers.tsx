@@ -13,16 +13,9 @@ function DynamicSkeleton({ className = '', text = 'Loading...' }: { className?: 
 }
 
 /**
- * Dynamic wrapper for Three.js components (e.g. SpatialHub, ARViewer)
+ * Dynamic wrapper for Three.js components (e.g. ARViewer)
  * Ensures large WebGL libraries only load on the client when needed.
  */
-export const DynamicSpatialHub = dynamic(
-  () => import('./SpatialHub').then((mod) => mod.default),
-  {
-    ssr: false,
-    loading: () => <DynamicSkeleton text="Loading 3D Experience..." className="w-full h-[400px]" />
-  }
-);
 
 export const DynamicARViewer = dynamic(
   () => import('./ARViewer').then((mod) => mod.default),

@@ -127,37 +127,28 @@ export async function GET(
   }
 }
 
-import { cookies } from 'next/headers';
+const ALLOWED_CMS_ROLES = ['SUPER_ADMIN', 'SUPPORT_ADMIN', 'SALES_ADMIN', 'STAFF', 'B2B_ADMIN', 'B2C_ADMIN', 'CONTENT_MANAGER', 'EDITOR'];
 
-async function checkCMSAuth(req: NextRequest): Promise<boolean> {
+async function checkCMSAuth(_req: NextRequest): Promise<boolean> {
   try {
     const session = await auth();
-    if (session?.user) return true;
+    if (session?.user) {
+      const role = (session.user as any)?.role;
+      if (!role || ALLOWED_CMS_ROLES.includes(role)) {
+        return true;
+      }
+    }
   } catch (e) {
     console.debug('[CMS Auth] session error', e);
   }
 
-  try {
-    const cookieStore = await cookies();
-    const allCookies = cookieStore.getAll();
-    const isAuthed = allCookies.some(c =>
-      c.name.includes('session-token') ||
-      c.name.includes('authjs') ||
-      c.name.includes('next-auth') ||
-      c.name.includes('admin')
-    );
-    if (isAuthed) return true;
-  } catch (e) {
-    console.debug('[CMS Auth] cookie store error', e);
-  }
-
-  const referer = req.headers.get('referer') || '';
-  const origin = req.headers.get('origin') || '';
-  if (referer.includes('/dashboard/') || origin.includes('vercel.app') || origin.includes('localhost')) {
+  if (process.env.NODE_ENV === 'test') {
     return true;
   }
 
-  if (process.env.NODE_ENV === 'development') return true;
+  if (process.env.NODE_ENV === 'development' && process.env.ALLOW_DEV_ADMIN_BYPASS === 'true') {
+    return true;
+  }
 
   return false;
 }
@@ -169,7 +160,7 @@ export async function PUT(
   const { slug } = await params;
   try {
     const isAuthed = await checkCMSAuth(req);
-    if (!isAuthed && process.env.NODE_ENV === 'production') {
+    if (!isAuthed) {
       return NextResponse.json({ error: 'Unauthorized: Admin session required' }, { status: 401 });
     }
 

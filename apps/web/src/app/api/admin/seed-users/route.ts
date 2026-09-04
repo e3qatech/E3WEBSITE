@@ -1,9 +1,42 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { requireCurrentUser } from "@/lib/server-auth";
+import crypto from "crypto";
 
 export async function POST(req: Request) {
   try {
+    const seedSecret = process.env.ADMIN_SEED_SECRET;
+    const authHeader = req.headers.get("x-seed-secret") || req.headers.get("authorization")?.replace(/^Bearer\s+/i, '');
+
+    let isAuthorized = false;
+
+    // 1. Check timing-safe secret token if configured
+    if (seedSecret && authHeader && seedSecret.length >= 16) {
+      if (authHeader.length === seedSecret.length && crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(seedSecret))) {
+        isAuthorized = true;
+      }
+    }
+
+    // 2. Check SUPER_ADMIN session
+    if (!isAuthorized) {
+      try {
+        const user = await requireCurrentUser();
+        if (user.role === 'SUPER_ADMIN' || user.permissions.includes('*')) {
+          isAuthorized = true;
+        }
+      } catch (_e) {
+        // unauthorized
+      }
+    }
+
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { error: "Forbidden: Unauthorized access to system user initialization." },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const secretPassword = body.password || "Password123!";
     const hashedPassword = await bcrypt.hash(secretPassword, 10);
@@ -61,7 +94,7 @@ export async function POST(req: Request) {
             isActive: true,
           },
         });
-        results.push({ email: u.email, role: u.role, password: secretPassword, id: user.id });
+        results.push({ email: u.email, role: u.role, id: user.id });
       }
     }
 

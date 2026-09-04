@@ -9,6 +9,8 @@ import { format } from "date-fns"
 import Link from "next/link"
 import { LiveOccupancy } from "@/components/shared/LiveOccupancy"
 import { LiveWebsiteChangesWidget } from "@/components/dashboard/ui/LiveWebsiteChangesWidget"
+import { requirePortalAccess } from "@/lib/server-auth"
+import { redirect } from "next/navigation"
 
 export const metadata = {
   title: "Command Center | E3 Admin"
@@ -21,8 +23,15 @@ export default async function DashboardOverviewPage({
 }) {
   const { locale } = (await params) || {};
   const isAr = locale === 'ar';
-  const session = await auth();
-  const userName = session?.user?.name || session?.user?.email?.split('@')[0] || (isAr ? "المسؤول" : "Admin");
+
+  let adminUser: any = null;
+  try {
+    adminUser = await requirePortalAccess('admin');
+  } catch (_e) {
+    redirect(`/${locale || 'en'}/login/admin?callbackUrl=/${locale || 'en'}/dashboard`);
+  }
+
+  const userName = adminUser?.name || adminUser?.email?.split('@')[0] || (isAr ? "المسؤول" : "Admin");
 
   const hour = new Date().getHours();
   const greetingEn = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";

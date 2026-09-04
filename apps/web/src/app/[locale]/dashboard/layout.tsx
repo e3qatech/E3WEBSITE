@@ -4,6 +4,8 @@ import { AdminTopBar } from "@/components/dashboard/ui/AdminTopBar"
 import { SystemBroadcastBanner } from "@/components/dashboard/SystemBroadcastBanner"
 import db from "@/lib/db"
 import { AdminThemeProvider } from "@/components/dashboard/ui/AdminThemeProvider"
+import { requirePortalAccess } from "@/lib/server-auth"
+import { redirect } from "next/navigation"
 
 export default async function DashboardLayout({
   children,
@@ -14,6 +16,13 @@ export default async function DashboardLayout({
 }) {
   const { locale } = await params;
   const isAr = locale === 'ar';
+
+  try {
+    await requirePortalAccess('admin');
+  } catch (authErr: any) {
+    redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard`);
+    return null;
+  }
 
   // Fetch active broadcast (with error handling for missing tables)
   let activeBroadcast = null;

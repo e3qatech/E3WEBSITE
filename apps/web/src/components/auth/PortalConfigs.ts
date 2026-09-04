@@ -43,7 +43,7 @@ export const PORTAL_CONFIGS: Record<PortalKey, PortalConfig> = {
     badgeEn: 'Staff Access',
     badgeAr: 'بوابة الموظفين',
     allowedRoles: ['STAFF'],
-    defaultLanding: '/staff',
+    defaultLanding: '/dashboard',
     accentColor: '#10b981', // Jade
     secondaryAccent: '#d97706', // Muted Amber
     themeStyle: 'staff',

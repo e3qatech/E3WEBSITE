@@ -246,17 +246,6 @@ export function CommandPaletteModal({
         icon: <Radio className="w-4 h-4 text-orange-500" />,
         keywords: ["broadcast", "announcements", "operations", "alerts", "بث", "تنبيهات"],
       },
-      {
-        id: "ops-rules",
-        titleEn: "Temporal & Operating Rules",
-        titleAr: "القواعد الزمنية وجداول التشغيل",
-        category: "operations",
-        categoryLabelEn: "Operations",
-        categoryLabelAr: "العمليات",
-        href: `/${locale}/dashboard/operations/temporal-rules`,
-        icon: <Sliders className="w-4 h-4 text-blue-500" />,
-        keywords: ["temporal", "rules", "schedule rules", "operating hours", "قواعد"],
-      },
 
       // --- SETTINGS ---
       {

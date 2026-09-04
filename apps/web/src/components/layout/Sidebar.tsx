@@ -79,7 +79,6 @@ const sidebarConfig = [
   ] },
   { label: "Operations", icon: Activity, href: "/dashboard/operations/events", roles: ["SUPER_ADMIN"], subItems: [
     { label: "Schedules & Capacity", href: "/dashboard/operations/events" },
-    { label: "Temporal Rules", href: "/dashboard/operations/temporal-rules" },
     { label: "Broadcast", href: "/dashboard/operations/broadcast" }
   ] },
   { label: "CRM", icon: Database, href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN"], subItems: [

@@ -17,7 +17,7 @@ export class AppAuthError extends Error {
 export async function requireCurrentUser() {
   const session = await auth();
   if (!session || !session.user || !session.user.id) {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' && process.env.ALLOW_DEV_ADMIN_BYPASS === 'true') {
       return {
         id: 'dev-admin-user',
         name: 'Dev Super Admin',

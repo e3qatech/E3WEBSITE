@@ -9,8 +9,10 @@ export function useLiveOccupancy() {
   const updateOccupancy = useAttractionsStore((state) => state.updateOccupancy);
 
   useEffect(() => {
-    // Only connect in browser environment
-    if (typeof window === 'undefined') return;
+    // Only connect if explicitly enabled via environment variable
+    if (typeof window === 'undefined' || process.env.NEXT_PUBLIC_ENABLE_SOCKET_TELEMETRY !== 'true') {
+      return;
+    }
 
     // Use environment variable for socket URL, fallback to empty string (same origin)
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || '';
