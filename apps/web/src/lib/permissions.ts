@@ -6,6 +6,8 @@ export type Role =
   | 'B2B_ADMIN'
   | 'HR_ADMIN'
   | 'OPERATIONS_ADMIN'
+  | 'EVENTS_ADMIN'
+  | 'EVENTS_TEAM'
   | 'STAFF'
   | 'CLIENT'
   | 'BUSINESS_USER'
@@ -78,6 +80,42 @@ export type Capability =
  */
 export const rolePermissions: Record<Role, string[]> = {
   SUPER_ADMIN: ['*'],
+
+  EVENTS_ADMIN: [
+    'b2c.packages.manage',
+    'b2c.packages.read',
+    'b2c.inquiries.manage',
+    'crm.leads.manage',
+    'b2c.content.read',
+    'b2c.content.write',
+    'b2c.attractions.manage',
+    'b2c.feedback.manage',
+    'media.read',
+    'media.write',
+    'view:b2c',
+    'manage:b2c',
+    'manage:packages',
+    'view:packages',
+    'manage:leads',
+    'view:leads',
+    'view:dashboard',
+    'view:schedule',
+  ],
+
+  EVENTS_TEAM: [
+    'b2c.packages.manage',
+    'b2c.packages.read',
+    'b2c.inquiries.manage',
+    'crm.leads.manage',
+    'b2c.content.read',
+    'media.read',
+    'view:b2c',
+    'manage:packages',
+    'view:packages',
+    'manage:leads',
+    'view:leads',
+    'view:dashboard',
+  ],
 
   B2C_ADMIN: [
     'b2c.content.read',

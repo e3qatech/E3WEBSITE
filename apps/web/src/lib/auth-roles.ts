@@ -1,6 +1,6 @@
 import type { RoleType } from '@prisma/client';
 
-export type PortalKey = 'admin' | 'staff' | 'business' | 'careers';
+export type PortalKey = 'admin' | 'staff' | 'business' | 'careers' | 'events';
 
 export type AdminRoleName =
   | 'SUPER_ADMIN'
@@ -9,7 +9,9 @@ export type AdminRoleName =
   | 'B2C_ADMIN'
   | 'B2B_ADMIN'
   | 'HR_ADMIN'
-  | 'OPERATIONS_ADMIN';
+  | 'OPERATIONS_ADMIN'
+  | 'EVENTS_ADMIN'
+  | 'EVENTS_TEAM';
 
 /**
  * Canonical role normalization utility across E3 Qatar monorepo.
@@ -21,6 +23,9 @@ export function normalizeRole(role?: string | null): RoleType {
 
   if (clean === 'ADMIN' || clean === 'SUPER_ADMIN' || clean === 'SUPERADMIN') {
     return 'SUPER_ADMIN';
+  }
+  if (clean === 'EVENTS_ADMIN' || clean === 'EVENTS_TEAM' || clean === 'EVENTS' || clean === 'EVENT_ADMIN' || clean === 'EVENT_TEAM') {
+    return 'SUPPORT_ADMIN'; // Maps to SUPPORT_ADMIN in Prisma enum with full B2C & Package capabilities
   }
   if (clean === 'B2C_ADMIN' || clean === 'B2CADMIN') {
     return 'SUPPORT_ADMIN'; // Maps to SUPPORT_ADMIN in Prisma enum
@@ -52,7 +57,7 @@ export function normalizeRole(role?: string | null): RoleType {
   return 'CLIENT';
 }
 
-export const VALID_PORTAL_KEYS: PortalKey[] = ['admin', 'staff', 'business', 'careers'];
+export const VALID_PORTAL_KEYS: PortalKey[] = ['admin', 'staff', 'business', 'careers', 'events'];
 
 /**
  * Returns allowed RoleType values for a specific portal key.
@@ -61,6 +66,8 @@ export function allowedRolesForPortal(portal: PortalKey): string[] {
   switch (portal) {
     case 'admin':
       return ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'B2C_ADMIN', 'B2B_ADMIN', 'HR_ADMIN', 'OPERATIONS_ADMIN'];
+    case 'events':
+      return ['SUPER_ADMIN', 'SUPPORT_ADMIN', 'B2C_ADMIN', 'EVENTS_ADMIN', 'EVENTS_TEAM'];
     case 'staff':
       return ['STAFF'];
     case 'business':
@@ -97,9 +104,25 @@ export function isAdminRole(role?: string | null): boolean {
     'B2C_ADMIN',
     'B2B_ADMIN',
     'HR_ADMIN',
-    'OPERATIONS_ADMIN'
+    'OPERATIONS_ADMIN',
+    'EVENTS_ADMIN',
+    'EVENTS_TEAM',
+    'EVENTS'
   ];
   return adminRoles.includes(clean) || normalizeRole(role) === 'SUPER_ADMIN' || normalizeRole(role) === 'SALES_ADMIN' || normalizeRole(role) === 'SUPPORT_ADMIN';
+}
+
+export function isEventsRole(role?: string | null): boolean {
+  if (!role) return false;
+  const clean = String(role).trim().toUpperCase();
+  return (
+    clean === 'EVENTS_ADMIN' ||
+    clean === 'EVENTS_TEAM' ||
+    clean === 'EVENTS' ||
+    clean === 'EVENT_ADMIN' ||
+    clean === 'EVENT_TEAM' ||
+    normalizeRole(role) === 'SUPPORT_ADMIN'
+  );
 }
 
 export function isStaffRole(role?: string | null): boolean {

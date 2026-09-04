@@ -66,8 +66,24 @@ const sidebarConfig: NavGroupItem[] = [
       "B2B_ADMIN",
       "HR_ADMIN",
       "OPERATIONS_ADMIN",
+      "EVENTS_ADMIN",
+      "EVENTS_TEAM",
       "STAFF",
       "CLIENT",
+    ],
+  },
+  {
+    id: "events-packages",
+    category: "b2c",
+    label: "Events & Packages",
+    labelAr: "إدارة الفعاليات والباقات",
+    icon: Star,
+    href: "/dashboard/b2c/packages",
+    roles: ["SUPER_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "EVENTS_ADMIN", "EVENTS_TEAM"],
+    capability: "b2c.packages.manage",
+    subItems: [
+      { label: "Packages & Birthday CMS", labelAr: "دليل الباقات وأعياد الميلاد", href: "/dashboard/b2c/packages", capability: "b2c.packages.manage" },
+      { label: "Package Leads & Inquiries", labelAr: "طلبات باقات الأفراد", href: "/dashboard/leads/packages", capability: "crm.leads.manage" },
     ],
   },
   {
@@ -95,7 +111,7 @@ const sidebarConfig: NavGroupItem[] = [
     labelAr: "محتوى الألعاب والوجهات",
     icon: Star,
     href: "/dashboard/b2c/attractions",
-    roles: ["SUPER_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN"],
+    roles: ["SUPER_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "EVENTS_ADMIN", "EVENTS_TEAM"],
     capability: "b2c.content.read",
     subItems: [
       { label: "Attractions Catalog", labelAr: "دليل الألعاب والوجهات", href: "/dashboard/b2c/attractions", capability: "b2c.attractions.manage" },
@@ -155,7 +171,7 @@ const sidebarConfig: NavGroupItem[] = [
     labelAr: "الوسائط والتواصل الاجتماعي",
     icon: Database,
     href: "/dashboard/cms/media",
-    roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "B2B_ADMIN", "HR_ADMIN", "OPERATIONS_ADMIN"],
+    roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "B2B_ADMIN", "HR_ADMIN", "OPERATIONS_ADMIN", "EVENTS_ADMIN", "EVENTS_TEAM"],
     capability: "media.read",
     subItems: [
       { label: "Media Library & Folders", labelAr: "مكتبة الوسائط والمجلدات", href: "/dashboard/cms/media", capability: "media.read" },
@@ -170,7 +186,7 @@ const sidebarConfig: NavGroupItem[] = [
     labelAr: "المبيعات والتوظيف",
     icon: Activity,
     href: "/dashboard/crm/leads",
-    roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN", "HR_ADMIN"],
+    roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN", "HR_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "EVENTS_ADMIN", "EVENTS_TEAM"],
     capability: "crm.leads.manage",
     subItems: [
       { label: "Sales Pipeline & Deals", labelAr: "مسار صفقات المبيعات", href: "/dashboard/crm/leads", capability: "crm.leads.manage" },
@@ -258,6 +274,7 @@ export function AdminSidebar() {
   // Role pill color
   const roleBadgeColor = React.useMemo(() => {
     if (userRole.includes("SUPER")) return "bg-purple-500/20 text-purple-300 border-purple-500/30";
+    if (userRole.includes("EVENTS")) return "bg-violet-500/20 text-violet-300 border-violet-500/30";
     if (userRole.includes("B2B")) return "bg-cyan-500/20 text-cyan-300 border-cyan-500/30";
     if (userRole.includes("B2C")) return "bg-pink-500/20 text-pink-300 border-pink-500/30";
     return "bg-slate-500/20 text-slate-300 border-slate-500/30";

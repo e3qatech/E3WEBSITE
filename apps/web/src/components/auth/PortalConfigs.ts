@@ -79,4 +79,20 @@ export const PORTAL_CONFIGS: Record<PortalKey, PortalConfig> = {
     themeStyle: 'people',
     bgGradient: 'from-rose-950/40 via-zinc-950 to-amber-950/20',
   },
+  events: {
+    portalKey: 'events',
+    titleEn: 'E3 Events & Packages Portal',
+    titleAr: 'بوابة إي ثري للفعاليات والباقات',
+    descriptionEn: 'Celebration packages, quote builder, leads pipeline, and event management',
+    descriptionAr: 'إدارة باقات الاحتفالات، عروض الأسعار، وتتبع طلبات الزوار والعملاء',
+    badgeEn: 'Events Team Access',
+    badgeAr: 'بوابة فريق الفعاليات',
+    allowedRoles: allowedRolesForPortal('events'),
+    defaultLanding: '/dashboard/b2c/packages',
+    accentColor: '#8b5cf6', // Experiential Violet / Purple
+    secondaryAccent: '#10b981', // Emerald
+    themeStyle: 'control',
+    bgGradient: 'from-slate-950 via-purple-950/30 to-emerald-950/20',
+    showWorkspaceSelector: false,
+  },
 };

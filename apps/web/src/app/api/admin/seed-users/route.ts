@@ -58,6 +58,11 @@ export async function POST(req: Request) {
         role: "SUPPORT_ADMIN",
       },
       {
+        email: "events@e3qatar.com",
+        name: "Events Experience Lead",
+        role: "SUPPORT_ADMIN",
+      },
+      {
         email: "staff@e3qatar.com",
         name: "Field Operations Staff",
         role: "STAFF",

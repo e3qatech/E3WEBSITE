@@ -67,7 +67,10 @@ export async function requireCurrentUser() {
   }
 
   const normalizedUserRole = normalizeRole(user.role);
-  const permissions = rolePermissions[normalizedUserRole] || [];
+  const cleanRawRole = user.role ? String(user.role).trim().toUpperCase() : "";
+  const permissions = (cleanRawRole in rolePermissions)
+    ? (rolePermissions as any)[cleanRawRole]
+    : rolePermissions[normalizedUserRole] || [];
 
   return {
     id: user.id,

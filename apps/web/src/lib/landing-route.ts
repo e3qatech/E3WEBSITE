@@ -36,7 +36,8 @@ export function resolveServerLandingDestination({
   const requestedPortal = (portal && VALID_PORTAL_KEYS.includes(portal as PortalKey)) ? (portal as PortalKey) : 'admin';
 
   // 1. Verify portal authorization
-  const isAuthorized = isAuthorizedForPortal(role, requestedPortal);
+  const cleanUserRole = user.role ? String(user.role).trim().toUpperCase() : "";
+  const isAuthorized = isAuthorizedForPortal(cleanUserRole || role, requestedPortal);
   if (!isAuthorized) {
     return {
       destination: `/${validLocale}/login/${requestedPortal}?error=unauthorized`,
@@ -46,11 +47,16 @@ export function resolveServerLandingDestination({
 
   // 2. If callbackUrl is provided and safe, sanitize it and prioritize
   if (callbackUrl) {
-    const sanitized = sanitizeCallbackUrl(callbackUrl, { role }, validLocale);
+    const sanitized = sanitizeCallbackUrl(callbackUrl, { role: cleanUserRole || role }, validLocale);
     return { destination: sanitized, authorized: true };
   }
 
-  // 3. Resolve destination based on role and validated workspace
+  // 3. If requestedPortal is 'events' or user is Events Team, route directly to Packages Dashboard
+  if (requestedPortal === 'events' || cleanUserRole === 'EVENTS_ADMIN' || cleanUserRole === 'EVENTS_TEAM' || cleanUserRole === 'EVENTS') {
+    return { destination: `/${validLocale}/dashboard/b2c/packages`, authorized: true };
+  }
+
+  // 4. Resolve destination based on role and validated workspace
   if (role === 'SUPER_ADMIN') {
     if (requestedPortal === 'admin') {
       const validWorkspaces: AdminWorkspace[] = ['super', 'b2b', 'b2c'];
@@ -65,20 +71,26 @@ export function resolveServerLandingDestination({
         return { destination: `/${validLocale}/dashboard/b2b`, authorized: true };
       }
       if (cleanWorkspace === 'b2c') {
-        return { destination: `/${validLocale}/dashboard/b2c`, authorized: true };
+        return { destination: `/${validLocale}/dashboard/b2c/packages`, authorized: true };
       }
       return { destination: `/${validLocale}/dashboard`, authorized: true };
     }
   }
 
   // Fallback to canonical landing route per role
-  const canonicalRoute = getAuthorizedLandingRoute({ role }, validLocale);
+  const canonicalRoute = getAuthorizedLandingRoute({ role: cleanUserRole || role }, validLocale);
   return { destination: canonicalRoute, authorized: true };
 }
 
 export function getAuthorizedLandingRoute(user?: { role?: string | null } | null, locale: string = 'en'): string {
   const validLocale = locale === 'ar' ? 'ar' : 'en';
   if (!user || !user.role) return `/${validLocale}/login/admin`;
+  const cleanRole = String(user.role).trim().toUpperCase();
+
+  if (cleanRole === 'EVENTS_ADMIN' || cleanRole === 'EVENTS_TEAM' || cleanRole === 'EVENTS') {
+    return `/${validLocale}/dashboard/b2c/packages`;
+  }
+
   const role = normalizeRole(user.role);
 
   switch (role) {
@@ -87,7 +99,7 @@ export function getAuthorizedLandingRoute(user?: { role?: string | null } | null
     case 'SALES_ADMIN':
       return `/${validLocale}/dashboard/b2b`;
     case 'SUPPORT_ADMIN':
-      return `/${validLocale}/dashboard/b2c`;
+      return `/${validLocale}/dashboard/b2c/packages`;
     case 'STAFF':
       return `/${validLocale}/staff`;
     case 'CLIENT':
@@ -164,6 +176,7 @@ export function sanitizeCallbackUrl(
 
   // Role authorization scope validation
   if (user && user.role) {
+    const cleanRole = String(user.role).trim().toUpperCase();
     const role = normalizeRole(user.role);
 
     if (role === 'CLIENT' && decoded.includes('/dashboard')) {
@@ -178,8 +191,13 @@ export function sanitizeCallbackUrl(
     if (role === 'SALES_ADMIN' && decoded.includes('/dashboard/b2c')) {
       return `/${locale}/dashboard/b2b`;
     }
+    if (cleanRole === 'EVENTS_ADMIN' || cleanRole === 'EVENTS_TEAM' || cleanRole === 'EVENTS') {
+      if (decoded.includes('/dashboard/b2b')) {
+        return `/${locale}/dashboard/b2c/packages`;
+      }
+    }
     if (role === 'SUPPORT_ADMIN' && decoded.includes('/dashboard/b2b')) {
-      return `/${locale}/dashboard/b2c`;
+      return `/${locale}/dashboard/b2c/packages`;
     }
   }
 
