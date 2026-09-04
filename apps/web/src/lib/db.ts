@@ -77,10 +77,14 @@ const prismaClientSingleton = () => {
   try {
     if (finalUrl.startsWith('postgres://') || finalUrl.startsWith('postgresql://')) {
       const parsedUrl = new URL(finalUrl);
-      if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL && parsedUrl.hostname.includes('-pooler')) {
-        parsedUrl.hostname = parsedUrl.hostname.replace('-pooler', '');
-      } else if (parsedUrl.hostname.includes('-pooler')) {
+      if (parsedUrl.hostname.includes('-pooler')) {
         parsedUrl.searchParams.set('pgbouncer', 'true');
+      }
+      if (!parsedUrl.searchParams.has('connect_timeout')) {
+        parsedUrl.searchParams.set('connect_timeout', '20');
+      }
+      if (!parsedUrl.searchParams.has('pool_timeout')) {
+        parsedUrl.searchParams.set('pool_timeout', '20');
       }
       parsedUrl.searchParams.delete('channel_binding');
       finalUrl = parsedUrl.toString();
@@ -111,29 +115,47 @@ const prismaClientSingleton = () => {
     query: {
       $allModels: {
         async $allOperations({ operation, model, args, query }: any) {
-          // Only time queries in development to avoid perf overhead in production
-          if (isProduction) {
-            return query(args);
-          }
+          const TIMEOUT_MS = 25000;
+          const maxAttempts = 3;
+          let attempt = 0;
 
-          const start = performance.now();
-          const TIMEOUT_MS = 15000;
+          while (attempt < maxAttempts) {
+            attempt++;
+            const start = performance.now();
+            const timeoutPromise = new Promise((_, reject) => {
+              setTimeout(
+                () => reject(new Error(`[DB TIMEOUT] ${model}.${operation} exceeded ${TIMEOUT_MS}ms`)),
+                TIMEOUT_MS
+              );
+            });
 
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error(`[DB TIMEOUT] ${model}.${operation} exceeded ${TIMEOUT_MS}ms`)), TIMEOUT_MS);
-          });
+            try {
+              const result = await Promise.race([query(args), timeoutPromise]);
+              const duration = performance.now() - start;
+              if (!isProduction && duration > 1000) {
+                console.warn(`[PRISMA SLOW QUERY] ${model}.${operation} took ${Math.round(duration)}ms`);
+              }
+              return result;
+            } catch (error: any) {
+              const errMsg = String(error?.message || error || '');
+              const isTransientConnError =
+                errMsg.includes("Can't reach database server") ||
+                errMsg.includes('Connection closed') ||
+                errMsg.includes('kind: Closed') ||
+                errMsg.includes('connection reset') ||
+                errMsg.includes('timed out');
 
-          try {
-            const result = await Promise.race([query(args), timeoutPromise]);
-            const duration = performance.now() - start;
-            if (duration > 500) {
-              console.warn(`[PRISMA SLOW QUERY] ${model}.${operation} took ${Math.round(duration)}ms`);
+              if (isTransientConnError && attempt < maxAttempts) {
+                console.warn(
+                  `[DB RETRY] Transient Neon connection drop in ${model}.${operation}. Waking serverless compute, retrying (${attempt}/${maxAttempts})...`
+                );
+                await new Promise((resolve) => setTimeout(resolve, 600 * attempt));
+                continue;
+              }
+
+              console.error(`[DB ERROR] ${model}.${operation} failed:`, errMsg);
+              throw error;
             }
-            return result;
-          } catch (error: any) {
-            const errMsg = String(error?.message || error || '');
-            console.error(`[DB ERROR] ${model}.${operation} failed:`, errMsg);
-            throw error;
           }
         }
       }
