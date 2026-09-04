@@ -5,7 +5,8 @@ import Link from "next/link"
 import { 
   Plus, Search, Edit2, Trash2, Copy, LayoutTemplate, 
   Package as PackageIcon, ArrowRight, RefreshCw,
-  Tag, Users, FolderTree, FileSpreadsheet, Eye, Share2
+  Tag, Users, FolderTree, FileSpreadsheet, Eye, Share2,
+  FileText
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
@@ -21,6 +22,7 @@ import { PackagePromotionsManager } from "@/components/dashboard/b2c/PackageProm
 import { PackageReferralsManager } from "@/components/dashboard/b2c/PackageReferralsManager"
 import { PackageQuotationBuilder } from "@/components/dashboard/b2c/PackageQuotationBuilder"
 import { PackageLeadsManager } from "@/components/dashboard/leads/PackageLeadsManager"
+import { PackagePdfSettingsTab } from "@/components/dashboard/b2c/PackagePdfSettingsTab"
 
 export function PackagesManager({ initialData = [] }: { initialData?: any[] }) {
   let locale: 'en' | 'ar' = 'en'
@@ -38,7 +40,7 @@ export function PackagesManager({ initialData = [] }: { initialData?: any[] }) {
 
   // Navigation Tab State
   const [activeTab, setActiveTab] = useState<
-    "catalogue" | "templates" | "categories" | "promotions" | "referrals" | "leads" | "quotations"
+    "catalogue" | "templates" | "categories" | "promotions" | "referrals" | "leads" | "quotations" | "pdf"
   >("catalogue")
 
   const [packages, setPackages] = useState<any[]>(initialData.filter((p: any) => !p.isTemplate))
@@ -157,7 +159,8 @@ export function PackagesManager({ initialData = [] }: { initialData?: any[] }) {
     { id: "promotions", labelEn: "Discounts & Coupons", labelAr: "الخصومات والكوبونات", icon: Tag },
     { id: "referrals", labelEn: "Referrals & Partners", labelAr: "برامج الإحالة", icon: Share2 },
     { id: "leads", labelEn: "Inquiries & CRM", labelAr: "طلبات الحجز والعملاء", icon: Users },
-    { id: "quotations", labelEn: "Quotations Builder", labelAr: "عروض الأسعار", icon: FileSpreadsheet }
+    { id: "quotations", labelEn: "Quotations Builder", labelAr: "عروض الأسعار", icon: FileSpreadsheet },
+    { id: "pdf", labelEn: "PDF Quote & Letterhead", labelAr: "ترويسة PDF وعروض الأسعار", icon: FileText }
   ]
 
   return (
@@ -177,6 +180,17 @@ export function PackagesManager({ initialData = [] }: { initialData?: any[] }) {
           ]}
           badge={{ label: isAr ? `${packages.length} باقة نشطة` : `${packages.length} Packages`, variant: "purple" }}
           previewUrl="/b2c/packages"
+          secondaryAction={
+            <Button
+              onClick={() => setActiveTab("pdf")}
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs border-purple-500/30 text-purple-400 hover:bg-purple-500/10 font-bold cursor-pointer"
+            >
+              <FileText className="w-4 h-4" />
+              <span>{isAr ? "محرر ترويسة وعروض PDF" : "PDF Quote & Letterhead Editor"}</span>
+            </Button>
+          }
           primaryAction={{
             label: isAr ? "إنشاء باقة جديدة" : "Create Package",
             onClick: () => { setEditingItem(null); setIsCreating(true); },
@@ -471,6 +485,11 @@ export function PackagesManager({ initialData = [] }: { initialData?: any[] }) {
             dir={dir}
             initialLead={selectedLeadForQuote}
           />
+        )}
+
+        {/* TAB 8: PDF QUOTE & LETTERHEAD MANAGER */}
+        {activeTab === "pdf" && (
+          <PackagePdfSettingsTab locale={locale} />
         )}
       </div>
     </DashboardPageShell>

@@ -30,6 +30,11 @@ import {
 import { Button } from "@/components/ui/Button";
 import { PackageMediaUploader } from "@/components/dashboard/b2c/PackageMediaUploader";
 import { cn } from "@/lib/utils";
+import { 
+  PDFLetterheadManagerModal, 
+  DEFAULT_PDF_CONFIG, 
+  PDFLetterheadConfig 
+} from "@/components/dashboard/b2c/PDFLetterheadManagerModal";
 
 interface PackageStudioEditorProps {
   initialData?: any;
@@ -50,8 +55,9 @@ const WORKFLOW_STEPS = [
   { id: "addons", labelEn: "8. Add-ons", labelAr: "٨. الإضافات", icon: Plus },
   { id: "itinerary", labelEn: "9. Schedule Flow", labelAr: "٩. الجدول الزمني", icon: Clock },
   { id: "media", labelEn: "10. Media & Gallery", labelAr: "١٠. الوسائط", icon: ImageIcon },
-  { id: "seo", labelEn: "11. SEO & Metadata", labelAr: "١١. محركات البحث", icon: Tag },
-  { id: "publish", labelEn: "12. Validation & Publish", labelAr: "١٢. النشر", icon: ShieldCheck },
+  { id: "pdfQuote", labelEn: "11. PDF Quote & Terms", labelAr: "١١. ترويسة العرض وPDF", icon: FileText },
+  { id: "seo", labelEn: "12. SEO & Metadata", labelAr: "١٢. محركات البحث", icon: Tag },
+  { id: "publish", labelEn: "13. Validation & Publish", labelAr: "١٣. النشر", icon: ShieldCheck },
 ];
 
 export function PackageStudioEditor({
@@ -72,6 +78,7 @@ export function PackageStudioEditor({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   // Form State
   const [form, setForm] = useState({
@@ -532,6 +539,16 @@ export function PackageStudioEditor({
               <span>{isAr ? "معاينة الصفحة" : "Live Preview"}</span>
             </a>
           )}
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => setIsPdfModalOpen(true)}
+            className="gap-1.5 text-xs border-purple-500/40 text-purple-400 hover:bg-purple-500/10 font-bold cursor-pointer"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>{isAr ? "محرر ترويسة PDF" : "PDF Quote Editor"}</span>
+          </Button>
           <Button
             size="sm"
             onClick={handleSave}
@@ -1832,8 +1849,266 @@ export function PackageStudioEditor({
           </div>
         )}
 
-        {/* Step 10: SEO & Metadata */}
+        {/* Step 10: PDF Quote, Terms & Letterhead Branding */}
         {activeStep === 10 && (
+          <div className="space-y-6">
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-purple-950/40 via-zinc-900/60 to-sky-950/30 border border-purple-500/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-mono font-bold mb-2">
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>{isAr ? "نظام ترويسة عروض الأسعار الرسمية" : "Official PDF Quotation & Branding"}</span>
+                </div>
+                <h3 className="text-base font-bold text-[var(--text-primary)]">
+                  {isAr ? "ترويسة عرض السعر وشروط باقة عيد الميلاد والفعالية" : "Package Quotation Terms & PDF Letterhead Branding"}
+                </h3>
+                <p className="text-xs text-[var(--text-secondary)] max-w-2xl mt-1 leading-relaxed">
+                  {isAr
+                    ? "تحكم في الشروط المطبوعة، سياسة الإلغاء، إرشادات الكعكة والحفل، وشعار الترويسة والختم المعتمد في عروض أسعار هذه الباقة."
+                    : "Configure package-specific booking terms, deposit requirements, cake ceremony guidelines, and official PDF letterhead overrides for client proposals."}
+                </p>
+              </div>
+
+              <Button
+                type="button"
+                onClick={() => setIsPdfModalOpen(true)}
+                className="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs gap-2 shadow-lg shadow-purple-500/20 shrink-0 cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>{isAr ? "فتح محرر ترويسة PDF والختم الكامل" : "Launch Full PDF Letterhead Editor"}</span>
+              </Button>
+            </div>
+
+            {/* Deposit & Quotation Validity */}
+            <div className="p-5 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] space-y-4">
+              <h4 className="text-xs font-bold text-[var(--text-primary)] uppercase font-mono flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-emerald-500" />
+                <span>{isAr ? "نسبة العربون وصلاحية العرض" : "Deposit & Quotation Financial Terms"}</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    {isAr ? "نسبة العربون المطلوب لتأكيد الحجز (%)" : "Deposit Percentage Required (%)"}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={form.termsConditions?.depositPercentage ?? 50}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      setForm((prev: any) => ({
+                        ...prev,
+                        termsConditions: {
+                          ...(prev.termsConditions || {}),
+                          depositPercentage: val,
+                        },
+                      }));
+                    }}
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] font-mono focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                  <span className="text-[10px] text-[var(--text-tertiary)] mt-1 block">
+                    {isAr ? "القيمة الافتراضية 50% لتأكيد الحجز وحجز القاعة" : "Standard default: 50% deposit to lock hall & time slot"}
+                  </span>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    {isAr ? "فترة صلاحية العرض (بالأيام)" : "Quotation Validity Window (Days)"}
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="60"
+                    value={form.termsConditions?.validDays ?? 14}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 14;
+                      setForm((prev: any) => ({
+                        ...prev,
+                        termsConditions: {
+                          ...(prev.termsConditions || {}),
+                          validDays: val,
+                        },
+                      }));
+                    }}
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] font-mono focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                  <span className="text-[10px] text-[var(--text-tertiary)] mt-1 block">
+                    {isAr ? "عرض السعر الصادر للعميل يسري لمدة 14 يوماً" : "Proposals expire automatically after this number of days"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Birthday Celebration & Cake Guidelines */}
+            <div className="p-5 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] space-y-4">
+              <h4 className="text-xs font-bold text-[var(--text-primary)] uppercase font-mono flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-500" />
+                <span>{isAr ? "إرشادات حفل عيد الميلاد ومراسم الكعكة" : "Birthday Celebration & Cake Cutting Policies"}</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    Birthday & Cake Guidelines (English)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={form.termsConditions?.birthdayGuidelinesEn || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setForm((prev: any) => ({
+                        ...prev,
+                        termsConditions: {
+                          ...(prev.termsConditions || {}),
+                          birthdayGuidelinesEn: val,
+                        },
+                      }));
+                    }}
+                    placeholder="e.g. Birthday cake cutting ceremony included. Outside catering requires prior management approval. Setup permitted 30 mins prior..."
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    إرشادات عيد الميلاد والكعكة (بالعربية)
+                  </label>
+                  <textarea
+                    rows={3}
+                    dir="rtl"
+                    value={form.termsConditions?.birthdayGuidelinesAr || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setForm((prev: any) => ({
+                        ...prev,
+                        termsConditions: {
+                          ...(prev.termsConditions || {}),
+                          birthdayGuidelinesAr: val,
+                        },
+                      }));
+                    }}
+                    placeholder="مثال: تتضمن الباقة مراسم تقطيع كعكة عيد الميلاد. يُسمح بإدخال الكعكة والتجهيز قبل 30 دقيقة من بدء الحفل..."
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] font-arabic text-right focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Cancellation & Refund Terms */}
+            <div className="p-5 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] space-y-4">
+              <h4 className="text-xs font-bold text-[var(--text-primary)] uppercase font-mono flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-amber-500" />
+                <span>{isAr ? "سياسة الإلغاء والاسترداد القانونية" : "Cancellation & Refund Terms"}</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    Cancellation Policy (English)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={form.termsConditions?.cancellationPolicyEn || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setForm((prev: any) => ({
+                        ...prev,
+                        termsConditions: {
+                          ...(prev.termsConditions || {}),
+                          cancellationPolicyEn: val,
+                        },
+                      }));
+                    }}
+                    placeholder="e.g. Full refund if cancelled 7 days before event. Rescheduling allowed up to 48 hours prior without penalty..."
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    سياسة الإلغاء والاسترداد (بالعربية)
+                  </label>
+                  <textarea
+                    rows={3}
+                    dir="rtl"
+                    value={form.termsConditions?.cancellationPolicyAr || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setForm((prev: any) => ({
+                        ...prev,
+                        termsConditions: {
+                          ...(prev.termsConditions || {}),
+                          cancellationPolicyAr: val,
+                        },
+                      }));
+                    }}
+                    placeholder="مثال: استرداد كامل في حال الإلغاء قبل 7 أيام من الفعالية. يمكن تغيير الموعد قبل 48 ساعة دون أي رسوم إضافية..."
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] font-arabic text-right focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Venue Rules */}
+            <div className="p-5 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] space-y-4">
+              <h4 className="text-xs font-bold text-[var(--text-primary)] uppercase font-mono flex items-center gap-2">
+                <Building className="w-4 h-4 text-sky-500" />
+                <span>{isAr ? "قواعد القاعة وإرشادات السلامة العامة" : "Venue Rules & Safety Guidelines"}</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    Venue Rules & Safety (English)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={form.termsConditions?.venueRulesEn || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setForm((prev: any) => ({
+                        ...prev,
+                        termsConditions: {
+                          ...(prev.termsConditions || {}),
+                          venueRulesEn: val,
+                        },
+                      }));
+                    }}
+                    placeholder="e.g. Grip socks required in trampoline zones. Adult supervision required for children under 6..."
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    قواعد القاعة والسلامة (بالعربية)
+                  </label>
+                  <textarea
+                    rows={2}
+                    dir="rtl"
+                    value={form.termsConditions?.venueRulesAr || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setForm((prev: any) => ({
+                        ...prev,
+                        termsConditions: {
+                          ...(prev.termsConditions || {}),
+                          venueRulesAr: val,
+                        },
+                      }));
+                    }}
+                    placeholder="مثال: ارتداء الجوارب المانعة للانزلاق إلزامي في مناطق القفز. يلزم مرافقة شخص بالغ للأطفال دون سن 6 سنوات..."
+                    className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] font-arabic text-right focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 11: SEO & Metadata */}
+        {activeStep === 11 && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -1879,8 +2154,8 @@ export function PackageStudioEditor({
           </div>
         )}
 
-        {/* Step 11: Validation & Publish */}
-        {activeStep === 11 && (
+        {/* Step 12: Validation & Publish */}
+        {activeStep === 12 && (
           <div className="space-y-6 text-center py-6">
             <div className="w-16 h-16 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto shadow-sm">
               <ShieldCheck className="w-8 h-8" />
@@ -1963,6 +2238,23 @@ export function PackageStudioEditor({
           </Button>
         )}
       </div>
+
+      {/* PDF Letterhead & Branding Manager Modal */}
+      <PDFLetterheadManagerModal
+        isOpen={isPdfModalOpen}
+        onClose={() => setIsPdfModalOpen(false)}
+        initialConfig={form.termsConditions?.pdfConfig || DEFAULT_PDF_CONFIG}
+        onSave={(newPdfCfg) => {
+          setForm((prev: any) => ({
+            ...prev,
+            termsConditions: {
+              ...(prev.termsConditions || {}),
+              pdfConfig: newPdfCfg,
+            },
+          }));
+        }}
+        locale={locale}
+      />
     </div>
   );
 }

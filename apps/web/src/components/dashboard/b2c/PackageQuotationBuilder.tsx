@@ -300,14 +300,25 @@ export function PackageQuotationBuilder({
             {isAr ? "إنشاء عروض أسعار تفصيلية، استيراد الباقات والإضافات، تطبيق الخصومات، ومشاركة روابط الدفع والـ PDF." : "Build modular quotations with premade packages, add-ons, dynamic discounts, shareable links, and payment CTAs."}
           </p>
         </div>
-        <Button
-          size="sm"
-          onClick={() => setIsCreating(true)}
-          className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold cursor-pointer shadow-sm shrink-0"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          {isAr ? "إنشاء عرض سعر جديد" : "Create Quotation"}
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setIsPdfModalOpen(true)}
+            className="gap-1.5 text-xs border-purple-500/30 text-purple-400 hover:bg-purple-500/10 font-bold cursor-pointer"
+          >
+            <Settings2 className="w-3.5 h-3.5" />
+            <span>{isAr ? "محرر ترويسة PDF وعروض الأسعار" : "PDF Letterhead & Branding"}</span>
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setIsCreating(true)}
+            className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold cursor-pointer shadow-sm"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>{isAr ? "إنشاء عرض سعر جديد" : "Create Quotation"}</span>
+          </Button>
+        </div>
       </div>
 
       {/* Create Quote Form */}
@@ -851,6 +862,15 @@ export function PackageQuotationBuilder({
           </div>
         )
       })()}
+
+      {/* PDF Letterhead & Branding Manager Modal */}
+      <PDFLetterheadManagerModal
+        isOpen={isPdfModalOpen}
+        onClose={() => setIsPdfModalOpen(false)}
+        initialConfig={pdfConfig}
+        onSave={(newCfg) => setPdfConfig(newCfg)}
+        locale={locale}
+      />
     </div>
   )
 }
