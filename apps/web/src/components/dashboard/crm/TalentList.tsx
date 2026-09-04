@@ -298,12 +298,15 @@ export function TalentList({ initialTalent }: { initialTalent: Talent[] }) {
         isOpen={!!selectedTalentId}
         onClose={() => setSelectedTalentId(null)}
         title="Candidate Details"
+        size="4xl"
+        hideHeader
       >
         {selectedTalentId && (
           <TalentDetail 
             key={selectedTalentId}
             initialTalent={talent.find(t => t.id === selectedTalentId)!}
             onClose={() => setSelectedTalentId(null)}
+            isDrawer={true}
           />
         )}
       </SlideOver>

@@ -24,10 +24,14 @@ const prismaClientSingleton = () => {
       const path = require('path');
       const candidateFiles = [
         path.resolve(process.cwd(), '.env.local'),
+        path.resolve(process.cwd(), 'apps', 'web', '.env.local'),
         path.resolve(process.cwd(), '.env.production'),
+        path.resolve(process.cwd(), 'apps', 'web', '.env.production'),
         path.resolve(process.cwd(), '.env'),
-        path.resolve(process.cwd(), '..', '..', '.env.local'),
-        path.resolve(process.cwd(), '..', '..', '.env')
+        path.resolve(process.cwd(), 'apps', 'web', '.env'),
+        path.resolve(__dirname, '.env.local'),
+        path.resolve(__dirname, '..', '..', '.env.local'),
+        path.resolve(__dirname, '..', '..', '.env')
       ];
       for (const f of candidateFiles) {
         if (fs.existsSync(f)) {
@@ -73,7 +77,9 @@ const prismaClientSingleton = () => {
   try {
     if (finalUrl.startsWith('postgres://') || finalUrl.startsWith('postgresql://')) {
       const parsedUrl = new URL(finalUrl);
-      if (parsedUrl.hostname.includes('-pooler')) {
+      if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL && parsedUrl.hostname.includes('-pooler')) {
+        parsedUrl.hostname = parsedUrl.hostname.replace('-pooler', '');
+      } else if (parsedUrl.hostname.includes('-pooler')) {
         parsedUrl.searchParams.set('pgbouncer', 'true');
       }
       parsedUrl.searchParams.delete('channel_binding');

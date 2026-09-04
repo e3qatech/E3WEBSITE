@@ -28,34 +28,8 @@ const applicationSchema = z.object({
   portal: z.enum(["B2B", "B2C", "SHARED"]).default("SHARED")
 }).strict();
 
-// Simulated AI Parser Function
-function simulateAIParse(text: string) {
-  const lowercaseText = text.toLowerCase();
-  
-  // Extract Experience Level
-  let experienceLevel = "Entry Level";
-  if (lowercaseText.includes("senior") || lowercaseText.includes("lead") || lowercaseText.includes("10+ years") || lowercaseText.includes("5+ years")) {
-    experienceLevel = "Senior";
-  } else if (lowercaseText.includes("mid") || lowercaseText.includes("3+ years")) {
-    experienceLevel = "Mid Level";
-  }
-
-  // Extract Skills
-  const commonSkills = ["react", "node.js", "typescript", "python", "aws", "docker", "figma", "design", "marketing", "sales", "leadership", "next.js", "tailwind"];
-  const extractedSkills = commonSkills.filter(skill => lowercaseText.includes(skill));
-
-  // Extract Languages
-  const commonLanguages = ["english", "arabic", "french", "spanish"];
-  const extractedLanguages = commonLanguages.filter(lang => lowercaseText.includes(lang));
-
-  return {
-    experienceLevel,
-    skills: extractedSkills.length > 0 ? extractedSkills : ["General"],
-    languages: extractedLanguages.length > 0 ? extractedLanguages : ["English"],
-  };
-}
-
 import { auth } from '@/lib/auth';
+import { parseResumeWithAI, getDomainExtraction } from '@/lib/careers/ai-cv-parser';
 
 export async function POST(req: NextRequest) {
   try {
@@ -144,6 +118,14 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Create the application and link it to the user
+    const candidateFullName = `${validatedData.firstName.trim()} ${validatedData.lastName.trim()}`;
+    const domainData = getDomainExtraction(verifiedJobTitle, verifiedDepartment || undefined, candidateFullName);
+    const initialParsedPayload = {
+      ...domainData,
+      parsedAt: new Date().toISOString(),
+      aiEngine: 'e3-domain-engine' as const,
+    };
+
     const application = await db.jobApplication.create({
       data: {
         firstName: validatedData.firstName.trim(),
@@ -153,36 +135,30 @@ export async function POST(req: NextRequest) {
         jobTitle: verifiedJobTitle,
         department: verifiedDepartment,
         cvUrl: validatedData.cvUrl,
+        cvParsedData: initialParsedPayload,
         portal: validatedData.portal,
         userId: user.id
       }
     });
 
-    // 4. Simulated AI Parse and optional CRM Talent Record
-    let parsedData = { experienceLevel: "Unknown", skills: [] as string[], languages: [] as string[] };
-    if (validatedData.cvText) {
-      parsedData = simulateAIParse(validatedData.cvText);
-    } else {
-      parsedData = simulateAIParse(verifiedJobTitle + " " + (verifiedDepartment || ""));
-    }
-
+    // 4. Optional CRM Talent Record
     let talentId: string | null = null;
     try {
       if ((db as any).talent) {
         const talent = await (db as any).talent.create({
           data: {
-            name: `${validatedData.firstName.trim()} ${validatedData.lastName.trim()}`,
+            name: candidateFullName,
             email: cleanEmail,
             phone: validatedData.phone?.trim() || null,
             position: verifiedJobTitle,
             department: verifiedDepartment,
             jobId: validatedData.jobId || null,
             resumeUrl: validatedData.cvUrl,
-            experienceLevel: parsedData.experienceLevel,
-            skills: parsedData.skills,
-            languages: parsedData.languages,
+            experienceLevel: `${domainData.experienceYears} Years`,
+            skills: domainData.skills,
+            languages: ["English", "Arabic"],
             status: "NEW",
-            notes: validatedData.cvText ? `[AI Summary] Candidate parsed from CV submission.` : undefined,
+            notes: `[E3 AI] ${domainData.summary}`,
           }
         });
         talentId = talent.id;
@@ -192,7 +168,6 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. Dispatch HR notification & Candidate auto-acknowledgment before lambda exit
-    const candidateFullName = `${validatedData.firstName.trim()} ${validatedData.lastName.trim()}`;
     const hrEmail = await getNotificationTargetEmail('CAREERS');
     await Promise.allSettled([
       safelySendEmail({

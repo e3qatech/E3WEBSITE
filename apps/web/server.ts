@@ -5,9 +5,17 @@ import path from 'node:path';
 
 // Auto-load local environment file if not set
 if (!process.env.DATABASE_URL && !process.env.E3_DATABASE_URL && !process.env.POSTGRES_PRISMA_URL) {
-  const candidateFiles = ['.env.local', '.env.production', '.env'];
-  for (const file of candidateFiles) {
-    const filePath = path.resolve(process.cwd(), file);
+  const candidateFiles = [
+    path.resolve(process.cwd(), '.env.local'),
+    path.resolve(process.cwd(), 'apps', 'web', '.env.local'),
+    path.resolve(process.cwd(), '.env.production'),
+    path.resolve(process.cwd(), 'apps', 'web', '.env.production'),
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(process.cwd(), 'apps', 'web', '.env'),
+    path.resolve(__dirname, '.env.local'),
+    path.resolve(__dirname, '..', '.env.local'),
+  ];
+  for (const filePath of candidateFiles) {
     if (fs.existsSync(filePath)) {
       const content = fs.readFileSync(filePath, 'utf8');
       for (const line of content.split('\n')) {

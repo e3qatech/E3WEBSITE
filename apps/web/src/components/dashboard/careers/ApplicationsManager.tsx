@@ -7,9 +7,10 @@ import {
 } from "@/components/dashboard/ui";
 import { AdminButton } from "../ui/AdminButton";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
-import { FileText, Download, Cpu, Search, Filter } from "lucide-react";
+import { FileText, Download, Cpu, Search, Filter, Sparkles, AlertTriangle } from "lucide-react";
 import { safeFetchJson } from "@/lib/utils";
 import { useLocale } from "@/components/layout/LocaleProvider";
+import { isLegacySimulatedMock } from "@/lib/careers/ai-cv-parser";
 
 export function ApplicationsManager({ initialApplications }: { initialApplications: any[] }) {
   const [applications, setApplications] = useState(initialApplications);
@@ -179,11 +180,21 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                   <a href={selectedApp.cvUrl} target="_blank" rel="noopener noreferrer" className="flex items-center px-4 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors">
                     <Download className="w-4 h-4 me-2" /> {isAr ? "تحميل السيرة" : "Download CV"}
                   </a>
-                  {!selectedApp.cvParsedData && (
-                    <AdminButton variant="primary" onClick={() => handleParseCV(selectedApp.id)} disabled={parsing}>
-                      <Cpu className="w-4 h-4 me-2" /> {parsing ? (isAr ? "جاري التحليل..." : "Parsing...") : (isAr ? "تحليل بالذكاء الاصطناعي" : "AI Parse CV")}
-                    </AdminButton>
-                  )}
+                  <AdminButton 
+                    variant={selectedApp.cvParsedData ? "outline" : "primary"} 
+                    onClick={() => handleParseCV(selectedApp.id)} 
+                    disabled={parsing}
+                    className="flex items-center gap-1.5"
+                  >
+                    <Cpu className="w-4 h-4 text-purple-400" />
+                    <span>
+                      {parsing 
+                        ? (isAr ? "جاري المعالجة..." : "Analyzing with AI...") 
+                        : selectedApp.cvParsedData 
+                        ? (isAr ? "إعادة التحليل الذكي" : "Re-Analyze (Gemini)") 
+                        : (isAr ? "تحليل بالذكاء الاصطناعي" : "AI Parse CV")}
+                    </span>
+                  </AdminButton>
                 </div>
               </div>
 
@@ -191,7 +202,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
               <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-surface-hover border border-border-default">
                 <div>
                   <div className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">{isAr ? "البريد الإلكتروني" : "Email"}</div>
-                  <div className="text-sm text-white">{selectedApp.email}</div>
+                  <div className="text-sm text-white break-all">{selectedApp.email}</div>
                 </div>
                 <div>
                   <div className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">{isAr ? "رقم الهاتف" : "Phone"}</div>
@@ -209,9 +220,64 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
 
               {/* Parsed Data / AI Analysis */}
               <div className="space-y-4">
-                <h3 className="text-lg font-bold text-white flex items-center">
-                  <Cpu className="w-5 h-5 me-2 text-primary" /> {isAr ? "التحليل الذكي لملف المترشح" : "AI Candidate Analysis"}
-                </h3>
+                {(() => {
+                  const isLegacy = isLegacySimulatedMock(selectedApp.cvParsedData, selectedApp.jobTitle);
+                  return (
+                    <>
+                      <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-border-default/60">
+                        <div className="flex items-center gap-2">
+                          <Cpu className="w-5 h-5 text-purple-400" />
+                          <h3 className="text-lg font-bold text-white">
+                            {isAr ? "التحليل الذكي لملف المترشح" : "AI Candidate Analysis"}
+                          </h3>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {selectedApp.cvParsedData?.aiEngine ? (
+                            <span className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-purple-950/80 text-purple-300 border border-purple-800/50 flex items-center gap-1.5 shadow-sm">
+                              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+                              {selectedApp.cvParsedData.aiEngine}
+                            </span>
+                          ) : isLegacy ? (
+                            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3 text-amber-400" />
+                              {isAr ? "محاكاة تجريبية قديمة" : "Legacy Simulated"}
+                            </span>
+                          ) : null}
+
+                          <button
+                            onClick={() => handleParseCV(selectedApp.id)}
+                            disabled={parsing}
+                            className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 active:scale-95 disabled:opacity-50 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md hover:shadow-purple-500/20"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-purple-200" />
+                            <span>
+                              {parsing
+                                ? (isAr ? "جاري المعالجة بالذكاء الاصطناعي..." : "Analyzing with AI...")
+                                : selectedApp.cvParsedData
+                                ? (isAr ? "إعادة التحليل (Gemini AI)" : "Re-Analyze (Gemini AI)")
+                                : (isAr ? "تحليل السيرة الذاتية (Gemini)" : "Run AI Analysis (Gemini)")}
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {isLegacy && (
+                        <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3">
+                          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                          <div className="flex-1 text-xs text-amber-200/90 leading-relaxed">
+                            <span className="font-bold text-amber-300">
+                              {isAr ? "تنبيه بيانات محاكاة قديمة: " : "Legacy Simulated Mock Detected: "}
+                            </span>
+                            {isAr
+                              ? "هذا السجل يحتوي على بيانات برمجية عامة مسبقة. اضغط على 'إعادة التحليل (Gemini AI)' لتوليد تحليل حقيقي مخصص لمجال الفعاليات والإنتاج."
+                              : "This application contains legacy generic software mock data. Click 'Re-Analyze (Gemini AI)' above to regenerate genuine domain intelligence tailored to event operations."}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
                 
                 {selectedApp.cvParsedData ? (
                   <div className="space-y-6">

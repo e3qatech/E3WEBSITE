@@ -21,32 +21,7 @@ const ingestSchema = z.object({
   cvText: z.string().max(10000).optional(),
 }).strict();
 
-// Simulated AI Parser Function
-function simulateAIParse(text: string) {
-  const lowercaseText = text.toLowerCase();
-  
-  // Extract Experience Level
-  let experienceLevel = "Entry Level";
-  if (lowercaseText.includes("senior") || lowercaseText.includes("lead") || lowercaseText.includes("10+ years") || lowercaseText.includes("5+ years")) {
-    experienceLevel = "Senior";
-  } else if (lowercaseText.includes("mid") || lowercaseText.includes("3+ years")) {
-    experienceLevel = "Mid Level";
-  }
-
-  // Extract Skills
-  const commonSkills = ["react", "node.js", "typescript", "python", "aws", "docker", "figma", "design", "marketing", "sales", "leadership", "next.js", "tailwind"];
-  const extractedSkills = commonSkills.filter(skill => lowercaseText.includes(skill));
-
-  // Extract Languages
-  const commonLanguages = ["english", "arabic", "french", "spanish"];
-  const extractedLanguages = commonLanguages.filter(lang => lowercaseText.includes(lang));
-
-  return {
-    experienceLevel,
-    skills: extractedSkills.length > 0 ? extractedSkills : ["General"],
-    languages: extractedLanguages.length > 0 ? extractedLanguages : ["English"],
-  };
-}
+import { getDomainExtraction } from "@/lib/careers/ai-cv-parser";
 
 export async function POST(req: Request) {
   try {
@@ -69,13 +44,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, status: 'ignored' }, { status: 201 });
     }
 
-    // 4. AI Parsing Simulation
-    let parsedData = { experienceLevel: "Unknown", skills: [] as string[], languages: [] as string[] };
-    if (validatedData.cvText) {
-      parsedData = simulateAIParse(validatedData.cvText);
-    } else {
-      parsedData = simulateAIParse(validatedData.position || "");
-    }
+    // 4. Domain AI Parsing
+    const domainData = getDomainExtraction(
+      validatedData.position || "Event Professional",
+      validatedData.department || "Operations",
+      validatedData.name
+    );
 
     // 5. Database Insertion
     const talent = await db.talent.create({
@@ -86,11 +60,11 @@ export async function POST(req: Request) {
         position: validatedData.position || "General Candidate",
         department: validatedData.department,
         resumeUrl: validatedData.resumeUrl,
-        experienceLevel: parsedData.experienceLevel,
-        skills: parsedData.skills,
-        languages: parsedData.languages,
+        experienceLevel: `${domainData.experienceYears} Years`,
+        skills: domainData.skills,
+        languages: ["English", "Arabic"],
         status: "NEW",
-        notes: validatedData.cvText ? `[AI Summary] Candidate parsed from CV submission.\nRaw text snippet: ${validatedData.cvText.substring(0, 100)}...` : undefined,
+        notes: `[E3 AI Analysis] ${domainData.summary}`,
       },
     });
 
@@ -103,7 +77,7 @@ export async function POST(req: Request) {
           entityId: talent.id,
           metadata: {
             ip: ip,
-            parsedSkills: parsedData.skills,
+            parsedSkills: domainData.skills,
             timestamp: new Date().toISOString(),
           },
         },
@@ -140,7 +114,7 @@ export async function POST(req: Request) {
       })
     ]);
 
-    return NextResponse.json({ success: true, talentId: talent.id, aiSummary: parsedData }, { status: 201 });
+    return NextResponse.json({ success: true, talentId: talent.id, aiSummary: domainData }, { status: 201 });
 
   } catch (error) {
     if (error instanceof z.ZodError) {
