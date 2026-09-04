@@ -7,7 +7,7 @@ const withBundleAnalyzer = createBundleAnalyzer({
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
+  ...(process.env.DOCKER_BUILD === 'true' ? { output: 'standalone' } : {}),
   poweredByHeader: false,
   images: {
     remotePatterns: [

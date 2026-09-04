@@ -62,7 +62,11 @@ console.log("[BUILD] Ensuring DATABASE_URL environment variable is present...");
 
 try {
   console.log("[BUILD] Generating Prisma Client...");
-  execSync("npx prisma generate --schema=prisma/schema.prisma", { stdio: 'inherit', env });
+  try {
+    execSync("pnpm exec prisma generate --schema=prisma/schema.prisma", { stdio: 'inherit', env });
+  } catch (_pnpmErr) {
+    execSync("npx prisma generate --schema=prisma/schema.prisma", { stdio: 'inherit', env });
+  }
 
   console.log("[BUILD] Checking database migrations...");
   try {
@@ -102,7 +106,11 @@ try {
   }
 
   console.log("[BUILD] Compiling Next.js application...");
-  execSync("npx next build", { stdio: 'inherit', env });
+  try {
+    execSync("pnpm exec next build", { stdio: 'inherit', env });
+  } catch (_nextErr) {
+    execSync("npx next build", { stdio: 'inherit', env });
+  }
 
   console.log("[BUILD] Next.js build completed successfully.");
 } catch (error) {

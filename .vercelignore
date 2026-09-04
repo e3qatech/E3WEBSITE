@@ -10,3 +10,17 @@ apps/web/node_modules
 packages/*/node_modules
 packages/*/.next
 scratch
+.agents
+.github
+docs
+nginx
+Dockerfile
+docker-compose*.yml
+*.txt
+eslint-report.json
+.qa-evidence
+.backups
+lighthouserc.js
+generate-crud.js
+update_editor.js
+apps/web/src/tests

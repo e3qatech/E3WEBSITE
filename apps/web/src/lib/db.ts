@@ -17,8 +17,8 @@ const prismaClientSingleton = () => {
     return createBrowserProxy()
   }
 
-  // Auto-load local environment file if DATABASE_URL is not yet in process.env
-  if (!process.env.DATABASE_URL && !process.env.E3_DATABASE_URL && !process.env.POSTGRES_PRISMA_URL) {
+  // Auto-load local environment file in development if DATABASE_URL is not yet in process.env
+  if (process.env.NODE_ENV !== 'production' && !process.env.DATABASE_URL && !process.env.E3_DATABASE_URL && !process.env.POSTGRES_PRISMA_URL) {
     try {
       const fs = require('fs');
       const path = require('path');
@@ -144,6 +144,6 @@ const db = typeof window !== 'undefined' ? createBrowserProxy() : (globalThis.pr
 export { db }
 export default db
 
-if (typeof window === 'undefined' && process.env.NODE_ENV !== 'production') {
+if (typeof window === 'undefined') {
   globalThis.prismaGlobal = db
 }

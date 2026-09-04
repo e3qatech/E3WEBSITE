@@ -20,5 +20,8 @@ dist/
 .env*
 **/.turbo/
 .qa-evidence/
-.agents/skills/
+.agents/
 skills-lock.json
+eslint-report.json
+package-lock.json
+*.log

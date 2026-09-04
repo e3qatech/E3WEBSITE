@@ -4,7 +4,7 @@ import { SEO } from "@/components/shared/SEO";
 import db from "@/lib/db";
 import { GatewayCustomizationPayload, DEFAULT_GATEWAY_CMS_PAYLOAD } from "@/types/gateway-cms";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 function mergeGatewayPayload(raw: any): GatewayCustomizationPayload {
   if (!raw || typeof raw !== "object") return DEFAULT_GATEWAY_CMS_PAYLOAD;
