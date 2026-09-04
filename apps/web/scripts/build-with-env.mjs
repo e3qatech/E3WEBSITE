@@ -90,7 +90,11 @@ try {
       DATABASE_URL_UNPOOLED: directMigrationUrl,
       POSTGRES_URL_NON_POOLING: directMigrationUrl,
     };
-    execSync("npx prisma migrate deploy --schema=prisma/schema.prisma", { stdio: 'inherit', env: migrationEnv });
+    try {
+      execSync("pnpm exec prisma migrate deploy --schema=prisma/schema.prisma", { stdio: 'inherit', env: migrationEnv });
+    } catch (_pnpmMigErr) {
+      execSync("npx prisma migrate deploy --schema=prisma/schema.prisma", { stdio: 'inherit', env: migrationEnv });
+    }
     console.log("[BUILD] Database migrations applied successfully.");
   } catch (migErr) {
     console.log("[BUILD] Migration deploy warning:", migErr.message || migErr);

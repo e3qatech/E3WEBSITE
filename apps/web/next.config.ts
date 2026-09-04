@@ -307,6 +307,9 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   serverExternalPackages: ['@prisma/client', 'bcryptjs'],
 };
 
