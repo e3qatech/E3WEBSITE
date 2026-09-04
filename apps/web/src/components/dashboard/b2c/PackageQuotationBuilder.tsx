@@ -18,10 +18,17 @@ import {
   Sparkles,
   ExternalLink,
   Tag,
-  Percent
+  Percent,
+  Sliders,
+  Settings2
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
+import { 
+  PDFLetterheadManagerModal, 
+  DEFAULT_PDF_CONFIG, 
+  PDFLetterheadConfig 
+} from "@/components/dashboard/b2c/PDFLetterheadManagerModal"
 
 export function PackageQuotationBuilder({
   locale,
@@ -40,6 +47,9 @@ export function PackageQuotationBuilder({
   const [viewingQuote, setViewingQuote] = useState<any | null>(null)
   const [actionSuccess, setActionSuccess] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [selectedPkgId, setSelectedPkgId] = useState<string>(initialLead?.packageId || "")
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false)
+  const [pdfConfig, setPdfConfig] = useState<PDFLetterheadConfig>(DEFAULT_PDF_CONFIG)
 
   const [quoteForm, setQuoteForm] = useState({
     leadId: initialLead?.id || "",
@@ -120,6 +130,20 @@ export function PackageQuotationBuilder({
         }
       ]
     }))
+
+    if (pkg.tiers && pkg.tiers.length > 0) {
+      handleImportTier(pkg.tiers[0])
+    }
+
+    if (pkg.attraction) {
+      setPdfConfig(prev => ({
+        ...prev,
+        venueNameEn: pkg.attraction.nameEn || prev.venueNameEn,
+        venueNameAr: pkg.attraction.nameAr || prev.venueNameAr,
+        venueAddressEn: pkg.location?.nameEn || pkg.attraction.location || prev.venueAddressEn,
+        venueAddressAr: pkg.location?.nameAr || prev.venueAddressAr
+      }))
+    }
   }
 
   const handleImportTier = (tier: any) => {
@@ -200,7 +224,14 @@ export function PackageQuotationBuilder({
           discountTotal: computedDiscount,
           depositAmount,
           validDays: quoteForm.validDays,
-          items: quoteForm.items
+          items: quoteForm.items,
+          termsAndConditions: {
+            pdfConfig,
+            venueRulesEn: selectedPackageObj?.termsConditions?.venueRulesEn || "",
+            venueRulesAr: selectedPackageObj?.termsConditions?.venueRulesAr || "",
+            cancellationPolicyEn: selectedPackageObj?.termsConditions?.cancellationPolicyEn || "",
+            cancellationPolicyAr: selectedPackageObj?.termsConditions?.cancellationPolicyAr || ""
+          }
         })
       })
 
@@ -291,9 +322,21 @@ export function PackageQuotationBuilder({
                 {isAr ? "إعداد المقترح المالي والبنود" : "New Experience Quotation & Financial Proposal"}
               </h4>
             </div>
-            <span className="text-xs font-mono font-bold text-emerald-500 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              Live Recalculation
-            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsPdfModalOpen(true)}
+                className="gap-1.5 text-xs border-[var(--e3-royal-blue)]/40 text-[var(--e3-royal-blue)] hover:bg-[var(--e3-royal-blue)]/10 font-bold"
+              >
+                <Settings2 className="w-3.5 h-3.5" />
+                {isAr ? "تخصيص ترويسة وPDF (Letterhead & Logo)" : "PDF & Letterhead Settings"}
+              </Button>
+              <span className="text-xs font-mono font-bold text-emerald-500 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                Live Recalculation
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -580,6 +623,16 @@ export function PackageQuotationBuilder({
           </div>
 
           <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsPdfModalOpen(true)}
+              className="text-xs gap-1.5 font-bold"
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              {isAr ? "إعدادات الترويسة" : "Letterhead Settings"}
+            </Button>
             <Button type="button" variant="outline" size="sm" onClick={() => setIsCreating(false)} className="text-xs">
               {isAr ? "إلغاء" : "Cancel"}
             </Button>
@@ -589,6 +642,15 @@ export function PackageQuotationBuilder({
           </div>
         </form>
       )}
+
+      {/* PDF Letterhead Manager Modal */}
+      <PDFLetterheadManagerModal
+        isOpen={isPdfModalOpen}
+        onClose={() => setIsPdfModalOpen(false)}
+        initialConfig={pdfConfig}
+        onSave={updated => setPdfConfig(updated)}
+        locale={locale}
+      />
 
       {/* Quotations Table */}
       <div className="rounded-3xl border border-[var(--border-level-1)] bg-[var(--surface-default)] overflow-hidden shadow-sm">

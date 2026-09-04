@@ -15,7 +15,11 @@ import {
   Tag,
   Sparkles,
   X,
-  RotateCcw
+  RotateCcw,
+  Building,
+  MapPin,
+  Clock,
+  Compass,
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { InteractiveCard } from "@/components/ui/InteractiveCard"
@@ -63,6 +67,7 @@ export function PackageMicrositeClient({
   const [openFaqId, setOpenFaqId] = useState<string | null>(null)
   const [isTermsOpen, setIsTermsOpen] = useState(false)
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false)
+  const [isAttractionPreviewOpen, setIsAttractionPreviewOpen] = useState(false)
 
   // Dynamic Price Breakdown
   const tierPrice = selectedTier ? (selectedTier.price || 0) : (pkg.startingPrice || 0)
@@ -670,6 +675,7 @@ export function PackageMicrositeClient({
         {/* 5. MEDIA & VIDEO GALLERY SHOWCASE */}
         <PackageGalleryShowcase
           gallery={Array.isArray(pkg.gallery) ? pkg.gallery : []}
+          attractionGallery={pkg.attraction?.gallery || []}
           coverMediaUrl={pkg.coverMediaUrl}
           heroMediaUrl={pkg.heroMediaUrl}
           heroMediaType={pkg.heroMediaType}
@@ -677,6 +683,215 @@ export function PackageMicrositeClient({
           locale={locale}
           venueName={pkg.attraction ? (isAr ? (pkg.attraction.nameAr || pkg.attraction.nameEn) : pkg.attraction.nameEn) : undefined}
         />
+
+        {/* 5.5. EXPLORE ACTUAL ATTRACTION SITE & VENUE EXPERIENCE */}
+        {pkg.attraction && (
+          <div className="py-8 border-t border-[var(--border-level-2)] space-y-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-mono font-bold uppercase tracking-wider mb-2">
+                  <Building className="w-3.5 h-3.5" />
+                  {isAr ? "الوجهة المستضيفة للفعالية" : "Hosted Attraction & Physical Venue"}
+                </div>
+                <h2 className="text-2xl md:text-3xl font-black font-display tracking-tight text-[var(--text-primary)]">
+                  {isAr
+                    ? `استكشف وجهة ${pkg.attraction.nameAr || pkg.attraction.nameEn}`
+                    : `Explore ${pkg.attraction.nameEn} Attraction Venue`}
+                </h2>
+                <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-2xl">
+                  {isAr
+                    ? `تقام فعاليات هذه الباقة في ${pkg.attraction.nameAr || pkg.attraction.nameEn}. يمكنك زيارة الصفحة الرسمية للوجهة للتعرف على المرافق، الألعاب، الموقع وساعات العمل.`
+                    : `This celebration is hosted at ${pkg.attraction.nameEn}. Discover complete venue details, activity arenas, operating hours, and location maps.`}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAttractionPreviewOpen(true)}
+                  className="gap-1.5 text-xs font-bold"
+                >
+                  <Compass className="w-3.5 h-3.5 text-sky-500" />
+                  {isAr ? "دليل ومرافق الوجهة" : "Quick Venue Specs"}
+                </Button>
+                <a
+                  href={`/${locale}/attractions/${pkg.attraction.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--e3-royal-blue)] hover:bg-[var(--e3-royal-blue)]/90 text-white text-xs font-bold shadow-md transition-all cursor-pointer"
+                >
+                  <span>{isAr ? "زيارة موقع الوجهة" : "Visit Attraction Site"}</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+
+            {/* Attraction Feature Showcase Card */}
+            <div className="rounded-3xl border border-[var(--border-level-2)] bg-[var(--surface-default)] p-6 md:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-center shadow-lg">
+              <div className="md:col-span-5 relative h-56 md:h-64 rounded-2xl overflow-hidden border border-[var(--border-level-2)]">
+                {pkg.attraction.coverImage || pkg.attraction.heroImage ? (
+                  <img
+                    src={pkg.attraction.coverImage || pkg.attraction.heroImage}
+                    alt={pkg.attraction.nameEn}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[var(--surface-hover)] flex items-center justify-center text-xs text-[var(--text-tertiary)] font-bold">
+                    {pkg.attraction.nameEn} Venue
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-3 start-3 end-3 text-white">
+                  <span className="text-[10px] font-mono uppercase bg-black/50 backdrop-blur-md px-2.5 py-0.5 rounded-full font-bold">
+                    {pkg.attraction.category || "Entertainment Arena"}
+                  </span>
+                  <h4 className="text-base font-black mt-1">
+                    {isAr ? (pkg.attraction.nameAr || pkg.attraction.nameEn) : pkg.attraction.nameEn}
+                  </h4>
+                </div>
+              </div>
+
+              <div className="md:col-span-7 space-y-4">
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
+                  {isAr
+                    ? (pkg.attraction.taglineAr || pkg.attraction.taglineEn || "وجهة ترفيهية رائدة تضمن تجربة فريدة لكافة الضيوف مع مرافق وخدمات متكاملة.")
+                    : (pkg.attraction.taglineEn || "A flagship entertainment venue offering state-of-the-art play zones, dedicated party halls, and full guest amenities.")}
+                </p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs font-mono">
+                  <div className="p-3 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] space-y-1">
+                    <span className="text-[10px] text-[var(--text-tertiary)] uppercase block flex items-center gap-1">
+                      <Users className="w-3 h-3 text-sky-500" />
+                      {isAr ? "الطاقة الاستيعابية" : "Max Capacity"}
+                    </span>
+                    <span className="font-bold text-[var(--text-primary)]">
+                      {pkg.attraction.capacity || 250}+ {isAr ? "ضيف" : "Guests"}
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] space-y-1">
+                    <span className="text-[10px] text-[var(--text-tertiary)] uppercase block flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-rose-500" />
+                      {isAr ? "الموقع الجغرافي" : "Location"}
+                    </span>
+                    <span className="font-bold text-[var(--text-primary)] truncate block">
+                      {pkg.location?.nameEn || pkg.attraction.location || "Doha, Qatar"}
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] space-y-1">
+                    <span className="text-[10px] text-[var(--text-tertiary)] uppercase block flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-emerald-500" />
+                      {isAr ? "ساعات العمل" : "Operating Hours"}
+                    </span>
+                    <span className="font-bold text-[var(--text-primary)]">
+                      10:00 AM – 11:00 PM
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex flex-wrap items-center gap-3">
+                  <a
+                    href={`/${locale}/attractions/${pkg.attraction.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-xs font-bold text-[var(--e3-royal-blue)] hover:underline"
+                  >
+                    <span>{isAr ? `تصفح كافة فعاليات وعروض ${pkg.attraction.nameAr || pkg.attraction.nameEn}` : `Explore all attractions & passes at ${pkg.attraction.nameEn}`}</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Venue Specs & Amenities Drawer / Modal */}
+            {isAttractionPreviewOpen && (
+              <div
+                onClick={() => setIsAttractionPreviewOpen(false)}
+                className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+              >
+                <div
+                  onClick={e => e.stopPropagation()}
+                  className="relative w-full max-w-xl bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] p-6 md:p-8 space-y-6 max-h-[85vh] overflow-y-auto text-[var(--text-primary)] shadow-2xl custom-scrollbar"
+                >
+                  <div className="flex items-center justify-between border-b border-[var(--border-level-2)] pb-4">
+                    <div className="flex items-center gap-2">
+                      <Building className="w-5 h-5 text-[var(--e3-royal-blue)]" />
+                      <div>
+                        <h3 className="text-lg font-bold">
+                          {isAr ? (pkg.attraction.nameAr || pkg.attraction.nameEn) : pkg.attraction.nameEn}
+                        </h3>
+                        <span className="text-xs text-[var(--text-secondary)] font-mono">
+                          {pkg.location?.nameEn || "Doha, State of Qatar"}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setIsAttractionPreviewOpen(false)}
+                      className="w-8 h-8 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] flex items-center justify-center text-[var(--text-secondary)] hover:text-white transition-colors cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4 text-xs leading-relaxed text-[var(--text-secondary)]">
+                    <div className="p-4 rounded-2xl bg-[var(--surface-hover)]/40 border border-[var(--border-level-2)] space-y-2">
+                      <h4 className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-amber-500" />
+                        {isAr ? "نبذة عن الوجهة والمرافق" : "Venue Overview & Facilities"}
+                      </h4>
+                      <p>
+                        {isAr
+                          ? (pkg.attraction.descriptionAr || pkg.attraction.descriptionEn || "وجهة ترفيهية متكاملة مجهزة بقاعات خاصة لاحتفالات أعياد الميلاد، مواقف سيارات مخصصة، مناطق ألعاب حركية ومطاعم.")
+                          : (pkg.attraction.descriptionEn || "A premier attraction equipped with private celebration suites, dedicated guest parking, active adventure zones, and dining concessions.")}
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <h4 className="font-bold text-[var(--text-primary)]">
+                        {isAr ? "المرافق والخدمات المتوفرة في الوجهة" : "On-Site Amenities"}
+                      </h4>
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                        <li className="flex items-center gap-2 p-2 rounded-xl bg-[var(--surface-hover)]">
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>{isAr ? "غرف وقاعات احتفال خاصة" : "Private Party Rooms"}</span>
+                        </li>
+                        <li className="flex items-center gap-2 p-2 rounded-xl bg-[var(--surface-hover)]">
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>{isAr ? "مواقف سيارات مجانية" : "Complimentary Parking"}</span>
+                        </li>
+                        <li className="flex items-center gap-2 p-2 rounded-xl bg-[var(--surface-hover)]">
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>{isAr ? "كافيه ومطاعم معتمدة" : "Cafe & Food Concessions"}</span>
+                        </li>
+                        <li className="flex items-center gap-2 p-2 rounded-xl bg-[var(--surface-hover)]">
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>{isAr ? "طاقم إشراف وسلامة معتمد" : "Certified Safety Supervisors"}</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-[var(--border-level-2)] flex justify-end gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setIsAttractionPreviewOpen(false)}>
+                      {isAr ? "إغلاق" : "Close"}
+                    </Button>
+                    <a
+                      href={`/${locale}/attractions/${pkg.attraction.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--e3-royal-blue)] text-white text-xs font-bold shadow-md"
+                    >
+                      <span>{isAr ? "فتح صفحة الوجهة الكاملة" : "Open Full Attraction Page"}</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 6. FAQS ACCORDION */}
         {faqs.length > 0 && (

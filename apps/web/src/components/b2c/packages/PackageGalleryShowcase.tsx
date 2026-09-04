@@ -29,6 +29,7 @@ interface PackageGalleryShowcaseProps {
   packageName: string
   locale: string
   venueName?: string
+  attractionGallery?: any[]
 }
 
 export function PackageGalleryShowcase({
@@ -38,7 +39,8 @@ export function PackageGalleryShowcase({
   heroMediaType = "IMAGE",
   packageName,
   locale,
-  venueName
+  venueName,
+  attractionGallery = []
 }: PackageGalleryShowcaseProps) {
   const isAr = locale === "ar"
   const [activeFilter, setActiveFilter] = useState<"ALL" | "IMAGE" | "VIDEO">("ALL")
@@ -77,6 +79,22 @@ export function PackageGalleryShowcase({
           type: isVideo ? "VIDEO" : "IMAGE",
           captionEn: item.captionEn || `Experience Visual #${idx + 1}`,
           captionAr: item.captionAr || `لقطة من الفعالية #${idx + 1}`
+        })
+      }
+    })
+  }
+
+  if (Array.isArray(attractionGallery) && (!Array.isArray(gallery) || gallery.length === 0)) {
+    attractionGallery.forEach((item, idx) => {
+      const url = typeof item === "string" ? item : item?.url
+      if (url) {
+        const isVideo = url.match(/\.(mp4|webm|mov)$/i) || url.includes("youtube.com") || url.includes("vimeo.com")
+        mediaItems.push({
+          id: `att-gal-${idx}`,
+          url,
+          type: isVideo ? "VIDEO" : "IMAGE",
+          captionEn: (typeof item === "object" && item.captionEn) || `${venueName || "Venue"} Gallery Visual #${idx + 1}`,
+          captionAr: (typeof item === "object" && item.captionAr) || `${venueName || "الوجهة"} لقطة #${idx + 1}`
         })
       }
     })

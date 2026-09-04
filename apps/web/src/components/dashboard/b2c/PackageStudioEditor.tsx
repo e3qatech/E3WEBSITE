@@ -24,6 +24,8 @@ import {
   Image as ImageIcon,
   Video as VideoIcon,
   Upload,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { PackageMediaUploader } from "@/components/dashboard/b2c/PackageMediaUploader";
@@ -272,6 +274,61 @@ export function PackageStudioEditor({
     setForm((prev) => ({
       ...prev,
       gallery: prev.gallery.filter((_: any, i: number) => i !== index),
+    }));
+  };
+
+  const moveGalleryItem = (index: number, direction: "up" | "down") => {
+    const next = [...form.gallery];
+    const targetIdx = direction === "up" ? index - 1 : index + 1;
+    if (targetIdx < 0 || targetIdx >= next.length) return;
+    const temp = next[index];
+    next[index] = next[targetIdx];
+    next[targetIdx] = temp;
+    setForm({ ...form, gallery: next });
+  };
+
+  const importAttractionGallery = () => {
+    if (!form.attractionId) {
+      alert(isAr ? "يرجى تحديد الوجهة أولاً في خطوة الوجهات (Step 4)" : "Please select an attraction in Step 4 first.");
+      return;
+    }
+    const targetAttraction = attractions.find((a: any) => a.id === form.attractionId);
+    if (!targetAttraction) {
+      alert(isAr ? "لم يتم العثور على الوجهة المحددة" : "Selected attraction not found.");
+      return;
+    }
+    const incomingItems: any[] = [];
+    if (Array.isArray(targetAttraction.gallery)) {
+      targetAttraction.gallery.forEach((g: any, i: number) => {
+        const url = typeof g === "string" ? g : g.url;
+        if (url) {
+          incomingItems.push({
+            id: `att-gal-${Date.now()}-${i}`,
+            url,
+            type: (typeof g === "object" && g.type) ? g.type : (url.match(/\.(mp4|webm)$/i) ? "VIDEO" : "IMAGE"),
+            captionEn: (typeof g === "object" && g.captionEn) ? g.captionEn : `${targetAttraction.nameEn || "Attraction"} Visual #${i + 1}`,
+            captionAr: (typeof g === "object" && g.captionAr) ? g.captionAr : `${targetAttraction.nameAr || "الوجهة"} لقطة #${i + 1}`,
+            thumbnail: (typeof g === "object" && g.thumbnail) ? g.thumbnail : undefined
+          });
+        }
+      });
+    }
+    if (incomingItems.length === 0 && (targetAttraction.coverImage || targetAttraction.heroImage)) {
+      incomingItems.push({
+        id: `att-gal-${Date.now()}-0`,
+        url: targetAttraction.coverImage || targetAttraction.heroImage,
+        type: "IMAGE",
+        captionEn: `${targetAttraction.nameEn || "Attraction"} Arena Highlight`,
+        captionAr: `${targetAttraction.nameAr || "الوجهة"} الساحة الرئيسية`
+      });
+    }
+    if (incomingItems.length === 0) {
+      alert(isAr ? "لا توجد صور مسجلة لهذه الوجهة" : "No gallery photos found on this attraction.");
+      return;
+    }
+    setForm(prev => ({
+      ...prev,
+      gallery: [...prev.gallery, ...incomingItems]
     }));
   };
 
@@ -1587,62 +1644,190 @@ export function PackageStudioEditor({
 
             {/* Gallery Media Repeater */}
             <div className="pt-6 border-t border-[var(--border-default)] space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h4 className="text-sm font-bold text-[var(--text-primary)]">
-                    {isAr ? "معرض الصور والفيديوهات الإضافية للباقة" : "Package Photo & Video Gallery"}
+                    {isAr ? "معرض الصور والفيديوهات الإضافية للباقة (Media & Video Gallery)" : "Package Photo & Video Gallery"}
                   </h4>
                   <p className="text-xs text-[var(--text-secondary)]">
-                    {isAr ? "أضف لقطات إضافية من الفعاليات السابقة وقاعات الاحتفال." : "Add extra high-resolution photos and video reels to showcase the experience."}
+                    {isAr ? "أضف لقطات وصور وفيديوهات حية من الفعاليات وقاعات الألعاب للزوار." : "Add extra high-resolution photos and video reels to showcase the experience on the microsite."}
                   </p>
                 </div>
-                <Button size="sm" variant="outline" onClick={addGalleryItem} className="gap-1.5 text-xs">
-                  <Plus className="w-3.5 h-3.5" />
-                  {isAr ? "إضافة وسائط للمعرض" : "Add Gallery Item"}
-                </Button>
+                <div className="flex items-center gap-2">
+                  {form.attractionId && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      type="button"
+                      onClick={importAttractionGallery}
+                      className="gap-1.5 text-xs border-[var(--color-primary)]/40 text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10"
+                    >
+                      <Building className="w-3.5 h-3.5" />
+                      {isAr ? "استيراد من صور الوجهة" : "Import from Attraction"}
+                    </Button>
+                  )}
+                  <Button size="sm" type="button" onClick={addGalleryItem} className="gap-1.5 text-xs bg-[var(--color-primary)] text-white">
+                    <Plus className="w-3.5 h-3.5" />
+                    {isAr ? "إضافة عنصر جديد" : "Add Media Item"}
+                  </Button>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {form.gallery.map((item: any, idx: number) => (
-                  <div key={idx} className="p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[var(--text-primary)]">
-                        {isAr ? `عنصر المعرض ${idx + 1}` : `Gallery Media #${idx + 1}`}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => removeGalleryItem(idx)}
-                        className="p-1 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+              {form.gallery.length === 0 ? (
+                <div className="text-center py-10 rounded-2xl border border-dashed border-[var(--border-default)] bg-[var(--surface-subtle)] space-y-2">
+                  <ImageIcon className="w-8 h-8 mx-auto text-[var(--text-tertiary)]" />
+                  <p className="text-xs font-bold text-[var(--text-secondary)]">
+                    {isAr ? "لم تتم إضافة صور أو فيديوهات للمعرض بعد" : "No gallery media items added yet"}
+                  </p>
+                  <p className="text-[11px] text-[var(--text-tertiary)] max-w-sm mx-auto">
+                    {isAr ? "انقر فوق 'إضافة عنصر جديد' أو استورد وسائط الوجهة المحددة تلقائياً." : "Click 'Add Media Item' or import photos directly from the linked attraction venue."}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {form.gallery.map((item: any, idx: number) => (
+                    <div key={idx} className="p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono font-bold text-[var(--color-primary)]">
+                            #{idx + 1}
+                          </span>
+                          <span className="text-[11px] font-bold text-[var(--text-primary)] uppercase">
+                            {item.type === "VIDEO" ? (isAr ? "فيديو" : "Video") : (isAr ? "صورة" : "Image")}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            disabled={idx === 0}
+                            onClick={() => moveGalleryItem(idx, "up")}
+                            className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] disabled:opacity-20 cursor-pointer"
+                            title="Move Up"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={idx === form.gallery.length - 1}
+                            onClick={() => moveGalleryItem(idx, "down")}
+                            className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] disabled:opacity-20 cursor-pointer"
+                            title="Move Down"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeGalleryItem(idx)}
+                            className="p-1 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer ms-1"
+                            title="Remove"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Type Switcher */}
+                      <div className="flex items-center gap-2">
+                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Format:</label>
+                        <div className="inline-flex rounded-xl p-0.5 bg-[var(--surface-default)] border border-[var(--border-default)]">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const next = [...form.gallery];
+                              next[idx].type = "IMAGE";
+                              setForm({ ...form, gallery: next });
+                            }}
+                            className={cn(
+                              "px-2.5 py-0.5 text-[10px] font-bold rounded-lg transition-all",
+                              item.type !== "VIDEO" ? "bg-[var(--color-primary)] text-white" : "text-[var(--text-secondary)]"
+                            )}
+                          >
+                            Image
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const next = [...form.gallery];
+                              next[idx].type = "VIDEO";
+                              setForm({ ...form, gallery: next });
+                            }}
+                            className={cn(
+                              "px-2.5 py-0.5 text-[10px] font-bold rounded-lg transition-all",
+                              item.type === "VIDEO" ? "bg-purple-600 text-white" : "text-[var(--text-secondary)]"
+                            )}
+                          >
+                            Video
+                          </button>
+                        </div>
+                      </div>
+
+                      <PackageMediaUploader
+                        label={item.type === "VIDEO" ? "Video URL (MP4, YouTube, Vimeo)" : "Media Image URL"}
+                        value={item.url || ""}
+                        mediaType={item.type === "VIDEO" ? "VIDEO" : "IMAGE"}
+                        onChange={(url) => {
+                          const next = [...form.gallery];
+                          next[idx].url = url;
+                          setForm({ ...form, gallery: next });
+                        }}
+                        context="packages/gallery"
+                        isAr={isAr}
+                      />
+
+                      {item.type === "VIDEO" && (
+                        <div>
+                          <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
+                            {isAr ? "صورة مصغرة للفيديو (Thumbnail)" : "Video Thumbnail Cover"}
+                          </label>
+                          <input
+                            type="text"
+                            value={item.thumbnail || ""}
+                            onChange={(e) => {
+                              const next = [...form.gallery];
+                              next[idx].thumbnail = e.target.value;
+                              setForm({ ...form, gallery: next });
+                            }}
+                            placeholder="https://.../thumb.jpg"
+                            className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
+                          />
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[10px] text-[var(--text-secondary)] block mb-1">Title / Caption (EN)</label>
+                          <input
+                            type="text"
+                            value={item.captionEn || ""}
+                            onChange={(e) => {
+                              const next = [...form.gallery];
+                              next[idx].captionEn = e.target.value;
+                              setForm({ ...form, gallery: next });
+                            }}
+                            placeholder="e.g. Trampoline slam dunk area"
+                            className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-[var(--text-secondary)] block mb-1">Title / Caption (AR)</label>
+                          <input
+                            type="text"
+                            dir="rtl"
+                            value={item.captionAr || ""}
+                            onChange={(e) => {
+                              const next = [...form.gallery];
+                              next[idx].captionAr = e.target.value;
+                              setForm({ ...form, gallery: next });
+                            }}
+                            placeholder="مثال: منطقة كرة السلة الحركية"
+                            className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] font-arabic text-right"
+                          />
+                        </div>
+                      </div>
                     </div>
-
-                    <PackageMediaUploader
-                      value={item.url || ""}
-                      onChange={(url) => {
-                        const next = [...form.gallery];
-                        next[idx].url = url;
-                        setForm({ ...form, gallery: next });
-                      }}
-                      context="packages/gallery"
-                      isAr={isAr}
-                    />
-
-                    <input
-                      type="text"
-                      value={item.captionEn || ""}
-                      onChange={(e) => {
-                        const next = [...form.gallery];
-                        next[idx].captionEn = e.target.value;
-                        setForm({ ...form, gallery: next });
-                      }}
-                      placeholder="Optional caption in English"
-                      className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
-                    />
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

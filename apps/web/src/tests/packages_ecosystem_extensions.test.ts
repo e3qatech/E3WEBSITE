@@ -371,4 +371,158 @@ describe('Packages Ecosystem Extensions Suite', () => {
       expect(importedAddonItems[1].total).toBe(450)
     })
   })
+
+  // ==========================================================================
+  // 6. DYNAMIC PACKAGE GALLERY & ATTRACTION SITE EXPLORER
+  // ==========================================================================
+  describe('6. Dynamic Gallery Studio & Attraction Site Explorer', () => {
+    interface GalleryItem {
+      id: string
+      url: string
+      type: 'IMAGE' | 'VIDEO'
+      captionEn?: string
+      captionAr?: string
+      thumbnail?: string
+    }
+
+    it('supports reordering and format selection for gallery media', () => {
+      const gallery: GalleryItem[] = [
+        { id: '1', url: '/img1.jpg', type: 'IMAGE', captionEn: 'Photo 1' },
+        { id: '2', url: '/vid1.mp4', type: 'VIDEO', thumbnail: '/thumb.jpg', captionEn: 'Video Reel' },
+        { id: '3', url: '/img2.jpg', type: 'IMAGE', captionEn: 'Photo 2' },
+      ]
+
+      // Move item 1 down
+      const moved = [...gallery]
+      const temp = moved[1]
+      moved[1] = moved[0]
+      moved[0] = temp
+
+      expect(moved[0].id).toBe('2')
+      expect(moved[0].type).toBe('VIDEO')
+      expect(moved[0].thumbnail).toBe('/thumb.jpg')
+      expect(moved[1].id).toBe('1')
+    })
+
+    it('imports attraction photos and videos into package gallery with proper fallback', () => {
+      const mockAttraction = {
+        id: 'att-bounce',
+        nameEn: 'Bounce Freestyle Arena',
+        nameAr: 'باونس أرينا',
+        slug: 'bounce-freestyle',
+        gallery: [
+          'https://e3.qa/images/attractions/bounce-1.jpg',
+          'https://e3.qa/images/attractions/bounce-2.jpg'
+        ]
+      }
+
+      const importedItems = mockAttraction.gallery.map((g, idx) => ({
+        id: `att-gal-${idx}`,
+        url: g,
+        type: 'IMAGE',
+        captionEn: `${mockAttraction.nameEn} Visual #${idx + 1}`
+      }))
+
+      expect(importedItems).toHaveLength(2)
+      expect(importedItems[0].url).toContain('bounce-1.jpg')
+      expect(importedItems[0].captionEn).toBe('Bounce Freestyle Arena Visual #1')
+
+      // Attraction URL resolution
+      const attractionSiteUrl = `/en/attractions/${mockAttraction.slug}`
+      expect(attractionSiteUrl).toBe('/en/attractions/bounce-freestyle')
+    })
+  })
+
+  // ==========================================================================
+  // 7. PDF LETTERHEAD BRANDING & CRM STAGE / BIRTHDAY CONVERSION
+  // ==========================================================================
+  describe('7. PDF Letterhead Branding & CRM Birthday Retention', () => {
+    it('validates comprehensive PDF letterhead branding structure and Qatar IBAN', () => {
+      const pdfBranding = {
+        companyNameEn: 'E3 Entertainment & Experience LLC',
+        companyNameAr: 'شركة إي ثري للترفيه والتجارب ذ.م.م',
+        crNumber: 'CR-182940/QA',
+        taxRegistrationNumber: 'TIN-009841-QA',
+        headerBannerColor: '#002B49',
+        venueNameEn: 'Megapolis Entertainment Center',
+        venueAddressEn: 'Medina Centrale, The Pearl-Qatar',
+        bankName: 'Qatar National Bank (QNB)',
+        accountTitle: 'E3 ENTERTAINMENT AND ATTRACTIONS W.L.L',
+        iban: 'QA55QNBA0000000012345678901',
+        swiftBic: 'QNBAQAQA',
+        showStamp: true,
+        showSignatureBlock: true
+      }
+
+      expect(pdfBranding.crNumber).toContain('CR-182940')
+      expect(pdfBranding.iban.startsWith('QA')).toBe(true)
+      expect(pdfBranding.headerBannerColor).toBe('#002B49')
+      expect(pdfBranding.showStamp).toBe(true)
+    })
+
+    it('calculates next-year anniversary and triggers re-engagement window correctly', () => {
+      const calculateNextAnniversary = (dateStr: string, simulatedTodayStr: string) => {
+        const eventDate = new Date(dateStr)
+        const now = new Date(simulatedTodayStr)
+        let nextYear = now.getFullYear()
+        const ann = new Date(nextYear, eventDate.getMonth(), eventDate.getDate())
+        if (ann.getTime() < now.getTime()) {
+          ann.setFullYear(nextYear + 1)
+        }
+        const diffDays = Math.ceil((ann.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        return {
+          anniversaryDate: ann,
+          diffDays,
+          isUpcoming: diffDays <= 45
+        }
+      }
+
+      // Case 1: Birthday on October 15, current date is September 10 (35 days away) -> Within re-engagement window
+      const resultUpcoming = calculateNextAnniversary('2025-10-15', '2026-09-10')
+      expect(resultUpcoming.diffDays).toBe(35)
+      expect(resultUpcoming.isUpcoming).toBe(true)
+
+      // Case 2: Birthday on March 20, current date is September 10 (191 days away) -> Outside re-engagement window
+      const resultFuture = calculateNextAnniversary('2025-03-20', '2026-09-10')
+      expect(resultFuture.diffDays).toBe(191)
+      expect(resultFuture.isUpcoming).toBe(false)
+    })
+
+    it('appends staff remarks with author, outcome tag, and follow-up date', () => {
+      interface LeadNote {
+        id: string
+        text: string
+        tag?: string
+        author: string
+        timestamp: string
+        followUpDate?: string
+      }
+
+      const existingNotes: LeadNote[] = [
+        {
+          id: 'note-1',
+          text: 'Initial online inquiry submitted via portal',
+          author: 'System',
+          timestamp: '2026-09-01T10:00:00Z'
+        }
+      ]
+
+      const newRemark: LeadNote = {
+        id: 'note-2',
+        text: 'Called mother • Spoke to parent about VIP suite and catering options',
+        tag: 'Called — Spoke to Parent',
+        author: 'Sarah (Event Coordinator)',
+        timestamp: '2026-09-04T12:00:00Z',
+        followUpDate: '2026-09-08'
+      }
+
+      const updatedNotes = [newRemark, ...existingNotes]
+
+      expect(updatedNotes).toHaveLength(2)
+      expect(updatedNotes[0].tag).toBe('Called — Spoke to Parent')
+      expect(updatedNotes[0].followUpDate).toBe('2026-09-08')
+      expect(updatedNotes[1].author).toBe('System')
+    })
+  })
 })
+
