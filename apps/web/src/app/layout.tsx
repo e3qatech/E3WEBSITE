@@ -6,6 +6,7 @@ import { SEO } from "@/components/shared/SEO"
 import { ThemeProvider } from "@/components/layout/ThemeProvider"
 import { AuthProvider } from "@/components/layout/AuthProvider"
 import { NavigationProgressBar } from "@/components/layout/NavigationProgressBar"
+import { ChunkErrorRecovery } from "@/components/layout/ChunkErrorRecovery"
 import { auth } from "@/lib/auth"
 import db from "@/lib/db"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -109,6 +110,7 @@ export default async function RootLayout({
         </Script>
         <AuthProvider session={session}>
           <ThemeProvider>
+            <ChunkErrorRecovery />
             <Suspense fallback={null}>
               <NavigationProgressBar />
             </Suspense>

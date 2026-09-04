@@ -4,6 +4,7 @@ import { ToastProvider } from "@/components/dashboard/ui/ToastProvider";
 import { MotionCapabilityProvider } from "@/lib/motion/capability-context";
 import { FloatingSocialDock } from "@/components/layout/FloatingSocialDock";
 import { NavigationProgressBar } from "@/components/layout/NavigationProgressBar";
+import { ChunkErrorRecovery } from "@/components/layout/ChunkErrorRecovery";
 
 export default async function LocaleLayout({
   children,
@@ -19,6 +20,7 @@ export default async function LocaleLayout({
     <LocaleProvider defaultLocale={validLocale}>
       <MotionCapabilityProvider>
         <ToastProvider>
+          <ChunkErrorRecovery />
           <Suspense fallback={null}>
             <NavigationProgressBar />
           </Suspense>
@@ -29,3 +31,4 @@ export default async function LocaleLayout({
     </LocaleProvider>
   );
 }
+

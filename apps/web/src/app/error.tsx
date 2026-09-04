@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { AlertCircle, RefreshCw, Sparkles } from "lucide-react";
+import { isChunkLoadError, triggerSafeChunkReload } from "@/lib/chunk-recovery";
 
 export default function GlobalError({
   error,
@@ -10,9 +11,54 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [isAutoReloading, setIsAutoReloading] = useState(false);
+  const isChunkError = isChunkLoadError(error);
+
   useEffect(() => {
     console.error("[GLOBAL_ERROR_BOUNDARY]", error);
-  }, [error]);
+
+    if (isChunkError) {
+      setIsAutoReloading(true);
+      const reloaded = triggerSafeChunkReload();
+      if (!reloaded) {
+        setIsAutoReloading(false);
+      }
+    }
+  }, [error, isChunkError]);
+
+  const handleManualReload = () => {
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    }
+  };
+
+  if (isChunkError) {
+    return (
+      <div className="flex min-h-[60vh] w-full flex-col items-center justify-center bg-[var(--surface-default)] p-6 text-center">
+        <div className="mb-6 rounded-full bg-purple-500/10 p-5 border border-purple-500/20 animate-pulse">
+          <Sparkles className="h-10 w-10 text-purple-400" />
+        </div>
+        <h2 className="mb-2 font-display text-2xl font-bold text-white">
+          {isAutoReloading ? "Updating Application..." : "Application Update Available"}
+        </h2>
+        <p className="mb-6 max-w-md text-zinc-400 text-sm leading-relaxed">
+          {isAutoReloading
+            ? "A newer version of E3 Qatar is being loaded with the latest improvements. Reloading automatically..."
+            : "A new version of the platform has been deployed. Please reload your browser to load the latest release."}
+        </p>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleManualReload}
+            className="flex items-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-500 px-6 py-3 font-mono text-sm font-bold text-white transition-all shadow-lg hover:shadow-purple-500/25 cursor-pointer"
+          >
+            <RefreshCw className={`h-4 w-4 ${isAutoReloading ? "animate-spin" : ""}`} />
+            REFRESH APPLICATION
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-[50vh] w-full flex-col items-center justify-center bg-[var(--surface-default)] p-4 text-center">
@@ -32,13 +78,23 @@ export default function GlobalError({
           {error.digest && <p className="mt-2 text-gray-400 text-[10px]">Digest: {error.digest}</p>}
         </div>
       )}
-      <button
-        onClick={() => reset()}
-        className="flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 font-mono text-sm font-bold text-[var(--surface-default)] transition-all hover:brightness-110"
-      >
-        <RefreshCw className="h-4 w-4" />
-        REBOOT MODULE
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => reset()}
+          className="flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 font-mono text-sm font-bold text-[var(--surface-default)] transition-all hover:brightness-110 cursor-pointer"
+        >
+          <RefreshCw className="h-4 w-4" />
+          REBOOT MODULE
+        </button>
+        <button
+          onClick={handleManualReload}
+          className="flex items-center gap-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 px-6 py-3 font-mono text-sm font-bold text-white transition-all cursor-pointer"
+        >
+          <RefreshCw className="h-4 w-4" />
+          RELOAD PAGE
+        </button>
+      </div>
     </div>
   );
 }
+
