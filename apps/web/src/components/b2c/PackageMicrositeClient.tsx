@@ -9,7 +9,13 @@ import {
   ChevronDown, 
   ExternalLink,
   Plus,
-  Minus
+  Minus,
+  Users,
+  Calculator,
+  Tag,
+  Sparkles,
+  X,
+  RotateCcw
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { InteractiveCard } from "@/components/ui/InteractiveCard"
@@ -40,20 +46,42 @@ export function PackageMicrositeClient({
   const addOns: any[] = Array.isArray(pkg.addOns) ? pkg.addOns : []
   const faqs: any[] = Array.isArray(pkg.faqs) ? pkg.faqs : []
 
-  // Interactive Add-On Builder State
+  // Interactive Calculator State
+  const minGuests = Math.max(1, pkg.minGuests || 1)
+  const maxGuests = Math.max(minGuests, pkg.maxGuests || 200)
+
   const [selectedTier, setSelectedTier] = useState<any>(tiers[0] || null)
+  const [guestCount, setGuestCount] = useState<number>(() => {
+    return selectedTier?.guestCount || selectedTier?.includedGuests || minGuests || 15
+  })
   const [selectedAddOnQty, setSelectedAddOnQty] = useState<{ [id: string]: number }>({})
+  const [couponCode, setCouponCode] = useState("")
+  const [appliedCoupon, setAppliedCoupon] = useState<any | null>(null)
+  const [couponLoading, setCouponLoading] = useState(false)
+  const [couponError, setCouponError] = useState<string | null>(null)
   const [openFaqId, setOpenFaqId] = useState<string | null>(null)
   const [_isTermsOpen, setIsTermsOpen] = useState(false)
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false)
 
-  // Calculate dynamic estimated total
-  const basePrice = selectedTier ? selectedTier.price : pkg.startingPrice || 0
+  // Dynamic Price Breakdown
+  const tierPrice = selectedTier ? (selectedTier.price || 0) : (pkg.startingPrice || 0)
+  const includedGuests = selectedTier?.includedGuests || selectedTier?.guestCount || minGuests || 10
+  const extraGuestPrice = selectedTier?.extraGuestPrice ?? pkg.extraGuestPrice ?? 0
+  const extraGuestsCount = Math.max(0, guestCount - includedGuests)
+  const extraGuestsTotal = extraGuestsCount * extraGuestPrice
+
   const addOnsTotal = addOns.reduce((sum, addon) => {
     const qty = selectedAddOnQty[addon.id] || 0
+    if (qty <= 0) return sum
+    if (addon.priceType === "PER_GUEST") {
+      return sum + (addon.price || 0) * guestCount * qty
+    }
     return sum + (addon.price || 0) * qty
   }, 0)
-  const estimatedTotal = basePrice + addOnsTotal
+
+  const grossSubtotal = tierPrice + extraGuestsTotal + addOnsTotal
+  const couponDiscount = appliedCoupon ? Math.min(grossSubtotal, (appliedCoupon.discountAmount || 0)) : 0
+  const estimatedTotal = Math.max(0, grossSubtotal - couponDiscount)
 
   const handleAddOnQtyChange = (addonId: string, delta: number) => {
     setSelectedAddOnQty(prev => {
@@ -61,6 +89,39 @@ export function PackageMicrositeClient({
       const next = Math.max(0, cur + delta)
       return { ...prev, [addonId]: next }
     })
+  }
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return
+    setCouponLoading(true)
+    setCouponError(null)
+    try {
+      const res = await fetch("/api/b2c/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: couponCode.trim(),
+          packageId: pkg.id,
+          subtotal: grossSubtotal
+        })
+      })
+      const data = await res.json()
+      if (data.valid) {
+        setAppliedCoupon(data)
+      } else {
+        setCouponError(data.message || (isAr ? "رمز الكوبون غير صالح" : "Invalid coupon code"))
+      }
+    } catch {
+      setCouponError(isAr ? "فشل التحقق من الكوبون" : "Failed to validate coupon")
+    } finally {
+      setCouponLoading(false)
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponCode("")
+    setCouponError(null)
   }
 
   const rotatingWordsEn = Array.isArray(pkg.rotatingWordsEn) && pkg.rotatingWordsEn.length > 0
@@ -317,11 +378,16 @@ export function PackageMicrositeClient({
                     </div>
 
                     <Button
-                      onClick={() => { setSelectedTier(t); setIsEnquiryOpen(true); }}
+                      onClick={() => {
+                        setSelectedTier(t);
+                        if (guestCount < (t.guestCount || t.includedGuests || minGuests)) {
+                          setGuestCount(t.guestCount || t.includedGuests || minGuests);
+                        }
+                      }}
                       variant={isSelected ? "primary" : "outline"}
                       className="w-full mt-6 text-xs font-bold uppercase"
                     >
-                      {isAr ? "اختيار هذا المستوى" : "Select Tier"}
+                      {isSelected ? (isAr ? "✓ الفئة المختارة" : "✓ Selected Tier") : (isAr ? "اختيار هذه الفئة" : "Select Tier")}
                     </Button>
                   </InteractiveCard>
                 )
@@ -330,65 +396,275 @@ export function PackageMicrositeClient({
           </div>
         )}
 
-        {/* 4. INTERACTIVE ADD-ON BUILDER */}
-        {addOns.length > 0 && (
-          <div className="p-8 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <span className="text-xs font-mono font-bold uppercase text-[var(--e3-royal-blue)] tracking-wider block mb-1">
-                  {isAr ? "صمم احتفالك الخاص" : "Build Your Celebration"}
+        {/* 4. INTERACTIVE PRICE CALCULATOR & CUSTOMIZER */}
+        <div className="p-6 md:p-8 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xl space-y-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-level-2)] pb-6">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Calculator className="w-4 h-4 text-[var(--e3-royal-blue)]" />
+                <span className="text-xs font-mono font-bold uppercase text-[var(--e3-royal-blue)] tracking-wider">
+                  {isAr ? "حاسبة الأسعار التفاعلية" : "Interactive Price Calculator"}
                 </span>
-                <h2 className="text-2xl md:text-3xl font-black font-display uppercase tracking-tight">
-                  {isAr ? "إضافات مخصصة" : "Customize Add-Ons"}
-                </h2>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black font-display uppercase tracking-tight">
+                {isAr ? "خصص تجربتك واحسب التكلفة الفورية" : "Customize & Calculate Instant Total"}
+              </h2>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[var(--e3-royal-blue)]/10 border border-[var(--e3-royal-blue)]/30 text-right rtl:text-left">
+              <span className="text-[10px] font-bold text-[var(--text-secondary)] block uppercase">
+                {isAr ? "الإجمالي التقديري" : "Estimated Total"}
+              </span>
+              <span className="text-3xl font-black font-mono text-[var(--e3-royal-blue)]">
+                {estimatedTotal.toLocaleString()} QAR
+              </span>
+            </div>
+          </div>
+
+          {/* GUEST CAPACITY SELECTOR */}
+          <div className="p-6 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[var(--e3-royal-blue)]/10 flex items-center justify-center text-[var(--e3-royal-blue)]">
+                  <Users className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                    {isAr ? "عدد الضيوف المتوقع" : "Expected Guest Count"}
+                  </h3>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {isAr
+                      ? `تشمل الفئة ${includedGuests} ضيوف. الضيف الإضافي: ${extraGuestPrice} ر.ق`
+                      : `Tier includes ${includedGuests} guests. Extra guests: ${extraGuestPrice} QAR each`}
+                  </p>
+                </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[var(--e3-royal-blue)]/10 border border-[var(--e3-royal-blue)]/30 text-right rtl:text-left">
-                <span className="text-[10px] font-bold text-[var(--text-secondary)] block uppercase">
-                  {isAr ? "الإجمالي التقديري" : "Estimated Total"}
+              {/* Stepper Controls */}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setGuestCount(prev => Math.max(minGuests, prev - 1))}
+                  disabled={guestCount <= minGuests}
+                  className="w-9 h-9 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-xs font-bold disabled:opacity-30 hover:border-[var(--e3-royal-blue)] transition-colors cursor-pointer"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <div className="px-4 py-1.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-center min-w-[70px]">
+                  <span className="font-mono font-black text-base text-[var(--text-primary)]">{guestCount}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setGuestCount(prev => Math.min(maxGuests, prev + 1))}
+                  disabled={guestCount >= maxGuests}
+                  className="w-9 h-9 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-xs font-bold disabled:opacity-30 hover:border-[var(--e3-royal-blue)] transition-colors cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Slider */}
+            <div className="space-y-1">
+              <input
+                type="range"
+                min={minGuests}
+                max={maxGuests}
+                value={guestCount}
+                onChange={e => setGuestCount(parseInt(e.target.value) || minGuests)}
+                className="w-full accent-[var(--e3-royal-blue)] cursor-pointer h-2 bg-[var(--surface-default)] rounded-lg"
+              />
+              <div className="flex justify-between text-[10px] font-mono text-[var(--text-tertiary)]">
+                <span>{minGuests} {isAr ? "حد أدنى" : "Min"}</span>
+                <span className={extraGuestsCount > 0 ? "text-amber-500 font-bold" : "text-emerald-500 font-bold"}>
+                  {extraGuestsCount > 0
+                    ? `+${extraGuestsCount} ${isAr ? "ضيوف إضافيين" : "extra guests"} (+${extraGuestsTotal.toLocaleString()} QAR)`
+                    : (isAr ? "مشمل بالكامل ضمن سعر الفئة" : "Fully covered by tier base")}
                 </span>
-                <span className="text-2xl font-black font-mono text-[var(--e3-royal-blue)]">
+                <span>{maxGuests} {isAr ? "سعة قصوى" : "Max"}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* ADD-ONS SECTION */}
+          {addOns.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold text-[var(--text-primary)]">
+                    {isAr ? "الخدمات والإضافات الاختيارية" : "Optional Add-On Experiences"}
+                  </h3>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {isAr ? "أضف كعكة مخصصة، مصور، أو أنشطة إضافية لاحتفالك." : "Add birthday cakes, professional photography, extra play credits, or dedicated hosts."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {addOns.map(addon => {
+                  const qty = selectedAddOnQty[addon.id] || 0
+                  const isPerGuest = addon.priceType === "PER_GUEST"
+                  const itemTotal = isPerGuest ? (addon.price || 0) * guestCount * qty : (addon.price || 0) * qty
+
+                  return (
+                    <div
+                      key={addon.id}
+                      className={cn(
+                        "p-4 rounded-2xl border transition-all flex flex-col justify-between gap-3",
+                        qty > 0
+                          ? "bg-[var(--surface-hover)] border-[var(--e3-royal-blue)]/50 shadow-sm"
+                          : "bg-[var(--surface-hover)]/50 border-[var(--border-level-2)]"
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h4 className="font-extrabold text-sm text-[var(--text-primary)]">
+                            {isAr ? addon.titleAr || addon.titleEn : addon.titleEn}
+                          </h4>
+                          <div className="flex flex-wrap items-center gap-2 mt-1">
+                            <span className="text-xs font-mono font-bold text-[var(--e3-royal-blue)]">
+                              +{addon.price} QAR {isPerGuest ? (isAr ? "/ لكل ضيف" : "/ guest") : ""}
+                            </span>
+                            {isPerGuest && qty > 0 && (
+                              <span className="text-[10px] font-mono bg-[var(--e3-royal-blue)]/10 text-[var(--e3-royal-blue)] px-2 py-0.5 rounded-full">
+                                {addon.price} × {guestCount} = {itemTotal.toLocaleString()} QAR
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleAddOnQtyChange(addon.id, -1)}
+                            disabled={qty <= 0}
+                            className="w-8 h-8 rounded-lg bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-xs font-bold disabled:opacity-30 hover:border-[var(--e3-royal-blue)] transition-colors cursor-pointer"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="w-6 text-center font-mono font-bold text-sm">{qty}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleAddOnQtyChange(addon.id, 1)}
+                            disabled={addon.maxQty && qty >= addon.maxQty}
+                            className="w-8 h-8 rounded-lg bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-xs font-bold hover:border-[var(--e3-royal-blue)] transition-colors cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* PROMOTIONAL COUPON VALIDATOR */}
+          <div className="p-5 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] space-y-3">
+            <div className="flex items-center gap-2">
+              <Tag className="w-4 h-4 text-[var(--e3-royal-blue)]" />
+              <h4 className="text-xs font-mono font-bold uppercase text-[var(--text-primary)] tracking-wider">
+                {isAr ? "كوبون الخصم أو الرمز الترويجي" : "Promo Code & Discounts"}
+              </h4>
+            </div>
+
+            {appliedCoupon ? (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4" />
+                  <span className="font-mono font-bold uppercase">{appliedCoupon.code}</span>
+                  <span>— {isAr ? "تم خصم" : "Discount Applied:"} {appliedCoupon.discountAmount} QAR</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveCoupon}
+                  className="p-1 hover:bg-emerald-500/20 rounded-md transition-colors cursor-pointer text-xs"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2 max-w-md">
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                  placeholder={isAr ? "أدخل رمز الكوبون (مثال: E3VIP20)" : "Enter coupon code (e.g. E3VIP20)"}
+                  className="flex-1 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs font-mono uppercase text-[var(--text-primary)] focus:outline-none focus:border-[var(--e3-royal-blue)]"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleApplyCoupon}
+                  disabled={couponLoading || !couponCode.trim()}
+                  className="text-xs"
+                >
+                  {couponLoading ? "..." : (isAr ? "تطبيق" : "Apply")}
+                </Button>
+              </div>
+            )}
+
+            {couponError && (
+              <p className="text-xs text-rose-500 font-medium">{couponError}</p>
+            )}
+          </div>
+
+          {/* REAL-TIME COST BREAKDOWN SUMMARY */}
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-[var(--surface-subtle)] to-[var(--surface-hover)] border border-[var(--border-level-2)] space-y-4">
+            <h4 className="text-xs font-mono font-bold uppercase text-[var(--text-secondary)] tracking-wider">
+              {isAr ? "تفاصيل التكلفة التقديرية" : "Live Price Breakdown"}
+            </h4>
+
+            <div className="space-y-2 text-xs border-b border-[var(--border-level-2)] pb-4 font-mono">
+              <div className="flex justify-between items-center text-[var(--text-secondary)]">
+                <span>{selectedTier ? (isAr ? selectedTier.nameAr || selectedTier.nameEn : selectedTier.nameEn) : (isAr ? "السعر الأساسي" : "Base Package")} ({includedGuests} {isAr ? "ضيوف مشمولين" : "guests included"}):</span>
+                <span className="font-bold text-[var(--text-primary)]">{tierPrice.toLocaleString()} QAR</span>
+              </div>
+
+              {extraGuestsTotal > 0 && (
+                <div className="flex justify-between items-center text-amber-500">
+                  <span>+{extraGuestsCount} {isAr ? "ضيوف إضافيين" : "extra guests"} ({extraGuestPrice} QAR {isAr ? "لكل ضيف" : "each"}):</span>
+                  <span className="font-bold">+{extraGuestsTotal.toLocaleString()} QAR</span>
+                </div>
+              )}
+
+              {addOnsTotal > 0 && (
+                <div className="flex justify-between items-center text-[var(--text-secondary)]">
+                  <span>{isAr ? "الإضافات والخدمات المخصصة" : "Selected Add-Ons Subtotal"}:</span>
+                  <span className="font-bold text-[var(--text-primary)]">+{addOnsTotal.toLocaleString()} QAR</span>
+                </div>
+              )}
+
+              {couponDiscount > 0 && (
+                <div className="flex justify-between items-center text-emerald-500">
+                  <span>{isAr ? "خصم الكوبون الترويجي" : "Promotional Discount"}:</span>
+                  <span className="font-bold">-{couponDiscount.toLocaleString()} QAR</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+              <div>
+                <span className="text-[10px] font-mono font-bold text-[var(--text-tertiary)] uppercase block">
+                  {isAr ? "الإجمالي النهائي المقدر" : "Estimated Grand Total"}
+                </span>
+                <span className="text-3xl font-black font-mono text-[var(--e3-royal-blue)]">
                   {estimatedTotal.toLocaleString()} QAR
                 </span>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {addOns.map(addon => {
-                const qty = selectedAddOnQty[addon.id] || 0
-                return (
-                  <div key={addon.id} className="p-4 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] flex items-center justify-between gap-4">
-                    <div>
-                      <h4 className="font-extrabold text-sm text-[var(--text-primary)]">
-                        {isAr ? addon.titleAr || addon.titleEn : addon.titleEn}
-                      </h4>
-                      <span className="text-xs font-mono font-bold text-[var(--e3-royal-blue)]">
-                        +{addon.price} QAR {addon.priceType === "PER_GUEST" ? (isAr ? "/ لكل ضيف" : "/ guest") : ""}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => handleAddOnQtyChange(addon.id, -1)}
-                        disabled={qty <= 0}
-                        className="w-8 h-8 rounded-lg bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-xs font-bold disabled:opacity-30 cursor-pointer"
-                      >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-                      <span className="w-6 text-center font-mono font-bold text-sm">{qty}</span>
-                      <button
-                        onClick={() => handleAddOnQtyChange(addon.id, 1)}
-                        className="w-8 h-8 rounded-lg bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-xs font-bold cursor-pointer"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                )
-              })}
+              <Button
+                onClick={() => setIsEnquiryOpen(true)}
+                className="gap-2 shadow-lg px-6 py-2.5 text-xs font-bold uppercase tracking-wider"
+              >
+                <Send className="w-4 h-4" />
+                {isAr ? "طلب حجز واستفسار بهذا التخصيص" : "Enquire With This Setup"}
+              </Button>
             </div>
           </div>
-        )}
+        </div>
 
         {/* 5. FAQS ACCORDION */}
         {faqs.length > 0 && (
@@ -436,10 +712,15 @@ export function PackageMicrositeClient({
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface-default)]/90 backdrop-blur-md border-t border-[var(--border-level-2)] p-4 shadow-2xl">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div>
-            <span className="text-[10px] font-mono font-bold text-[var(--text-tertiary)] block uppercase">
-              {isAr ? "الإجمالي التقديري" : "Estimated Total"}
-            </span>
-            <span className="text-lg font-black font-mono text-[var(--e3-royal-blue)]">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono font-bold text-[var(--text-tertiary)] block uppercase">
+                {isAr ? "الإجمالي التقديري" : "Estimated Total"}
+              </span>
+              <span className="text-[10px] font-mono text-[var(--text-tertiary)]">
+                ({guestCount} {isAr ? "ضيوف" : "guests"})
+              </span>
+            </div>
+            <span className="text-lg md:text-xl font-black font-mono text-[var(--e3-royal-blue)]">
               {estimatedTotal.toLocaleString()} QAR
             </span>
           </div>
@@ -458,8 +739,16 @@ export function PackageMicrositeClient({
         locale={locale}
         selectedPackage={pkg}
         selectedTier={selectedTier}
-        selectedAddOns={addOns.filter(a => (selectedAddOnQty[a.id] || 0) > 0).map(a => ({ ...a, qty: selectedAddOnQty[a.id] }))}
+        selectedAddOns={addOns.filter(a => (selectedAddOnQty[a.id] || 0) > 0).map(a => ({
+          ...a,
+          qty: selectedAddOnQty[a.id],
+          calculatedPrice: a.priceType === "PER_GUEST"
+            ? (a.price || 0) * guestCount * selectedAddOnQty[a.id]
+            : (a.price || 0) * selectedAddOnQty[a.id]
+        }))}
         estimatedTotal={estimatedTotal}
+        guestCount={guestCount}
+        appliedCoupon={appliedCoupon}
       />
     </div>
   )

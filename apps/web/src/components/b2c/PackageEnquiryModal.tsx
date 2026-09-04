@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Check, Send, AlertCircle, Tag, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/Button"
@@ -14,6 +14,8 @@ interface PackageEnquiryModalProps {
   selectedTier?: any
   selectedAddOns?: any[]
   estimatedTotal?: number
+  guestCount?: number
+  appliedCoupon?: any
 }
 
 export function PackageEnquiryModal({
@@ -23,7 +25,9 @@ export function PackageEnquiryModal({
   selectedPackage,
   selectedTier,
   selectedAddOns = [],
-  estimatedTotal = 0
+  estimatedTotal = 0,
+  guestCount,
+  appliedCoupon: initialAppliedCoupon = null
 }: PackageEnquiryModalProps) {
   const isAr = locale === "ar"
 
@@ -43,14 +47,16 @@ export function PackageEnquiryModal({
   const [ageGroup, setAgeGroup] = useState("")
   const [preferredDate, setPreferredDate] = useState("")
   const [alternativeDate, setAlternativeDate] = useState("")
-  const [expectedGuests, setExpectedGuests] = useState(selectedPackage?.minGuests || 15)
+  const [expectedGuests, setExpectedGuests] = useState(
+    guestCount || selectedTier?.guestCount || selectedPackage?.minGuests || 15
+  )
   const [specialRequests, setSpecialRequests] = useState("")
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(true)
 
   // Promotional & Referral inputs
-  const [couponCodeInput, setCouponCodeInput] = useState("")
-  const [appliedCoupon, setAppliedCoupon] = useState<any | null>(null)
+  const [couponCodeInput, setCouponCodeInput] = useState(initialAppliedCoupon?.code || "")
+  const [appliedCoupon, setAppliedCoupon] = useState<any | null>(initialAppliedCoupon)
   const [validatingCoupon, setValidatingCoupon] = useState(false)
   const [couponError, setCouponError] = useState<string | null>(null)
   const [referralCodeInput, setReferralCodeInput] = useState("")
@@ -60,6 +66,16 @@ export function PackageEnquiryModal({
   const [referenceNumber, setReferenceNumber] = useState<string>("")
   const [errorMsg, setErrorMsg] = useState("")
   const [honeypot, setHoneypot] = useState("")
+
+  useEffect(() => {
+    if (isOpen) {
+      if (guestCount) setExpectedGuests(guestCount)
+      if (initialAppliedCoupon) {
+        setAppliedCoupon(initialAppliedCoupon)
+        setCouponCodeInput(initialAppliedCoupon.code || "")
+      }
+    }
+  }, [isOpen, guestCount, initialAppliedCoupon])
 
   if (!isOpen) return null
 

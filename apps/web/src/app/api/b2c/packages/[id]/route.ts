@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
 import { requirePermission, AppAuthError } from "@/lib/server-auth"
 
-function sanitizePackageData(body: any, isUpdate = true) {
+async function sanitizePackageData(body: any, isUpdate = true) {
   const {
     id: _id,
     attraction: _attraction,
@@ -38,26 +38,46 @@ function sanitizePackageData(body: any, isUpdate = true) {
   }
 
   // Relations: connect or disconnect safely
-  if (attractionId) {
-    data.attraction = { connect: { id: attractionId } }
+  if (attractionId && typeof attractionId === "string" && attractionId.trim()) {
+    try {
+      const existing = await db.attraction.findUnique({ where: { id: attractionId.trim() }, select: { id: true } })
+      if (existing) data.attraction = { connect: { id: existing.id } }
+    } catch (_e) {}
   } else if (isUpdate && attractionId === "") {
     data.attraction = { disconnect: true }
   }
 
-  if (locationId) {
-    data.location = { connect: { id: locationId } }
+  if (locationId && typeof locationId === "string" && locationId.trim()) {
+    try {
+      const existing = await db.location.findUnique({ where: { id: locationId.trim() }, select: { id: true } })
+      if (existing) data.location = { connect: { id: existing.id } }
+    } catch (_e) {}
   } else if (isUpdate && locationId === "") {
     data.location = { disconnect: true }
   }
 
-  if (categoryId) {
-    data.categoryRel = { connect: { id: categoryId } }
+  if (categoryId && typeof categoryId === "string" && categoryId.trim()) {
+    try {
+      const existing = await db.packageCategory.findFirst({
+        where: {
+          OR: [
+            { id: categoryId.trim() },
+            { slug: categoryId.trim().toLowerCase() }
+          ]
+        },
+        select: { id: true }
+      })
+      if (existing) data.categoryRel = { connect: { id: existing.id } }
+    } catch (_e) {}
   } else if (isUpdate && categoryId === "") {
     data.categoryRel = { disconnect: true }
   }
 
-  if (brandId) {
-    data.brand = { connect: { id: brandId } }
+  if (brandId && typeof brandId === "string" && brandId.trim()) {
+    try {
+      const existing = await db.brandIP.findUnique({ where: { id: brandId.trim() }, select: { id: true } })
+      if (existing) data.brand = { connect: { id: existing.id } }
+    } catch (_e) {}
   } else if (isUpdate && brandId === "") {
     data.brand = { disconnect: true }
   }
@@ -146,7 +166,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const { id } = await params
     const body = await req.json().catch(() => ({}))
 
-    const updateData = sanitizePackageData(body, true)
+    const updateData = await sanitizePackageData(body, true)
 
     const updated = await db.package.update({
       where: { id },

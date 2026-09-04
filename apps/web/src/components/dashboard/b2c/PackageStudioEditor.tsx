@@ -330,11 +330,20 @@ export function PackageStudioEditor({
         ...formRest
       } = form;
 
+      const startingPriceNum = parseFloat(form.startingPrice as any) || 0;
+      const internalCostNum = form.internalCost ? parseFloat(form.internalCost as any) : null;
+      let calculatedMargin = form.estimatedMargin ? parseFloat(form.estimatedMargin as any) : null;
+      if (calculatedMargin === null && internalCostNum !== null && startingPriceNum > 0) {
+        calculatedMargin = Math.round(((startingPriceNum - internalCostNum) / startingPriceNum) * 100);
+      }
+
       const payload = {
         ...formRest,
-        startingPrice: parseFloat(form.startingPrice as any) || 0,
-        internalCost: form.internalCost ? parseFloat(form.internalCost as any) : null,
-        estimatedMargin: form.estimatedMargin ? parseFloat(form.estimatedMargin as any) : null,
+        categoryId: form.categoryId?.trim() ? form.categoryId.trim() : undefined,
+        category: form.category || "BIRTHDAY",
+        startingPrice: startingPriceNum,
+        internalCost: internalCostNum,
+        estimatedMargin: calculatedMargin,
         seo: {
           metaTitleEn: metaTitleEn || undefined,
           metaTitleAr: metaTitleAr || undefined,
@@ -554,11 +563,12 @@ export function PackageStudioEditor({
                 <select
                   value={form.categoryId || form.category}
                   onChange={(e) => {
-                    const selectedCat = categories.find((c) => c.id === e.target.value || c.slug === e.target.value);
+                    const val = e.target.value;
+                    const selectedCat = categories.find((c) => c.id === val || c.slug === val.toLowerCase());
                     setForm({
                       ...form,
-                      categoryId: selectedCat?.id || e.target.value,
-                      category: selectedCat?.slug?.toUpperCase() || e.target.value.toUpperCase(),
+                      categoryId: selectedCat ? selectedCat.id : "",
+                      category: selectedCat ? (selectedCat.slug?.toUpperCase() || val) : val,
                     });
                   }}
                   className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] cursor-pointer"
@@ -955,6 +965,35 @@ export function PackageStudioEditor({
               </div>
             </div>
 
+            {/* Profit Margin Indicator */}
+            {form.startingPrice > 0 && form.internalCost > 0 && (() => {
+              const cost = parseFloat(form.internalCost as any) || 0;
+              const margin = Math.round(((form.startingPrice - cost) / form.startingPrice) * 100);
+              const profit = form.startingPrice - cost;
+              return (
+                <div className="p-3.5 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-[var(--text-secondary)]">
+                      {isAr ? "هامش الربح التقديري:" : "Estimated Profit Margin:"}
+                    </span>
+                    <span className={cn(
+                      "px-2.5 py-0.5 rounded-full text-xs font-mono font-black",
+                      margin >= 40 ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" :
+                      margin >= 20 ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" :
+                      "bg-rose-500/10 text-rose-500 border border-rose-500/20"
+                    )}>
+                      {margin}% ({profit > 0 ? `+${profit}` : profit} QAR)
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-[var(--text-tertiary)] font-medium">
+                    {margin >= 40 ? (isAr ? "هامش ربح تجاري ممتاز" : "Healthy Commercial Margin") :
+                     margin >= 20 ? (isAr ? "هامش ربح متوسط" : "Moderate Margin") :
+                     (isAr ? "تنبيه: هامش ربح منخفض" : "Warning: Low Commercial Margin")}
+                  </span>
+                </div>
+              );
+            })()}
+
             {/* Pricing Tiers */}
             <div className="pt-6 border-t border-[var(--border-default)] space-y-4">
               <div className="flex items-center justify-between">
@@ -974,54 +1013,131 @@ export function PackageStudioEditor({
 
               <div className="space-y-3">
                 {form.tiers.map((tier: any, idx: number) => (
-                  <div key={idx} className="p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
-                    <div>
-                      <label className="text-[10px] text-[var(--text-secondary)] block mb-1">Tier Name (EN)</label>
-                      <input
-                        type="text"
-                        value={tier.nameEn}
-                        onChange={(e) => {
-                          const next = [...form.tiers];
-                          next[idx].nameEn = e.target.value;
-                          setForm({ ...form, tiers: next });
-                        }}
-                        className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
-                      />
+                  <div key={idx} className="p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                      <div className="sm:col-span-4">
+                        <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
+                          {isAr ? "اسم الفئة (EN)" : "Tier Name (EN)"}
+                        </label>
+                        <input
+                          type="text"
+                          value={tier.nameEn}
+                          onChange={(e) => {
+                            const next = [...form.tiers];
+                            next[idx].nameEn = e.target.value;
+                            setForm({ ...form, tiers: next });
+                          }}
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
+                          placeholder="VIP Deluxe"
+                        />
+                      </div>
+                      <div className="sm:col-span-4">
+                        <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
+                          {isAr ? "اسم الفئة (AR)" : "Tier Name (AR)"}
+                        </label>
+                        <input
+                          type="text"
+                          dir="rtl"
+                          value={tier.nameAr || ""}
+                          onChange={(e) => {
+                            const next = [...form.tiers];
+                            next[idx].nameAr = e.target.value;
+                            setForm({ ...form, tiers: next });
+                          }}
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] font-arabic text-right"
+                          placeholder="الباقة الذهبية المميزة"
+                        />
+                      </div>
+                      <div className="sm:col-span-3">
+                        <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
+                          {isAr ? "السعر (QAR)" : "Price (QAR)"}
+                        </label>
+                        <input
+                          type="number"
+                          value={tier.price}
+                          onChange={(e) => {
+                            const next = [...form.tiers];
+                            next[idx].price = parseFloat(e.target.value) || 0;
+                            setForm({ ...form, tiers: next });
+                          }}
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400"
+                        />
+                      </div>
+                      <div className="sm:col-span-1 flex justify-end pt-3">
+                        <button
+                          type="button"
+                          onClick={() => removeTier(idx)}
+                          className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-[10px] text-[var(--text-secondary)] block mb-1">Price (QAR)</label>
-                      <input
-                        type="number"
-                        value={tier.price}
-                        onChange={(e) => {
-                          const next = [...form.tiers];
-                          next[idx].price = parseFloat(e.target.value) || 0;
-                          setForm({ ...form, tiers: next });
-                        }}
-                        className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-[var(--text-secondary)] block mb-1">Included Guests</label>
-                      <input
-                        type="number"
-                        value={tier.guestCount || 10}
-                        onChange={(e) => {
-                          const next = [...form.tiers];
-                          next[idx].guestCount = parseInt(e.target.value) || 10;
-                          setForm({ ...form, tiers: next });
-                        }}
-                        className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
-                      />
-                    </div>
-                    <div className="flex justify-end pt-4">
-                      <button
-                        type="button"
-                        onClick={() => removeTier(idx)}
-                        className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2 border-t border-[var(--border-default)]/60">
+                      <div>
+                        <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
+                          {isAr ? "عدد الضيوف المشمولين" : "Included Guests"}
+                        </label>
+                        <input
+                          type="number"
+                          value={tier.guestCount || 10}
+                          onChange={(e) => {
+                            const next = [...form.tiers];
+                            next[idx].guestCount = parseInt(e.target.value) || 10;
+                            setForm({ ...form, tiers: next });
+                          }}
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
+                          {isAr ? "سعر الضيف الإضافي (QAR)" : "Extra Guest Price (QAR)"}
+                        </label>
+                        <input
+                          type="number"
+                          value={tier.extraGuestPrice || 0}
+                          onChange={(e) => {
+                            const next = [...form.tiers];
+                            next[idx].extraGuestPrice = parseFloat(e.target.value) || 0;
+                            setForm({ ...form, tiers: next });
+                          }}
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] font-mono"
+                          placeholder="100"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
+                          {isAr ? "المدة (بالدقائق)" : "Duration (Mins)"}
+                        </label>
+                        <input
+                          type="number"
+                          value={tier.durationMinutes || 120}
+                          onChange={(e) => {
+                            const next = [...form.tiers];
+                            next[idx].durationMinutes = parseInt(e.target.value) || 60;
+                            setForm({ ...form, tiers: next });
+                          }}
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] font-mono"
+                          placeholder="120"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-[var(--text-secondary)] block mb-1">
+                          {isAr ? "الميزات المشمولة (مفصولة بفاصلة)" : "Perks (Comma Separated)"}
+                        </label>
+                        <input
+                          type="text"
+                          value={Array.isArray(tier.includedItems) ? tier.includedItems.join(", ") : (tier.includedItems || "")}
+                          onChange={(e) => {
+                            const next = [...form.tiers];
+                            next[idx].includedItems = e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean);
+                            setForm({ ...form, tiers: next });
+                          }}
+                          className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)]"
+                          placeholder="VIP Lounge, Dedicated Host"
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1048,7 +1164,8 @@ export function PackageStudioEditor({
             <div className="space-y-3">
               {form.addOns.map((add: any, idx: number) => (
                 <div key={idx} className="p-4 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-                  <div className="sm:col-span-4">
+                  <div className="sm:col-span-3">
+                    <label className="text-[10px] text-[var(--text-secondary)] block mb-1">Title (EN)</label>
                     <input
                       type="text"
                       value={add.titleEn}
@@ -1062,6 +1179,22 @@ export function PackageStudioEditor({
                     />
                   </div>
                   <div className="sm:col-span-3">
+                    <label className="text-[10px] text-[var(--text-secondary)] block mb-1">Title (AR)</label>
+                    <input
+                      type="text"
+                      dir="rtl"
+                      value={add.titleAr || ""}
+                      onChange={(e) => {
+                        const next = [...form.addOns];
+                        next[idx].titleAr = e.target.value;
+                        setForm({ ...form, addOns: next });
+                      }}
+                      placeholder="عنوان الإضافة (عربي)"
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs text-[var(--text-primary)] font-arabic text-right"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] text-[var(--text-secondary)] block mb-1">Price (QAR)</label>
                     <input
                       type="number"
                       value={add.price}
@@ -1070,11 +1203,12 @@ export function PackageStudioEditor({
                         next[idx].price = parseFloat(e.target.value) || 0;
                         setForm({ ...form, addOns: next });
                       }}
-                      placeholder="Price (QAR)"
+                      placeholder="Price"
                       className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400"
                     />
                   </div>
-                  <div className="sm:col-span-3">
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] text-[var(--text-secondary)] block mb-1">Price Type</label>
                     <select
                       value={add.priceType || "FIXED"}
                       onChange={(e) => {
@@ -1088,7 +1222,20 @@ export function PackageStudioEditor({
                       <option value="PER_GUEST">Per Guest / لكل ضيف</option>
                     </select>
                   </div>
-                  <div className="sm:col-span-2 flex justify-end">
+                  <div className="sm:col-span-1">
+                    <label className="text-[10px] text-[var(--text-secondary)] block mb-1">Max Qty</label>
+                    <input
+                      type="number"
+                      value={add.maxQty || 1}
+                      onChange={(e) => {
+                        const next = [...form.addOns];
+                        next[idx].maxQty = parseInt(e.target.value) || 1;
+                        setForm({ ...form, addOns: next });
+                      }}
+                      className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-2 py-1.5 text-xs text-[var(--text-primary)] font-mono text-center"
+                    />
+                  </div>
+                  <div className="sm:col-span-1 flex justify-end pt-3">
                     <button
                       type="button"
                       onClick={() => removeAddon(idx)}

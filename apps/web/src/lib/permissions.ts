@@ -106,7 +106,6 @@ export const rolePermissions: Record<Role, string[]> = {
     'b2c.content.write',
     'b2c.content.publish',
     'b2c.attractions.manage',
-    'b2c.packages.manage',
     'b2c.packages.read',
     'b2c.calendar.manage',
     'b2c.feedback.manage',
