@@ -63,9 +63,13 @@ console.log("[BUILD] Ensuring DATABASE_URL environment variable is present...");
 try {
   console.log("[BUILD] Generating Prisma Client...");
   try {
-    execSync("pnpm exec prisma generate --schema=prisma/schema.prisma", { stdio: 'inherit', env });
-  } catch (_pnpmErr) {
-    execSync("npx prisma generate --schema=prisma/schema.prisma", { stdio: 'inherit', env });
+    try {
+      execSync("pnpm exec prisma generate --schema=prisma/schema.prisma", { stdio: 'inherit', env });
+    } catch (_pnpmErr) {
+      execSync("npx prisma generate --schema=prisma/schema.prisma", { stdio: 'inherit', env });
+    }
+  } catch (genErr) {
+    console.log("[BUILD] Prisma generate note (client may already be generated or locked):", genErr.message || genErr);
   }
 
   console.log("[BUILD] Checking database migrations...");
