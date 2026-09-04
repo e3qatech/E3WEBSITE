@@ -126,20 +126,47 @@ export async function POST(req: NextRequest) {
       })
 
       if (linkedPackage) {
+        const pkgMin = Math.max(1, linkedPackage.minGuests || 1)
+        const pkgMax = Math.max(pkgMin, linkedPackage.maxGuests || 100)
+
+        if (validated.expectedGuests < pkgMin) {
+          return NextResponse.json(
+            { error: `Minimum guest capacity for this package is ${pkgMin} guests.` },
+            { status: 400 }
+          )
+        }
+        if (validated.expectedGuests > pkgMax) {
+          return NextResponse.json(
+            { error: `Maximum venue capacity for this package is ${pkgMax} guests.` },
+            { status: 400 }
+          )
+        }
+
+        const packageTiers = Array.isArray(linkedPackage.tiers)
+          ? (linkedPackage.tiers as any)
+          : (Array.isArray(linkedPackage.priceTiers) ? (linkedPackage.priceTiers as any) : [])
+
         const pricingResult = calculatePackagePrice({
           basePackage: {
             id: linkedPackage.id,
             startingPrice: linkedPackage.startingPrice || 0,
             priceDisplayMode: linkedPackage.priceDisplayMode,
-            minGuests: linkedPackage.minGuests || 10,
-            maxGuests: linkedPackage.maxGuests || 100,
-            includedGuestCount: linkedPackage.minGuests || 10,
+            minGuests: pkgMin,
+            maxGuests: pkgMax,
+            includedGuestCount: linkedPackage.includedGuestCount || pkgMin,
             extraGuestPrice: linkedPackage.extraGuestPrice || 0,
-            tiers: Array.isArray(linkedPackage.priceTiers) ? (linkedPackage.priceTiers as any) : []
+            tiers: packageTiers
           },
           selectedTierId: validated.selectedTierId || undefined,
           guestCount: validated.expectedGuests,
-          selectedAddOns: Array.isArray(validated.selectedAddOns) ? (validated.selectedAddOns as any) : []
+          selectedAddOns: Array.isArray(validated.selectedAddOns)
+            ? (validated.selectedAddOns as any[]).map((a: any) => ({
+                id: a.id,
+                quantity: a.qty || a.quantity || 1,
+                unitPrice: a.unitPrice ?? a.price ?? 0,
+                priceType: a.priceType || "FLAT"
+              }))
+            : []
         })
         calculatedEstimatedValue = pricingResult.grandTotal
       }
