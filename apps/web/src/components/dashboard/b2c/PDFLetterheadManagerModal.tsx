@@ -19,6 +19,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
+import { PDFImageUploader } from "@/components/dashboard/b2c/PDFImageUploader"
+import { A4QuotationSheet } from "@/components/dashboard/b2c/A4QuotationSheet"
 
 export interface PDFLetterheadConfig {
   // Company & Letterhead Header
@@ -153,10 +155,10 @@ export function PDFLetterheadManagerModal({
     >
       <div 
         onClick={e => e.stopPropagation()}
-        className="relative w-full max-w-4xl bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden text-[var(--text-primary)]"
+        className="relative w-full max-w-6xl bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-[var(--text-primary)]"
       >
         {/* Modal Top Header */}
-        <div className="p-6 border-b border-[var(--border-level-2)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--surface-hover)]/30">
+        <div className="p-5 border-b border-[var(--border-level-2)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--surface-hover)]/30">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-[var(--e3-royal-blue)] text-white flex items-center justify-center shadow-md">
               <FileText className="w-5 h-5" />
@@ -198,8 +200,12 @@ export function PDFLetterheadManagerModal({
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex items-center gap-2 px-6 pt-4 border-b border-[var(--border-level-2)] bg-[var(--surface-default)] overflow-x-auto scrollbar-none">
+        {/* Modal Split View: Controls Left, Live Preview Right */}
+        <div className="flex-1 overflow-hidden grid grid-cols-1 xl:grid-cols-12">
+          {/* Left Controls Column */}
+          <div className="xl:col-span-7 flex flex-col border-e border-[var(--border-level-2)] overflow-hidden">
+            {/* Tab Navigation */}
+            <div className="flex items-center gap-2 px-6 pt-4 border-b border-[var(--border-level-2)] bg-[var(--surface-default)] overflow-x-auto scrollbar-none">
           {[
             { id: "HEADER", labelEn: "1. Company & Letterhead", labelAr: "١. الشركة والترويسة", icon: Building },
             { id: "VENUE", labelEn: "2. Venue & Room Details", labelAr: "٢. الوجهة والقاعة", icon: MapPin },
@@ -257,19 +263,16 @@ export function PDFLetterheadManagerModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
-                    {isAr ? "رابط الشعار الرسمي (Logo URL)" : "Company Logo URL"}
-                  </label>
-                  <input
-                    type="text"
-                    value={config.companyLogoUrl}
-                    onChange={e => setConfig({ ...config, companyLogoUrl: e.target.value })}
-                    placeholder="/images/e3-logo.png or https://..."
-                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3.5 py-2 text-xs text-[var(--text-primary)]"
-                  />
-                </div>
+              <div className="space-y-4">
+                <PDFImageUploader
+                  label={isAr ? "شعار الشركة الرسمي للترويسة" : "Company Official Logo"}
+                  value={config.companyLogoUrl}
+                  onChange={url => setConfig({ ...config, companyLogoUrl: url })}
+                  placeholder="/images/e3-logo.png"
+                  recommendedSize={isAr ? "صيغة PNG بخلفية شفافة (الارتفاع: ~40px)" : "PNG with transparent background (~40px height)"}
+                  isAr={isAr}
+                />
+
                 <div>
                   <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
                     {isAr ? "لون شريط الترويسة العلوي (Header Color)" : "Top Letterhead Banner Color"}
@@ -439,6 +442,17 @@ export function PDFLetterheadManagerModal({
                     className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3.5 py-2 text-xs text-[var(--text-primary)] font-arabic text-right"
                   />
                 </div>
+              </div>
+
+              <div>
+                <PDFImageUploader
+                  label={isAr ? "شعار الوجهة / الفعالية" : "Venue / Attraction Logo"}
+                  value={config.venueLogoUrl}
+                  onChange={url => setConfig({ ...config, venueLogoUrl: url })}
+                  placeholder="https://.../venue-logo.png"
+                  recommendedSize={isAr ? "صيغة PNG أو SVG بخلفية شفافة" : "PNG or SVG with transparent background"}
+                  isAr={isAr}
+                />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -626,20 +640,17 @@ export function PDFLetterheadManagerModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
-                    {isAr ? "رابط الختم الرسمي للشركة (Stamp Image URL)" : "Official Company Stamp URL"}
-                  </label>
-                  <input
-                    type="text"
-                    value={config.stampUrl}
-                    onChange={e => setConfig({ ...config, stampUrl: e.target.value })}
-                    placeholder="/images/e3-official-stamp.png or https://..."
-                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3.5 py-2 text-xs text-[var(--text-primary)]"
-                  />
-                </div>
-                <div className="flex items-center gap-6 pt-6 text-xs font-bold">
+              <div className="space-y-4">
+                <PDFImageUploader
+                  label={isAr ? "صورة الختم الرسمي للشركة (PNG دائري مفرغ)" : "Official Company Seal / Stamp (Transparent PNG)"}
+                  value={config.stampUrl}
+                  onChange={url => setConfig({ ...config, stampUrl: url })}
+                  placeholder="https://.../e3-official-stamp.png"
+                  recommendedSize={isAr ? "صورة دائرية مفرغة بخلفية شفافة" : "Circular transparent PNG stamp"}
+                  isAr={isAr}
+                />
+
+                <div className="flex items-center gap-6 pt-2 text-xs font-bold">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -687,6 +698,26 @@ export function PDFLetterheadManagerModal({
               </div>
             </div>
           )}
+            </div>
+          </div>
+
+          {/* Right Live Preview Column */}
+          <div className="hidden xl:flex xl:col-span-5 flex-col bg-[var(--surface-hover)]/30 p-5 overflow-y-auto max-h-[calc(92vh-140px)] space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-[var(--border-level-2)]">
+              <div className="flex items-center gap-2 text-xs font-mono text-[var(--text-primary)]">
+                <Eye className="w-4 h-4 text-purple-500" />
+                <span className="font-bold">{isAr ? "معاينة مباشرة للصفحة الواحدة A4" : "Live 1-Page A4 Quotation Preview"}</span>
+              </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20">
+                Live Responsive
+              </span>
+            </div>
+            <A4QuotationSheet
+              config={config}
+              isInteractivePreview={true}
+              locale={locale}
+            />
+          </div>
         </div>
 
         {/* Modal Bottom Footer Actions */}

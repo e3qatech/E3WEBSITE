@@ -35,6 +35,7 @@ import {
   DEFAULT_PDF_CONFIG, 
   PDFLetterheadConfig 
 } from "@/components/dashboard/b2c/PDFLetterheadManagerModal";
+import { A4QuotationSheet } from "@/components/dashboard/b2c/A4QuotationSheet";
 
 interface PackageStudioEditorProps {
   initialData?: any;
@@ -2102,6 +2103,39 @@ export function PackageStudioEditor({
                     className="w-full bg-[var(--surface-default)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] font-arabic text-right focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Live 1-Page A4 Quotation Sheet Preview */}
+            <div className="p-5 rounded-2xl bg-[var(--surface-subtle)] border border-[var(--border-default)] space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-[var(--text-primary)] uppercase font-mono flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-purple-500" />
+                  <span>{isAr ? "معاينة عرض سعر الباقة والترويسة (صفحة واحدة A4)" : "Live 1-Page A4 Quotation Preview"}</span>
+                </h4>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setIsPdfModalOpen(true)}
+                  className="text-xs gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                  <span>{isAr ? "تعديل الشعار والترويسة" : "Edit Letterhead & Logos"}</span>
+                </Button>
+              </div>
+
+              <div className="max-w-3xl mx-auto">
+                <A4QuotationSheet
+                  config={form.termsConditions?.pdfConfig || DEFAULT_PDF_CONFIG}
+                  data={{
+                    packageTitleEn: form.titleEn,
+                    packageTitleAr: form.titleAr,
+                    grandTotal: form.startingPrice || 2500,
+                  }}
+                  isInteractivePreview={true}
+                  locale={locale}
+                />
               </div>
             </div>
           </div>

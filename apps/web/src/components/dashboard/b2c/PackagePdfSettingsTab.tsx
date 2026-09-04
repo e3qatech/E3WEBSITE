@@ -19,6 +19,7 @@ import {
   Printer,
   Sparkles
 } from "lucide-react"
+import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
 import { 
@@ -26,6 +27,13 @@ import {
   DEFAULT_PDF_CONFIG 
 } from "@/components/dashboard/b2c/PDFLetterheadManagerModal"
 import { useToast } from "@/components/dashboard/ui/ToastProvider"
+import { PDFImageUploader } from "@/components/dashboard/b2c/PDFImageUploader"
+import { A4QuotationSheet } from "@/components/dashboard/b2c/A4QuotationSheet"
+
+const QuotationPDFDownload = dynamic(
+  () => import("@/components/dashboard/b2c/QuotationPDFDocument"),
+  { ssr: false }
+)
 
 interface PackagePdfSettingsTabProps {
   locale?: string
@@ -248,36 +256,37 @@ export function PackagePdfSettingsTab({ locale = "en" }: PackagePdfSettingsTabPr
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="text-[11px] font-mono text-zinc-400 block mb-1">Company Logo URL</label>
-                  <input
-                    type="text"
-                    value={config.companyLogoUrl}
-                    onChange={(e) => updateField("companyLogoUrl", e.target.value)}
-                    placeholder="/images/e3-logo.png"
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-mono text-zinc-400 block mb-1">Official Phone</label>
-                  <input
-                    type="text"
-                    value={config.phone}
-                    onChange={(e) => updateField("phone", e.target.value)}
-                    placeholder="+974 4400 1234"
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-mono text-zinc-400 block mb-1">Official Email</label>
-                  <input
-                    type="email"
-                    value={config.email}
-                    onChange={(e) => updateField("email", e.target.value)}
-                    placeholder="events@e3.qa"
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
-                  />
+              <div className="space-y-4">
+                <PDFImageUploader
+                  label={isAr ? "شعار الشركة الرسمي للترويسة" : "Company Official Logo"}
+                  value={config.companyLogoUrl}
+                  onChange={(url) => updateField("companyLogoUrl", url)}
+                  placeholder="/images/e3-logo.png"
+                  recommendedSize={isAr ? "صيغة PNG بخلفية شفافة (الارتفاع: ~40px)" : "PNG with transparent background (~40px height)"}
+                  isAr={isAr}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[11px] font-mono text-zinc-400 block mb-1">Official Phone</label>
+                    <input
+                      type="text"
+                      value={config.phone}
+                      onChange={(e) => updateField("phone", e.target.value)}
+                      placeholder="+974 4400 1234"
+                      className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-mono text-zinc-400 block mb-1">Official Email</label>
+                    <input
+                      type="email"
+                      value={config.email}
+                      onChange={(e) => updateField("email", e.target.value)}
+                      placeholder="events@e3.qa"
+                      className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -407,36 +416,37 @@ export function PackagePdfSettingsTab({ locale = "en" }: PackagePdfSettingsTabPr
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="text-[11px] font-mono text-zinc-400 block mb-1">Venue Logo URL</label>
-                  <input
-                    type="text"
-                    value={config.venueLogoUrl}
-                    onChange={(e) => updateField("venueLogoUrl", e.target.value)}
-                    placeholder="https://.../venue-logo.png"
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-mono text-zinc-400 block mb-1">On-Site Coordinator Title</label>
-                  <input
-                    type="text"
-                    value={config.onSiteCoordinator}
-                    onChange={(e) => updateField("onSiteCoordinator", e.target.value)}
-                    placeholder="Event Operations Lead"
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-mono text-zinc-400 block mb-1">Coordinator Phone</label>
-                  <input
-                    type="text"
-                    value={config.coordinatorPhone}
-                    onChange={(e) => updateField("coordinatorPhone", e.target.value)}
-                    placeholder="+974 5599 8822"
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
-                  />
+              <div className="space-y-4">
+                <PDFImageUploader
+                  label={isAr ? "شعار الوجهة / الفعالية" : "Venue / Attraction Logo"}
+                  value={config.venueLogoUrl}
+                  onChange={(url) => updateField("venueLogoUrl", url)}
+                  placeholder="https://.../venue-logo.png"
+                  recommendedSize={isAr ? "صيغة PNG أو SVG بخلفية شفافة" : "PNG or SVG with transparent background"}
+                  isAr={isAr}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[11px] font-mono text-zinc-400 block mb-1">On-Site Coordinator Title</label>
+                    <input
+                      type="text"
+                      value={config.onSiteCoordinator}
+                      onChange={(e) => updateField("onSiteCoordinator", e.target.value)}
+                      placeholder="Event Operations Lead"
+                      className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-mono text-zinc-400 block mb-1">Coordinator Phone</label>
+                    <input
+                      type="text"
+                      value={config.coordinatorPhone}
+                      onChange={(e) => updateField("coordinatorPhone", e.target.value)}
+                      placeholder="+974 5599 8822"
+                      className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -543,18 +553,17 @@ export function PackagePdfSettingsTab({ locale = "en" }: PackagePdfSettingsTabPr
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[11px] font-mono text-zinc-400 block mb-1">Official Stamp Image URL (PNG)</label>
-                  <input
-                    type="text"
-                    value={config.stampUrl}
-                    onChange={(e) => updateField("stampUrl", e.target.value)}
-                    placeholder="https://.../e3-official-stamp.png"
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
-                  />
-                </div>
-                <div className="flex items-center gap-4 pt-4">
+              <div className="space-y-4">
+                <PDFImageUploader
+                  label={isAr ? "صورة الختم الرسمي للشركة (PNG دائري مفرغ)" : "Official Company Seal / Stamp (Transparent PNG)"}
+                  value={config.stampUrl}
+                  onChange={(url) => updateField("stampUrl", url)}
+                  placeholder="https://.../e3-official-stamp.png"
+                  recommendedSize={isAr ? "صورة دائرية مفرغة بخلفية شفافة" : "Circular transparent PNG stamp"}
+                  isAr={isAr}
+                />
+
+                <div className="flex items-center gap-6 pt-2">
                   <label className="flex items-center gap-2 text-xs text-zinc-300 font-bold cursor-pointer">
                     <input
                       type="checkbox"
@@ -614,123 +623,32 @@ export function PackagePdfSettingsTab({ locale = "en" }: PackagePdfSettingsTabPr
               </span>
             </div>
 
-            {/* A4 Sheet Simulation */}
-            <div className="bg-white text-zinc-900 rounded-xl p-6 shadow-2xl border border-zinc-200 text-xs relative overflow-hidden font-sans select-none">
-              {/* Top Accent Ribbon */}
-              {config.showLetterheadBar && (
-                <div 
-                  className="h-2 w-full absolute top-0 left-0"
-                  style={{ backgroundColor: config.headerBannerColor || "#002B49" }}
+            {/* Live 1-Page A4 Quotation Sheet Preview */}
+            <div className="space-y-4">
+              <A4QuotationSheet
+                config={config}
+                isInteractivePreview={true}
+                locale={locale}
+              />
+
+              <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <span className="text-xs font-bold text-white block">
+                    {isAr ? "تصدير المستند بصيغة PDF حقيقية (A4)" : "Direct Vector PDF Export"}
+                  </span>
+                  <span className="text-[10px] text-zinc-400 font-mono">
+                    {isAr ? "ملف PDF متجهي عالي الدقة بقياس A4 قياسي بدون التقاط صور شاشة" : "True vector 1-page A4 document without screen captures"}
+                  </span>
+                </div>
+                <QuotationPDFDownload
+                  config={config}
+                  data={{
+                    quoteNumber: "QTE-2026-0842",
+                    packageTitleEn: "VIP Birthday Celebration Package",
+                    packageTitleAr: "باقة احتفال عيد الميلاد VIP الشاملة",
+                    grandTotal: 3150,
+                  }}
                 />
-              )}
-
-              {/* Header */}
-              <div className="flex items-start justify-between border-b pb-4 mb-4 border-zinc-200">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    {config.showCompanyLogo && (
-                      <div className="w-8 h-8 rounded bg-zinc-900 flex items-center justify-center text-white font-black text-xs">
-                        E3
-                      </div>
-                    )}
-                    <div>
-                      <h4 className="font-black text-sm text-zinc-900 leading-tight">{config.companyNameEn}</h4>
-                      <p className="text-[10px] text-zinc-500 font-arabic">{config.companyNameAr}</p>
-                    </div>
-                  </div>
-                  <p className="text-[9px] text-zinc-500 font-mono">
-                    CR: {config.crNumber} • Tax TIN: {config.taxRegistrationNumber}
-                  </p>
-                </div>
-
-                <div className="text-end text-[9px] text-zinc-500 space-y-0.5 font-mono">
-                  <p className="font-bold text-zinc-700">{config.phone}</p>
-                  <p>{config.email}</p>
-                  <p>{config.addressEn}</p>
-                </div>
-              </div>
-
-              {/* Simulated Quote Title */}
-              <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-3 mb-4 flex items-center justify-between">
-                <div>
-                  <span className="text-[9px] font-mono text-purple-700 font-bold uppercase tracking-wider block">Official Experience Quotation</span>
-                  <h5 className="font-black text-xs text-zinc-900">VIP Birthday Celebration Package</h5>
-                </div>
-                <div className="text-end">
-                  <span className="text-[9px] font-mono text-zinc-400 block">Quote #QTE-2026-0842</span>
-                  <span className="text-[10px] font-bold text-emerald-700">Valid: 14 Days</span>
-                </div>
-              </div>
-
-              {/* Venue Card */}
-              {config.showVenueDetails && (
-                <div className="p-2.5 rounded-lg bg-purple-50/60 border border-purple-100 mb-4 flex items-center justify-between text-[10px]">
-                  <div>
-                    <span className="font-bold text-purple-900 block">{config.venueNameEn}</span>
-                    <span className="text-zinc-600 block">{config.hallOrZoneEn}</span>
-                  </div>
-                  <div className="text-end">
-                    <span className="text-zinc-500 text-[9px] block">On-Site Coordinator:</span>
-                    <span className="font-bold text-zinc-800">{config.onSiteCoordinator} ({config.coordinatorPhone})</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Simulated Items Table */}
-              <div className="border border-zinc-200 rounded-lg overflow-hidden mb-4 text-[10px]">
-                <div className="bg-zinc-100 px-3 py-1.5 font-bold text-zinc-700 flex justify-between">
-                  <span>Package Inclusions & Addons</span>
-                  <span>Amount (QAR)</span>
-                </div>
-                <div className="divide-y divide-zinc-100 bg-white">
-                  <div className="px-3 py-1.5 flex justify-between">
-                    <span>VIP Birthday Suite (2 Hours, 20 Guests)</span>
-                    <span className="font-mono font-bold">2,500 QAR</span>
-                  </div>
-                  <div className="px-3 py-1.5 flex justify-between">
-                    <span>Custom Themed Cake & Host Animator</span>
-                    <span className="font-mono font-bold">650 QAR</span>
-                  </div>
-                  <div className="px-3 py-1.5 bg-zinc-50 font-bold flex justify-between text-zinc-900">
-                    <span>Total Investment</span>
-                    <span className="font-mono text-purple-700 font-black">3,150 QAR</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bank Transfer Details */}
-              {config.showBankDetails && (
-                <div className="p-2.5 rounded-lg bg-zinc-50 border border-zinc-200 mb-4 text-[9px]">
-                  <span className="font-bold text-zinc-800 block mb-0.5">Wire Payment Instructions:</span>
-                  <div className="grid grid-cols-2 gap-2 text-zinc-600 font-mono">
-                    <p>Bank: {config.bankName}</p>
-                    <p>Beneficiary: {config.accountTitle}</p>
-                    <p className="col-span-2">IBAN: {config.iban}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Footer & Signature */}
-              <div className="border-t border-zinc-200 pt-3 flex items-end justify-between text-[9px]">
-                <div className="max-w-[65%] text-zinc-500 leading-tight">
-                  <p className="font-bold text-zinc-700 mb-0.5">Terms & Conditions:</p>
-                  <p>{config.footerNotesEn}</p>
-                </div>
-
-                {config.showSignatureBlock && (
-                  <div className="text-center">
-                    <div className="w-24 border-b border-zinc-400 pb-1 mb-1 relative">
-                      {config.showStamp && (
-                        <div className="absolute -top-3 left-3 w-10 h-10 rounded-full border-2 border-dashed border-red-500/50 flex items-center justify-center text-[7px] text-red-600 font-bold uppercase rotate-12">
-                          E3 STAMP
-                        </div>
-                      )}
-                      <span className="text-[8px] text-zinc-400 italic">Digitally Signed</span>
-                    </div>
-                    <p className="font-bold text-zinc-800 text-[8px]">{config.authorizedSignatoryName}</p>
-                    <p className="text-zinc-500 text-[7px]">{config.authorizedSignatoryTitle}</p>
-                  </div>
-                )}
               </div>
             </div>
           </div>

@@ -57,4 +57,56 @@ describe("Package & Birthday Quote PDF Editor Integration", () => {
     const content = fs.readFileSync(apiFile, "utf8");
     expect(content).toContain("b2c_pdf_letterhead_config");
   });
+
+  it("verifies A4QuotationSheet correctly renders real company logos, venue logos, and official stamp", () => {
+    const sheetFile = path.resolve(__dirname, "../components/dashboard/b2c/A4QuotationSheet.tsx");
+    expect(fs.existsSync(sheetFile)).toBe(true);
+    const content = fs.readFileSync(sheetFile, "utf8");
+
+    // Real image handling with crossOrigin and error fallback
+    expect(content).toContain("companyLogoUrl");
+    expect(content).toContain("venueLogoUrl");
+    expect(content).toContain("stampUrl");
+    expect(content).toContain("setCompanyLogoError");
+    expect(content).toContain("setVenueLogoError");
+    expect(content).toContain("setStampError");
+
+    // Exact A4 portrait layout constraints
+    expect(content).toContain("min-h-[297mm]");
+    expect(content).toContain("max-h-[297mm]");
+    expect(content).toContain("max-w-[210mm]");
+    expect(content).toContain("pageBreakInside");
+    expect(content).toContain("pageBreakAfter");
+  });
+
+  it("verifies PDFImageUploader provides direct file uploads and thumbnail previews", () => {
+    const uploaderFile = path.resolve(__dirname, "../components/dashboard/b2c/PDFImageUploader.tsx");
+    expect(fs.existsSync(uploaderFile)).toBe(true);
+    const content = fs.readFileSync(uploaderFile, "utf8");
+
+    expect(content).toContain("uploadFile");
+    expect(content).toContain("isUploading");
+    expect(content).toContain("onChange(uploadResult.url)");
+    expect(content).toContain("accept=\"image/png,image/jpeg,image/webp,image/svg+xml\"");
+  });
+
+  it("verifies PublicQuotationView and PackagePdfSettingsTab use A4QuotationSheet and direct vector PDF export", () => {
+    const publicViewFile = path.resolve(__dirname, "../components/b2c/packages/PublicQuotationView.tsx");
+    const publicContent = fs.readFileSync(publicViewFile, "utf8");
+    expect(publicContent).toContain("A4QuotationSheet");
+    expect(publicContent).toContain("QuotationPDFDownload");
+    expect(publicContent).toContain("@page");
+    expect(publicContent).toContain("size: A4 portrait");
+
+    const settingsTabFile = path.resolve(__dirname, "../components/dashboard/b2c/PackagePdfSettingsTab.tsx");
+    const settingsContent = fs.readFileSync(settingsTabFile, "utf8");
+    expect(settingsContent).toContain("A4QuotationSheet");
+    expect(settingsContent).toContain("PDFImageUploader");
+    expect(settingsContent).toContain("QuotationPDFDownload");
+
+    const modalFile = path.resolve(__dirname, "../components/dashboard/b2c/PDFLetterheadManagerModal.tsx");
+    const modalContent = fs.readFileSync(modalFile, "utf8");
+    expect(modalContent).toContain("A4QuotationSheet");
+    expect(modalContent).toContain("PDFImageUploader");
+  });
 });
