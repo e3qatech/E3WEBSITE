@@ -62,6 +62,7 @@ vi.mock('@/lib/db', () => ({
       findUnique: vi.fn().mockResolvedValue(null),
       create: vi.fn().mockResolvedValue({ id: 'lock_1' }),
       delete: vi.fn().mockResolvedValue({ id: 'lock_1' }),
+      deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
   },
 }));

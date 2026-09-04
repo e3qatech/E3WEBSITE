@@ -59,7 +59,7 @@ export function SocialFeed({
         }
       } catch (err) {
         console.error('[SOCIAL_FEED_LOAD_ERROR]', err);
-      } fontFinally: {
+      } finally {
         setLoading(false);
       }
     }

@@ -17,9 +17,16 @@ import {
   Briefcase,
   ChevronRight,
   Sparkles,
+  Download,
+  UserPlus,
+  FileSpreadsheet,
+  FileCode,
+  File,
 } from "lucide-react";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { cn } from "@/lib/utils";
+import { NewRfpModal } from "./NewRfpModal";
+import { InviteMemberModal } from "./InviteMemberModal";
 
 interface OrganizationData {
   id: string;
@@ -38,6 +45,15 @@ interface MemberData {
     email: string;
     role: string;
   };
+}
+
+interface RfpDocument {
+  id: string;
+  originalFileName: string;
+  mimeType: string;
+  fileSize: number;
+  pathname: string;
+  createdAt: string | Date;
 }
 
 interface SanitizedRfp {
@@ -65,6 +81,7 @@ interface SanitizedRfp {
     description: string;
     timestamp: string | Date;
   }>;
+  uploads?: RfpDocument[];
 }
 
 interface BusinessHubClientProps {
@@ -91,6 +108,9 @@ export function BusinessHubClient({
 }: BusinessHubClientProps) {
   const isAr = locale === "ar";
   const [activeTab, setActiveTab] = useState<"rfps" | "updates" | "documents" | "team">("rfps");
+  const [currentRfps, setCurrentRfps] = useState<SanitizedRfp[]>(rfps);
+  const [isRfpModalOpen, setIsRfpModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
   const getStatusBadge = (status: string) => {
     const s = (status || "").toUpperCase();
@@ -147,9 +167,22 @@ export function BusinessHubClient({
     }
   };
 
-  const approvedRfps = rfps.filter(
+  const approvedRfps = currentRfps.filter(
     (r) => r.status === "WON" || r.status === "PROPOSAL" || r.status === "PROPOSAL_SENT"
   );
+
+  const allDocuments = currentRfps.flatMap((r) =>
+    (r.uploads || []).map((u) => ({
+      ...u,
+      rfpName: r.name,
+      rfpId: r.id,
+    }))
+  );
+
+  const isManager =
+    membershipRole === "OWNER" ||
+    membershipRole === "ADMIN" ||
+    user.role === "SUPER_ADMIN";
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-amber-500 selection:text-zinc-950" dir={isAr ? "rtl" : "ltr"}>
@@ -185,15 +218,15 @@ export function BusinessHubClient({
       </header>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-10">
-        {/* Welcome Hero Banner */}
-        <div className="relative rounded-3xl bg-gradient-to-r from-zinc-900 via-zinc-900/90 to-amber-950/30 border border-white/10 p-6 sm:p-10 overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
-          
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
+        {/* Organization Banner */}
+        <div className="relative overflow-hidden bg-gradient-to-b from-zinc-900 via-zinc-900/90 to-zinc-950 border border-white/10 p-6 sm:p-10 rounded-3xl shadow-2xl">
+          <div className="absolute top-0 end-0 -mt-8 -me-8 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3 max-w-2xl">
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-full text-xs font-bold uppercase tracking-wider">
+                <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
                   {isAr ? "بوابة العملاء والمشاريع" : "Client Enterprise Portal"}
                 </span>
                 <span className="flex items-center gap-1 text-emerald-400 text-xs font-semibold">
@@ -214,13 +247,14 @@ export function BusinessHubClient({
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href={`/${locale}/b2b/contact`}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 font-extrabold text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-amber-500/20 active:scale-95"
+              <button
+                type="button"
+                onClick={() => setIsRfpModalOpen(true)}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 font-extrabold text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-amber-500/20 active:scale-95 cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>{isAr ? "تقديم طلب مشروع (RFP)" : "Submit New RFP"}</span>
-              </Link>
+              </button>
 
               <Link
                 href={`/${locale}/business/company`}
@@ -233,13 +267,13 @@ export function BusinessHubClient({
           </div>
 
           {/* Quick Metrics Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/10">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-8 pt-8 border-t border-white/10">
             <div className="bg-zinc-950/60 border border-white/5 p-4 rounded-2xl">
               <div className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">
                 {isAr ? "إجمالي الطلبات (RFP/RFQ)" : "Total RFPs & Inquiries"}
               </div>
               <div className="text-2xl sm:text-3xl font-extrabold font-mono text-white">
-                {rfps.length}
+                {currentRfps.length}
               </div>
             </div>
 
@@ -249,6 +283,15 @@ export function BusinessHubClient({
               </div>
               <div className="text-2xl sm:text-3xl font-mono font-extrabold text-emerald-400">
                 {approvedRfps.length}
+              </div>
+            </div>
+
+            <div className="bg-zinc-950/60 border border-white/5 p-4 rounded-2xl">
+              <div className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">
+                {isAr ? "المستندات والمخططات" : "Project Deliverables"}
+              </div>
+              <div className="text-2xl sm:text-3xl font-mono font-extrabold text-sky-400">
+                {allDocuments.length}
               </div>
             </div>
 
@@ -268,7 +311,7 @@ export function BusinessHubClient({
           <button
             onClick={() => setActiveTab("rfps")}
             className={cn(
-              "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all",
+              "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer",
               activeTab === "rfps"
                 ? "bg-amber-500/10 border border-amber-500/30 text-amber-300 shadow-sm"
                 : "text-zinc-400 hover:text-white hover:bg-zinc-900"
@@ -276,13 +319,13 @@ export function BusinessHubClient({
           >
             <FolderKanban className="w-4 h-4" />
             <span>{isAr ? "طلبات المشاريع وعروض الأسعار" : "RFPs & Inquiries"}</span>
-            <span className="ms-1 px-1.5 py-0.5 rounded-full bg-zinc-800 text-[10px]">{rfps.length}</span>
+            <span className="ms-1 px-1.5 py-0.5 rounded-full bg-zinc-800 text-[10px]">{currentRfps.length}</span>
           </button>
 
           <button
             onClick={() => setActiveTab("updates")}
             className={cn(
-              "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all",
+              "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer",
               activeTab === "updates"
                 ? "bg-amber-500/10 border border-amber-500/30 text-amber-300 shadow-sm"
                 : "text-zinc-400 hover:text-white hover:bg-zinc-900"
@@ -293,9 +336,23 @@ export function BusinessHubClient({
           </button>
 
           <button
+            onClick={() => setActiveTab("documents")}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer",
+              activeTab === "documents"
+                ? "bg-amber-500/10 border border-amber-500/30 text-amber-300 shadow-sm"
+                : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+            )}
+          >
+            <FileText className="w-4 h-4" />
+            <span>{isAr ? "المستندات والمخططات الهندسية" : "Documents & Blueprints"}</span>
+            <span className="ms-1 px-1.5 py-0.5 rounded-full bg-zinc-800 text-[10px]">{allDocuments.length}</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab("team")}
             className={cn(
-              "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all",
+              "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer",
               activeTab === "team"
                 ? "bg-amber-500/10 border border-amber-500/30 text-amber-300 shadow-sm"
                 : "text-zinc-400 hover:text-white hover:bg-zinc-900"
@@ -310,7 +367,7 @@ export function BusinessHubClient({
         {/* TAB 1: RFPs & INQUIRIES */}
         {activeTab === "rfps" && (
           <div className="space-y-6">
-            {rfps.length === 0 ? (
+            {currentRfps.length === 0 ? (
               <div className="bg-zinc-900/40 border border-white/5 rounded-3xl p-10 text-center space-y-4">
                 <FolderKanban className="w-12 h-12 text-zinc-600 mx-auto" />
                 <div className="space-y-1">
@@ -446,6 +503,17 @@ export function BusinessHubClient({
                   <h3 className="text-base font-bold text-white">{isAr ? "أعضاء المؤسسة المصرح لهم" : "Authorized Organization Roster"}</h3>
                   <p className="text-xs text-zinc-400">{isAr ? "المستخدمون الذين يمتلكون صلاحية الوصول إلى هذه المساحة" : "Team members authorized to collaborate in this workspace"}</p>
                 </div>
+
+                {isManager && (
+                  <button
+                    type="button"
+                    onClick={() => setIsInviteModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 hover:bg-amber-500 hover:text-zinc-950 text-xs font-bold transition-all cursor-pointer shadow-sm"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>{isAr ? "دعوة زميل" : "Invite Colleague"}</span>
+                  </button>
+                )}
               </div>
 
               <div className="divide-y divide-white/5">
@@ -472,6 +540,109 @@ export function BusinessHubClient({
             </div>
           </div>
         )}
+
+        {/* TAB 4: DOCUMENTS & BLUEPRINTS */}
+        {activeTab === "documents" && (
+          <div className="space-y-6">
+            <div className="bg-zinc-900/60 border border-white/10 rounded-2xl overflow-hidden shadow-lg p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4 mb-6">
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    {isAr ? "المستندات الهندسية والمخططات المعتمدة" : "Engineering Blueprints & Deliverables"}
+                  </h3>
+                  <p className="text-xs text-zinc-400">
+                    {isAr
+                      ? "جميع المخططات الفنية، المواصفات التصميمية، والمستندات المرفقة بطلبات مشاريع مؤسستك."
+                      : "Technical drawings, architectural specifications, and client-approved documents across all active projects."}
+                  </p>
+                </div>
+              </div>
+
+              {allDocuments.length === 0 ? (
+                <div className="text-center py-12 space-y-3">
+                  <FileText className="w-12 h-12 text-zinc-600 mx-auto" />
+                  <h4 className="text-sm font-bold text-white">
+                    {isAr ? "لا توجد مستندات مرفقة حالياً" : "No Documents Attached Yet"}
+                  </h4>
+                  <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                    {isAr
+                      ? "سيتم إدراج المخططات ومستندات نطاق العمل فور إرفاقها ومراجعتها من قبل الفريق الهندسي."
+                      : "Technical deliverables and blueprints will appear here once uploaded and reviewed with the engineering team."}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {allDocuments.map((doc) => {
+                    const isPdf = doc.mimeType?.includes("pdf");
+                    const isImage = doc.mimeType?.includes("image");
+                    const formattedSize =
+                      doc.fileSize > 1024 * 1024
+                        ? `${(doc.fileSize / (1024 * 1024)).toFixed(1)} MB`
+                        : `${Math.round(doc.fileSize / 1024)} KB`;
+
+                    return (
+                      <div
+                        key={doc.id}
+                        className="flex items-center justify-between p-4 rounded-xl bg-zinc-950/70 border border-white/5 hover:border-amber-500/30 transition-all"
+                      >
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 text-amber-400">
+                            {isPdf ? (
+                              <FileText className="w-5 h-5" />
+                            ) : isImage ? (
+                              <Sparkles className="w-5 h-5" />
+                            ) : (
+                              <File className="w-5 h-5" />
+                            )}
+                          </div>
+                          <div className="truncate">
+                            <div className="text-sm font-bold text-white truncate" title={doc.originalFileName}>
+                              {doc.originalFileName}
+                            </div>
+                            <div className="flex items-center gap-2 text-[11px] text-zinc-400 mt-0.5">
+                              <span className="font-mono">{formattedSize}</span>
+                              <span>•</span>
+                              <span className="text-amber-300/80 truncate max-w-[150px]">{doc.rfpName}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <a
+                          href={doc.pathname}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-800 hover:bg-amber-500 hover:text-zinc-950 text-xs font-bold text-zinc-200 transition-all shrink-0 ml-2"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>{isAr ? "تحميل" : "Download"}</span>
+                        </a>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* In-Portal RFP Submission Modal */}
+        <NewRfpModal
+          isOpen={isRfpModalOpen}
+          onClose={() => setIsRfpModalOpen(false)}
+          defaultCompany={organization.company}
+          locale={locale}
+          onSuccess={(newRfp: any) => {
+            setCurrentRfps((prev) => [newRfp, ...prev]);
+          }}
+        />
+
+        {/* Invite Colleague Modal */}
+        <InviteMemberModal
+          isOpen={isInviteModalOpen}
+          onClose={() => setIsInviteModalOpen(false)}
+          companyName={organization.company}
+          locale={locale}
+        />
       </main>
     </div>
   );

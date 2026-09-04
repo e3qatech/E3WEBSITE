@@ -6,6 +6,8 @@ import { Building2, ShieldCheck, Globe, Users, ArrowLeft, ArrowRight } from 'luc
 import { LogoutButton } from '@/components/auth/LogoutButton';
 import db from '@/lib/db';
 
+import { CompanyProfileEditor } from '@/components/business/CompanyProfileEditor';
+
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -51,7 +53,7 @@ export default async function BusinessCompanyPage({
     );
   }
 
-  const { client, membership } = authResult;
+  const { user, client, membership } = authResult;
 
   const organization = client || {
     id: 'org-default',
@@ -60,6 +62,11 @@ export default async function BusinessCompanyPage({
     industry: 'Corporate Experience',
     website: 'https://e3.qa',
   };
+
+  const canEdit =
+    membership?.role === 'OWNER' ||
+    membership?.role === 'ADMIN' ||
+    user?.role === 'SUPER_ADMIN';
 
   let members: any[] = [];
   if (client?.id) {
@@ -110,54 +117,8 @@ export default async function BusinessCompanyPage({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-zinc-900/60 border border-white/10 p-6 rounded-2xl space-y-2">
-            <div className="text-xs text-zinc-400 font-bold uppercase tracking-wider">
-              {isAr ? 'اسم المؤسسة' : 'Organization Legal Name'}
-            </div>
-            <div className="text-lg font-extrabold text-white flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-amber-400" />
-              <span>{organization.company}</span>
-            </div>
-          </div>
-
-          <div className="bg-zinc-900/60 border border-white/10 p-6 rounded-2xl space-y-2">
-            <div className="text-xs text-zinc-400 font-bold uppercase tracking-wider">
-              {isAr ? 'رتبة العضوية الحالية' : 'Membership Role'}
-            </div>
-            <div className="text-lg font-extrabold text-amber-300 font-mono">
-              {membership?.role || 'MEMBER'}
-            </div>
-          </div>
-
-          {organization.industry && (
-            <div className="bg-zinc-900/60 border border-white/10 p-6 rounded-2xl space-y-2">
-              <div className="text-xs text-zinc-400 font-bold uppercase tracking-wider">
-                {isAr ? 'القطاع / المجال' : 'Industry Sector'}
-              </div>
-              <div className="text-sm font-bold text-white">
-                {organization.industry}
-              </div>
-            </div>
-          )}
-
-          {organization.website && (
-            <div className="bg-zinc-900/60 border border-white/10 p-6 rounded-2xl space-y-2">
-              <div className="text-xs text-zinc-400 font-bold uppercase tracking-wider">
-                {isAr ? 'الموقع الإلكتروني' : 'Official Website'}
-              </div>
-              <a
-                href={organization.website.startsWith('http') ? organization.website : `https://${organization.website}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-bold text-sky-400 hover:underline flex items-center gap-1.5"
-              >
-                <Globe className="w-4 h-4" />
-                <span>{organization.website}</span>
-              </a>
-            </div>
-          )}
-        </div>
+        {/* Interactive Company Profile Editor */}
+        <CompanyProfileEditor organization={organization} canEdit={canEdit} locale={locale} />
 
         {/* Member list */}
         <div className="bg-zinc-900/60 border border-white/10 rounded-2xl overflow-hidden shadow-lg space-y-4 p-6">

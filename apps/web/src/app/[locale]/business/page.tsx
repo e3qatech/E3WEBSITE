@@ -100,7 +100,33 @@ export default async function BusinessDashboardPage({
       orderBy: { createdAt: 'desc' },
     });
 
-    rfps = (rawLeads || []).map(sanitizeLeadForClient);
+    const leadIds = (rawLeads || []).map((l: any) => l.id);
+    let allUploads: any[] = [];
+    if (leadIds.length > 0) {
+      try {
+        allUploads = await db.rfpUpload.findMany({
+          where: { leadId: { in: leadIds }, status: 'ATTACHED' },
+          orderBy: { createdAt: 'desc' },
+        });
+      } catch (_e) {
+        allUploads = [];
+      }
+    }
+
+    const uploadsByLeadId = new Map<string, any[]>();
+    for (const up of allUploads) {
+      if (up.leadId) {
+        if (!uploadsByLeadId.has(up.leadId)) {
+          uploadsByLeadId.set(up.leadId, []);
+        }
+        uploadsByLeadId.get(up.leadId)!.push(up);
+      }
+    }
+
+    rfps = (rawLeads || []).map((lead: any) => {
+      lead.uploads = uploadsByLeadId.get(lead.id) || [];
+      return sanitizeLeadForClient(lead);
+    });
   } catch (_e) {
     rfps = [];
   }

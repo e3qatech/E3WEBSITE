@@ -283,7 +283,7 @@ describe('QF-07: Business/Client Login & Organization-Scoped Portal RBAC', () =>
 
     const adminAccess = await requireClientRfpAccess('lead-beta-777');
     expect(adminAccess.user.role).toBe('SUPER_ADMIN');
-    expect(adminAccess.lead.id).toBe('lead-beta-777');
+    expect(adminAccess.lead?.id).toBe('lead-beta-777');
 
     const allowedAdminRoles = allowedRolesForPortal('admin');
     expect(allowedAdminRoles).toContain('SUPER_ADMIN');

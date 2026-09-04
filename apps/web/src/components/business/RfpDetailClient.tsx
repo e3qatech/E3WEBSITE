@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   Building2,
@@ -12,9 +12,23 @@ import {
   ArrowRight,
   ShieldCheck,
   Sparkles,
+  Download,
+  File,
+  Send,
+  Loader2,
+  MessageSquare,
 } from "lucide-react";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { cn } from "@/lib/utils";
+
+interface RfpDocument {
+  id: string;
+  originalFileName: string;
+  mimeType: string;
+  fileSize: number;
+  pathname: string;
+  createdAt: string | Date;
+}
 
 interface RfpDetailProps {
   rfp: {
@@ -42,6 +56,7 @@ interface RfpDetailProps {
       description: string;
       timestamp: string | Date;
     }>;
+    uploads?: RfpDocument[];
   };
   organization: {
     id: string;
@@ -52,6 +67,12 @@ interface RfpDetailProps {
 
 export function RfpDetailClient({ rfp, organization, locale }: RfpDetailProps) {
   const isAr = locale === "ar";
+  const [inquiries, setInquiries] = useState(rfp.inquiries || []);
+  const [messageSubject, setMessageSubject] = useState("");
+  const [messageBody, setMessageBody] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [sendSuccess, setSendSuccess] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const getStatusBadge = (status: string) => {
     const s = (status || "").toUpperCase();
@@ -105,6 +126,46 @@ export function RfpDetailClient({ rfp, organization, locale }: RfpDetailProps) {
           bg: "bg-zinc-800 border-zinc-700 text-zinc-300",
           icon: Clock,
         };
+    }
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!messageBody.trim() || messageBody.trim().length < 3) {
+      setSendError(isAr ? "يرجى كتابة رسالة لا تقل عن 3 أحرف" : "Please enter at least 3 characters");
+      return;
+    }
+
+    setIsSending(true);
+    setSendError(null);
+    setSendSuccess(false);
+
+    try {
+      const res = await fetch(`/api/business/rfps/${rfp.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subject: messageSubject.trim() || undefined,
+          message: messageBody.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to send message");
+      }
+
+      if (data.inquiry) {
+        setInquiries((prev) => [data.inquiry, ...prev]);
+      }
+      setMessageSubject("");
+      setMessageBody("");
+      setSendSuccess(true);
+      setTimeout(() => setSendSuccess(false), 5000);
+    } catch (err: any) {
+      setSendError(err.message || "Network error");
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -199,16 +260,69 @@ export function RfpDetailClient({ rfp, organization, locale }: RfpDetailProps) {
           </div>
         </div>
 
-        {/* Inquiries & Scope Details */}
-        {rfp.inquiries && rfp.inquiries.length > 0 && (
-          <div className="bg-zinc-900/60 border border-white/10 p-6 sm:p-8 rounded-3xl space-y-4">
-            <div className="flex items-center gap-2 text-amber-400 font-bold text-base border-b border-white/5 pb-4">
-              <FileText className="w-5 h-5" />
-              <h2>{isAr ? "نطاق العمل المسجل في الطلب" : "Registered Scope of Work & Inquiry"}</h2>
+        {/* Attached Documents & Technical Blueprints */}
+        {rfp.uploads && rfp.uploads.length > 0 && (
+          <div className="bg-zinc-900/60 border border-white/10 p-6 sm:p-8 rounded-3xl space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-white/5 pb-4">
+              <div className="flex items-center gap-2 text-sky-400 font-bold text-base">
+                <FileText className="w-5 h-5" />
+                <h2>{isAr ? "المستندات والمخططات المرفقة بهذا الطلب" : "Attached Blueprints & Deliverables"}</h2>
+              </div>
+              <span className="text-xs font-mono text-zinc-400">
+                {rfp.uploads.length} {isAr ? "ملفات" : "files"}
+              </span>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {rfp.uploads.map((doc) => {
+                const formattedSize =
+                  doc.fileSize > 1024 * 1024
+                    ? `${(doc.fileSize / (1024 * 1024)).toFixed(1)} MB`
+                    : `${Math.round(doc.fileSize / 1024)} KB`;
+
+                return (
+                  <div
+                    key={doc.id}
+                    className="flex items-center justify-between p-4 rounded-xl bg-zinc-950/70 border border-white/5 hover:border-sky-500/30 transition-all"
+                  >
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <div className="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center shrink-0 text-sky-400">
+                        <File className="w-5 h-5" />
+                      </div>
+                      <div className="truncate">
+                        <div className="text-sm font-bold text-white truncate" title={doc.originalFileName}>
+                          {doc.originalFileName}
+                        </div>
+                        <div className="text-[11px] text-zinc-400 mt-0.5 font-mono">{formattedSize}</div>
+                      </div>
+                    </div>
+
+                    <a
+                      href={doc.pathname}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-800 hover:bg-sky-500 hover:text-zinc-950 text-xs font-bold text-zinc-200 transition-all shrink-0 ml-2"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>{isAr ? "تحميل" : "Download"}</span>
+                    </a>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Inquiries & Interactive Direct Messaging */}
+        <div className="bg-zinc-900/60 border border-white/10 p-6 sm:p-8 rounded-3xl space-y-6 shadow-xl">
+          <div className="flex items-center gap-2 text-amber-400 font-bold text-base border-b border-white/5 pb-4">
+            <MessageSquare className="w-5 h-5" />
+            <h2>{isAr ? "نطاق العمل والمراسلات التوضيحية" : "Scope of Work & Client Inquiries"}</h2>
+          </div>
+
+          {inquiries.length > 0 ? (
             <div className="space-y-4">
-              {rfp.inquiries.map((inq) => (
+              {inquiries.map((inq) => (
                 <div key={inq.id} className="bg-zinc-950/60 border border-white/5 p-4 rounded-2xl space-y-2">
                   <div className="flex items-center justify-between text-xs text-zinc-400">
                     <span className="font-mono font-bold text-emerald-400">{inq.type}</span>
@@ -221,8 +335,59 @@ export function RfpDetailClient({ rfp, organization, locale }: RfpDetailProps) {
                 </div>
               ))}
             </div>
+          ) : (
+            <p className="text-xs text-zinc-500">{isAr ? "لا توجد مراسلات مسجلة بعد." : "No inquiries logged yet."}</p>
+          )}
+
+          {/* New Message Form */}
+          <div className="pt-4 border-t border-white/5">
+            <h3 className="text-sm font-bold text-white mb-3">
+              {isAr ? "إرسال استفسار أو إضافة متطلبات جديدة للطلب" : "Send Inquiry or Additional Specification"}
+            </h3>
+
+            {sendSuccess && (
+              <div className="p-3 mb-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{isAr ? "تم إرسال استفسارك بنجاح وإلحاقه بملف المشروع." : "Your inquiry has been submitted and attached to this RFP."}</span>
+              </div>
+            )}
+
+            {sendError && (
+              <div className="p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" />
+                <span>{sendError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSendMessage} className="space-y-3">
+              <input
+                type="text"
+                value={messageSubject}
+                onChange={(e) => setMessageSubject(e.target.value)}
+                placeholder={isAr ? "موضوع الاستفسار (اختياري)" : "Subject or clarification topic (optional)"}
+                className="w-full px-4 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-amber-500/60"
+              />
+              <textarea
+                required
+                rows={3}
+                value={messageBody}
+                onChange={(e) => setMessageBody(e.target.value)}
+                placeholder={isAr ? "اكتب تفاصيل الاستفسار أو التعديل المطلوب هنا..." : "Provide details, specifications, or questions for our engineering leads..."}
+                className="w-full px-4 py-3 rounded-xl bg-zinc-950 border border-white/10 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-amber-500/60 resize-y"
+              />
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isSending}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 font-extrabold text-xs uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  <span>{isAr ? "إرسال الرسالة" : "Send Inquiry"}</span>
+                </button>
+              </div>
+            </form>
           </div>
-        )}
+        </div>
 
         {/* Client-Visible Milestone Updates Timeline */}
         <div className="bg-zinc-900/60 border border-white/10 p-6 sm:p-8 rounded-3xl space-y-6">

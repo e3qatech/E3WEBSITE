@@ -250,6 +250,17 @@ export function sanitizeLeadForClient(lead: any) {
       }))
     : [];
 
+  const clientUploads = Array.isArray(lead.uploads)
+    ? lead.uploads.map((u: any) => ({
+        id: u.id,
+        originalFileName: u.originalFileName,
+        mimeType: u.mimeType,
+        fileSize: u.fileSize,
+        pathname: u.pathname,
+        createdAt: u.createdAt,
+      }))
+    : [];
+
   return {
     id: lead.id,
     name: lead.name,
@@ -263,6 +274,7 @@ export function sanitizeLeadForClient(lead: any) {
     updatedAt: lead.updatedAt,
     inquiries: clientInquiries,
     activities: clientActivities,
+    uploads: clientUploads,
   };
 }
 
@@ -282,8 +294,20 @@ export async function requireClientRfpAccess(rfpId: string) {
     throw new AppAuthError(404, "RFP record not found");
   }
 
+  // Fetch attached documents/deliverables
+  let uploads: any[] = [];
+  try {
+    uploads = await db.rfpUpload.findMany({
+      where: { leadId: rfpId, status: 'ATTACHED' },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (_e) {
+    uploads = [];
+  }
+  lead.uploads = uploads;
+
   if (isPrivileged) {
-    return { user, membership: null, client: null, lead };
+    return { user, membership: null, client: null, lead: sanitizeLeadForClient(lead) };
   }
 
   // For client users, resolve organization and enforce multi-tenant match

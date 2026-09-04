@@ -104,6 +104,36 @@ const nextConfig: NextConfig = {
         destination: '/:locale/b2b/case-studies/:slug',
         permanent: true,
       },
+      {
+        source: '/case-studies',
+        destination: '/en/b2b/case-studies',
+        permanent: true,
+      },
+      {
+        source: '/case-studies/:slug',
+        destination: '/en/b2b/case-studies/:slug',
+        permanent: true,
+      },
+      {
+        source: '/cases',
+        destination: '/en/b2b/case-studies',
+        permanent: true,
+      },
+      {
+        source: '/cases/:slug',
+        destination: '/en/b2b/case-studies/:slug',
+        permanent: true,
+      },
+      {
+        source: '/b2b/case-studies',
+        destination: '/en/b2b/case-studies',
+        permanent: true,
+      },
+      {
+        source: '/b2b/case-studies/:slug',
+        destination: '/en/b2b/case-studies/:slug',
+        permanent: true,
+      },
 
       // 2. Services Aliases (FEC, AV, Kids, etc.)
       {
@@ -204,6 +234,26 @@ const nextConfig: NextConfig = {
       {
         source: '/:locale(en|ar)/services/:slug',
         destination: '/:locale/b2b/services/:slug',
+        permanent: true,
+      },
+      {
+        source: '/services',
+        destination: '/en/b2b/services',
+        permanent: true,
+      },
+      {
+        source: '/services/:slug',
+        destination: '/en/b2b/services/:slug',
+        permanent: true,
+      },
+      {
+        source: '/b2b/services',
+        destination: '/en/b2b/services',
+        permanent: true,
+      },
+      {
+        source: '/b2b/services/:slug',
+        destination: '/en/b2b/services/:slug',
         permanent: true,
       },
 
