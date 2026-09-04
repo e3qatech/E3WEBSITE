@@ -1,7 +1,9 @@
 import db from '@/lib/db';
+import { memoryCache } from '@/lib/cache/memory-cache';
 
 export async function getLiveB2CBrandsFromDB(): Promise<any[]> {
-  try {
+  return memoryCache.getOrSet('live_b2c_brands', 60_000, async () => {
+    try {
     let dbBrands = await (db as any).brandIP?.findMany({
       where: { isActive: true, showOnB2C: true },
       orderBy: [
@@ -202,8 +204,9 @@ export async function getLiveB2CBrandsFromDB(): Promise<any[]> {
       isVisible: b.isActive,
       status: b.isActive ? 'PUBLISHED' : 'DRAFT'
     }));
-  } catch (err) {
-    console.error("[getLiveB2CBrandsFromDB_ERROR]", err);
-    return [];
-  }
+    } catch (err) {
+      console.error("[getLiveB2CBrandsFromDB_ERROR]", err);
+      return [];
+    }
+  });
 }

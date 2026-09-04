@@ -6,6 +6,7 @@ import { useLiveOccupancy } from '@/hooks/useLiveOccupancy';
 import { useB2CTheme } from '@/components/ui/B2CThemeComponents';
 import { usePointerIntent } from '@/lib/usePointerIntent';
 
+import dynamic from 'next/dynamic';
 import { DEFAULT_B2C_SECTION_SEQUENCE, B2CSectionItem } from '@/lib/cms-default-pages';
 import { CinematicHeroUniversal } from '@/components/b2c/story/CinematicHeroUniversal';
 import { IdeasToLifeComparison } from '@/components/b2c/story/IdeasToLifeComparison';
@@ -14,10 +15,23 @@ import { OurBrandsConstellation } from '@/components/b2c/story/OurBrandsConstell
 import { ExperienceWorldsStage } from '@/components/b2c/story/ExperienceWorldsStage';
 import { CoreTeamPeopleSection } from '@/components/b2c/story/CoreTeamPeopleSection';
 import { Act4LivingDayTimeline } from '@/components/b2c/story/Act4LivingDayTimeline';
-import { QatarInteractiveMap } from '@/components/b2c/story/QatarInteractiveMap';
-import { SocialFeedSection } from '@/components/b2c/story/SocialFeedSection';
-import { HorizontalGPUParallaxGallery } from '@/components/b2c/story/HorizontalGPUParallaxGallery';
-import { TactileDigitalTicket } from '@/components/b2c/story/TactileDigitalTicket';
+
+const QatarInteractiveMap = dynamic(
+  () => import('@/components/b2c/story/QatarInteractiveMap').then(m => m.QatarInteractiveMap),
+  { ssr: false }
+);
+const SocialFeedSection = dynamic(
+  () => import('@/components/b2c/story/SocialFeedSection').then(m => m.SocialFeedSection),
+  { ssr: true }
+);
+const HorizontalGPUParallaxGallery = dynamic(
+  () => import('@/components/b2c/story/HorizontalGPUParallaxGallery').then(m => m.HorizontalGPUParallaxGallery),
+  { ssr: false }
+);
+const TactileDigitalTicket = dynamic(
+  () => import('@/components/b2c/story/TactileDigitalTicket').then(m => m.TactileDigitalTicket),
+  { ssr: false }
+);
 
 interface B2CLandingClientProps {
   locale: string;
@@ -73,8 +87,7 @@ export function B2CLandingClient({
       }
     };
 
-    fetchLatestCMS();
-
+    // Only fetch on dynamic CMS update events from dashboard, not on initial mount
     window.addEventListener('e3_cms_b2c_landing_updated', fetchLatestCMS);
 
     let bc: BroadcastChannel | null = null;

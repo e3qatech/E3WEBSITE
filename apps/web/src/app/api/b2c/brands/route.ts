@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { auth } from '@/lib/auth';
+import { memoryCache } from '@/lib/cache/memory-cache';
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const publishedOnly = searchParams.get('published') === 'true';
     const portal = searchParams.get('portal'); // 'b2c' | 'b2b' | 'all'
+
+    const cacheKey = `api_brands_${portal || 'all'}_${publishedOnly ? 'pub' : 'all'}`;
+    const cached = memoryCache.get(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached, {
+        headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' }
+      });
+    }
 
     const whereClause: any = {};
     if (publishedOnly) {
@@ -156,7 +165,12 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    return NextResponse.json(brands);
+    memoryCache.set(cacheKey, brands, 60_000);
+    return NextResponse.json(brands, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+      },
+    });
   } catch (error: any) {
     console.error('Failed to fetch brands:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -207,6 +221,10 @@ export async function POST(req: NextRequest) {
         relationships: true,
       }
     });
+
+    memoryCache.invalidate('api_brands_');
+    memoryCache.invalidate('b2c_brands');
+    memoryCache.invalidate('b2b_brands');
 
     return NextResponse.json(brand);
   } catch (error: any) {

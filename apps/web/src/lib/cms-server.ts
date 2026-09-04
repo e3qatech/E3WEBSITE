@@ -91,27 +91,36 @@ export function deepMergeCMSContent(target: any, source: any): any {
   return result;
 }
 
-export async function getCMSPageContentServer(slug: string): Promise<any> {
-  let rawContent: any = null;
+import { memoryCache } from '@/lib/cache/memory-cache';
 
-  // 1. Check Primary db.pages model in PostgreSQL FIRST (Real-time database source of truth)
-  try {
-    const pageRecord = await (db as any).pages?.findUnique({
-      where: { slug }
-    });
-    if (pageRecord?.content) {
-      rawContent = pageRecord.content;
-    }
-  } catch (err) {
+export async function getCMSPageContentServer(slug: string): Promise<any> {
+  return memoryCache.getOrSet(`cms_page_${slug}`, 60_000, async () => {
+    let rawContent: any = null;
+
+    // 1. Check Primary db.pages model in PostgreSQL FIRST (Real-time database source of truth)
+    try {
+      const pageRecord = await (db as any).pages?.findUnique({
+        where: { slug }
+      });
+      if (pageRecord?.content) {
+        rawContent = pageRecord.content;
+      }
+    } catch (err) {
     console.warn(`[DB WARN /getCMSPageContentServer] Primary database query failed for slug ${slug}. Attempting Vercel Blob fallback:`, err);
     try {
       if (process.env.BLOB_READ_WRITE_TOKEN) {
         const envName = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
         const { list } = await import('@vercel/blob');
-        const blobs = await list({
+        let blobs = await list({
           prefix: `cms/pages/${envName}/${slug}.json`,
           limit: 1
         });
+        if ((!blobs?.blobs || blobs.blobs.length === 0) && envName !== 'production') {
+          blobs = await list({
+            prefix: `cms/pages/production/${slug}.json`,
+            limit: 1
+          });
+        }
         if (blobs && blobs.blobs && blobs.blobs.length > 0) {
           const url = blobs.blobs[0].url;
           const res = await fetch(url, { cache: 'no-store' });
@@ -165,6 +174,16 @@ export async function getCMSPageContentServer(slug: string): Promise<any> {
     }
   }
 
-  return mergedContent;
+    return mergedContent;
+  });
 }
+
+export function invalidateCMSPageContentCache(slug?: string): void {
+  if (slug) {
+    memoryCache.invalidate(`cms_page_${slug}`);
+  } else {
+    memoryCache.invalidate('cms_page_');
+  }
+}
+
 

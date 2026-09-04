@@ -8,8 +8,10 @@ const withBundleAnalyzer = createBundleAnalyzer({
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   ...(process.env.DOCKER_BUILD === 'true' ? { output: 'standalone' } : {}),
-  poweredByHeader: false,
+  compress: true,
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 2592000,
     remotePatterns: [
       { protocol: 'https', hostname: 'booking.e3.qa' },
       { protocol: 'https', hostname: 'cdn.e3.qa' },
@@ -305,7 +307,14 @@ const nextConfig: NextConfig = {
     ];
   },
   experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-icons',
+      'framer-motion',
+      'date-fns',
+      'gsap',
+      '@gsap/react',
+    ],
   },
   typescript: {
     ignoreBuildErrors: true,

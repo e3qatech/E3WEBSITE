@@ -7,7 +7,9 @@ import { getMergedCMSPageContent } from "@/lib/cms-default-pages";
 import db from "@/lib/db";
 import { getPublicSettingsServer, resolvePublicSiteSettings } from "@/lib/settings/public-settings";
 
-export const dynamic = "force-dynamic";
+import { memoryCache } from "@/lib/cache/memory-cache";
+
+export const revalidate = 60;
 
 export default async function B2CLayout({
   children,
@@ -17,53 +19,53 @@ export default async function B2CLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const settingsMap = await getPublicSettingsServer();
 
-  let orbitPage: any = null;
-  try {
-    orbitPage = await db.pages.findUnique({
-      where: { slug: "b2c-pulse-orbit" }
-    });
-    if (!orbitPage) {
-      orbitPage = await db.pages.findUnique({
-        where: { slug: "pulse-orbit" }
-      });
-    }
-  } catch (e) {
-    console.warn("[B2C LAYOUT NOTICE] Failed to query pulse-orbit page:", e);
-  }
-
-  if (!orbitPage || !orbitPage.content) {
-    try {
-      const settingModel = (db as any).siteSettings || (db as any).setting;
-      if (settingModel) {
-        let setting = await settingModel.findUnique({
-          where: { key: "cms_page_b2c-pulse-orbit" }
+  const [settingsMap, orbitPage, b2cPages] = await Promise.all([
+    getPublicSettingsServer(),
+    memoryCache.getOrSet('b2c_pulse_orbit_layout', 60_000, async () => {
+      try {
+        let page = await db.pages.findUnique({
+          where: { slug: "b2c-pulse-orbit" }
         });
-        if (!setting) {
-          setting = await settingModel.findUnique({
-            where: { key: "cms_page_pulse-orbit" }
+        if (!page) {
+          page = await db.pages.findUnique({
+            where: { slug: "pulse-orbit" }
           });
         }
-        if (setting && setting.value) {
-          orbitPage = { content: setting.value };
-        }
-      }
-    } catch (e) {
-      console.warn("[B2C LAYOUT NOTICE] Failed to query siteSettings for pulse-orbit:", e);
-    }
-  }
+        if (page?.content) return page;
 
-  let b2cPages: any[] = [];
-  try {
-    b2cPages = await db.pages.findMany({
-      where: {
-        slug: { in: ["b2c-landing", "b2c-discover", "b2c-attractions", "b2c-calendar", "b2c-packages"] }
+        const settingModel = (db as any).siteSettings || (db as any).setting;
+        if (settingModel) {
+          let setting = await settingModel.findUnique({
+            where: { key: "cms_page_b2c-pulse-orbit" }
+          });
+          if (!setting) {
+            setting = await settingModel.findUnique({
+              where: { key: "cms_page_pulse-orbit" }
+            });
+          }
+          if (setting?.value) {
+            return { content: setting.value };
+          }
+        }
+      } catch (e) {
+        console.warn("[B2C LAYOUT NOTICE] Failed to query pulse-orbit page:", e);
       }
-    });
-  } catch (e) {
-    console.warn("[B2C LAYOUT NOTICE] Failed to query b2c pages for footer settings:", e);
-  }
+      return null;
+    }),
+    memoryCache.getOrSet('b2c_footer_pages_layout', 60_000, async () => {
+      try {
+        return await db.pages.findMany({
+          where: {
+            slug: { in: ["b2c-landing", "b2c-discover", "b2c-attractions", "b2c-calendar", "b2c-packages"] }
+          }
+        });
+      } catch (e) {
+        console.warn("[B2C LAYOUT NOTICE] Failed to query b2c pages for footer settings:", e);
+        return [];
+      }
+    }),
+  ]);
 
   const pageContentMap = b2cPages.reduce((acc: any, page: any) => {
     acc[page.slug] = page.content;

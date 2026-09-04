@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { resolveQatarMapPins } from '@/lib/qatar-map-resolver';
+import { getCMSPageContentServer } from '@/lib/cms-server';
+import { memoryCache } from '@/lib/cache/memory-cache';
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,52 +14,56 @@ export async function GET(req: NextRequest) {
     const openNowOnly = searchParams.get('openNow') === 'true';
     const activeOnly = searchParams.get('activeOnly') !== 'false' && searchParams.get('includePast') !== 'true' && searchParams.get('all') !== 'true';
 
-    // 1. Fetch Landing CMS settings if present
-    let qatarMapSettings: any = {};
-    try {
-      const b2cPage = await db.cMSPage.findUnique({
-        where: { slug: 'b2c-landing' },
-      });
-      if (b2cPage?.content && typeof b2cPage.content === 'object') {
-        qatarMapSettings = (b2cPage.content as any).qatarMap || {};
-      }
-    } catch (_e) {
-      qatarMapSettings = {};
-    }
+    const cacheKey = `api_qatar_map_${locale}_${typeFilter || ''}_${statusFilter || ''}_${featuredOnly}_${openNowOnly}_${activeOnly}`;
 
-    // 2. Fetch canonical published Location records
-    let dbLocations: any[] = [];
-    try {
-      dbLocations = await db.location.findMany({
-        where: {
-          mapVisible: true,
-          publicationStatus: 'PUBLISHED',
-          isPublished: true,
-        },
-        include: {
-          attraction: true,
-          attractionLinks: {
-            include: {
-              attraction: true,
+    const geoJson = await memoryCache.getOrSet(cacheKey, 60_000, async () => {
+      // 1. Fetch Landing CMS settings if present
+      let qatarMapSettings: any = {};
+      try {
+        const b2cContent = await getCMSPageContentServer('b2c-landing');
+        if (b2cContent && typeof b2cContent === 'object') {
+          qatarMapSettings = b2cContent.qatarMap || {};
+        }
+      } catch (_e) {
+        qatarMapSettings = {};
+      }
+
+      // 2. Fetch canonical published Location records
+      let dbLocations: any[] = [];
+      try {
+        dbLocations = await db.location.findMany({
+          where: {
+            mapVisible: true,
+            publicationStatus: 'PUBLISHED',
+            isPublished: true,
+          },
+          include: {
+            attraction: true,
+            attractionLinks: {
+              include: {
+                attraction: true,
+              },
             },
           },
-        },
-        orderBy: [{ featured: 'desc' }, { displayOrder: 'asc' }],
-      });
-    } catch (_e) {
-      dbLocations = [];
-    }
+          orderBy: [{ featured: 'desc' }, { displayOrder: 'asc' }],
+        });
+      } catch (_e) {
+        dbLocations = [];
+      }
 
-    // 3. Resolve pins using canonical resolver
-    const { geoJson } = resolveQatarMapPins({
-      settings: qatarMapSettings,
-      dbLocations,
-      locale,
-      activeOnly,
-      typeFilter,
-      statusFilter,
-      featuredOnly,
-      openNowOnly,
+      // 3. Resolve pins using canonical resolver
+      const resolved = resolveQatarMapPins({
+        settings: qatarMapSettings,
+        dbLocations,
+        locale,
+        activeOnly,
+        typeFilter,
+        statusFilter,
+        featuredOnly,
+        openNowOnly,
+      });
+
+      return resolved.geoJson;
     });
 
     return NextResponse.json(geoJson, {

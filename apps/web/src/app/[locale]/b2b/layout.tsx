@@ -4,6 +4,7 @@ import { B2BLayout } from '@/components/b2b/layout/B2BLayout'
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
 import db from "@/lib/db"
 
+import { getCMSPageContentServer } from '@/lib/cms-server'
 import { getPublicSettingsServer } from '@/lib/settings/public-settings'
 
 export const metadata = {
@@ -20,13 +21,11 @@ export default async function RootB2BLayout({
 }) {
   const { locale } = await params;
 
-  // Run both DB calls in parallel — no sequential awaits
-  const [settings, b2bOrbitPage] = await Promise.all([
+  // Run both calls in parallel with in-memory caching
+  const [settings, b2bOrbitData] = await Promise.all([
     getPublicSettingsServer().catch(() => ({} as any)),
-    db.pages.findUnique({ where: { slug: "b2b-pulse-orbit" } }).catch(() => null),
+    getCMSPageContentServer("b2b-pulse-orbit").catch(() => null),
   ]);
-
-  const b2bOrbitData = getMergedCMSPageContent("b2b-pulse-orbit", b2bOrbitPage?.content);
 
   return (
     <B2BLayout settings={settings} locale={locale} orbitData={b2bOrbitData}>

@@ -16,24 +16,17 @@ import { LivingHeroHeadline } from '@/components/b2b/shared/LivingHeroHeadline'
 import { getPublicCaseStudies } from '@/lib/case-studies'
 import { filterAndResolvePublicPartners } from '@/lib/partners/partner-resolver'
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+import { getCMSPageContentServer } from '@/lib/cms-server'
+import { memoryCache } from '@/lib/cache/memory-cache'
+
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const isAr = locale === 'ar';
 
-  let page: any = null;
-  try {
-    page = await db.pages.findUnique({
-      where: { slug: 'b2b-home' }
-    });
-  } catch (error) {
-    console.warn('[B2B Home Metadata] Failed to query database:', error);
-  }
-
-  const cms = getMergedCMSPageContent('b2b-home', page?.content);
-  const seo = cms.seo || {};
+  const cms = await getCMSPageContentServer('b2b-home');
+  const seo = cms?.seo || {};
 
   const title = isAr
     ? seo.metaTitleAr || cms.hero?.titleAr || "إي ثري قطر | شريك الفعاليات الكبرى وتطوير الوجهات الترفيهية"
@@ -71,35 +64,42 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
 
   // ── Parallel Data Fetch ───────────────────────────────────────────────────
   // All 5 independent data sources fire simultaneously. Zero sequential awaits.
-  const [pageResult, servicesFeaturedResult, servicesAllResult, caseStudiesResult, partnersResult, brandsResult] =
-    await Promise.allSettled([
-      db.pages.findUnique({ where: { slug: 'b2b-home' } }),
-      db.service.findMany({
-        where: { isVisible: true, isFeatured: true },
-        orderBy: { createdAt: 'desc' },
-        take: 6,
-      }),
-      db.service.findMany({
-        where: { isVisible: true },
-        orderBy: { createdAt: 'desc' },
-        take: 6,
-      }),
-      getPublicCaseStudies({ limit: 3, featuredFirst: true }),
-      db.partner.findMany({
-        where: { isVisible: true },
-        orderBy: [{ orderIndex: 'asc' }, { createdAt: 'desc' }],
-      }),
-      db.brandIP?.findMany
-        ? db.brandIP.findMany({
-            where: { isActive: true, showOnB2B: true },
-            include: { category: true },
-            orderBy: { b2bDisplayOrder: 'asc' },
-          })
-        : Promise.resolve([]),
+  const [content, servicesFeaturedResult, servicesAllResult, caseStudiesResult, partnersResult, brandsResult] =
+    await Promise.all([
+      getCMSPageContentServer('b2b-home'),
+      memoryCache.getOrSet<any[]>('b2b_services_featured', 60_000, () =>
+        db.service.findMany({
+          where: { isVisible: true, isFeatured: true },
+          orderBy: { createdAt: 'desc' },
+          take: 6,
+        })
+      ),
+      memoryCache.getOrSet<any[]>('b2b_services_all', 60_000, () =>
+        db.service.findMany({
+          where: { isVisible: true },
+          orderBy: { createdAt: 'desc' },
+          take: 6,
+        })
+      ),
+      memoryCache.getOrSet<any[]>('b2b_case_studies', 60_000, () =>
+        getPublicCaseStudies({ limit: 3, featuredFirst: true })
+      ),
+      memoryCache.getOrSet<any[]>('b2b_partners', 60_000, () =>
+        db.partner.findMany({
+          where: { isVisible: true },
+          orderBy: [{ orderIndex: 'asc' }, { createdAt: 'desc' }],
+        })
+      ),
+      memoryCache.getOrSet<any[]>('b2b_brands', 60_000, () =>
+        db.brandIP?.findMany
+          ? db.brandIP.findMany({
+              where: { isActive: true, showOnB2B: true },
+              include: { category: true },
+              orderBy: { b2bDisplayOrder: 'asc' },
+            })
+          : Promise.resolve([])
+      ),
     ]);
-
-  const page = pageResult.status === 'fulfilled' ? pageResult.value : null;
-  const content = getMergedCMSPageContent('b2b-home', page?.content);
 
   // 1. Hero Data
   const hero = {
@@ -202,20 +202,22 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
   let dbServices: any[] = [];
   if (featuredServiceIds.length > 0) {
     try {
-      const pinned = await db.service.findMany({ where: { id: { in: featuredServiceIds }, isVisible: true } });
-      dbServices = pinned.length > 0 ? pinned : [];
+      const pinned = await memoryCache.getOrSet<any[]>(`b2b_pinned_services_${featuredServiceIds.join(',')}`, 60_000, () =>
+        db.service.findMany({ where: { id: { in: featuredServiceIds }, isVisible: true } })
+      );
+      dbServices = pinned && pinned.length > 0 ? pinned : [];
       dbServices.sort((a, b) => featuredServiceIds.indexOf(a.id) - featuredServiceIds.indexOf(b.id));
     } catch { /* fall through */ }
   }
   if (dbServices.length === 0) {
-    const featuredSvcs = servicesFeaturedResult.status === 'fulfilled' ? (servicesFeaturedResult.value || []) : [];
+    const featuredSvcs = servicesFeaturedResult || [];
     dbServices = featuredSvcs.length > 0
       ? featuredSvcs
-      : (servicesAllResult.status === 'fulfilled' ? (servicesAllResult.value || []) : []);
+      : (servicesAllResult || []);
   }
 
   // Case studies: filter by pinned IDs client-side to avoid another DB round-trip
-  let dbProjects: any[] = caseStudiesResult.status === 'fulfilled' ? (caseStudiesResult.value || []) : [];
+  let dbProjects: any[] = caseStudiesResult || [];
   if (featuredCaseStudyIds.length > 0) {
     const pinned = dbProjects.filter((cs: any) =>
       featuredCaseStudyIds.includes(String(cs.id)) || featuredCaseStudyIds.includes(String(cs.slug))
@@ -226,7 +228,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
   }
 
   // Partners
-  const dbPartners: any[] = partnersResult.status === 'fulfilled' ? (partnersResult.value || []) : [];
+  const dbPartners: any[] = partnersResult || [];
   const resolvedPartners = filterAndResolvePublicPartners(dbPartners);
   const partnersList = resolvedPartners.length > 0 ? resolvedPartners : [
     { id: '1', name: 'Visit Qatar', logoUrl: '' },
@@ -238,7 +240,7 @@ export default async function B2BHomePage({ params }: { params: Promise<{ locale
   ];
 
   // Brands
-  const dbBrands: any[] = brandsResult.status === 'fulfilled' ? (brandsResult.value || []) : [];
+  const dbBrands: any[] = brandsResult || [];
 
   // Inject dynamic brands into CMS data if not hardcoded
   if (content && dbBrands.length > 0) {

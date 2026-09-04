@@ -18,30 +18,34 @@ import {
   resolvePublicSiteSettings,
 } from './public-settings-dto';
 
+import { memoryCache } from '@/lib/cache/memory-cache';
+
 /**
  * Server loader for public site settings.
  * Returns only the allowlisted PublicSiteSettings DTO for server layout & client component usage.
  */
 export async function getPublicSettingsServer(): Promise<PublicSiteSettings> {
-  try {
-    const settingModel = (db as any).siteSettings || (db as any).setting;
-    if (!settingModel) {
+  return memoryCache.getOrSet('public_settings_server', 60_000, async () => {
+    try {
+      const settingModel = (db as any).siteSettings || (db as any).setting;
+      if (!settingModel) {
+        return resolvePublicSiteSettings({});
+      }
+
+      const records = await settingModel.findMany({
+        where: {
+          key: {
+            in: Array.from(PUBLIC_SETTINGS_KEYS),
+          },
+        },
+      });
+
+      return resolvePublicSiteSettings(records || []);
+    } catch (error) {
+      console.error('[SETTINGS_SERVER_LOADER_ERROR]', error);
       return resolvePublicSiteSettings({});
     }
-
-    const records = await settingModel.findMany({
-      where: {
-        key: {
-          in: Array.from(PUBLIC_SETTINGS_KEYS),
-        },
-      },
-    });
-
-    return resolvePublicSiteSettings(records || []);
-  } catch (error) {
-    console.error('[SETTINGS_SERVER_LOADER_ERROR]', error);
-    return resolvePublicSiteSettings({});
-  }
+  });
 }
 
 /**

@@ -4,6 +4,8 @@ import { SEO } from "@/components/shared/SEO";
 import db from "@/lib/db";
 import { GatewayCustomizationPayload, DEFAULT_GATEWAY_CMS_PAYLOAD } from "@/types/gateway-cms";
 
+import { memoryCache } from "@/lib/cache/memory-cache";
+
 export const revalidate = 300;
 
 function mergeGatewayPayload(raw: any): GatewayCustomizationPayload {
@@ -23,6 +25,20 @@ function mergeGatewayPayload(raw: any): GatewayCustomizationPayload {
   };
 }
 
+async function getCachedGatewayPayload(): Promise<GatewayCustomizationPayload> {
+  return memoryCache.getOrSet('setting_gateway_customization_published', 60_000, async () => {
+    try {
+      const record = await db.setting.findUnique({
+        where: { key: 'gateway_customization_published' },
+      });
+      if (record?.value) {
+        return mergeGatewayPayload(record.value);
+      }
+    } catch (_e) {}
+    return DEFAULT_GATEWAY_CMS_PAYLOAD;
+  });
+}
+
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
@@ -30,18 +46,7 @@ export async function generateMetadata(props: {
   const isAr = locale === "ar";
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
   
-  let cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD;
-  try {
-    const record = await db.setting.findUnique({
-      where: { key: 'gateway_customization_published' },
-    });
-    if (record?.value) {
-      cmsData = mergeGatewayPayload(record.value);
-    }
-  } catch (_e) {
-    // Fallback to default payload
-  }
-
+  const cmsData = await getCachedGatewayPayload();
   const en = cmsData.english;
   const ar = cmsData.arabic;
   const seo = cmsData.seoAccess;
@@ -91,17 +96,7 @@ export default async function GatewayLocalePage(props: {
   const isAr = locale === "ar";
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
 
-  let cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD;
-  try {
-    const record = await db.setting.findUnique({
-      where: { key: 'gateway_customization_published' },
-    });
-    if (record?.value) {
-      cmsData = mergeGatewayPayload(record.value);
-    }
-  } catch (_e) {
-    // Fallback
-  }
+  const cmsData = await getCachedGatewayPayload();
 
   const en = cmsData.english;
   const ar = cmsData.arabic;

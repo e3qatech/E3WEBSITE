@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { hasPermission } from "@/lib/permissions";
 import { isAttractionActiveByDate } from "@/lib/cms-attractions";
+import { memoryCache } from "@/lib/cache/memory-cache";
 
 const MAX_BATCH_SIZE = 20;
 const HEX_COLOR_REGEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -128,6 +129,16 @@ export async function GET(request: Request) {
     const requestedActive = url.searchParams.get("active");
     // Public callers can ONLY access active story tracks. Managers can query active or all.
     const activeOnly = !isManager || requestedActive === "true";
+    const cacheKey = `api_story_types_public_${activeOnly}`;
+
+    if (!isManager) {
+      const cached = memoryCache.get(cacheKey);
+      if (cached) {
+        return NextResponse.json(cached, {
+          headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' }
+        });
+      }
+    }
 
     const totalCount = await db.storyType.count();
     if (totalCount === 0) {
@@ -274,6 +285,13 @@ export async function GET(request: Request) {
         activations: allActivations
       };
     });
+    
+    if (!isManager) {
+      memoryCache.set(cacheKey, enrichedStoryTypes, 60_000);
+      return NextResponse.json(enrichedStoryTypes, {
+        headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' }
+      });
+    }
     
     return NextResponse.json(enrichedStoryTypes);
   } catch (error: any) {

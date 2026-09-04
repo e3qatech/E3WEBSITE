@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { auth } from '@/lib/auth';
+import { memoryCache } from '@/lib/cache/memory-cache';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -69,6 +70,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       }
     });
 
+    memoryCache.invalidate('api_brands_');
+    memoryCache.invalidate('b2c_brands');
+    memoryCache.invalidate('b2b_brands');
+
     return NextResponse.json(brand);
   } catch (error: any) {
     console.error('Failed to update brand:', error);
@@ -97,12 +102,19 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
            where: { id },
            data: { isActive: false, lifecycleStatus: 'INACTIVE' }
        });
+       memoryCache.invalidate('api_brands_');
+       memoryCache.invalidate('b2c_brands');
+       memoryCache.invalidate('b2b_brands');
        return NextResponse.json({ archived: true, brand: archived });
     }
 
     await db.brandIP.delete({
       where: { id }
     });
+
+    memoryCache.invalidate('api_brands_');
+    memoryCache.invalidate('b2c_brands');
+    memoryCache.invalidate('b2b_brands');
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

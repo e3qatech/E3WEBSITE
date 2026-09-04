@@ -4,7 +4,7 @@ import db from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages';
-import { getCMSPageContentServer, deepMergeCMSContent } from '@/lib/cms-server';
+import { getCMSPageContentServer, deepMergeCMSContent, invalidateCMSPageContentCache } from '@/lib/cms-server';
 import { getManagedCMSPage } from '@/lib/cms-ownership';
 
 const pageUpdateSchema = z.object({
@@ -54,10 +54,16 @@ export async function GET(
           if (process.env.BLOB_READ_WRITE_TOKEN) {
             const envName = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
             const { list } = await import('@vercel/blob');
-            const blobs = await list({
+            let blobs = await list({
               prefix: `cms/pages/${envName}/${targetSlug}.json`,
               limit: 1
             });
+            if ((!blobs?.blobs || blobs.blobs.length === 0) && envName !== 'production') {
+              blobs = await list({
+                prefix: `cms/pages/production/${targetSlug}.json`,
+                limit: 1
+              });
+            }
             if (blobs && blobs.blobs && blobs.blobs.length > 0) {
               const url = blobs.blobs[0].url;
               const res = await fetch(url, { cache: 'no-store' });
@@ -260,11 +266,14 @@ export async function PUT(
       };
     }
 
-    // Bust Next.js SSR cache so the page immediately reflects the new content
+    // Bust Next.js SSR and in-memory cache so the page immediately reflects the new content
     try {
+      slugsToSave.forEach(s => invalidateCMSPageContentCache(s));
       revalidatePath('/b2c');
       revalidatePath('/ar/b2c');
       revalidatePath('/');
+      revalidatePath('/b2b');
+      revalidatePath('/ar/b2b');
     } catch (_e) {}
 
     if (!updatedPage) {

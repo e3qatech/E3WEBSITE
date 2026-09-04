@@ -4,41 +4,24 @@ import { auth } from "@/lib/auth"
 
 import { isAttractionActiveByDate } from "@/lib/cms-attractions"
 
+import { memoryCache } from "@/lib/cache/memory-cache"
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const includePast = searchParams.get('includePast') === 'true' || searchParams.get('all') === 'true'
     const includeDrafts = searchParams.get('includeDrafts') === 'true'
 
-    const whereClause: any = {}
     if (!includeDrafts) {
-      whereClause.isPublished = true
-      whereClause.isHidden = false
-    }
+      const cacheKey = `api_b2c_attractions_v2_${includePast}`;
+      const cachedData = await memoryCache.getOrSet(cacheKey, 60_000, async () => {
+        const whereClause: any = {
+          isPublished: true,
+          isHidden: false,
+        };
 
-    let attractions = await db.attraction.findMany({
-      where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
-      orderBy: { createdAt: "desc" },
-      include: {
-        pricing: true,
-        faqs: true,
-        gallery: true,
-        attractionLocations: {
-          include: {
-            location: true
-          }
-        }
-      }
-    });
-
-    if (!attractions || attractions.length === 0) {
-      try {
-        const { populateAllAttractions, publishAllContent } = await import("@/lib/auto-migrate");
-        await populateAllAttractions();
-        await publishAllContent();
-
-        attractions = await db.attraction.findMany({
-          where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
+        const attractions = await db.attraction.findMany({
+          where: whereClause,
           orderBy: { createdAt: "desc" },
           include: {
             pricing: true,
@@ -51,17 +34,22 @@ export async function GET(request: Request) {
             }
           }
         });
-      } catch (autoErr) {
-        console.error("[AUTO_POPULATE_ATTRACTIONS_ERROR]", autoErr);
-      }
+
+        const filtered = includePast
+          ? (attractions || [])
+          : (attractions || []).filter((attr: any) => isAttractionActiveByDate(attr));
+
+        return filtered;
+      });
+
+      return NextResponse.json(cachedData, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        },
+      });
     }
 
-    // Filter out past/expired events unless specifically requested
-    const filteredAttractions = includePast
-      ? attractions
-      : (attractions || []).filter((attr: any) => isAttractionActiveByDate(attr))
-
-    return NextResponse.json(filteredAttractions || []);
+    const whereClause: any = {}
   } catch (error: any) {
     console.error("[ATTRACTIONS_GET_ERROR]", error);
     return NextResponse.json({ error: "Failed to fetch attractions" }, { status: 500 });

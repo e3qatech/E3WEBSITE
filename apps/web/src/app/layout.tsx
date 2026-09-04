@@ -9,6 +9,7 @@ import { NavigationProgressBar } from "@/components/layout/NavigationProgressBar
 import { auth } from "@/lib/auth"
 import db from "@/lib/db"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { memoryCache } from "@/lib/cache/memory-cache"
 import "./globals.css"
 
 const manrope = Manrope({
@@ -29,10 +30,12 @@ const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
 export async function generateMetadata(): Promise<Metadata> {
   let faviconUrl: string | undefined = undefined;
   try {
-    const settings = await db.setting.findMany({
-      where: { key: 'faviconUrl' }
+    faviconUrl = await memoryCache.getOrSet('favicon_url', 300_000, async () => {
+      const settings = await db.setting.findMany({
+        where: { key: 'faviconUrl' }
+      });
+      return settings.find((s: any) => s.key === 'faviconUrl')?.value as string | undefined;
     });
-    faviconUrl = settings.find((s: any) => s.key === 'faviconUrl')?.value as string | undefined;
   } catch (error) {
     console.error("Error fetching favicon metadata:", error);
   }

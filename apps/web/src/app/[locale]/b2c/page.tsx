@@ -2,11 +2,11 @@ import { Metadata } from 'next';
 import db from '@/lib/db';
 import { getCMSPageContentServer } from '@/lib/cms-server';
 import { B2CLandingClient } from '@/components/b2c/B2CLandingClient';
-import { HorizontalOctagonalExperience } from '@/components/spatial';
 import { formatLocalizedText } from '@/lib/utils';
+import { memoryCache } from '@/lib/cache/memory-cache';
+import { getLiveB2CBrandsFromDB } from '@/lib/cms-brands-db';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 60;
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -65,100 +65,79 @@ export default async function B2CLandingPage(props: {
     : {};
   const cmsData = await getCMSPageContentServer("b2c-landing");
 
-  const isDev = process.env.NODE_ENV !== 'production';
-  const isEnvFlagEnabled = process.env.NEXT_PUBLIC_SPATIAL_EXPERIENCE_V1 === 'true';
-  const isCmsEnabled = cmsData?.spatialExperience?.enabled === true;
-  const hasQueryParam = searchParams?.spatial === 'true' || searchParams?.barrel === 'true';
-
-  let isAuthorizedForPreview = isDev;
-  if (!isAuthorizedForPreview && hasQueryParam) {
-    try {
-      const { auth } = await import('@/lib/auth');
-      const session = await auth();
-      const role = (session?.user as any)?.role;
-      if (role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'STAFF' || role === 'EDITOR') {
-        isAuthorizedForPreview = true;
+  const [attractions, dbBrands, dbEmployees, dbStoryTypes] = await Promise.all([
+    memoryCache.getOrSet('b2c_page_attractions', 60_000, async () => {
+      try {
+        return await db.attraction.findMany({
+          where: { isPublished: true },
+          include: {
+            gallery: {
+              orderBy: { orderIndex: 'asc' },
+              take: 3
+            },
+            pricing: {
+              orderBy: { price: 'asc' }
+            },
+            offers: true,
+            attractionLocations: {
+              include: {
+                location: true
+              }
+            }
+          },
+          orderBy: [
+            { isFeatured: 'desc' },
+            { createdAt: 'desc' }
+          ],
+          take: 50
+        });
+      } catch (error) {
+        console.error("[B2C_PAGE_ATTRACTIONS_FETCH_ERROR]", error);
+        return [];
       }
-    } catch (_e) {}
-  }
-
-  const isSpatialRequested = isCmsEnabled || isEnvFlagEnabled || (hasQueryParam && isAuthorizedForPreview);
-
-  let attractions: any[] = [];
-  try {
-    attractions = await db.attraction.findMany({
-      where: { isPublished: true },
-      include: {
-        gallery: {
+    }),
+    getLiveB2CBrandsFromDB(),
+    memoryCache.getOrSet('b2c_page_employees', 60_000, async () => {
+      try {
+        return await db.employeeProfile.findMany({
+          where: { isActive: true },
+          orderBy: { order: 'asc' }
+        });
+      } catch (error) {
+        console.error("[B2C_PAGE_EMPLOYEES_FETCH_ERROR]", error);
+        return [];
+      }
+    }),
+    memoryCache.getOrSet('b2c_page_story_types', 60_000, async () => {
+      try {
+        return await db.storyType.findMany({
+          where: { isActive: true },
           orderBy: { orderIndex: 'asc' },
-          take: 3
-        },
-        pricing: {
-          orderBy: { price: 'asc' }
-        },
-        offers: true,
-        attractionLocations: {
           include: {
-            location: true
-          }
-        }
-      },
-      orderBy: [
-        { isFeatured: 'desc' },
-        { createdAt: 'desc' }
-      ],
-      take: 50
-    });
-  } catch (error) {
-    console.error("[B2C_PAGE_ATTRACTIONS_FETCH_ERROR]", error);
-    attractions = [];
-  }
-
-  let dbBrands: any[] = [];
-  try {
-    const { getLiveB2CBrandsFromDB } = await import('@/lib/cms-brands-db');
-    dbBrands = await getLiveB2CBrandsFromDB();
-  } catch (error) {
-    console.error("[B2C_PAGE_BRANDS_FETCH_ERROR]", error);
-  }
-
-  let dbEmployees: any[] = [];
-  try {
-    dbEmployees = await db.employeeProfile.findMany({
-      where: { isActive: true },
-      orderBy: { order: 'asc' }
-    });
-  } catch (error) {
-    console.error("[B2C_PAGE_EMPLOYEES_FETCH_ERROR]", error);
-  }
-
-  let dbStoryTypes: any[] = [];
-  try {
-    dbStoryTypes = await db.storyType.findMany({
-      where: { isActive: true },
-      orderBy: { orderIndex: 'asc' },
-      include: {
-        features: {
-          include: {
-            attraction: {
-              select: {
-                heroThumbnailUrl: true,
-                heroMediaUrl: true,
-                isPublished: true,
-                slug: true,
-                nameEn: true,
-                nameAr: true,
-                taglineEn: true,
-                taglineAr: true,
+            features: {
+              include: {
+                attraction: {
+                  select: {
+                    heroThumbnailUrl: true,
+                    heroMediaUrl: true,
+                    isPublished: true,
+                    slug: true,
+                    nameEn: true,
+                    nameAr: true,
+                    taglineEn: true,
+                    taglineAr: true,
+                  }
+                }
               }
             }
           }
-        }
+        });
+      } catch (error) {
+        console.error("[B2C_PAGE_STORY_TYPES_FETCH_ERROR]", error);
+        return [];
       }
-    });
-  } catch (error) {
-    console.error("[B2C_PAGE_STORY_TYPES_FETCH_ERROR]", error);
-  }
+    }),
+  ]);
 
   if (cmsData) {
     if (attractions.length > 0) {
@@ -241,7 +220,7 @@ export default async function B2CLandingPage(props: {
     if (dbEmployees.length > 0) {
       const selectedEmployees = selectedIds.length > 0
         ? selectedIds
-            .map(id => dbEmployees.find(m =>
+            .map(id => dbEmployees.find((m: any) =>
               m.id === id ||
               m.slug === id ||
               `team-${m.slug}` === id ||
@@ -252,7 +231,7 @@ export default async function B2CLandingPage(props: {
 
       const activeEmployees = selectedEmployees.length > 0 ? selectedEmployees : dbEmployees;
 
-      cmsData.coreTeam.members = activeEmployees.map(m => ({
+      cmsData.coreTeam.members = activeEmployees.map((m: any) => ({
         id: m.id,
         slug: m.slug || m.id,
         nameEn: m.nameEn || m.name || `${m.firstName || ''} ${m.lastName || ''}`.trim() || "Team Member",
@@ -272,17 +251,6 @@ export default async function B2CLandingPage(props: {
         status: 'PUBLISHED'
       }));
     }
-  }
-
-  if (isSpatialRequested) {
-    return (
-      <main className="min-h-screen bg-[#050811] text-white">
-        <HorizontalOctagonalExperience
-          locale={locale}
-          customSections={cmsData?.spatialExperience?.faces}
-        />
-      </main>
-    );
   }
 
   return (

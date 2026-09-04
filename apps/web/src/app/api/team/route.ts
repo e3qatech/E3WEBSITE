@@ -8,6 +8,8 @@ import {
   validateBilingualTeamMemberInput,
 } from "@/lib/team/team-resolver";
 
+import { memoryCache } from "@/lib/cache/memory-cache";
+
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
@@ -34,20 +36,28 @@ export async function GET(request: Request) {
       return NextResponse.json(enriched);
     }
 
-    const teamMembers = await db.employeeProfile.findMany({
-      where: {
-        isActive: true,
-        showOnTeamPage: true,
-      },
-      orderBy: [
-        { displayOrder: "asc" },
-        { order: "asc" },
-        { createdAt: "asc" },
-      ],
+    const cacheKey = `api_team_public_${locale}`;
+    const safePublic = await memoryCache.getOrSet(cacheKey, 60_000, async () => {
+      const teamMembers = await db.employeeProfile.findMany({
+        where: {
+          isActive: true,
+          showOnTeamPage: true,
+        },
+        orderBy: [
+          { displayOrder: "asc" },
+          { order: "asc" },
+          { createdAt: "asc" },
+        ],
+      });
+
+      return filterAndResolvePublicTeamMembers(teamMembers, locale);
     });
 
-    const safePublic = filterAndResolvePublicTeamMembers(teamMembers, locale);
-    return NextResponse.json(safePublic);
+    return NextResponse.json(safePublic, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+      },
+    });
   } catch (error: any) {
     console.error("[TEAM_GET_ERROR]", error);
     return NextResponse.json({ error: error.message || "Failed to fetch team members" }, { status: 500 });
