@@ -37,7 +37,11 @@ export function LiveWebsiteChangesWidget() {
   useEffect(() => {
 // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchActivity()
-    const interval = setInterval(fetchActivity, 10000) // Live refresh every 10s
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        fetchActivity()
+      }
+    }, 45000) // Live refresh every 45s when tab is active
     return () => clearInterval(interval)
   }, [])
 

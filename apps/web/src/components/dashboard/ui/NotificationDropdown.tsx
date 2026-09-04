@@ -36,7 +36,11 @@ export function NotificationDropdown() {
   useEffect(() => {
 // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNotifications()
-    const interval = setInterval(fetchNotifications, 15000) // Poll every 15s for live updates
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        fetchNotifications()
+      }
+    }, 45000) // Poll every 45s when tab is active
     return () => clearInterval(interval)
   }, [])
 
