@@ -41,6 +41,8 @@ export type Talent = {
   certifications: any | null
   notes: string | null
   job: { title: string } | null
+  cvParsedData?: any | null
+  source?: string | null
 }
 
 interface TalentDetailProps {

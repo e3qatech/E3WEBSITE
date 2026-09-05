@@ -1,31 +1,111 @@
-import { db } from "@/lib/db"
-import { TalentList } from "@/components/dashboard/crm/TalentList"
-import { auth } from "@/lib/auth"
-import { redirect } from "next/navigation"
+import { db } from "@/lib/db";
+import { TalentList } from "@/components/dashboard/crm/TalentList";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { isHRAuthorized } from "@/lib/careers/job-eligibility";
 
 export const metadata = {
-  title: "Talent Acquisition | CRM | E3 Admin",
-}
+  title: "Talent Acquisition & AI Hub | E3 Admin",
+};
 
-export default async function TalentPage() {
-  const session = await auth()
+export const dynamic = "force-dynamic";
+
+export default async function TalentPage(props: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await props.params;
+  const session = await auth();
   if (!session?.user) {
-    redirect("/login")
+    redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard/crm/talent`);
   }
   const role = (session.user as any)?.role;
-  if (!["SUPER_ADMIN", "ADMIN", "HR", "HR_ADMIN"].includes(role)) {
-    redirect("/dashboard/b2c/packages");
+  const permissions = (session.user as any)?.permissions;
+
+  if (
+    !["SUPER_ADMIN", "ADMIN", "HR", "HR_ADMIN"].includes(role) &&
+    !isHRAuthorized(role, permissions)
+  ) {
+    redirect(`/${locale}/dashboard`);
   }
 
-  const talent = await db.talent.findMany({
-    orderBy: { appliedDate: "desc" }
-  })
+  // Fetch both Talent records and JobApplication records to provide a complete, unified talent pool
+  const [talentList, applicationsList, jobsList] = await Promise.all([
+    db.talent.findMany({
+      orderBy: { appliedDate: "desc" },
+      include: { job: { select: { title: true, department: true } } },
+    }),
+    db.jobApplication.findMany({
+      orderBy: { createdAt: "desc" },
+    }),
+    db.job.findMany({
+      orderBy: { title: "asc" },
+      select: { id: true, title: true, department: true, location: true },
+    }),
+  ]);
 
-  // Format dates for client
-  const formattedTalent = talent.map((t: any) => ({
-    ...t,
-    appliedDate: t.appliedDate.toISOString(),
-  }))
+  // Merge into unified candidate profile schema
+  const unifiedTalent = [
+    ...applicationsList.map((app: any) => ({
+      id: app.id,
+      name: `${app.firstName || ""} ${app.lastName || ""}`.trim() || "Applicant",
+      firstName: app.firstName,
+      lastName: app.lastName,
+      email: app.email,
+      phone: app.phone,
+      position: app.jobTitle,
+      department: app.department || "Operations",
+      experienceLevel: (app.cvParsedData as any)?.experienceYears
+        ? `${(app.cvParsedData as any).experienceYears} Yrs`
+        : "Mid-Level",
+      status: app.status || "NEW",
+      rating: null,
+      appliedDate: app.createdAt.toISOString(),
+      resumeUrl: app.cvUrl,
+      cvParsedData: app.cvParsedData,
+      skills: (app.cvParsedData as any)?.skills || [],
+      languages: null,
+      education: (app.cvParsedData as any)?.education || null,
+      certifications: null,
+      notes: (app.cvParsedData as any)?.summary || null,
+      job: { title: app.jobTitle },
+      source: "JOB_APPLICATION",
+    })),
+    ...talentList.map((t: any) => ({
+      id: t.id,
+      name: t.name,
+      firstName: t.name.split(" ")[0] || t.name,
+      lastName: t.name.split(" ").slice(1).join(" ") || "",
+      email: t.email,
+      phone: t.phone,
+      position: t.position || t.job?.title || "Professional",
+      department: t.department || t.job?.department || "General",
+      experienceLevel: t.experienceLevel || "Experienced",
+      status: t.status || "NEW",
+      rating: t.rating,
+      appliedDate: t.appliedDate.toISOString(),
+      resumeUrl: t.resumeUrl,
+      cvParsedData: t.skills
+        ? {
+            skills: Array.isArray(t.skills) ? t.skills : [],
+            experienceYears: 4,
+            summary: t.notes || "",
+          }
+        : null,
+      skills: t.skills || [],
+      languages: t.languages,
+      education: t.education,
+      certifications: t.certifications,
+      notes: t.notes,
+      job: t.job ? { title: t.job.title } : null,
+      source: "DIRECT_TALENT",
+    })),
+  ];
 
-  return <TalentList initialTalent={formattedTalent as any} />
+  return (
+    <TalentList
+      initialTalent={unifiedTalent as any}
+      availableJobs={jobsList}
+      locale={locale}
+    />
+  );
 }

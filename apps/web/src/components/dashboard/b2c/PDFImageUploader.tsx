@@ -52,15 +52,15 @@ export function PDFImageUploader({
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <label className="text-[11px] font-mono text-zinc-300 font-bold block">{label}</label>
+        <label className="text-[11px] font-mono text-[var(--text-secondary)] font-bold block">{label}</label>
         {recommendedSize && (
-          <span className="text-[10px] text-zinc-500 font-mono">{recommendedSize}</span>
+          <span className="text-[10px] text-[var(--text-tertiary)] font-mono">{recommendedSize}</span>
         )}
       </div>
 
       <div className="flex items-center gap-2">
         {/* Thumbnail Preview */}
-        <div className="w-10 h-10 rounded-xl bg-zinc-950 border border-white/10 flex items-center justify-center overflow-hidden shrink-0 relative group">
+        <div className="w-10 h-10 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] flex items-center justify-center overflow-hidden shrink-0 relative group">
           {value && !imgLoadError ? (
             <img
               src={value}
@@ -70,7 +70,7 @@ export function PDFImageUploader({
               onError={() => setImgLoadError(true)}
             />
           ) : (
-            <ImageIcon className="w-4 h-4 text-zinc-600" />
+            <ImageIcon className="w-4 h-4 text-[var(--text-tertiary)]" />
           )}
         </div>
 
@@ -84,7 +84,7 @@ export function PDFImageUploader({
               onChange(e.target.value)
             }}
             placeholder={placeholder}
-            className="w-full px-3 py-2 pr-8 rounded-xl bg-zinc-950 border border-white/10 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 font-mono"
+            className="w-full px-3 py-2 pr-8 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-purple-500 font-mono transition-colors"
           />
           {value && (
             <button
@@ -93,7 +93,7 @@ export function PDFImageUploader({
                 onChange("")
                 setImgLoadError(false)
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white p-1 cursor-pointer"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] p-1 cursor-pointer transition-colors"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -116,8 +116,8 @@ export function PDFImageUploader({
           className={cn(
             "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border",
             isUploading
-              ? "bg-purple-600/30 border-purple-500/50 text-purple-300"
-              : "bg-purple-600/20 hover:bg-purple-600/30 border-purple-500/30 text-purple-300 hover:text-white"
+              ? "bg-purple-600/20 border-purple-500/40 text-purple-600 dark:text-purple-300"
+              : "bg-purple-600/10 hover:bg-purple-600/20 border-purple-500/30 text-purple-600 dark:text-purple-300 hover:text-purple-700 dark:hover:text-white"
           )}
         >
           {isUploading ? (
@@ -135,7 +135,7 @@ export function PDFImageUploader({
       </div>
 
       {error && (
-        <p className="text-[10px] text-red-400 font-mono mt-1">{error}</p>
+        <p className="text-[10px] text-red-500 dark:text-red-400 font-mono mt-1">{error}</p>
       )}
     </div>
   )

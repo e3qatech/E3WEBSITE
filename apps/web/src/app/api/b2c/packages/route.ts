@@ -135,17 +135,16 @@ export async function GET(req: NextRequest) {
 
     const where: any = {}
 
-    // Public callers can only see published active packages
-    if (!hasAdminPermission || !showAll) {
+    // Manager requests (showAll or explicit templates request or authenticated admin)
+    const isManagerQuery = showAll || includeTemplates || hasAdminPermission
+
+    if (includeTemplates) {
+      where.isTemplate = true
+    } else if (!isManagerQuery) {
+      // Public callers can only see published active non-template packages
       where.isPublished = true
       where.status = "PUBLISHED"
-    }
-
-    // By default, exclude templates unless requested by authorized manager
-    if (!includeTemplates && !hasAdminPermission) {
       where.isTemplate = false
-    } else if (includeTemplates) {
-      where.isTemplate = true
     }
 
     // Category filter: support category slug or uppercase enum string

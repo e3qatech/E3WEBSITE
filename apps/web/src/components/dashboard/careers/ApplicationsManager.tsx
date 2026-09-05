@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   DashboardPageShell,
   DashboardPageHeader,
@@ -23,19 +23,73 @@ import {
   Plus,
   Building,
   CheckCircle2,
+  Eye,
+  Award,
+  Trophy,
+  BarChart3,
 } from "lucide-react";
 import { safeFetchJson } from "@/lib/utils";
 import { useLocale } from "@/components/layout/LocaleProvider";
-import { isLegacySimulatedMock } from "@/lib/careers/ai-cv-parser";
+import { isLegacySimulatedMock, computeCategoryFitAndRank } from "@/lib/careers/ai-cv-parser";
+import { CvPreviewModal } from "./CvPreviewModal";
 
 export function ApplicationsManager({ initialApplications }: { initialApplications: any[] }) {
   const [applications, setApplications] = useState(initialApplications);
-  const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
+  const [selectedAppId, setSelectedAppId] = useState<string | null>(
+    initialApplications.length > 0 ? initialApplications[0].id : null
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [roleFilter, setRoleFilter] = useState("ALL");
+  const [previewModalCandidate, setPreviewModalCandidate] = useState<any | null>(null);
+
   const [parsing, setParsing] = useState(false);
   const [updating, setUpdating] = useState(false);
   const { toast } = useToast();
   const { locale } = useLocale();
   const isAr = locale === "ar";
+
+  // Precompute Category Ranking & Match Score for all candidates
+  const rankingsMap = useMemo(() => {
+    const map = new Map<string, any>();
+    for (const app of applications) {
+      const rankInfo = computeCategoryFitAndRank(app, applications);
+      map.set(app.id, rankInfo);
+    }
+    return map;
+  }, [applications]);
+
+  // Extract distinct roles for role filter
+  const uniqueRoles = useMemo(() => {
+    const set = new Set<string>();
+    applications.forEach((a) => {
+      if (a.jobTitle) set.add(a.jobTitle);
+    });
+    return Array.from(set);
+  }, [applications]);
+
+  // Filter applications by search query, status, and role
+  const filteredApplications = useMemo(() => {
+    return applications.filter((app) => {
+      const fullName = `${app.firstName || ""} ${app.lastName || ""}`.toLowerCase();
+      const email = (app.email || "").toLowerCase();
+      const phone = (app.phone || "").toLowerCase();
+      const role = (app.jobTitle || "").toLowerCase();
+      const q = searchQuery.toLowerCase().trim();
+
+      const matchesSearch =
+        !q ||
+        fullName.includes(q) ||
+        email.includes(q) ||
+        phone.includes(q) ||
+        role.includes(q);
+
+      const matchesStatus = statusFilter === "ALL" || app.status === statusFilter;
+      const matchesRole = roleFilter === "ALL" || app.jobTitle === roleFilter;
+
+      return matchesSearch && matchesStatus && matchesRole;
+    });
+  }, [applications, searchQuery, statusFilter, roleFilter]);
 
   // Recruiter Interview Scheduling Dialog State
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
@@ -50,6 +104,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
   const [isScheduling, setIsScheduling] = useState(false);
 
   const selectedApp = applications.find((a) => a.id === selectedAppId);
+  const selectedAppRank = selectedApp ? rankingsMap.get(selectedApp.id) : null;
 
   const handleParseCV = async (id: string) => {
     setParsing(true);
@@ -216,45 +271,118 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
       <div className="flex flex-col lg:flex-row gap-6 mt-6 min-h-[650px]">
         {/* List View */}
         <div className="w-full lg:w-1/3 bg-surface-default border border-border-default rounded-xl flex flex-col overflow-hidden">
-          <div className="p-4 border-b border-border-default flex gap-2">
+          <div className="p-4 border-b border-border-default space-y-3">
             <div className="relative flex-1">
               <Search className="w-4 h-4 absolute start-3 top-3 text-text-secondary" />
               <input
                 type="text"
-                placeholder={isAr ? "بحث بالاسم أو التخصص..." : "Search applicant, role..."}
-                className="w-full bg-surface-hover border border-border-default rounded-lg ps-9 pe-4 py-2 text-sm text-white focus:outline-none focus:border-primary"
+                placeholder={isAr ? "بحث بالاسم، الإيميل، الوظيفة..." : "Search name, email, role..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-surface-hover border border-border-default rounded-lg ps-9 pe-8 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-primary"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute end-2.5 top-2.5 text-zinc-400 hover:text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
-            <button className="p-2 bg-surface-hover border border-border-default rounded-lg text-text-secondary hover:text-white">
-              <Filter className="w-4 h-4" />
-            </button>
+
+            {/* Role & Status Filter Row */}
+            <div className="grid grid-cols-2 gap-2">
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="w-full bg-surface-hover border border-border-default rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-primary truncate cursor-pointer"
+              >
+                <option value="ALL">{isAr ? "جميع الوظائف" : "All Roles"}</option>
+                {uniqueRoles.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full bg-surface-hover border border-border-default rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-primary cursor-pointer"
+              >
+                <option value="ALL">{isAr ? "جميع الحالات" : "All Status"}</option>
+                <option value="NEW">{isAr ? "جديد" : "New"}</option>
+                <option value="REVIEWING">{isAr ? "قيد المراجعة" : "Reviewing"}</option>
+                <option value="INTERVIEW">{isAr ? "مقابلة" : "Interview"}</option>
+                <option value="HIRED">{isAr ? "تم التعيين" : "Hired"}</option>
+                <option value="REJECTED">{isAr ? "مرفوض" : "Rejected"}</option>
+              </select>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto divide-y divide-border-default">
-            {applications.length === 0 ? (
-              <div className="p-8 text-center text-text-secondary">
-                {isAr ? "لا توجد طلبات تقديم حتى الآن." : "No applications found."}
+            {filteredApplications.length === 0 ? (
+              <div className="p-8 text-center text-text-secondary text-xs">
+                {searchQuery || statusFilter !== "ALL" || roleFilter !== "ALL"
+                  ? isAr
+                    ? "لا توجد طلبات تطابق الفلتر المحدد."
+                    : "No applications match your filter."
+                  : isAr
+                  ? "لا توجد طلبات تقديم حتى الآن."
+                  : "No applications found."}
               </div>
             ) : (
-              applications.map((app) => (
-                <button
-                  key={app.id}
-                  onClick={() => setSelectedAppId(app.id)}
-                  className={`w-full text-start p-4 border-b border-border-default hover:bg-surface-hover transition-colors ${selectedAppId === app.id ? 'bg-surface-hover border-s-2 border-s-primary' : ''}`}
-                >
-                  <div className="flex justify-between items-start mb-1">
-                    <span className="font-bold text-text-primary">{app.firstName} {app.lastName}</span>
-                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${getStatusColor(app.status)}`}>
-                      {app.status}
-                    </span>
-                  </div>
-                  <div className="text-sm text-text-secondary mb-2">{app.jobTitle}</div>
-                  <div className="flex items-center justify-between text-xs text-text-secondary">
-                    <span>{new Date(app.createdAt).toLocaleDateString()}</span>
-                    <span className="bg-zinc-800 px-2 py-0.5 rounded text-[10px]">{app.portal}</span>
-                  </div>
-                </button>
-              ))
+              filteredApplications.map((app) => {
+                const rankInfo = rankingsMap.get(app.id);
+                return (
+                  <button
+                    key={app.id}
+                    onClick={() => setSelectedAppId(app.id)}
+                    className={`w-full text-start p-4 border-b border-border-default hover:bg-surface-hover transition-colors ${
+                      selectedAppId === app.id ? "bg-surface-hover border-s-4 border-s-primary" : ""
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-1 gap-2">
+                      <span className="font-bold text-text-primary truncate">
+                        {app.firstName} {app.lastName}
+                      </span>
+                      <span
+                        className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 ${getStatusColor(
+                          app.status
+                        )}`}
+                      >
+                        {app.status}
+                      </span>
+                    </div>
+
+                    <div className="text-xs text-text-secondary mb-2 flex items-center justify-between gap-2">
+                      <span className="truncate">{app.jobTitle}</span>
+                      {rankInfo && (
+                        <span
+                          className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border flex items-center gap-1 shrink-0 ${
+                            rankInfo.rank === 1
+                              ? "bg-amber-500/10 text-amber-300 border-amber-500/30"
+                              : "bg-purple-500/10 text-purple-300 border-purple-500/30"
+                          }`}
+                          title={`Score: ${rankInfo.matchScore}%`}
+                        >
+                          <Award className="w-3 h-3 text-purple-400" />
+                          <span>#{rankInfo.rank} · {rankInfo.matchScore}%</span>
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-text-secondary">
+                      <span>{new Date(app.createdAt).toLocaleDateString()}</span>
+                      <span className="bg-zinc-800 px-2 py-0.5 rounded text-[10px] text-zinc-300">
+                        {app.portal}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })
             )}
           </div>
         </div>
@@ -262,15 +390,20 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
         {/* Detail View */}
         <div className="w-full lg:w-2/3 bg-surface-default border border-border-default rounded-xl flex flex-col overflow-hidden">
           {selectedApp ? (
-            <div className="flex-1 overflow-y-auto p-6 space-y-8">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Header Info */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-1">{selectedApp.firstName} {selectedApp.lastName}</h2>
-                  <p className="text-primary font-medium">{selectedApp.jobTitle} {selectedApp.department ? `· ${selectedApp.department}` : ''}</p>
+                  <h2 className="text-2xl font-bold text-white mb-1">
+                    {selectedApp.firstName} {selectedApp.lastName}
+                  </h2>
+                  <p className="text-primary font-medium">
+                    {selectedApp.jobTitle}{" "}
+                    {selectedApp.department ? `· ${selectedApp.department}` : ""}
+                  </p>
                 </div>
                 <div className="flex flex-wrap gap-2 items-center">
-                  <select 
+                  <select
                     value={selectedApp.status}
                     onChange={(e) => handleUpdateStatus(selectedApp.id, e.target.value)}
                     disabled={updating}
@@ -286,33 +419,130 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                   <button
                     type="button"
                     onClick={handleOpenScheduleModal}
-                    className="flex items-center gap-1.5 px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-semibold transition-all shadow-md active:scale-95"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-semibold transition-all shadow-md active:scale-95"
                   >
                     <Calendar className="w-4 h-4" />
-                    <span>{isAr ? "جدولة مقابلة" : "Schedule Interview"}</span>
+                    <span>{isAr ? "جدولة مقابلة" : "Interview"}</span>
                   </button>
 
-                  <a href={selectedApp.cvUrl} target="_blank" rel="noopener noreferrer" className="flex items-center px-4 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors">
-                    <Download className="w-4 h-4 me-2" /> {isAr ? "تحميل السيرة" : "Download CV"}
+                  {/* In-browser CV Preview Button */}
+                  <button
+                    type="button"
+                    onClick={() => setPreviewModalCandidate(selectedApp)}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600/15 hover:bg-indigo-600/25 text-indigo-300 border border-indigo-500/30 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95"
+                    title={isAr ? "معاينة السيرة الذاتية داخل المتصفح" : "Preview CV Document in Browser"}
+                  >
+                    <Eye className="w-4 h-4 text-indigo-400" />
+                    <span>{isAr ? "معاينة السيرة" : "Preview CV"}</span>
+                  </button>
+
+                  {/* Download CV File */}
+                  <a
+                    href={selectedApp.cvUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors"
+                  >
+                    <Download className="w-4 h-4 me-1.5" /> {isAr ? "تحميل" : "Download"}
                   </a>
 
-                  <AdminButton 
-                    variant={selectedApp.cvParsedData ? "outline" : "primary"} 
-                    onClick={() => handleParseCV(selectedApp.id)} 
+                  <AdminButton
+                    variant={selectedApp.cvParsedData ? "outline" : "primary"}
+                    onClick={() => handleParseCV(selectedApp.id)}
                     disabled={parsing}
                     className="flex items-center gap-1.5"
                   >
                     <Cpu className="w-4 h-4 text-purple-400" />
                     <span>
-                      {parsing 
-                        ? (isAr ? "جاري المعالجة..." : "Analyzing with AI...") 
-                        : selectedApp.cvParsedData 
-                        ? (isAr ? "إعادة التحليل الذكي" : "Re-Analyze (Gemini)") 
-                        : (isAr ? "تحليل بالذكاء الاصطناعي" : "AI Parse CV")}
+                      {parsing
+                        ? isAr
+                          ? "جاري المعالجة..."
+                          : "Analyzing..."
+                        : selectedApp.cvParsedData
+                        ? isAr
+                          ? "إعادة التحليل"
+                          : "Re-Analyze"
+                        : isAr
+                        ? "تحليل ذكي"
+                        : "AI Parse"}
                     </span>
                   </AdminButton>
                 </div>
               </div>
+
+              {/* Candidate Category Leaderboard & AI Ranking Banner */}
+              {selectedAppRank && (
+                <div className="p-4 rounded-xl bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-zinc-900 border border-purple-800/40 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-11 h-11 rounded-xl flex items-center justify-center border font-black text-base shadow-sm ${
+                          selectedAppRank.rank === 1
+                            ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                            : "bg-purple-500/20 text-purple-300 border-purple-500/40"
+                        }`}
+                      >
+                        #{selectedAppRank.rank}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
+                            {isAr ? "تصنيف المترشحين لنفس الوظيفة" : "Category Candidate Ranking"}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-200 border border-purple-500/30">
+                            {selectedAppRank.tierLabel}
+                          </span>
+                        </div>
+                        <div className="text-sm font-bold text-white mt-0.5">
+                          {isAr
+                            ? `المرتبة #${selectedAppRank.rank} من أصل ${selectedAppRank.totalCandidates} متقدمين لوظيفة "${selectedApp.jobTitle}"`
+                            : `Rank #${selectedAppRank.rank} of ${selectedAppRank.totalCandidates} Applicants in "${selectedApp.jobTitle}"`}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 shrink-0 bg-black/30 px-3 py-2 rounded-xl border border-white/5">
+                      <div className="text-end">
+                        <div className="text-[10px] text-zinc-400 uppercase font-bold">
+                          {isAr ? "نسبة التطابق الذكي" : "AI Match Score"}
+                        </div>
+                        <div className="text-xl font-black text-emerald-400">
+                          {selectedAppRank.matchScore}%
+                        </div>
+                      </div>
+                      <div className="h-8 w-px bg-white/10" />
+                      <div>
+                        <div className="text-[10px] text-zinc-400 uppercase font-bold">
+                          {isAr ? "التوصية" : "AI Decision"}
+                        </div>
+                        <div className="text-xs font-bold text-purple-300">
+                          {selectedAppRank.recommendation.replace("_", " ")}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Transparent Score Factor Breakdown Bar */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-white/5 text-[11px]">
+                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/20 text-zinc-300">
+                      <span>{isAr ? "تطابق المهارات:" : "Skills Match:"}</span>
+                      <strong className="text-emerald-400">{selectedAppRank.scoreBreakdown.skillsMatch}/40</strong>
+                    </div>
+                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/20 text-zinc-300">
+                      <span>{isAr ? "سنوات الخبرة:" : "Experience:"}</span>
+                      <strong className="text-blue-400">{selectedAppRank.scoreBreakdown.experienceScore}/30</strong>
+                    </div>
+                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/20 text-zinc-300">
+                      <span>{isAr ? "مرحلة التقييم:" : "Stage Level:"}</span>
+                      <strong className="text-purple-400">{selectedAppRank.scoreBreakdown.stageProgressScore}/20</strong>
+                    </div>
+                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/20 text-zinc-300">
+                      <span>{isAr ? "اكتمال الملف:" : "Profile Data:"}</span>
+                      <strong className="text-amber-400">{selectedAppRank.scoreBreakdown.completenessScore}/10</strong>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Contact Info */}
               <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-surface-hover border border-border-default">
@@ -687,6 +917,15 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
           </div>
         </div>
       )}
+
+      {/* In-browser CV Document Preview Modal */}
+      <CvPreviewModal
+        isOpen={Boolean(previewModalCandidate)}
+        onClose={() => setPreviewModalCandidate(null)}
+        candidate={previewModalCandidate}
+        rankingInfo={previewModalCandidate ? rankingsMap.get(previewModalCandidate.id) : null}
+        locale={locale}
+      />
     </DashboardPageShell>
   );
 }

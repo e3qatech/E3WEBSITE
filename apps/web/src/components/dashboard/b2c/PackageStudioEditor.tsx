@@ -26,6 +26,7 @@ import {
   Upload,
   ArrowUp,
   ArrowDown,
+  LayoutTemplate,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { PackageMediaUploader } from "@/components/dashboard/b2c/PackageMediaUploader";
@@ -462,6 +463,7 @@ export function PackageStudioEditor({
 
       const payload = {
         ...formRest,
+        isTemplate: Boolean(form.isTemplate),
         categoryId: form.categoryId?.trim() ? form.categoryId.trim() : undefined,
         category: form.category || "BIRTHDAY",
         startingPrice: startingPriceNum,
@@ -511,12 +513,45 @@ export function PackageStudioEditor({
             {isAr ? "رجوع للقائمة" : "Back to Catalogue"}
           </Button>
           <div>
-            <h2 className="text-lg font-black font-display text-[var(--text-primary)]">
-              {isEdit
-                ? (isAr ? `تعديل الباقة: ${form.titleAr || form.titleEn}` : `Edit Package: ${form.titleEn}`)
-                : (isAr ? "إنشاء باقة تجربة جديدة" : "Create New Experience Package")}
+            <h2 className="text-lg font-black font-display text-[var(--text-primary)] flex items-center gap-2.5">
+              <span>
+                {form.isTemplate
+                  ? (isAr ? `قالب باقة: ${form.titleAr || form.titleEn || "قالب جديد"}` : `Package Template: ${form.titleEn || "New Template Blueprint"}`)
+                  : isEdit
+                  ? (isAr ? `تعديل الباقة: ${form.titleAr || form.titleEn}` : `Edit Package: ${form.titleEn}`)
+                  : (isAr ? "إنشاء باقة تجربة جديدة" : "Create New Experience Package")}
+              </span>
+              {form.isTemplate && (
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/30">
+                  {isAr ? "قالب معتمد" : "TEMPLATE BLUEPRINT"}
+                </span>
+              )}
             </h2>
-            <div className="flex items-center gap-2 mt-0.5">
+            <div className="flex items-center gap-3 mt-1 flex-wrap">
+              <label className={cn(
+                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold cursor-pointer transition-colors border select-none",
+                form.isTemplate
+                  ? "bg-purple-500/15 border-purple-500/40 text-purple-400"
+                  : "bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              )}>
+                <input
+                  type="checkbox"
+                  checked={form.isTemplate}
+                  onChange={(e) => {
+                    const isTmpl = e.target.checked;
+                    setForm({
+                      ...form,
+                      isTemplate: isTmpl,
+                      packageType: isTmpl ? "CUSTOM_TEMPLATE" : (form.packageType === "CUSTOM_TEMPLATE" ? "READY_TO_BOOK" : form.packageType),
+                      status: isTmpl ? "DRAFT" : form.status
+                    });
+                  }}
+                  className="rounded text-purple-600 focus:ring-purple-500 sr-only"
+                />
+                <LayoutTemplate className="w-3.5 h-3.5" />
+                <span>{form.isTemplate ? (isAr ? "قالب معتمد في المكتبة ✓" : "Saved as Template Blueprint ✓") : (isAr ? "حفظ كقالب في المكتبة" : "Save as Reusable Template")}</span>
+              </label>
+
               <span className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
                 {completionPercent}% {isAr ? "مكتمل" : "Complete"}
               </span>
@@ -697,27 +732,43 @@ export function PackageStudioEditor({
                   value={form.categoryId || form.category}
                   onChange={(e) => {
                     const val = e.target.value;
-                    const selectedCat = categories.find((c) => c.id === val || c.slug === val.toLowerCase());
+                    const selectedCat = categories.find(
+                      (c) =>
+                        c.id === val ||
+                        c.slug?.toLowerCase() === val.toLowerCase() ||
+                        (val === "BIRTHDAY" && c.slug === "celebrate") ||
+                        (val === "SCHOOL" && c.slug === "learn-explore") ||
+                        (val === "GROUP" && c.slug === "play-together") ||
+                        (val === "CORPORATE" && c.slug === "corporate") ||
+                        (val === "EVENTS" && c.slug === "events") ||
+                        (val === "SEASONAL" && c.slug === "seasonal") ||
+                        (val === "CUSTOM" && c.slug === "custom")
+                    );
                     setForm({
                       ...form,
-                      categoryId: selectedCat ? selectedCat.id : "",
+                      categoryId: selectedCat ? selectedCat.id : (val.length > 20 ? val : ""),
                       category: selectedCat ? (selectedCat.slug?.toUpperCase() || val) : val,
                     });
                   }}
                   className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] cursor-pointer"
                 >
-                  <option value="BIRTHDAY">Celebrate / أعياد الميلاد</option>
-                  <option value="SCHOOL">Learn & Explore / المدارس والتعليم</option>
-                  <option value="GROUP">Play Together / المجموعات</option>
-                  <option value="CORPORATE">Corporate / الشركات</option>
-                  <option value="EVENTS">Events & Buyouts / الفعاليات</option>
-                  <option value="SEASONAL">Seasonal / الباقات الموسمية</option>
-                  <option value="CUSTOM">Custom / تجارب حسب الطلب</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nameEn} ({c.nameAr})
-                    </option>
-                  ))}
+                  {categories.length > 0 ? (
+                    categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.nameEn} {c.nameAr ? `(${c.nameAr})` : ""}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="BIRTHDAY">Celebrate / أعياد الميلاد</option>
+                      <option value="SCHOOL">Learn & Explore / المدارس والتعليم</option>
+                      <option value="GROUP">Play Together / المجموعات</option>
+                      <option value="CORPORATE">Corporate / الشركات</option>
+                      <option value="EVENTS">Events & Buyouts / الفعاليات</option>
+                      <option value="SEASONAL">Seasonal / الباقات الموسمية</option>
+                      <option value="CUSTOM">Custom / تجارب حسب الطلب</option>
+                    </>
+                  )}
                 </select>
               </div>
 

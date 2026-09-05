@@ -24,6 +24,15 @@ export function isHRAuthorized(
   if (!userRole) return false;
   const cleanRole = String(userRole).trim().toUpperCase();
 
+  if (
+    cleanRole === 'HR' ||
+    cleanRole === 'HR_ADMIN' ||
+    cleanRole === 'SUPER_ADMIN' ||
+    cleanRole === 'ADMIN'
+  ) {
+    return true;
+  }
+
   // 1. Explicit user permissions override (e.g. from user session or database token)
   if (Array.isArray(userPermissions)) {
     if (

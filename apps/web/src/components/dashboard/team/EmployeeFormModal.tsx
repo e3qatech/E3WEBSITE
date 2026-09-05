@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -8,14 +8,454 @@ import {
   Loader2,
   User,
   Image as ImageIcon,
-  Code,
+  Briefcase,
   Globe,
   Sliders,
-  AlertCircle,
+  X,
+  Plus,
+  Trash2,
+  Award,
+  GraduationCap,
+  ShieldCheck,
 } from "lucide-react";
 import { MediaUploader } from "@/components/shared/MediaUploader";
 
-type Tab = "basic" | "arabic" | "media" | "advanced" | "publication";
+type Tab = "basic" | "arabic" | "media" | "skills" | "publication";
+
+function ensureArray<T = any>(val: any): T[] {
+  if (Array.isArray(val)) return val;
+  if (typeof val === "string" && val.trim()) {
+    try {
+      const parsed = JSON.parse(val);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+/**
+ * Interactive Chip / Tag Input Component (replaces raw JSON array textareas)
+ */
+function TagChipInput({
+  label,
+  tags,
+  onChange,
+  placeholder,
+  dir = "ltr",
+}: {
+  label: string;
+  tags: string[];
+  onChange: (tags: string[]) => void;
+  placeholder?: string;
+  dir?: "ltr" | "rtl";
+}) {
+  const [inputVal, setInputVal] = useState("");
+
+  const handleAdd = () => {
+    const trimmed = inputVal.trim();
+    if (!trimmed) return;
+    if (!tags.includes(trimmed)) {
+      onChange([...tags, trimmed]);
+    }
+    setInputVal("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      handleAdd();
+    }
+  };
+
+  const handleRemove = (index: number) => {
+    onChange(tags.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className={`block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] ${dir === "rtl" ? "text-end font-arabic" : ""}`}>
+        {label}
+      </label>
+      <div className="flex flex-wrap gap-1.5 p-2 min-h-[44px] rounded-xl border border-[var(--border-level-1)] bg-[var(--surface-default)]">
+        {tags.map((tag, idx) => (
+          <span
+            key={idx}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs font-medium text-[var(--text-primary)]"
+          >
+            <span>{tag}</span>
+            <button
+              type="button"
+              onClick={() => handleRemove(idx)}
+              className="text-[var(--text-tertiary)] hover:text-rose-400 p-0.5 cursor-pointer"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </span>
+        ))}
+        <div className="flex-1 min-w-[150px] flex items-center gap-1">
+          <input
+            type="text"
+            value={inputVal}
+            onChange={(e) => setInputVal(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder || (dir === "rtl" ? "اكتب واضغط Enter..." : "Type and press Enter...")}
+            dir={dir}
+            className="w-full px-2 py-1 text-xs bg-transparent text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none"
+          />
+          {inputVal.trim() && (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-[var(--color-primary)] text-white shrink-0 cursor-pointer"
+            >
+              {dir === "rtl" ? "إضافة" : "Add"}
+            </button>
+          )}
+        </div>
+      </div>
+      <p className={`text-[10px] text-[var(--text-tertiary)] ${dir === "rtl" ? "text-end font-arabic" : ""}`}>
+        {dir === "rtl" ? "اضغط Enter أو فاصلة لإضافة الوسم الجديد" : "Press Enter or comma to add each item"}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Structured Experience Timeline Repeater
+ */
+function TimelineRepeater({
+  label,
+  items,
+  onChange,
+  dir = "ltr",
+}: {
+  label: string;
+  items: Array<{ role?: string; company?: string; period?: string; description?: string }>;
+  onChange: (items: any[]) => void;
+  dir?: "ltr" | "rtl";
+}) {
+  const addItem = () => {
+    onChange([...items, { role: "", company: "", period: "", description: "" }]);
+  };
+
+  const updateItem = (index: number, field: string, value: string) => {
+    onChange(items.map((it, i) => (i === index ? { ...it, [field]: value } : it)));
+  };
+
+  const removeItem = (index: number) => {
+    onChange(items.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <label className={`block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] ${dir === "rtl" ? "text-end font-arabic" : ""}`}>
+          {label} ({items.length})
+        </label>
+        <button
+          type="button"
+          onClick={addItem}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-colors cursor-pointer"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          <span>{dir === "rtl" ? "إضافة خبرة +" : "+ Add Role"}</span>
+        </button>
+      </div>
+
+      {items.length === 0 ? (
+        <div className={`p-4 rounded-xl border border-dashed border-[var(--border-level-2)] bg-[var(--surface-hover)]/20 text-center text-xs text-[var(--text-tertiary)] ${dir === "rtl" ? "font-arabic" : ""}`}>
+          {dir === "rtl" ? "لا توجد خبرات مسجلة. اضغط 'إضافة خبرة +' لإضافة منصب." : "No experience history added yet. Click '+ Add Role' to begin."}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {items.map((item, idx) => (
+            <div key={idx} className="p-3.5 rounded-2xl border border-[var(--border-level-2)] bg-[var(--surface-hover)]/30 space-y-2.5">
+              <div className="flex items-center justify-between pb-1 border-b border-[var(--border-level-1)]">
+                <span className="text-xs font-mono font-bold text-[var(--text-secondary)]">
+                  #{idx + 1} {dir === "rtl" ? "الخبرة والمنصب" : "Experience Record"}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeItem(idx)}
+                  className="text-[var(--text-tertiary)] hover:text-rose-400 p-1 transition-colors cursor-pointer"
+                  title="Remove"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div>
+                  <label className="text-[10px] font-mono text-[var(--text-tertiary)] block mb-1">
+                    {dir === "rtl" ? "المسمى الوظيفي" : "Role / Title"}
+                  </label>
+                  <input
+                    type="text"
+                    value={item.role || (item as any).title || ""}
+                    onChange={(e) => updateItem(idx, "role", e.target.value)}
+                    dir={dir}
+                    className="w-full px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-xs text-[var(--text-primary)]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-mono text-[var(--text-tertiary)] block mb-1">
+                    {dir === "rtl" ? "الجهة / المؤسسة" : "Company / Entity"}
+                  </label>
+                  <input
+                    type="text"
+                    value={item.company || ""}
+                    onChange={(e) => updateItem(idx, "company", e.target.value)}
+                    dir={dir}
+                    className="w-full px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-xs text-[var(--text-primary)]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-mono text-[var(--text-tertiary)] block mb-1">
+                    {dir === "rtl" ? "الفترة الزمنية" : "Period (e.g. 2021 - Present)"}
+                  </label>
+                  <input
+                    type="text"
+                    value={item.period || (item as any).year || ""}
+                    onChange={(e) => updateItem(idx, "period", e.target.value)}
+                    dir={dir}
+                    className="w-full px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-xs text-[var(--text-primary)]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-mono text-[var(--text-tertiary)] block mb-1">
+                  {dir === "rtl" ? "ملخص المسؤوليات والإنجازات" : "Responsibilities & Scope"}
+                </label>
+                <textarea
+                  rows={2}
+                  value={item.description || ""}
+                  onChange={(e) => updateItem(idx, "description", e.target.value)}
+                  dir={dir}
+                  className="w-full px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-xs text-[var(--text-primary)]"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Structured Projects Portfolio Repeater
+ */
+function ProjectsRepeater({
+  label,
+  items,
+  onChange,
+  dir = "ltr",
+}: {
+  label: string;
+  items: Array<{ title?: string; client?: string; year?: string; description?: string }>;
+  onChange: (items: any[]) => void;
+  dir?: "ltr" | "rtl";
+}) {
+  const addItem = () => {
+    onChange([...items, { title: "", client: "", year: "", description: "" }]);
+  };
+
+  const updateItem = (index: number, field: string, value: string) => {
+    onChange(items.map((it, i) => (i === index ? { ...it, [field]: value } : it)));
+  };
+
+  const removeItem = (index: number) => {
+    onChange(items.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <label className={`block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] ${dir === "rtl" ? "text-end font-arabic" : ""}`}>
+          {label} ({items.length})
+        </label>
+        <button
+          type="button"
+          onClick={addItem}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-colors cursor-pointer"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          <span>{dir === "rtl" ? "إضافة مشروع +" : "+ Add Project"}</span>
+        </button>
+      </div>
+
+      {items.length === 0 ? (
+        <div className={`p-4 rounded-xl border border-dashed border-[var(--border-level-2)] bg-[var(--surface-hover)]/20 text-center text-xs text-[var(--text-tertiary)] ${dir === "rtl" ? "font-arabic" : ""}`}>
+          {dir === "rtl" ? "لا توجد مشاريع مضافة. اضغط 'إضافة مشروع +' لإدخال إنجاز." : "No project items added yet. Click '+ Add Project' to begin."}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {items.map((item, idx) => (
+            <div key={idx} className="p-3.5 rounded-2xl border border-[var(--border-level-2)] bg-[var(--surface-hover)]/30 space-y-2.5">
+              <div className="flex items-center justify-between pb-1 border-b border-[var(--border-level-1)]">
+                <span className="text-xs font-mono font-bold text-[var(--text-secondary)]">
+                  #{idx + 1} {dir === "rtl" ? "مشروع / فعالية" : "Project"}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeItem(idx)}
+                  className="text-[var(--text-tertiary)] hover:text-rose-400 p-1 transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div>
+                  <label className="text-[10px] font-mono text-[var(--text-tertiary)] block mb-1">
+                    {dir === "rtl" ? "اسم المشروع" : "Project Name"}
+                  </label>
+                  <input
+                    type="text"
+                    value={item.title || ""}
+                    onChange={(e) => updateItem(idx, "title", e.target.value)}
+                    dir={dir}
+                    className="w-full px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-xs text-[var(--text-primary)]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-mono text-[var(--text-tertiary)] block mb-1">
+                    {dir === "rtl" ? "العميل أو الوجهة" : "Client / Venue / Scope"}
+                  </label>
+                  <input
+                    type="text"
+                    value={item.client || ""}
+                    onChange={(e) => updateItem(idx, "client", e.target.value)}
+                    dir={dir}
+                    className="w-full px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-xs text-[var(--text-primary)]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-mono text-[var(--text-tertiary)] block mb-1">
+                    {dir === "rtl" ? "سنة الإنجاز" : "Year (e.g. 2024)"}
+                  </label>
+                  <input
+                    type="text"
+                    value={item.year || ""}
+                    onChange={(e) => updateItem(idx, "year", e.target.value)}
+                    dir={dir}
+                    className="w-full px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-xs text-[var(--text-primary)]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-mono text-[var(--text-tertiary)] block mb-1">
+                  {dir === "rtl" ? "تفاصيل الدور والمخرجات" : "Key Deliverables & Responsibilities"}
+                </label>
+                <textarea
+                  rows={2}
+                  value={item.description || ""}
+                  onChange={(e) => updateItem(idx, "description", e.target.value)}
+                  dir={dir}
+                  className="w-full px-3 py-1.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-default)] text-xs text-[var(--text-primary)]"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Structured Education / Certification / Awards Repeater
+ */
+function GenericItemRepeater({
+  label,
+  items,
+  onChange,
+  field1Placeholder = "Title / Degree",
+  field2Placeholder = "Institution / Organization",
+  field3Placeholder = "Year",
+}: {
+  label: string;
+  items: Array<{ title?: string; institution?: string; year?: string }>;
+  onChange: (items: any[]) => void;
+  field1Placeholder?: string;
+  field2Placeholder?: string;
+  field3Placeholder?: string;
+}) {
+  const addItem = () => {
+    onChange([...items, { title: "", institution: "", year: "" }]);
+  };
+
+  const updateItem = (index: number, field: string, value: string) => {
+    onChange(items.map((it, i) => (i === index ? { ...it, [field]: value } : it)));
+  };
+
+  const removeItem = (index: number) => {
+    onChange(items.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)]">
+          {label} ({items.length})
+        </label>
+        <button
+          type="button"
+          onClick={addItem}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-colors cursor-pointer"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          <span>+ Add Item</span>
+        </button>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="p-3.5 rounded-xl border border-dashed border-[var(--border-level-2)] bg-[var(--surface-hover)]/20 text-center text-xs text-[var(--text-tertiary)]">
+          No entries added yet.
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {items.map((item, idx) => (
+            <div key={idx} className="p-2.5 rounded-xl border border-[var(--border-level-2)] bg-[var(--surface-hover)]/30 flex items-center gap-2">
+              <input
+                type="text"
+                placeholder={field1Placeholder}
+                value={item.title || (item as any).degree || (item as any).certificate || ""}
+                onChange={(e) => updateItem(idx, "title", e.target.value)}
+                className="flex-1 px-2.5 py-1.5 rounded-lg border border-[var(--border-level-2)] bg-[var(--surface-default)] text-xs text-[var(--text-primary)]"
+              />
+              <input
+                type="text"
+                placeholder={field2Placeholder}
+                value={item.institution || (item as any).issuer || (item as any).organization || ""}
+                onChange={(e) => updateItem(idx, "institution", e.target.value)}
+                className="flex-1 px-2.5 py-1.5 rounded-lg border border-[var(--border-level-2)] bg-[var(--surface-default)] text-xs text-[var(--text-primary)]"
+              />
+              <input
+                type="text"
+                placeholder={field3Placeholder}
+                value={item.year || ""}
+                onChange={(e) => updateItem(idx, "year", e.target.value)}
+                className="w-24 px-2.5 py-1.5 rounded-lg border border-[var(--border-level-2)] bg-[var(--surface-default)] text-xs text-[var(--text-primary)]"
+              />
+              <button
+                type="button"
+                onClick={() => removeItem(idx)}
+                className="text-[var(--text-tertiary)] hover:text-rose-400 p-1 transition-colors cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function EmployeeFormModal({
   isOpen,
@@ -30,7 +470,6 @@ export function EmployeeFormModal({
 }) {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("basic");
-  const [jsonErrors, setJsonErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     // English Basic
@@ -54,10 +493,10 @@ export function EmployeeFormModal({
     aboutSummaryAr: "",
     careerJourneyAr: "",
     keyStrengthsAr: "",
-    expertiseTagsAr: "[]",
-    experienceAr: "[]",
-    projectsAr: "[]",
-    coreCompetenciesAr: "[]",
+    expertiseTagsAr: [] as string[],
+    experienceAr: [] as any[],
+    projectsAr: [] as any[],
+    coreCompetenciesAr: [] as string[],
 
     // Media & Prose
     profileImage: "",
@@ -66,17 +505,14 @@ export function EmployeeFormModal({
     careerJourney: "",
     keyStrengths: "",
 
-    // English Advanced JSON Data
-    expertiseTags: "[]",
-    coreCompetencies: "[]",
-    experience: "[]",
-    projects: "[]",
-    certifications: "[]",
-    education: "[]",
-    awards: "[]",
-    skillsMatrix: "[]",
-    mediaGallery: "[]",
-    testimonials: "[]",
+    // English Structured Skills & Experience (Zero JSON textareas!)
+    expertiseTags: [] as string[],
+    coreCompetencies: [] as string[],
+    experience: [] as any[],
+    projects: [] as any[],
+    certifications: [] as any[],
+    education: [] as any[],
+    awards: [] as any[],
 
     // Publication Controls
     isActive: true,
@@ -108,10 +544,10 @@ export function EmployeeFormModal({
         aboutSummaryAr: employee.aboutSummaryAr || "",
         careerJourneyAr: employee.careerJourneyAr || "",
         keyStrengthsAr: employee.keyStrengthsAr || "",
-        expertiseTagsAr: JSON.stringify(employee.expertiseTagsAr || [], null, 2),
-        experienceAr: JSON.stringify(employee.experienceAr || [], null, 2),
-        projectsAr: JSON.stringify(employee.projectsAr || [], null, 2),
-        coreCompetenciesAr: JSON.stringify(employee.coreCompetenciesAr || [], null, 2),
+        expertiseTagsAr: ensureArray<string>(employee.expertiseTagsAr),
+        experienceAr: ensureArray(employee.experienceAr),
+        projectsAr: ensureArray(employee.projectsAr),
+        coreCompetenciesAr: ensureArray<string>(employee.coreCompetenciesAr),
 
         profileImage: employee.profileImage || "",
         tagline: employee.tagline || "",
@@ -119,16 +555,13 @@ export function EmployeeFormModal({
         careerJourney: employee.careerJourney || "",
         keyStrengths: employee.keyStrengths || "",
 
-        expertiseTags: JSON.stringify(employee.expertiseTags || [], null, 2),
-        coreCompetencies: JSON.stringify(employee.coreCompetencies || [], null, 2),
-        experience: JSON.stringify(employee.experience || [], null, 2),
-        projects: JSON.stringify(employee.projects || [], null, 2),
-        certifications: JSON.stringify(employee.certifications || [], null, 2),
-        education: JSON.stringify(employee.education || [], null, 2),
-        awards: JSON.stringify(employee.awards || [], null, 2),
-        skillsMatrix: JSON.stringify(employee.skillsMatrix || [], null, 2),
-        mediaGallery: JSON.stringify(employee.mediaGallery || [], null, 2),
-        testimonials: JSON.stringify(employee.testimonials || [], null, 2),
+        expertiseTags: ensureArray<string>(employee.expertiseTags),
+        coreCompetencies: ensureArray<string>(employee.coreCompetencies),
+        experience: ensureArray(employee.experience),
+        projects: ensureArray(employee.projects),
+        certifications: ensureArray(employee.certifications),
+        education: ensureArray(employee.education),
+        awards: ensureArray(employee.awards),
 
         isActive: employee.isActive !== undefined ? Boolean(employee.isActive) : true,
         showOnTeamPage: employee.showOnTeamPage !== undefined ? Boolean(employee.showOnTeamPage) : true,
@@ -157,10 +590,10 @@ export function EmployeeFormModal({
         aboutSummaryAr: "",
         careerJourneyAr: "",
         keyStrengthsAr: "",
-        expertiseTagsAr: "[]",
-        experienceAr: "[]",
-        projectsAr: "[]",
-        coreCompetenciesAr: "[]",
+        expertiseTagsAr: [],
+        experienceAr: [],
+        projectsAr: [],
+        coreCompetenciesAr: [],
 
         profileImage: "",
         tagline: "",
@@ -168,16 +601,13 @@ export function EmployeeFormModal({
         careerJourney: "",
         keyStrengths: "",
 
-        expertiseTags: "[]",
-        coreCompetencies: "[]",
-        experience: "[]",
-        projects: "[]",
-        certifications: "[]",
-        education: "[]",
-        awards: "[]",
-        skillsMatrix: "[]",
-        mediaGallery: "[]",
-        testimonials: "[]",
+        expertiseTags: [],
+        coreCompetencies: [],
+        experience: [],
+        projects: [],
+        certifications: [],
+        education: [],
+        awards: [],
 
         isActive: true,
         showOnTeamPage: true,
@@ -186,40 +616,13 @@ export function EmployeeFormModal({
         displayOrder: 0,
       });
     }
-    setJsonErrors({});
-    setActiveTab("basic");
-  }, [employee, isOpen]);
-
-  const validateJsonField = (name: string, value: string) => {
-    try {
-      if (!value.trim()) return;
-      JSON.parse(value);
-      setJsonErrors((prev) => {
-        const copy = { ...prev };
-        delete copy[name];
-        return copy;
-      });
-    } catch (e: any) {
-      setJsonErrors((prev) => ({
-        ...prev,
-        [name]: e.message || "Invalid JSON format",
-      }));
-    }
-  };
+  }, [employee]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const parseJsonSafely = (str: string, fieldName: string) => {
-        try {
-          return str.trim() ? JSON.parse(str) : [];
-        } catch {
-          throw new Error(`Invalid JSON in field: ${fieldName}`);
-        }
-      };
-
       const payload = {
         slug: formData.slug?.trim(),
         firstName: formData.firstName,
@@ -252,23 +655,19 @@ export function EmployeeFormModal({
         showOnTeamPage: Boolean(formData.showOnTeamPage),
         isFeatured: Boolean(formData.isFeatured),
 
-        // Parse English JSON
-        expertiseTags: parseJsonSafely(formData.expertiseTags, "Expertise Tags (EN)"),
-        coreCompetencies: parseJsonSafely(formData.coreCompetencies, "Core Competencies (EN)"),
-        experience: parseJsonSafely(formData.experience, "Experience (EN)"),
-        projects: parseJsonSafely(formData.projects, "Projects (EN)"),
-        certifications: parseJsonSafely(formData.certifications, "Certifications (EN)"),
-        education: parseJsonSafely(formData.education, "Education (EN)"),
-        awards: parseJsonSafely(formData.awards, "Awards (EN)"),
-        skillsMatrix: parseJsonSafely(formData.skillsMatrix, "Skills Matrix (EN)"),
-        mediaGallery: parseJsonSafely(formData.mediaGallery, "Media Gallery (EN)"),
-        testimonials: parseJsonSafely(formData.testimonials, "Testimonials (EN)"),
+        // Clean arrays passed directly without raw JSON stringification!
+        expertiseTags: formData.expertiseTags,
+        coreCompetencies: formData.coreCompetencies,
+        experience: formData.experience,
+        projects: formData.projects,
+        certifications: formData.certifications,
+        education: formData.education,
+        awards: formData.awards,
 
-        // Parse Arabic JSON
-        expertiseTagsAr: parseJsonSafely(formData.expertiseTagsAr, "Expertise Tags (AR)"),
-        coreCompetenciesAr: parseJsonSafely(formData.coreCompetenciesAr, "Core Competencies (AR)"),
-        experienceAr: parseJsonSafely(formData.experienceAr, "Experience (AR)"),
-        projectsAr: parseJsonSafely(formData.projectsAr, "Projects (AR)"),
+        expertiseTagsAr: formData.expertiseTagsAr,
+        coreCompetenciesAr: formData.coreCompetenciesAr,
+        experienceAr: formData.experienceAr,
+        projectsAr: formData.projectsAr,
       };
 
       const endpoint = employee ? `/api/team?id=${employee.id}` : `/api/team`;
@@ -289,7 +688,7 @@ export function EmployeeFormModal({
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "Submission failed. Please check your JSON syntax.");
+      alert(err.message || "Failed to save profile. Please check form fields.");
     } finally {
       setLoading(false);
     }
@@ -352,14 +751,14 @@ export function EmployeeFormModal({
 
           <button
             type="button"
-            onClick={() => setActiveTab("advanced")}
+            onClick={() => setActiveTab("skills")}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === "advanced"
+              activeTab === "skills"
                 ? "bg-[var(--color-primary)] text-white shadow-sm"
                 : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
             }`}
           >
-            <Code className="w-4 h-4" /> Advanced JSON
+            <Briefcase className="w-4 h-4" /> Skills & Roles
           </button>
 
           <button
@@ -371,22 +770,19 @@ export function EmployeeFormModal({
                 : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
             }`}
           >
-            <Sliders className="w-4 h-4" /> Publication Controls
+            <Sliders className="w-4 h-4" /> Visibility & Order
           </button>
         </div>
 
-        {/* Form Content */}
-        <form
-          onSubmit={handleSubmit}
-          className="flex-1 flex flex-col h-full overflow-hidden relative"
-        >
-          <div className="flex-1 overflow-y-auto p-6 md:p-8">
-            {/* 1. Basic Info (English) */}
+        {/* Content Pane */}
+        <div className="flex-1 p-6 overflow-y-auto max-h-[85vh]">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* 1. Basic Info */}
             {activeTab === "basic" && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">
                       First Name (EN) *
                     </label>
                     <Input
@@ -395,11 +791,11 @@ export function EmployeeFormModal({
                       onChange={(e) =>
                         setFormData({ ...formData, firstName: e.target.value })
                       }
-                      className="w-full"
+                      placeholder="e.g. Adil"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">
                       Last Name (EN) *
                     </label>
                     <Input
@@ -408,15 +804,15 @@ export function EmployeeFormModal({
                       onChange={(e) =>
                         setFormData({ ...formData, lastName: e.target.value })
                       }
-                      className="w-full"
+                      placeholder="e.g. Ahmed"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
-                      Slug (URL) *
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">
+                      URL Slug *
                     </label>
                     <Input
                       required
@@ -424,69 +820,16 @@ export function EmployeeFormModal({
                       onChange={(e) =>
                         setFormData({ ...formData, slug: e.target.value })
                       }
-                      placeholder="e.g. adil-ahmed"
-                      className="w-full font-mono text-sm"
+                      placeholder="adil-ahmed"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
-                      Department (EN) *
-                    </label>
-                    <Input
-                      required
-                      value={formData.department}
-                      onChange={(e) =>
-                        setFormData({ ...formData, department: e.target.value })
-                      }
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
-                      Designation (EN) *
-                    </label>
-                    <Input
-                      required
-                      value={formData.designation}
-                      onChange={(e) =>
-                        setFormData({ ...formData, designation: e.target.value })
-                      }
-                      className="w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
-                      Presentation Group (Public Navigator)
-                    </label>
-                    <select
-                      value={formData.presentationGroup || ""}
-                      onChange={(e) =>
-                        setFormData({ ...formData, presentationGroup: e.target.value })
-                      }
-                      className="w-full bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-medium"
-                    >
-                      <option value="">Auto-resolve (Safe Deterministic Fallback)</option>
-                      <option value="direction">01. Direction — Leadership & Strategy (التوجيه)</option>
-                      <option value="imagine">02. Imagine — Creative, Brand & Growth (الابتكار)</option>
-                      <option value="plan">03. Plan — Projects & Events (التخطيط)</option>
-                      <option value="amplify">04. Amplify — Technology & Systems (التطوير)</option>
-                      <option value="build">05. Build — Production & Logistics (التنفيذ)</option>
-                      <option value="operate">06. Operate — Operations & Guest Experience (التشغيل)</option>
-                      <option value="corporate-enablement">07. Corporate Enablement (التمكين المؤسسي)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">
                       Years of Experience
                     </label>
                     <Input
                       type="number"
+                      min={0}
                       value={formData.yearsOfExperience}
                       onChange={(e) =>
                         setFormData({
@@ -494,28 +837,56 @@ export function EmployeeFormModal({
                           yearsOfExperience: parseInt(e.target.value) || 0,
                         })
                       }
-                      className="w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
-                      LinkedIn URL
-                    </label>
-                    <Input
-                      value={formData.linkedinUrl}
-                      onChange={(e) =>
-                        setFormData({ ...formData, linkedinUrl: e.target.value })
-                      }
-                      className="w-full font-mono text-sm"
-                      placeholder="https://linkedin.com/in/..."
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
-                      Contact Email
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">
+                      Designation / Role Title *
+                    </label>
+                    <Input
+                      required
+                      value={formData.designation}
+                      onChange={(e) =>
+                        setFormData({ ...formData, designation: e.target.value })
+                      }
+                      placeholder="Managing Director & Founder"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">
+                      Department *
+                    </label>
+                    <Input
+                      required
+                      value={formData.department}
+                      onChange={(e) =>
+                        setFormData({ ...formData, department: e.target.value })
+                      }
+                      placeholder="Leadership & Strategy"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">
+                      LinkedIn URL
+                    </label>
+                    <Input
+                      type="url"
+                      value={formData.linkedinUrl}
+                      onChange={(e) =>
+                        setFormData({ ...formData, linkedinUrl: e.target.value })
+                      }
+                      placeholder="https://linkedin.com/in/..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">
+                      Internal Contact Email
                     </label>
                     <Input
                       type="email"
@@ -523,85 +894,87 @@ export function EmployeeFormModal({
                       onChange={(e) =>
                         setFormData({ ...formData, contactEmail: e.target.value })
                       }
-                      className="w-full"
-                      placeholder="email@example.com"
+                      placeholder="adil@e3.qa"
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* 2. Arabic Content (RTL) */}
+            {/* 2. Arabic Localization */}
             {activeTab === "arabic" && (
               <div className="space-y-6" dir="rtl">
-                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-2">
-                  <Globe className="w-4 h-4 shrink-0" />
-                  <span>
-                    محرر المحتوى باللغة العربية. يتم تطبيق هذه البيانات في واجهات /ar/b2b/team بدقة وبدون أي نصوص إنجليزية.
-                  </span>
+                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+                  <p className="font-bold mb-1 font-arabic">التعريب والبيانات العربية المعتمدة</p>
+                  <p className="font-arabic">
+                    البيانات هنا تعرض مباشرة للزوار عند تصفح الموقع باللغة العربية مع دعم الخطوط والاتجاهات الصحيحة.
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 text-end">
-                      الاسم الأول بالعربية (First Name AR)
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1 font-arabic text-end">
+                      الاسم الأول (بالعربية)
                     </label>
                     <Input
                       value={formData.firstNameAr}
                       onChange={(e) =>
                         setFormData({ ...formData, firstNameAr: e.target.value })
                       }
-                      className="w-full text-end font-arabic"
-                      placeholder="مثال: عادل"
+                      placeholder="عادل"
+                      className="text-end font-arabic"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 text-end">
-                      اسم العائلة بالعربية (Last Name AR)
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1 font-arabic text-end">
+                      اسم العائلة (بالعربية)
                     </label>
                     <Input
                       value={formData.lastNameAr}
                       onChange={(e) =>
                         setFormData({ ...formData, lastNameAr: e.target.value })
                       }
-                      className="w-full text-end font-arabic"
-                      placeholder="مثال: أحمد"
+                      placeholder="أحمد"
+                      className="text-end font-arabic"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 text-end">
-                      المسمى الوظيفي بالعربية (Designation AR)
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1 font-arabic text-end">
+                      المسمى الوظيفي (بالعربية)
                     </label>
                     <Input
                       value={formData.designationAr}
                       onChange={(e) =>
-                        setFormData({ ...formData, designationAr: e.target.value })
+                        setFormData({
+                          ...formData,
+                          designationAr: e.target.value,
+                        })
                       }
-                      className="w-full text-end font-arabic"
-                      placeholder="مثال: الرئيس التنفيذي والعضو المنتدب"
+                      placeholder="المدير التنفيذي والمؤسس"
+                      className="text-end font-arabic"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 text-end">
-                      القسم بالعربية (Department AR)
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1 font-arabic text-end">
+                      القسم الإداري (بالعربية)
                     </label>
                     <Input
                       value={formData.departmentAr}
                       onChange={(e) =>
                         setFormData({ ...formData, departmentAr: e.target.value })
                       }
-                      className="w-full text-end font-arabic"
-                      placeholder="مثال: الإدارة التنفيذية"
+                      placeholder="القيادة والاستراتيجية"
+                      className="text-end font-arabic"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 text-end">
-                    شعار الواجهة بالعربية (Hero Tagline AR)
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 font-arabic text-end">
+                    شعار التقديم / Hero Tagline (بالعربية)
                   </label>
                   <Input
                     value={formData.taglineAr}
@@ -612,14 +985,14 @@ export function EmployeeFormModal({
                         heroTaglineAr: e.target.value,
                       })
                     }
-                    className="w-full text-end font-arabic"
-                    placeholder="شعار ملهم وموجز..."
+                    placeholder="قائد رؤيوي بخبرة تزيد عن 20 عاماً في قطاع الترفيه والفعاليات..."
+                    className="text-end font-arabic"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 text-end">
-                    النبذة المهنية بالعربية (About / Bio AR)
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2 font-arabic text-end">
+                    السيرة الذاتية المفصلة (بالعربية)
                   </label>
                   <textarea
                     rows={4}
@@ -632,76 +1005,30 @@ export function EmployeeFormModal({
                   />
                 </div>
 
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] text-end">
-                    هياكل البيانات الإضافية بالعربية (JSON Arrays)
-                  </h4>
+                {/* Structured Arabic Tags (NO JSON!) */}
+                <TagChipInput
+                  label="وسوم الخبرة والتخصص بالعربية"
+                  tags={formData.expertiseTagsAr}
+                  onChange={(tags) => setFormData({ ...formData, expertiseTagsAr: tags })}
+                  placeholder="أدخل تخصصاً واضغط Enter (مثال: إدارة الفعاليات)..."
+                  dir="rtl"
+                />
 
-                  <div>
-                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1 text-end">
-                      وسوم الخبرة بالعربية (Expertise Tags AR JSON)
-                    </label>
-                    <Input
-                      value={formData.expertiseTagsAr}
-                      onChange={(e) => {
-                        setFormData({ ...formData, expertiseTagsAr: e.target.value });
-                        validateJsonField("expertiseTagsAr", e.target.value);
-                      }}
-                      className="w-full font-mono text-xs text-start"
-                      dir="ltr"
-                    />
-                    {jsonErrors.expertiseTagsAr && (
-                      <p className="text-xs text-rose-400 mt-1 flex items-center gap-1 justify-end">
-                        <span>{jsonErrors.expertiseTagsAr}</span>
-                        <AlertCircle className="w-3 h-3" />
-                      </p>
-                    )}
-                  </div>
+                {/* Structured Arabic Experience (NO JSON!) */}
+                <TimelineRepeater
+                  label="المسيرة والخبرات المهنية بالعربية"
+                  items={formData.experienceAr}
+                  onChange={(exp) => setFormData({ ...formData, experienceAr: exp })}
+                  dir="rtl"
+                />
 
-                  <div>
-                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1 text-end">
-                      المسيرة والخبرات المهنية بالعربية (Experience Timeline AR JSON)
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={formData.experienceAr}
-                      onChange={(e) => {
-                        setFormData({ ...formData, experienceAr: e.target.value });
-                        validateJsonField("experienceAr", e.target.value);
-                      }}
-                      className="w-full rounded-xl border border-[var(--border-level-1)] bg-[var(--surface-default)] p-3 font-mono text-xs text-start"
-                      dir="ltr"
-                    />
-                    {jsonErrors.experienceAr && (
-                      <p className="text-xs text-rose-400 mt-1 flex items-center gap-1 justify-end">
-                        <span>{jsonErrors.experienceAr}</span>
-                        <AlertCircle className="w-3 h-3" />
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1 text-end">
-                      سجل المشاريع بالعربية (Projects Portfolio AR JSON)
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={formData.projectsAr}
-                      onChange={(e) => {
-                        setFormData({ ...formData, projectsAr: e.target.value });
-                        validateJsonField("projectsAr", e.target.value);
-                      }}
-                      className="w-full rounded-xl border border-[var(--border-level-1)] bg-[var(--surface-default)] p-3 font-mono text-xs text-start"
-                      dir="ltr"
-                    />
-                    {jsonErrors.projectsAr && (
-                      <p className="text-xs text-rose-400 mt-1 flex items-center gap-1 justify-end">
-                        <span>{jsonErrors.projectsAr}</span>
-                        <AlertCircle className="w-3 h-3" />
-                      </p>
-                    )}
-                  </div>
-                </div>
+                {/* Structured Arabic Projects (NO JSON!) */}
+                <ProjectsRepeater
+                  label="سجل المشاريع والأعمال بالعربية"
+                  items={formData.projectsAr}
+                  onChange={(projs) => setFormData({ ...formData, projectsAr: projs })}
+                  dir="rtl"
+                />
               </div>
             )}
 
@@ -755,77 +1082,78 @@ export function EmployeeFormModal({
               </div>
             )}
 
-            {/* 4. Advanced JSON */}
-            {activeTab === "advanced" && (
+            {/* 4. Skills, Roles & Experience (Zero JSON textareas!) */}
+            {activeTab === "skills" && (
               <div className="space-y-6">
-                <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs">
-                  <p className="font-bold mb-1">English JSON Arrays</p>
-                  <p>
-                    Provide valid JSON array structures. These values represent the canonical English dataset.
-                  </p>
+                <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 shrink-0" />
+                  <div>
+                    <p className="font-bold">Structured Skills & Career Portfolio</p>
+                    <p className="text-[11px] text-purple-300">
+                      Add expertise tags, experience roles, and landmark projects directly using clean form controls without raw JSON syntax.
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
-                    Expertise Tags (EN JSON)
-                  </label>
-                  <Input
-                    value={formData.expertiseTags}
-                    onChange={(e) => {
-                      setFormData({ ...formData, expertiseTags: e.target.value });
-                      validateJsonField("expertiseTags", e.target.value);
-                    }}
-                    className="w-full font-mono text-xs"
-                  />
-                  {jsonErrors.expertiseTags && (
-                    <p className="text-xs text-rose-400 mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>{jsonErrors.expertiseTags}</span>
-                    </p>
-                  )}
-                </div>
+                {/* Expertise Tags (EN) */}
+                <TagChipInput
+                  label="Expertise & Skills Tags (EN)"
+                  tags={formData.expertiseTags}
+                  onChange={(tags) => setFormData({ ...formData, expertiseTags: tags })}
+                  placeholder="Type a skill and press Enter (e.g. Stage Management)..."
+                />
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
-                    Experience Timeline (EN JSON)
-                  </label>
-                  <textarea
-                    rows={3}
-                    className="w-full rounded-xl border border-[var(--border-level-1)] bg-[var(--surface-default)] p-3 font-mono text-xs text-[var(--text-primary)]"
-                    value={formData.experience}
-                    onChange={(e) => {
-                      setFormData({ ...formData, experience: e.target.value });
-                      validateJsonField("experience", e.target.value);
-                    }}
-                  />
-                  {jsonErrors.experience && (
-                    <p className="text-xs text-rose-400 mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>{jsonErrors.experience}</span>
-                    </p>
-                  )}
-                </div>
+                {/* Core Competencies (EN) */}
+                <TagChipInput
+                  label="Core Competencies & Capabilities (EN)"
+                  tags={formData.coreCompetencies}
+                  onChange={(tags) => setFormData({ ...formData, coreCompetencies: tags })}
+                  placeholder="Type competency and press Enter (e.g. Strategic Planning)..."
+                />
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
-                    Projects Portfolio (EN JSON)
-                  </label>
-                  <textarea
-                    rows={3}
-                    className="w-full rounded-xl border border-[var(--border-level-1)] bg-[var(--surface-default)] p-3 font-mono text-xs text-[var(--text-primary)]"
-                    value={formData.projects}
-                    onChange={(e) => {
-                      setFormData({ ...formData, projects: e.target.value });
-                      validateJsonField("projects", e.target.value);
-                    }}
-                  />
-                  {jsonErrors.projects && (
-                    <p className="text-xs text-rose-400 mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>{jsonErrors.projects}</span>
-                    </p>
-                  )}
-                </div>
+                {/* Experience History (EN) */}
+                <TimelineRepeater
+                  label="Professional Experience Timeline (EN)"
+                  items={formData.experience}
+                  onChange={(exp) => setFormData({ ...formData, experience: exp })}
+                />
+
+                {/* Projects Portfolio (EN) */}
+                <ProjectsRepeater
+                  label="Projects & Production Portfolio (EN)"
+                  items={formData.projects}
+                  onChange={(projs) => setFormData({ ...formData, projects: projs })}
+                />
+
+                {/* Education */}
+                <GenericItemRepeater
+                  label="Education Degrees"
+                  items={formData.education}
+                  onChange={(edu) => setFormData({ ...formData, education: edu })}
+                  field1Placeholder="Degree (e.g. B.Sc. Mechanical Engineering)"
+                  field2Placeholder="University / Institution"
+                  field3Placeholder="Year"
+                />
+
+                {/* Certifications */}
+                <GenericItemRepeater
+                  label="Professional Certifications"
+                  items={formData.certifications}
+                  onChange={(certs) => setFormData({ ...formData, certifications: certs })}
+                  field1Placeholder="Certification (e.g. PMP, Rigging Safety)"
+                  field2Placeholder="Issuing Body / Authority"
+                  field3Placeholder="Year"
+                />
+
+                {/* Awards */}
+                <GenericItemRepeater
+                  label="Honors & Industry Awards"
+                  items={formData.awards}
+                  onChange={(awards) => setFormData({ ...formData, awards: awards })}
+                  field1Placeholder="Award Title"
+                  field2Placeholder="Organization"
+                  field3Placeholder="Year"
+                />
               </div>
             )}
 
@@ -863,10 +1191,10 @@ export function EmployeeFormModal({
                   <div className="flex items-center justify-between p-4 rounded-xl border border-[var(--border-level-1)] bg-[var(--surface-hover)]/40">
                     <div>
                       <label htmlFor="showOnTeamPage" className="font-bold text-sm text-[var(--text-primary)] block cursor-pointer">
-                        Show on Public Team Page
+                        Show on Team Directory Page
                       </label>
                       <p className="text-xs text-[var(--text-secondary)]">
-                        Controls visibility on /b2b/team and /b2c/team grids.
+                        Whether this member appears in the public Team Roster.
                       </p>
                     </div>
                     <input
@@ -874,7 +1202,10 @@ export function EmployeeFormModal({
                       id="showOnTeamPage"
                       checked={formData.showOnTeamPage}
                       onChange={(e) =>
-                        setFormData({ ...formData, showOnTeamPage: e.target.checked })
+                        setFormData({
+                          ...formData,
+                          showOnTeamPage: e.target.checked,
+                        })
                       }
                       className="w-5 h-5 rounded cursor-pointer accent-[var(--color-primary)]"
                     />
@@ -883,10 +1214,10 @@ export function EmployeeFormModal({
                   <div className="flex items-center justify-between p-4 rounded-xl border border-[var(--border-level-1)] bg-[var(--surface-hover)]/40">
                     <div>
                       <label htmlFor="isFeatured" className="font-bold text-sm text-[var(--text-primary)] block cursor-pointer">
-                        Featured Member
+                        Featured Executive / Leader
                       </label>
                       <p className="text-xs text-[var(--text-secondary)]">
-                        Highlights member with a special Featured badge and priority placement.
+                        Gives this member featured emphasis in search and category views.
                       </p>
                     </div>
                     <input
@@ -896,63 +1227,47 @@ export function EmployeeFormModal({
                       onChange={(e) =>
                         setFormData({ ...formData, isFeatured: e.target.checked })
                       }
-                      className="w-5 h-5 rounded cursor-pointer accent-purple-500"
+                      className="w-5 h-5 rounded cursor-pointer accent-[var(--color-primary)]"
                     />
                   </div>
 
-                  <div className="p-4 rounded-xl border border-[var(--border-level-1)] bg-[var(--surface-hover)]/40">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
-                      Display Order Index
-                    </label>
-                    <Input
-                      type="number"
-                      value={formData.displayOrder}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          displayOrder: parseInt(e.target.value) || 0,
-                          order: parseInt(e.target.value) || 0,
-                        })
-                      }
-                      className="w-32"
-                    />
-                    <p className="text-xs text-[var(--text-tertiary)] mt-1.5">
-                      Lower numbers appear first (0, 1, 2, 3...). Can also be sequenced via drag-and-drop.
-                    </p>
+                  <div className="grid grid-cols-2 gap-4 pt-2">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">
+                        Display Order
+                      </label>
+                      <Input
+                        type="number"
+                        value={formData.displayOrder}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            displayOrder: parseInt(e.target.value) || 0,
+                            order: parseInt(e.target.value) || 0,
+                          })
+                        }
+                      />
+                      <p className="text-[10px] text-[var(--text-tertiary)] mt-1">
+                        Lower number displays first (e.g. 1, 2, 3).
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
-          </div>
 
-          {/* Footer Actions */}
-          <div className="p-4 md:p-6 border-t border-[var(--border-level-1)] bg-[var(--surface-hover)]/40 flex justify-between items-center shrink-0">
-            <div className="text-xs text-[var(--text-tertiary)]">
-              {Object.keys(jsonErrors).length > 0 && (
-                <span className="text-rose-400 font-bold flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5" /> Fix JSON formatting errors before saving
-                </span>
-              )}
-            </div>
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={onClose}
-                className="cursor-pointer"
-              >
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-3 pt-6 border-t border-[var(--border-level-1)]">
+              <Button variant="ghost" type="button" onClick={onClose} disabled={loading}>
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={loading || Object.keys(jsonErrors).length > 0}
-                className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-bold px-8 cursor-pointer"
-              >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Profile"}
+              <Button type="submit" disabled={loading} className="gap-2">
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {employee ? "Save Profile" : "Create Member"}
               </Button>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </Modal>
   );

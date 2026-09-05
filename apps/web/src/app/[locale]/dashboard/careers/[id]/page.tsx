@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Save, Briefcase, Users, AlertTriangle, Trash2 } from "lucide-react";
+import { Save, Briefcase, Users, AlertTriangle, Trash2, Share2, Lock, Unlock } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
 import { Tabs, TabsContent } from "@/components/dashboard/ui/Tabs";
@@ -17,6 +17,7 @@ import {
   analyzeJobDataQuality,
   toTitleCase,
 } from "@/lib/careers/job-eligibility";
+import { JobShareModal } from "@/components/dashboard/careers/JobShareModal";
 
 export default function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
@@ -30,6 +31,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(isEdit);
   const [applicants, setApplicants] = useState<any[]>([]);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -186,9 +188,62 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           { label: isEdit ? (toTitleCase(formData.title) || (isAr ? "تعديل الوظيفة" : "Edit Job")) : (isAr ? "وظيفة جديدة" : "New Job") },
         ]}
         badge={{
-          label: formData.isPublished ? (isAr ? "منشورة" : "PUBLISHED") : (isAr ? "مسودة" : "DRAFT"),
+          label: formData.isPublished
+            ? (isAr ? "مفتوحة للتقديم" : "ACCEPTING APPS")
+            : (isAr ? "التقديم مغلق / مسودة" : "CLOSED / DRAFT"),
           variant: formData.isPublished ? "success" : "warning",
         }}
+        previewUrl={isEdit ? `/careers/${id}` : undefined}
+        previewLabel={isAr ? "معاينة الوظيفة للعامة" : "Preview Public Listing"}
+        secondaryAction={
+          isEdit ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData((prev) => ({ ...prev, isPublished: !prev.isPublished }))
+                }
+                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all ${
+                  formData.isPublished
+                    ? "bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/30"
+                    : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                }`}
+                title={
+                  formData.isPublished
+                    ? isAr
+                      ? "انقر لإغلاق التقديم"
+                      : "Click to Close Submissions"
+                    : isAr
+                    ? "انقر لفتح التقديم"
+                    : "Click to Open Submissions"
+                }
+              >
+                {formData.isPublished ? (
+                  <>
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>{isAr ? "إغلاق التقديم" : "Mark as Closed"}</span>
+                  </>
+                ) : (
+                  <>
+                    <Unlock className="w-3.5 h-3.5" />
+                    <span>{isAr ? "فتح التقديم للعامة" : "Open for Applications"}</span>
+                  </>
+                )}
+              </button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsShareOpen(true)}
+                className="gap-1.5 text-xs text-[var(--text-secondary)] hover:text-white"
+                title={isAr ? "مشاركة الرابط على لينكدإن والمنصات" : "Share Job Opening"}
+              >
+                <Share2 className="w-3.5 h-3.5 text-blue-400" />
+                <span>{isAr ? "مشاركة" : "Share"}</span>
+              </Button>
+            </div>
+          ) : null
+        }
         primaryAction={{
           label: isSaving ? (isAr ? "جاري الحفظ..." : "Saving...") : (isAr ? "حفظ الوظيفة" : "Save Job"),
           onClick: handleSave,
@@ -390,6 +445,14 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           </TabsContent>
         )}
       </div>
+
+      {/* Social & Public Share Modal */}
+      <JobShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        job={isEdit ? { id, ...formData } : null}
+        locale={locale}
+      />
     </DashboardPageShell>
   );
 }

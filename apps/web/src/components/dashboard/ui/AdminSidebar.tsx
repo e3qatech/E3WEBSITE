@@ -20,6 +20,7 @@ import {
   Search,
   X,
   Building2,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminTheme } from "./AdminThemeProvider";
@@ -184,20 +185,32 @@ const sidebarConfig: NavGroupItem[] = [
   {
     id: "crm-sales",
     category: "ops",
-    label: "CRM, Leads & Talent",
-    labelAr: "المبيعات والتوظيف",
+    label: "CRM & Sales Pipeline",
+    labelAr: "المبيعات والعملاء",
     icon: Activity,
     href: "/dashboard/crm/leads",
-    roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN", "HR_ADMIN"],
+    roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"],
     capability: "crm.leads.manage",
     subItems: [
       { label: "Sales Pipeline & Deals", labelAr: "مسار صفقات المبيعات", href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"] },
       { label: "Client Accounts", labelAr: "حسابات الشركات والعملاء", href: "/dashboard/crm/clients", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"] },
-      { label: "Team Directory & HR", labelAr: "فريق العمل والكوادر", href: "/dashboard/team", capability: "hr.team.manage" },
-      { label: "Job Postings", labelAr: "إعلانات الوظائف", href: "/dashboard/careers", capability: "hr.jobs.manage" },
-      { label: "Job Applications", labelAr: "طلبات التوظيف والمتقدمين", href: "/dashboard/careers/applications", capability: "hr.applications.manage" },
-      { label: "Talent AI Parser", labelAr: "محلل السير الذاتية بالذكاء الاصطناعي", href: "/dashboard/crm/talent", capability: "hr.talent.manage" },
       { label: "Newsletter Subscribers", labelAr: "المشتركون في النشرة", href: "/dashboard/crm/subscribers", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2C_ADMIN"] },
+    ],
+  },
+  {
+    id: "hr-talent",
+    category: "ops",
+    label: "HR, Team & Careers",
+    labelAr: "الموارد البشرية والتوظيف",
+    icon: Users,
+    href: "/dashboard/team",
+    roles: ["SUPER_ADMIN", "HR_ADMIN"],
+    capability: "hr.team.manage",
+    subItems: [
+      { label: "Team Profiles & Directory", labelAr: "دليل فريق العمل والكوادر", href: "/dashboard/team", capability: "hr.team.manage" },
+      { label: "Careers & Job Openings", labelAr: "الوظائف والشواغر المتاحة", href: "/dashboard/careers", capability: "hr.jobs.manage" },
+      { label: "Global Job Applications", labelAr: "طلبات التوظيف والمتقدمين", href: "/dashboard/careers/applications", capability: "hr.applications.manage" },
+      { label: "Talent Acquisition & AI Hub", labelAr: "مركز استقطاب المواهب ومحلل السير الذاتية", href: "/dashboard/crm/talent", capability: "hr.talent.manage" },
     ],
   },
   {
@@ -275,6 +288,7 @@ export function AdminSidebar() {
   // Role pill color
   const roleBadgeColor = React.useMemo(() => {
     if (userRole.includes("SUPER")) return "bg-purple-500/20 text-purple-300 border-purple-500/30";
+    if (userRole.includes("HR")) return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
     if (userRole.includes("EVENTS")) return "bg-violet-500/20 text-violet-300 border-violet-500/30";
     if (userRole.includes("B2B")) return "bg-cyan-500/20 text-cyan-300 border-cyan-500/30";
     if (userRole.includes("B2C")) return "bg-pink-500/20 text-pink-300 border-pink-500/30";
@@ -290,15 +304,22 @@ export function AdminSidebar() {
 
   // Filter navigation items by role and capability (Deny-by-default)
   const isAuthorized = React.useCallback(
-    (itemRoles?: string[], itemCapability?: string) => {
+    (itemRoles?: string[], itemCapability?: string, subItems?: any[]) => {
       if (userRole === "SUPER_ADMIN" || userRole === "ADMIN") return true;
-      if (itemRoles && itemRoles.length > 0) {
-        if (!itemRoles.includes(userRole)) return false;
+      if (itemRoles && itemRoles.length > 0 && !itemRoles.includes(userRole)) {
+        return false;
       }
-      if (itemCapability) {
-        return hasPermission(userRole, itemCapability);
+      if (itemCapability && hasPermission(userRole, itemCapability)) {
+        return true;
       }
-      return itemRoles ? itemRoles.includes(userRole) : false;
+      if (subItems && subItems.length > 0) {
+        return subItems.some((sub) => {
+          if (sub.roles && sub.roles.length > 0 && !sub.roles.includes(userRole)) return false;
+          if (sub.capability) return hasPermission(userRole, sub.capability);
+          return true;
+        });
+      }
+      return itemCapability ? hasPermission(userRole, itemCapability) : true;
     },
     [userRole]
   );
@@ -309,7 +330,7 @@ export function AdminSidebar() {
 
     return sidebarConfig
       .map((group) => {
-        if (!isAuthorized(group.roles, group.capability)) return null;
+        if (!isAuthorized(group.roles, group.capability, group.subItems)) return null;
 
         // Domain category filter
         if (activeCategory !== "all" && group.category !== "all" && group.category !== activeCategory) {

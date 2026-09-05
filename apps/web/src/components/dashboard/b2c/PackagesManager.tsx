@@ -53,16 +53,35 @@ export function PackagesManager({ initialData = [] }: { initialData?: any[] }) {
   const [isCreating, setIsCreating] = useState(false)
   const [selectedLeadForQuote, setSelectedLeadForQuote] = useState<any | null>(null)
 
+  const handleStartCreateTemplate = () => {
+    setEditingItem({
+      isTemplate: true,
+      packageType: "CUSTOM_TEMPLATE",
+      status: "DRAFT",
+      isPublished: false,
+      titleEn: "",
+      titleAr: "",
+      category: "BIRTHDAY",
+      startingPrice: 0,
+      minGuests: 10,
+      maxGuests: 50,
+      durationMinutes: 120,
+    })
+    setIsCreating(true)
+  }
+
   const fetchPackages = async () => {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch("/api/b2c/packages?all=true", { cache: "no-store" })
+      const res = await fetch("/api/b2c/packages?all=true&templates=true", { cache: "no-store" })
       if (!res.ok) throw new Error("Failed to fetch packages")
       const json = await res.json()
       const allPkgs = Array.isArray(json.data) ? json.data : []
-      setPackages(allPkgs.filter((p: any) => !p.isTemplate))
-      setTemplates(allPkgs.filter((p: any) => p.isTemplate))
+      if (allPkgs.length > 0) {
+        setPackages(allPkgs.filter((p: any) => !p.isTemplate))
+        setTemplates(allPkgs.filter((p: any) => p.isTemplate))
+      }
     } catch (e: any) {
       console.error(e)
       setError(e?.message || "Failed to load packages")
@@ -191,11 +210,19 @@ export function PackagesManager({ initialData = [] }: { initialData?: any[] }) {
               <span>{isAr ? "محرر ترويسة وعروض PDF" : "PDF Quote & Letterhead Editor"}</span>
             </Button>
           }
-          primaryAction={{
-            label: isAr ? "إنشاء باقة جديدة" : "Create Package",
-            onClick: () => { setEditingItem(null); setIsCreating(true); },
-            icon: <Plus className="w-4 h-4" />
-          }}
+          primaryAction={
+            activeTab === "templates"
+              ? {
+                  label: isAr ? "إنشاء قالب جديد" : "Create New Template",
+                  onClick: handleStartCreateTemplate,
+                  icon: <Plus className="w-4 h-4" />
+                }
+              : {
+                  label: isAr ? "إنشاء باقة جديدة" : "Create Package",
+                  onClick: () => { setEditingItem(null); setIsCreating(true); },
+                  icon: <Plus className="w-4 h-4" />
+                }
+          }
         />
 
         {/* Reciprocal Handoff Banner to Packages Page Editor */}
@@ -413,42 +440,116 @@ export function PackagesManager({ initialData = [] }: { initialData?: any[] }) {
         {/* TAB 2: TEMPLATES LIBRARY */}
         {activeTab === "templates" && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] shadow-xs">
               <div>
-                <h3 className="text-base font-bold text-[var(--text-primary)]">
-                  {isAr ? "مكتبة قوالب الباقات الجاهزة" : "Reusable Experience Templates Library"}
+                <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
+                  <LayoutTemplate className="w-5 h-5 text-purple-500" />
+                  <span>{isAr ? "مكتبة قوالب الباقات المعتمدة" : "Reusable Experience Templates Library"}</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/15 text-purple-600 dark:text-purple-300">
+                    {templates.length}
+                  </span>
                 </h3>
-                <p className="text-xs text-[var(--text-secondary)]">
-                  {isAr ? "استخدم أي من هذه القوالب المعيارية الـ ١٢ لإنشاء باقة جديدة بنقرة واحدة." : "Launch customized packages in seconds by instantiating pre-structured templates."}
+                <p className="text-xs text-[var(--text-secondary)] mt-1">
+                  {isAr ? "استخدم أي من هذه القوالب المعيارية لإنشاء باقة جديدة بنقرة واحدة، أو أنشئ قالباً مخصصاً جديداً للمكتبة." : "Launch customized packages in seconds by instantiating pre-structured blueprints, or build new reusable templates for your team."}
                 </p>
               </div>
+              <Button
+                onClick={handleStartCreateTemplate}
+                className="gap-2 text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-sm shrink-0 cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{isAr ? "إنشاء قالب جديد" : "Create New Template"}</span>
+              </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {templates.map(tmpl => (
-                <div key={tmpl.id} className="p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] flex flex-col justify-between space-y-4 hover:border-[var(--color-primary)] transition-all shadow-xs">
-                  <div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-purple-500/15 text-purple-600 dark:text-purple-300">
-                      {tmpl.category} TEMPLATE
-                    </span>
-                    <h4 className="text-base font-bold text-[var(--text-primary)] mt-2">{tmpl.titleEn}</h4>
-                    <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{tmpl.shortDescriptionEn}</p>
-                    <div className="mt-3 text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-                      Base: QAR {tmpl.startingPrice} | {tmpl.minGuests}–{tmpl.maxGuests} guests
+            {templates.length === 0 ? (
+              <div className="p-12 rounded-3xl bg-[var(--surface-default)] border border-dashed border-[var(--border-default)] text-center space-y-4 shadow-xs">
+                <div className="w-14 h-14 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 mx-auto flex items-center justify-center">
+                  <LayoutTemplate className="w-7 h-7" />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-[var(--text-primary)]">
+                    {isAr ? "لا توجد قوالب معتمدة حالياً في المكتبة" : "No Templates Found in Library"}
+                  </h4>
+                  <p className="text-xs text-[var(--text-secondary)] max-w-md mx-auto mt-1 leading-relaxed">
+                    {isAr
+                      ? "يمكنك إنشاء أول قالب مخصص الآن ليكون نموذجاً جاهزاً يتم تكراره بنقرة واحدة لجميع الوجهات والمناسبات."
+                      : "Create your first reusable package blueprint to quickly launch new packages with pre-configured tiers, pricing, and itineraries."}
+                  </p>
+                </div>
+                <Button
+                  onClick={handleStartCreateTemplate}
+                  className="gap-2 text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-sm cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>{isAr ? "إنشاء أول قالب الآن" : "Create First Template Now"}</span>
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {templates.map(tmpl => (
+                  <div key={tmpl.id} className="p-6 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-default)] flex flex-col justify-between space-y-4 hover:border-purple-500/50 transition-all shadow-xs">
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-purple-500/15 text-purple-600 dark:text-purple-300">
+                          {tmpl.category} TEMPLATE
+                        </span>
+                        <span className="text-[10px] font-mono text-[var(--text-tertiary)]">
+                          {tmpl.packageType}
+                        </span>
+                      </div>
+                      <h4 className="text-base font-bold text-[var(--text-primary)] mt-2">{tmpl.titleEn}</h4>
+                      {tmpl.titleAr && (
+                        <div className="text-xs font-medium text-[var(--text-secondary)] mt-0.5" dir="rtl">{tmpl.titleAr}</div>
+                      )}
+                      <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{tmpl.shortDescriptionEn}</p>
+                      <div className="mt-3 text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                        Base: QAR {tmpl.startingPrice} | {tmpl.minGuests}–{tmpl.maxGuests} guests
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t border-[var(--border-level-1)]">
+                      <Button
+                        size="sm"
+                        onClick={() => handleCreateFromTemplate(tmpl)}
+                        className="w-full text-xs font-bold gap-1.5 bg-purple-600 hover:bg-purple-500 text-white shadow-xs"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        {isAr ? "إنشاء باقة من هذا القالب" : "Create Package from Template"}
+                      </Button>
+                      <div className="flex items-center justify-end gap-1.5 pt-1">
+                        <button
+                          onClick={() => {
+                            setEditingItem(tmpl);
+                            setIsCreating(false);
+                          }}
+                          className="px-2.5 py-1 text-[11px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                          title={isAr ? "تعديل القالب" : "Edit Template"}
+                        >
+                          <Edit2 className="w-3 h-3" />
+                          <span>{isAr ? "تعديل" : "Edit"}</span>
+                        </button>
+                        <button
+                          onClick={() => handleDuplicate(tmpl.id)}
+                          className="px-2.5 py-1 text-[11px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                          title={isAr ? "تكرار القالب" : "Duplicate Template"}
+                        >
+                          <Copy className="w-3 h-3" />
+                          <span>{isAr ? "نسخ" : "Copy"}</span>
+                        </button>
+                        <button
+                          onClick={() => handleDelete(tmpl.id)}
+                          className="px-2 py-1 text-[11px] font-bold text-rose-400 hover:text-rose-500 hover:bg-rose-500/10 border border-rose-500/20 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                          title={isAr ? "حذف القالب" : "Delete Template"}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-
-                  <Button
-                    size="sm"
-                    onClick={() => handleCreateFromTemplate(tmpl)}
-                    className="w-full text-xs font-bold gap-1.5"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    {isAr ? "إنشاء باقة من هذا القالب" : "Create Package from Template"}
-                  </Button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

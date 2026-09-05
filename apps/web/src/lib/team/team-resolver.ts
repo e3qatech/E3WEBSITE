@@ -1815,7 +1815,8 @@ export function isTeamAuthorized(
     if (
       capabilities.includes('team.manage') ||
       capabilities.includes('team.view') ||
-      capabilities.includes('content.manage')
+      capabilities.includes('content.manage') ||
+      capabilities.includes('hr.team.manage')
     ) {
       return true;
     }
@@ -1826,6 +1827,9 @@ export function isTeamAuthorized(
     role === 'ADMIN' ||
     role === 'SALES_ADMIN' ||
     role === 'MARKETING' ||
+    role === 'HR_ADMIN' ||
+    role === 'HR' ||
+    hasPermission(role, 'hr.team.manage') ||
     hasPermission(role, 'team.manage') ||
     hasPermission(role, 'team.view')
   );
