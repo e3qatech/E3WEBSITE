@@ -122,8 +122,8 @@ const prismaClientSingleton = () => {
     query: {
       $allModels: {
         async $allOperations({ operation, model, args, query }: any) {
-          const TIMEOUT_MS = 25000;
-          const maxAttempts = 3;
+          const TIMEOUT_MS = 30000;
+          const maxAttempts = 5;
           let attempt = 0;
 
           while (attempt < maxAttempts) {
@@ -150,13 +150,19 @@ const prismaClientSingleton = () => {
                 errMsg.includes('Connection closed') ||
                 errMsg.includes('kind: Closed') ||
                 errMsg.includes('connection reset') ||
-                errMsg.includes('timed out');
+                errMsg.includes('timed out') ||
+                errMsg.includes('P1001') ||
+                errMsg.includes('P1017') ||
+                errMsg.includes('socket has been ended') ||
+                errMsg.includes('ECONNRESET') ||
+                errMsg.includes('ETIMEDOUT');
 
               if (isTransientConnError && attempt < maxAttempts) {
+                const backoffMs = 1000 + (attempt - 1) * 600;
                 console.warn(
-                  `[DB RETRY] Transient Neon connection drop in ${model}.${operation}. Waking serverless compute, retrying (${attempt}/${maxAttempts})...`
+                  `[DB RETRY] Transient Neon connection drop in ${model}.${operation}. Waking serverless compute, retrying in ${backoffMs}ms (${attempt}/${maxAttempts})...`
                 );
-                await new Promise((resolve) => setTimeout(resolve, 600 * attempt));
+                await new Promise((resolve) => setTimeout(resolve, backoffMs));
                 continue;
               }
 

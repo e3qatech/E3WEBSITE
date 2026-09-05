@@ -70,7 +70,12 @@ export function AccountsTab({
       setInternalName('');
       onRefresh();
     } catch (err: any) {
-      toast(err.message || 'Error creating account', 'error');
+      const msg = String(err?.message || '');
+      if (msg.includes("Can't reach database server") || msg.includes('standby')) {
+        toast("Database was waking from standby. Please click 'Save Record' once more.", 'info');
+      } else {
+        toast(err.message || 'Error creating account', 'error');
+      }
     } finally {
       setCreating(false);
     }

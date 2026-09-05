@@ -70,17 +70,22 @@ export async function POST(req: NextRequest) {
     const { provider, internalName, username, displayName, profileUrl, profileImageUrl, brandId, attractionId, portal } = body;
 
     let providerConfig: any = null;
-    try {
-      providerConfig = await db.socialProviderConfig.findUnique({
-        where: { provider },
-      });
-    } catch (findErr: any) {
-      if (String(findErr?.message || '').includes('does not exist') || findErr?.code === 'P2021') {
-        await ensureSocialMediaTablesExist(true);
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
         providerConfig = await db.socialProviderConfig.findUnique({
           where: { provider },
         });
-      } else {
+        if (providerConfig) break;
+      } catch (findErr: any) {
+        const errStr = String(findErr?.message || '');
+        if (errStr.includes('does not exist') || findErr?.code === 'P2021') {
+          await ensureSocialMediaTablesExist(true);
+          continue;
+        }
+        if (attempt < 3 && (errStr.includes("Can't reach database server") || errStr.includes('timeout') || errStr.includes('Closed'))) {
+          await new Promise(r => setTimeout(r, 1200 * attempt));
+          continue;
+        }
         throw findErr;
       }
     }
@@ -135,6 +140,14 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: account });
   } catch (err: any) {
+    console.error('[Create Social Account Error]', err);
+    const msg = String(err?.message || '');
+    if (msg.includes("Can't reach database server") || msg.includes('timeout') || msg.includes('connection reset')) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Database compute is waking up from standby. Please click 'Save Record' once more." 
+      }, { status: 503 });
+    }
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
