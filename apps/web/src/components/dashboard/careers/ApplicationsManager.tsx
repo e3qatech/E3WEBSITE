@@ -27,6 +27,15 @@ import {
   Award,
   Trophy,
   BarChart3,
+  Copy,
+  Check,
+  Briefcase,
+  ShieldCheck,
+  Layers,
+  GraduationCap,
+  UserCheck,
+  Mail,
+  Phone,
 } from "lucide-react";
 import { safeFetchJson } from "@/lib/utils";
 import { useLocale } from "@/components/layout/LocaleProvider";
@@ -42,12 +51,25 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [previewModalCandidate, setPreviewModalCandidate] = useState<any | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const [parsing, setParsing] = useState(false);
   const [updating, setUpdating] = useState(false);
   const { toast } = useToast();
   const { locale } = useLocale();
   const isAr = locale === "ar";
+
+  const handleCopy = (text: string, field: string) => {
+    navigator.clipboard?.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
+
+  const getInitials = (first: string, last: string) => {
+    const f = (first || "").trim()[0] || "";
+    const l = (last || "").trim()[0] || "";
+    return `${f}${l}`.toUpperCase() || "C";
+  };
 
   // Precompute Category Ranking & Match Score for all candidates
   const rankingsMap = useMemo(() => {
@@ -58,6 +80,15 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
     }
     return map;
   }, [applications]);
+
+  // Recruiter KPI stats
+  const kpis = useMemo(() => {
+    const total = applications.length;
+    const topMatches = Array.from(rankingsMap.values()).filter((r) => (r?.matchScore || 0) >= 80).length;
+    const activePipeline = applications.filter((a) => ["REVIEWING", "INTERVIEW"].includes(a.status)).length;
+    const hired = applications.filter((a) => a.status === "HIRED").length;
+    return { total, topMatches, activePipeline, hired };
+  }, [applications, rankingsMap]);
 
   // Extract distinct roles for role filter
   const uniqueRoles = useMemo(() => {
@@ -268,18 +299,110 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
         }}
       />
 
-      <div className="flex flex-col lg:flex-row gap-6 mt-6 min-h-[650px]">
+      {/* Quick Navigation Hub for HR & Recruitment Suite */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-2 rounded-2xl bg-[var(--surface-hover)]/40 border border-[var(--border-level-1)] mt-4 shadow-2xs">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] font-bold text-[var(--text-tertiary)] uppercase tracking-wider px-3">
+            {isAr ? "مركز التوظيف:" : "Recruitment Suite:"}
+          </span>
+
+          <a
+            href={`/${locale}/dashboard/crm/talent`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-transparent hover:border-[var(--border-level-1)] transition-all"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+            <span>{isAr ? "استقطاب المواهب و AI" : "Talent Acquisition & AI Hub"}</span>
+          </a>
+
+          <a
+            href={`/${locale}/dashboard/careers/applications`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[var(--color-primary)] text-white shadow-xs"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>{isAr ? "طلبات التوظيف ومعاينة CV" : "Job Applications & CVs"}</span>
+          </a>
+
+          <a
+            href={`/${locale}/dashboard/careers`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-transparent hover:border-[var(--border-level-1)] transition-all"
+          >
+            <Briefcase className="w-3.5 h-3.5 text-indigo-400" />
+            <span>{isAr ? "شواغر الوظائف" : "Careers & Openings"}</span>
+          </a>
+
+          <a
+            href={`/${locale}/dashboard/team`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-transparent hover:border-[var(--border-level-1)] transition-all"
+          >
+            <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{isAr ? "دليل فريق العمل (A4 PDF)" : "Team Directory (A4 PDF)"}</span>
+          </a>
+        </div>
+      </div>
+
+      {/* Recruiter KPI Cards Bar */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        <div className="p-4 rounded-2xl bg-zinc-900/90 border border-white/10 flex items-center justify-between shadow-sm">
+          <div>
+            <div className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              {isAr ? "إجمالي طلبات التوظيف" : "Total Applications"}
+            </div>
+            <div className="text-2xl font-black text-white mt-1">{kpis.total}</div>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
+            <Briefcase className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-zinc-900/90 border border-white/10 flex items-center justify-between shadow-sm">
+          <div>
+            <div className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              {isAr ? "في مرحلة المراجعة والمقابلة" : "Active In Pipeline"}
+            </div>
+            <div className="text-2xl font-black text-amber-400 mt-1">{kpis.activePipeline}</div>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+            <Clock className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-zinc-900/90 border border-white/10 flex items-center justify-between shadow-sm">
+          <div>
+            <div className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              {isAr ? "نخبة التطابق الذكي (+80%)" : "Top AI Matches"}
+            </div>
+            <div className="text-2xl font-black text-emerald-400 mt-1">{kpis.topMatches}</div>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <Award className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-zinc-900/90 border border-white/10 flex items-center justify-between shadow-sm">
+          <div>
+            <div className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              {isAr ? "تم التعيين بنجاح" : "Hired & Onboarded"}
+            </div>
+            <div className="text-2xl font-black text-blue-400 mt-1">{kpis.hired}</div>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-6 mt-6 min-h-[680px]">
         {/* List View */}
-        <div className="w-full lg:w-1/3 bg-surface-default border border-border-default rounded-xl flex flex-col overflow-hidden">
-          <div className="p-4 border-b border-border-default space-y-3">
+        <div className="w-full lg:w-1/3 bg-zinc-900/90 border border-white/10 rounded-2xl flex flex-col overflow-hidden shadow-xl">
+          <div className="p-4 border-b border-white/10 space-y-3 bg-zinc-900/50">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 absolute start-3 top-3 text-text-secondary" />
+              <Search className="w-4 h-4 absolute start-3 top-3 text-zinc-400" />
               <input
                 type="text"
                 placeholder={isAr ? "بحث بالاسم، الإيميل، الوظيفة..." : "Search name, email, role..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg ps-9 pe-8 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-primary"
+                className="w-full bg-zinc-950/80 border border-white/10 rounded-xl ps-9 pe-8 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500"
               />
               {searchQuery && (
                 <button
@@ -297,7 +420,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
-                className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-1)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] truncate cursor-pointer"
+                className="w-full bg-zinc-950/80 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-purple-500 truncate cursor-pointer"
               >
                 <option value="ALL">{isAr ? "جميع الوظائف" : "All Roles"}</option>
                 {uniqueRoles.map((role) => (
@@ -310,7 +433,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-1)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] cursor-pointer"
+                className="w-full bg-zinc-950/80 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-purple-500 cursor-pointer"
               >
                 <option value="ALL">{isAr ? "جميع الحالات" : "All Status"}</option>
                 <option value="NEW">{isAr ? "جديد" : "New"}</option>
@@ -322,9 +445,9 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto divide-y divide-border-default">
+          <div className="flex-1 overflow-y-auto divide-y divide-white/5">
             {filteredApplications.length === 0 ? (
-              <div className="p-8 text-center text-text-secondary text-xs">
+              <div className="p-8 text-center text-zinc-500 text-xs">
                 {searchQuery || statusFilter !== "ALL" || roleFilter !== "ALL"
                   ? isAr
                     ? "لا توجد طلبات تطابق الفلتر المحدد."
@@ -336,49 +459,61 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
             ) : (
               filteredApplications.map((app) => {
                 const rankInfo = rankingsMap.get(app.id);
+                const isSelected = selectedAppId === app.id;
+                const initials = getInitials(app.firstName, app.lastName);
+
                 return (
                   <button
                     key={app.id}
                     onClick={() => setSelectedAppId(app.id)}
-                    className={`w-full text-start p-4 border-b border-border-default hover:bg-surface-hover transition-colors ${
-                      selectedAppId === app.id ? "bg-surface-hover border-s-4 border-s-primary" : ""
+                    className={`w-full text-start p-3.5 transition-all cursor-pointer relative group flex items-start gap-3 ${
+                      isSelected
+                        ? "bg-purple-950/40 border-s-4 border-s-purple-500 shadow-inner"
+                        : "hover:bg-zinc-800/50 border-s-4 border-s-transparent"
                     }`}
                   >
-                    <div className="flex justify-between items-start mb-1 gap-2">
-                      <span className="font-bold text-text-primary truncate">
-                        {app.firstName} {app.lastName}
-                      </span>
-                      <span
-                        className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 ${getStatusColor(
-                          app.status
-                        )}`}
-                      >
-                        {app.status}
-                      </span>
+                    {/* Initials Avatar */}
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-700 via-indigo-700 to-purple-900 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm ring-1 ring-white/10 mt-0.5">
+                      {initials}
                     </div>
 
-                    <div className="text-xs text-text-secondary mb-2 flex items-center justify-between gap-2">
-                      <span className="truncate">{app.jobTitle}</span>
-                      {rankInfo && (
-                        <span
-                          className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border flex items-center gap-1 shrink-0 ${
-                            rankInfo.rank === 1
-                              ? "bg-amber-500/10 text-amber-300 border-amber-500/30"
-                              : "bg-purple-500/10 text-purple-300 border-purple-500/30"
-                          }`}
-                          title={`Score: ${rankInfo.matchScore}%`}
-                        >
-                          <Award className="w-3 h-3 text-purple-400" />
-                          <span>#{rankInfo.rank} · {rankInfo.matchScore}%</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex justify-between items-start mb-1 gap-2">
+                        <span className="font-bold text-xs sm:text-sm text-white truncate group-hover:text-purple-300 transition-colors">
+                          {app.firstName} {app.lastName}
                         </span>
-                      )}
-                    </div>
+                        <span
+                          className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-full border shrink-0 ${getStatusColor(
+                            app.status
+                          )}`}
+                        >
+                          {app.status}
+                        </span>
+                      </div>
 
-                    <div className="flex items-center justify-between text-[11px] text-text-secondary">
-                      <span>{new Date(app.createdAt).toLocaleDateString()}</span>
-                      <span className="bg-[var(--surface-hover)] border border-[var(--border-level-1)] px-2 py-0.5 rounded text-[10px] text-[var(--text-secondary)] font-medium">
-                        {app.portal}
-                      </span>
+                      <div className="text-xs text-zinc-400 mb-1.5 flex items-center justify-between gap-2">
+                        <span className="truncate">{app.jobTitle}</span>
+                        {rankInfo && (
+                          <span
+                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border flex items-center gap-1 shrink-0 ${
+                              rankInfo.rank === 1
+                                ? "bg-amber-500/10 text-amber-300 border-amber-500/30"
+                                : "bg-purple-500/10 text-purple-300 border-purple-500/30"
+                            }`}
+                            title={`Score: ${rankInfo.matchScore}%`}
+                          >
+                            <Award className="w-2.5 h-2.5 text-purple-400" />
+                            <span>#{rankInfo.rank} · {rankInfo.matchScore}%</span>
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between text-[10px] text-zinc-500">
+                        <span>{new Date(app.createdAt).toLocaleDateString()}</span>
+                        <span className="bg-zinc-950 border border-white/5 px-2 py-0.5 rounded text-[9px] text-zinc-400 font-medium">
+                          {app.portal}
+                        </span>
+                      </div>
                     </div>
                   </button>
                 );
@@ -388,26 +523,38 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
         </div>
 
         {/* Detail View */}
-        <div className="w-full lg:w-2/3 bg-surface-default border border-border-default rounded-xl flex flex-col overflow-hidden">
+        <div className="w-full lg:w-2/3 bg-zinc-900/90 border border-white/10 rounded-2xl flex flex-col overflow-hidden shadow-2xl">
           {selectedApp ? (
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
               {/* Header Info */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">
-                    {selectedApp.firstName} {selectedApp.lastName}
-                  </h2>
-                  <p className="text-[var(--color-primary)] font-medium">
-                    {selectedApp.jobTitle}{" "}
-                    {selectedApp.department ? `· ${selectedApp.department}` : ""}
-                  </p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-800 text-white font-black text-base flex items-center justify-center shrink-0 shadow-lg shadow-purple-600/20 ring-2 ring-purple-500/30">
+                    {getInitials(selectedApp.firstName, selectedApp.lastName)}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                        {selectedApp.firstName} {selectedApp.lastName}
+                      </h2>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                        <ShieldCheck className="w-3 h-3" />
+                        <span>{isAr ? "ملف معتمد" : "Verified Dossier"}</span>
+                      </span>
+                    </div>
+                    <p className="text-purple-400 font-medium text-xs sm:text-sm mt-0.5">
+                      {selectedApp.jobTitle}{" "}
+                      {selectedApp.department ? `· ${selectedApp.department}` : ""}
+                    </p>
+                  </div>
                 </div>
+
                 <div className="flex flex-wrap gap-2 items-center">
                   <select
                     value={selectedApp.status}
                     onChange={(e) => handleUpdateStatus(selectedApp.id, e.target.value)}
                     disabled={updating}
-                    className="bg-[var(--surface-hover)] border border-[var(--border-level-1)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] font-semibold focus:outline-none focus:border-[var(--color-primary)] disabled:opacity-50 cursor-pointer"
+                    className="bg-zinc-950 border border-white/10 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-purple-500 disabled:opacity-50 cursor-pointer shadow-sm"
                   >
                     <option value="NEW">{isAr ? "جديد" : "New"}</option>
                     <option value="REVIEWING">{isAr ? "قيد المراجعة" : "Reviewing"}</option>
@@ -419,40 +566,45 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                   <button
                     type="button"
                     onClick={handleOpenScheduleModal}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-semibold transition-all shadow-md active:scale-95"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
                   >
-                    <Calendar className="w-4 h-4" />
+                    <Calendar className="w-3.5 h-3.5" />
                     <span>{isAr ? "جدولة مقابلة" : "Interview"}</span>
                   </button>
 
-                  {/* In-browser CV Preview Button */}
+                  {/* Prominent In-browser CV & Dossier Preview Button */}
                   <button
                     type="button"
                     onClick={() => setPreviewModalCandidate(selectedApp)}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600/15 hover:bg-indigo-600/25 text-indigo-400 dark:text-indigo-300 border border-indigo-500/30 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95"
-                    title={isAr ? "معاينة السيرة الذاتية داخل المتصفح" : "Preview CV Document in Browser"}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-600/30 active:scale-95 cursor-pointer"
+                    title={isAr ? "معاينة السيرة الذاتية والملف التنفيذي" : "Preview CV Document & Executive Dossier"}
                   >
-                    <Eye className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-                    <span>{isAr ? "معاينة السيرة" : "Preview CV"}</span>
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>{isAr ? "معاينة السيرة الذاتية" : "Preview CV"}</span>
                   </button>
 
                   {/* Download CV File */}
                   <a
-                    href={selectedApp.cvUrl}
+                    href={
+                      selectedApp.cvUrl?.startsWith("http")
+                        ? selectedApp.cvUrl
+                        : `/api/upload/download?pathname=${encodeURIComponent(selectedApp.cvUrl)}&applicationId=${selectedApp.id}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center px-3 py-2 bg-[var(--surface-hover)] border border-[var(--border-level-1)] text-[var(--text-primary)] rounded-lg text-sm font-medium hover:bg-[var(--surface-default)] transition-colors"
+                    download
+                    className="flex items-center px-3 py-2 bg-zinc-950 border border-white/10 text-zinc-300 hover:text-white rounded-xl text-xs font-bold hover:bg-zinc-800 transition-colors shadow-sm cursor-pointer"
                   >
-                    <Download className="w-4 h-4 me-1.5" /> {isAr ? "تحميل" : "Download"}
+                    <Download className="w-3.5 h-3.5 me-1.5 text-purple-400" /> {isAr ? "تحميل" : "Download"}
                   </a>
 
                   <AdminButton
                     variant={selectedApp.cvParsedData ? "outline" : "primary"}
                     onClick={() => handleParseCV(selectedApp.id)}
                     disabled={parsing}
-                    className="flex items-center gap-1.5"
+                    className="flex items-center gap-1.5 text-xs rounded-xl"
                   >
-                    <Cpu className="w-4 h-4 text-purple-400" />
+                    <Cpu className="w-3.5 h-3.5 text-purple-400" />
                     <span>
                       {parsing
                         ? isAr
@@ -472,28 +624,28 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
 
               {/* Candidate Category Leaderboard & AI Ranking Banner */}
               {selectedAppRank && (
-                <div className="p-4 rounded-xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-purple-500/5 dark:from-purple-950/40 dark:via-indigo-950/30 dark:to-zinc-900 border border-purple-500/30 dark:border-purple-800/40 space-y-3">
+                <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-950/40 via-zinc-900 to-zinc-900 border border-purple-800/40 space-y-4 shadow-xl">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-11 h-11 rounded-xl flex items-center justify-center border font-black text-base shadow-sm ${
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center border font-black text-lg shadow-sm ${
                           selectedAppRank.rank === 1
-                            ? "bg-amber-500/20 text-amber-500 dark:text-amber-300 border-amber-500/40"
-                            : "bg-purple-500/20 text-purple-600 dark:text-purple-300 border-purple-500/40"
+                            ? "bg-amber-500/20 text-amber-300 border-amber-500/40 ring-2 ring-amber-500/20"
+                            : "bg-purple-500/20 text-purple-300 border-purple-500/40 ring-2 ring-purple-500/20"
                         }`}
                       >
                         #{selectedAppRank.rank}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider">
+                          <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
                             {isAr ? "تصنيف المترشحين لنفس الوظيفة" : "Category Candidate Ranking"}
                           </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-700 dark:text-purple-200 border border-purple-500/30">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-200 border border-purple-500/30 font-mono">
                             {selectedAppRank.tierLabel}
                           </span>
                         </div>
-                        <div className="text-sm font-bold text-[var(--text-primary)] mt-0.5">
+                        <div className="text-sm font-bold text-white mt-0.5">
                           {isAr
                             ? `المرتبة #${selectedAppRank.rank} من أصل ${selectedAppRank.totalCandidates} متقدمين لوظيفة "${selectedApp.jobTitle}"`
                             : `Rank #${selectedAppRank.rank} of ${selectedAppRank.totalCandidates} Applicants in "${selectedApp.jobTitle}"`}
@@ -501,82 +653,140 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 shrink-0 bg-[var(--surface-default)] px-3.5 py-2 rounded-xl border border-[var(--border-level-1)] shadow-xs">
+                    <div className="flex items-center gap-4 shrink-0 bg-zinc-950/80 px-4 py-2.5 rounded-xl border border-white/10 shadow-inner">
                       <div className="text-end">
-                        <div className="text-[10px] text-[var(--text-secondary)] uppercase font-bold">
+                        <div className="text-[10px] text-zinc-400 uppercase font-bold">
                           {isAr ? "نسبة التطابق الذكي" : "AI Match Score"}
                         </div>
-                        <div className="text-xl font-black text-emerald-600 dark:text-emerald-400">
+                        <div className="text-2xl font-black text-emerald-400">
                           {selectedAppRank.matchScore}%
                         </div>
                       </div>
-                      <div className="h-8 w-px bg-[var(--border-level-1)]" />
+                      <div className="h-8 w-px bg-white/10" />
                       <div>
-                        <div className="text-[10px] text-[var(--text-secondary)] uppercase font-bold">
+                        <div className="text-[10px] text-zinc-400 uppercase font-bold">
                           {isAr ? "التوصية" : "AI Decision"}
                         </div>
-                        <div className="text-xs font-bold text-purple-700 dark:text-purple-300">
+                        <div className="text-xs font-bold text-purple-300">
                           {selectedAppRank.recommendation.replace("_", " ")}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Transparent Score Factor Breakdown Bar */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-[var(--border-level-1)] text-[11px]">
-                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-1)]">
-                      <span>{isAr ? "تطابق المهارات:" : "Skills Match:"}</span>
-                      <strong className="text-emerald-600 dark:text-emerald-400 font-bold">{selectedAppRank.scoreBreakdown.skillsMatch}/40</strong>
+                  {/* Score Factor Breakdown Bar */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 border-t border-white/10 text-xs">
+                    <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-white/5 space-y-1">
+                      <div className="flex justify-between text-[11px] text-zinc-400">
+                        <span>{isAr ? "تطابق المهارات:" : "Skills Match:"}</span>
+                        <strong className="text-emerald-400 font-bold">{selectedAppRank.scoreBreakdown.skillsMatch}/40</strong>
+                      </div>
+                      <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${(selectedAppRank.scoreBreakdown.skillsMatch / 40) * 100}%` }} />
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-1)]">
-                      <span>{isAr ? "سنوات الخبرة:" : "Experience:"}</span>
-                      <strong className="text-blue-600 dark:text-blue-400 font-bold">{selectedAppRank.scoreBreakdown.experienceScore}/30</strong>
+
+                    <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-white/5 space-y-1">
+                      <div className="flex justify-between text-[11px] text-zinc-400">
+                        <span>{isAr ? "سنوات الخبرة:" : "Experience:"}</span>
+                        <strong className="text-blue-400 font-bold">{selectedAppRank.scoreBreakdown.experienceScore}/30</strong>
+                      </div>
+                      <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-blue-400 h-full rounded-full" style={{ width: `${(selectedAppRank.scoreBreakdown.experienceScore / 30) * 100}%` }} />
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-1)]">
-                      <span>{isAr ? "مرحلة التقييم:" : "Stage Level:"}</span>
-                      <strong className="text-purple-600 dark:text-purple-400 font-bold">{selectedAppRank.scoreBreakdown.stageProgressScore}/20</strong>
+
+                    <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-white/5 space-y-1">
+                      <div className="flex justify-between text-[11px] text-zinc-400">
+                        <span>{isAr ? "مرحلة التقييم:" : "Stage Level:"}</span>
+                        <strong className="text-purple-400 font-bold">{selectedAppRank.scoreBreakdown.stageProgressScore}/20</strong>
+                      </div>
+                      <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-purple-400 h-full rounded-full" style={{ width: `${(selectedAppRank.scoreBreakdown.stageProgressScore / 20) * 100}%` }} />
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-1)]">
-                      <span>{isAr ? "اكتمال الملف:" : "Profile Data:"}</span>
-                      <strong className="text-amber-600 dark:text-amber-400 font-bold">{selectedAppRank.scoreBreakdown.completenessScore}/10</strong>
+
+                    <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-white/5 space-y-1">
+                      <div className="flex justify-between text-[11px] text-zinc-400">
+                        <span>{isAr ? "اكتمال الملف:" : "Profile Data:"}</span>
+                        <strong className="text-amber-400 font-bold">{selectedAppRank.scoreBreakdown.completenessScore}/10</strong>
+                      </div>
+                      <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-amber-400 h-full rounded-full" style={{ width: `${(selectedAppRank.scoreBreakdown.completenessScore / 10) * 100}%` }} />
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
 
               {/* Contact Info */}
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-[var(--surface-hover)]/60 border border-[var(--border-level-1)]">
-                <div>
-                  <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">{isAr ? "البريد الإلكتروني" : "Email"}</div>
-                  <div className="text-sm font-semibold text-[var(--text-primary)] break-all">{selectedApp.email}</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl bg-zinc-900/80 border border-white/10 shadow-lg">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-950/80 border border-white/5">
+                  <div className="min-w-0 flex items-center gap-2.5">
+                    <Mail className="w-4 h-4 text-purple-400 shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{isAr ? "البريد الإلكتروني" : "Email"}</div>
+                      <div className="text-xs font-semibold text-white truncate">{selectedApp.email}</div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(selectedApp.email, "email")}
+                    className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                  >
+                    {copiedField === "email" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
                 </div>
-                <div>
-                  <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">{isAr ? "رقم الهاتف" : "Phone"}</div>
-                  <div className="text-sm font-semibold text-[var(--text-primary)]">{selectedApp.phone || (isAr ? "غير متوفر" : "N/A")}</div>
+
+                <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-950/80 border border-white/5">
+                  <div className="min-w-0 flex items-center gap-2.5">
+                    <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{isAr ? "رقم الهاتف" : "Phone"}</div>
+                      <div className="text-xs font-semibold text-white truncate">{selectedApp.phone || (isAr ? "غير متوفر" : "N/A")}</div>
+                    </div>
+                  </div>
+                  {selectedApp.phone && (
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(selectedApp.phone, "phone")}
+                      className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                    >
+                      {copiedField === "phone" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  )}
                 </div>
-                <div>
-                  <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">{isAr ? "مصدر التقديم" : "Applied via"}</div>
-                  <div className="text-sm font-semibold text-[var(--text-primary)]">{selectedApp.portal} {isAr ? "بوابة" : "Portal"}</div>
+
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-zinc-950/80 border border-white/5">
+                  <Building className="w-4 h-4 text-blue-400 shrink-0" />
+                  <div>
+                    <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{isAr ? "مصدر التقديم" : "Applied via"}</div>
+                    <div className="text-xs font-semibold text-white">{selectedApp.portal} {isAr ? "بوابة" : "Portal"}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">{isAr ? "تاريخ التقديم" : "Applied on"}</div>
-                  <div className="text-sm font-semibold text-[var(--text-primary)]">{new Date(selectedApp.createdAt).toLocaleString()}</div>
+
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-zinc-950/80 border border-white/5">
+                  <Calendar className="w-4 h-4 text-amber-400 shrink-0" />
+                  <div>
+                    <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{isAr ? "تاريخ التقديم" : "Applied on"}</div>
+                    <div className="text-xs font-semibold text-white">{new Date(selectedApp.createdAt).toLocaleString()}</div>
+                  </div>
                 </div>
               </div>
 
               {/* Scheduled Interviews Drawer Section */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-border-default/60">
+                <div className="flex items-center justify-between pb-2 border-b border-white/10">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-purple-400" />
-                    <h3 className="text-base font-bold text-[var(--text-primary)]">
+                    <h3 className="text-sm sm:text-base font-bold text-white">
                       {isAr ? "جدول المقابلات المسجلة" : "Scheduled Candidate Interviews"}
                     </h3>
                   </div>
                   <button
                     type="button"
                     onClick={handleOpenScheduleModal}
-                    className="text-xs font-bold text-purple-400 hover:text-purple-300 inline-flex items-center gap-1"
+                    className="text-xs font-bold text-purple-400 hover:text-purple-300 inline-flex items-center gap-1 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>{isAr ? "إضافة جولة مقابلة" : "Add Interview Round"}</span>
@@ -588,7 +798,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                     {selectedAppInterviews.map((item: any, idx: number) => (
                       <div
                         key={item.id || idx}
-                        className="p-4 rounded-xl bg-purple-950/20 border border-purple-800/40 space-y-2"
+                        className="p-4 rounded-2xl bg-purple-950/20 border border-purple-800/40 space-y-2 shadow-sm"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -608,7 +818,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                         </div>
 
                         {item.rescheduleReason && (
-                          <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">
+                          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300">
                             <span className="font-bold">{isAr ? "مبرر طلب التأجيل: " : "Candidate Reschedule Note: "}</span>
                             {item.rescheduleReason}
                           </div>
@@ -635,7 +845,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                     ))}
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl bg-surface-hover/50 border border-dashed border-border-default text-center text-xs text-zinc-400">
+                  <div className="p-5 rounded-2xl bg-zinc-950/60 border border-dashed border-white/10 text-center text-xs text-zinc-400">
                     {isAr ? "لم يتم جدولة مقابلات بعد. اضغط 'جدولة مقابلة' لإرسال موعد للمترشح." : "No interviews scheduled yet. Click 'Schedule Interview' to book a slot with the candidate."}
                   </div>
                 )}
@@ -647,10 +857,10 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                   const isLegacy = isLegacySimulatedMock(selectedApp.cvParsedData, selectedApp.jobTitle);
                   return (
                     <>
-                      <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-border-default/60">
+                      <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-white/10">
                         <div className="flex items-center gap-2">
                           <Cpu className="w-5 h-5 text-purple-400" />
-                          <h3 className="text-lg font-bold text-[var(--text-primary)]">
+                          <h3 className="text-base sm:text-lg font-bold text-white">
                             {isAr ? "التحليل الذكي لملف المترشح" : "AI Candidate Analysis"}
                           </h3>
                         </div>
@@ -671,7 +881,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                           <button
                             onClick={() => handleParseCV(selectedApp.id)}
                             disabled={parsing}
-                            className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 active:scale-95 disabled:opacity-50 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md hover:shadow-purple-500/20"
+                            className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 active:scale-95 disabled:opacity-50 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md hover:shadow-purple-500/20 cursor-pointer"
                           >
                             <Sparkles className="w-3.5 h-3.5 text-purple-200" />
                             <span>
@@ -686,7 +896,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                       </div>
 
                       {isLegacy && (
-                        <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3">
+                        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3">
                           <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                           <div className="flex-1 text-xs text-amber-200/90 leading-relaxed">
                             <span className="font-bold text-amber-300">
@@ -703,20 +913,65 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                 })()}
                 
                 {selectedApp.cvParsedData ? (
-                  <div className="space-y-6">
-                    <div className="p-4 bg-purple-500/5 dark:bg-purple-950/20 border border-purple-500/20 dark:border-purple-800/40 rounded-xl">
-                      <h4 className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider mb-2">{isAr ? "الملخص التنفيذي" : "Executive Summary"}</h4>
-                      <p className="text-sm text-[var(--text-primary)] dark:text-zinc-200 leading-relaxed font-normal">
+                  <div className="space-y-5">
+                    {/* Executive summary */}
+                    <div className="p-5 bg-gradient-to-br from-purple-950/30 to-zinc-900 border border-purple-800/30 rounded-2xl shadow-lg space-y-2">
+                      <div className="flex items-center gap-2 text-xs font-bold text-purple-400 uppercase tracking-wider">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <span>{isAr ? "الملخص التنفيذي" : "Executive Summary"}</span>
+                      </div>
+                      <p className="text-sm text-zinc-200 leading-relaxed font-normal">
                         {selectedApp.cvParsedData.summary}
                       </p>
                     </div>
+
+                    {/* Verified Career Timeline (if available) */}
+                    {Array.isArray(selectedApp.cvParsedData.careerHistory) && selectedApp.cvParsedData.careerHistory.length > 0 && (
+                      <div className="p-5 rounded-2xl bg-zinc-900/80 border border-white/10 space-y-3 shadow-lg">
+                        <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                          <div className="flex items-center gap-2">
+                            <Briefcase className="w-4 h-4 text-purple-400" />
+                            <h4 className="font-bold text-xs sm:text-sm text-white">
+                              {isAr ? "المسار المهني والمشروعات الميدانية" : "Career Track & Notable Venue Milestones"}
+                            </h4>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 pt-1">
+                          {selectedApp.cvParsedData.careerHistory.map((item: any, hIdx: number) => (
+                            <div key={hIdx} className="relative ps-5 border-s-2 border-purple-500/30 pb-3 last:pb-0">
+                              <span className="absolute -start-[5px] top-1.5 w-2 h-2 rounded-full bg-purple-400" />
+                              <div className="flex justify-between items-baseline gap-2">
+                                <h5 className="text-xs font-bold text-white">{item.title}</h5>
+                                <span className="text-[10px] font-mono text-purple-300 px-1.5 py-0.5 rounded bg-purple-950/60 border border-purple-800/40">
+                                  {item.period}
+                                </span>
+                              </div>
+                              <div className="text-[11px] text-zinc-400">
+                                {item.company} {item.location ? `· ${item.location}` : ""}
+                              </div>
+                              {Array.isArray(item.highlights) && (
+                                <ul className="mt-1 text-[11px] text-zinc-300 list-disc ps-4 space-y-0.5">
+                                  {item.highlights.map((h: string, hi: number) => (
+                                    <li key={hi}>{h}</li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="p-4 bg-[var(--surface-hover)]/60 border border-[var(--border-level-1)] rounded-xl">
-                        <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-3">{isAr ? "المهارات المستخرجة" : "Extracted Skills"}</h4>
-                        <div className="flex flex-wrap gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-zinc-900/80 border border-white/10 rounded-2xl shadow-lg">
+                        <div className="flex items-center gap-2 pb-2 border-b border-white/10 mb-3">
+                          <Layers className="w-3.5 h-3.5 text-purple-400" />
+                          <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">{isAr ? "المهارات المستخرجة" : "Extracted Skills"}</h4>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
                           {(selectedApp.cvParsedData.skills || []).map((skill: string, i: number) => (
-                            <span key={i} className="px-2.5 py-1 bg-[var(--surface-default)] text-xs rounded-md text-[var(--text-primary)] border border-[var(--border-level-1)] shadow-2xs">
+                            <span key={i} className="px-2.5 py-1 bg-purple-950/40 text-xs rounded-xl text-purple-200 border border-purple-800/30 shadow-2xs font-medium">
                               {skill}
                             </span>
                           ))}
@@ -724,19 +979,22 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                       </div>
                       
                       <div className="space-y-4">
-                        <div className="p-4 bg-[var(--surface-hover)]/60 border border-[var(--border-level-1)] rounded-xl">
-                          <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">{isAr ? "سنوات الخبرة" : "Years of Experience"}</h4>
-                          <p className="text-2xl font-black text-[var(--text-primary)]">{selectedApp.cvParsedData.experienceYears} {isAr ? "سنوات" : "Years"}</p>
+                        <div className="p-4 bg-zinc-900/80 border border-white/10 rounded-2xl shadow-lg">
+                          <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">{isAr ? "سنوات الخبرة" : "Years of Experience"}</h4>
+                          <p className="text-2xl font-black text-white">{selectedApp.cvParsedData.experienceYears} {isAr ? "سنوات" : "Years"}</p>
                         </div>
-                        <div className="p-4 bg-[var(--surface-hover)]/60 border border-[var(--border-level-1)] rounded-xl">
-                          <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">{isAr ? "المؤهل التعليمي" : "Education"}</h4>
-                          <p className="text-sm font-semibold text-[var(--text-primary)]">{selectedApp.cvParsedData.education}</p>
+                        <div className="p-4 bg-zinc-900/80 border border-white/10 rounded-2xl shadow-lg">
+                          <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">{isAr ? "المؤهل التعليمي" : "Education"}</h4>
+                          <p className="text-sm font-semibold text-white">{selectedApp.cvParsedData.education}</p>
+                          {selectedApp.cvParsedData.university && (
+                            <p className="text-xs text-zinc-400 mt-0.5">{selectedApp.cvParsedData.university}</p>
+                          )}
                         </div>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="p-8 text-center border border-dashed border-border-default rounded-xl bg-surface-hover/50">
+                  <div className="p-8 text-center border border-dashed border-white/10 rounded-2xl bg-zinc-950/50">
                     <FileText className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
                     <h4 className="text-white font-medium mb-2">{isAr ? "لم يتم تحليل السيرة الذاتية بعد" : "CV Not Parsed Yet"}</h4>
                     <p className="text-sm text-zinc-400 mb-6 max-w-md mx-auto">
@@ -752,7 +1010,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-text-secondary p-8">
+            <div className="flex-1 flex flex-col items-center justify-center text-zinc-500 p-8">
               <FileText className="w-16 h-16 text-zinc-800 mb-4" />
               <p>{isAr ? "حدد طلباً من القائمة لعرض تفاصيله الكاملة." : "Select an application to view details."}</p>
             </div>

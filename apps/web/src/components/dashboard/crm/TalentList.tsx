@@ -85,6 +85,12 @@ export function TalentList({
   });
   const [isIngesting, setIsIngesting] = useState(false);
 
+  const getInitials = (name: string) => {
+    const parts = (name || "").trim().split(" ");
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return ((name || "")[0] || "C").toUpperCase();
+  };
+
   // Precompute rankings across entire pool
   const rankingsMap = useMemo(() => {
     const map = new Map<string, any>();
@@ -444,25 +450,32 @@ export function TalentList({
                     {stageCandidates.map((cand) => {
                       const rankInfo = rankingsMap.get(cand.id);
                       const roleName = cand.position || cand.job?.title || "Professional";
+                      const initials = getInitials(cand.name);
 
                       return (
                         <div
                           key={cand.id}
-                          className="p-3 rounded-xl bg-[var(--surface-hover)]/70 border border-[var(--border-level-1)] hover:border-[var(--border-level-2)] hover:shadow-md transition-all space-y-2.5 group"
+                          className="p-3.5 rounded-2xl bg-[var(--surface-hover)]/80 border border-[var(--border-level-1)] hover:border-purple-500/40 hover:shadow-lg transition-all space-y-3 group"
                         >
-                          <div className="flex items-start justify-between gap-2">
-                            <h4
-                              onClick={() => setSelectedTalentId(cand.id)}
-                              className="font-bold text-xs text-[var(--text-primary)] hover:text-[var(--color-primary)] cursor-pointer truncate"
-                            >
-                              {cand.name}
-                            </h4>
+                          <div className="flex items-start justify-between gap-2.5">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-800 text-white font-black text-[11px] flex items-center justify-center shrink-0 shadow-sm ring-1 ring-white/10">
+                                {initials}
+                              </div>
+                              <h4
+                                onClick={() => setSelectedTalentId(cand.id)}
+                                className="font-bold text-xs text-[var(--text-primary)] hover:text-purple-400 cursor-pointer truncate"
+                              >
+                                {cand.name}
+                              </h4>
+                            </div>
+
                             {rankInfo && (
                               <span
                                 className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border flex items-center gap-1 shrink-0 ${
                                   rankInfo.rank === 1
-                                    ? "bg-amber-500/10 text-amber-300 border-amber-500/30"
-                                    : "bg-purple-500/10 text-purple-300 border-purple-500/30"
+                                    ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                                    : "bg-purple-500/15 text-purple-300 border-purple-500/30"
                                 }`}
                               >
                                 <Award className="w-2.5 h-2.5" />
@@ -473,15 +486,15 @@ export function TalentList({
 
                           <div className="text-[11px] text-[var(--text-secondary)] flex items-center gap-1 truncate">
                             <Briefcase className="w-3 h-3 text-[var(--text-tertiary)] shrink-0" />
-                            <span className="truncate">{roleName}</span>
+                            <span className="truncate font-medium">{roleName}</span>
                           </div>
 
                           {cand.skills && Array.isArray(cand.skills) && cand.skills.length > 0 && (
-                            <div className="flex flex-wrap gap-1 pt-1">
-                              {cand.skills.slice(0, 2).map((sk: string, idx: number) => (
+                            <div className="flex flex-wrap gap-1 pt-0.5">
+                              {cand.skills.slice(0, 3).map((sk: string, idx: number) => (
                                 <span
                                   key={idx}
-                                  className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-1)] truncate max-w-[120px]"
+                                  className="text-[9px] px-2 py-0.5 rounded-lg bg-[var(--surface-default)] text-purple-300 border border-purple-500/20 truncate max-w-[120px] font-medium"
                                 >
                                   {sk}
                                 </span>
@@ -489,7 +502,7 @@ export function TalentList({
                             </div>
                           )}
 
-                          <div className="pt-2 border-t border-[var(--border-level-1)]/60 flex items-center justify-between text-[10px]">
+                          <div className="pt-2.5 border-t border-[var(--border-level-1)]/60 flex items-center justify-between text-[10px]">
                             {/* CV Preview Trigger */}
                             {cand.resumeUrl ? (
                               <button
@@ -508,7 +521,7 @@ export function TalentList({
                                     createdAt: cand.appliedDate,
                                   })
                                 }
-                                className="text-[var(--color-primary)] hover:underline inline-flex items-center gap-1 font-bold"
+                                className="px-2.5 py-1 rounded-lg bg-indigo-600/15 hover:bg-indigo-600/25 text-indigo-400 border border-indigo-500/30 font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
                               >
                                 <Eye className="w-3 h-3" />
                                 <span>{isAr ? "معاينة CV" : "Preview"}</span>
@@ -521,7 +534,7 @@ export function TalentList({
                             <select
                               value={cand.status}
                               onChange={(e) => updateStatus(cand.id, e.target.value)}
-                              className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded px-1.5 py-0.5 text-[10px] text-[var(--text-primary)] font-medium focus:outline-none cursor-pointer"
+                              className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded-lg px-2 py-1 text-[10px] text-[var(--text-primary)] font-bold focus:outline-none cursor-pointer"
                             >
                               {PIPELINE_STAGES.map((s) => (
                                 <option key={s.id} value={s.id}>

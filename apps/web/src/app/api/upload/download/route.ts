@@ -121,14 +121,59 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // 3. Handle Candidate Resume Download (Legacy Pathname Fallback)
-  if (!rawPathname) {
+  const isInline = searchParams.get('inline') === '1' || searchParams.get('inline') === 'true';
+  const applicationId = searchParams.get('applicationId');
+
+  // 3. Handle Candidate Resume Download / Inline Preview
+  let targetPathname = rawPathname;
+  let customFilename = '';
+
+  if (applicationId) {
+    const isResumeAuthorized = (RESUME_ALLOWED_ROLES as readonly string[]).includes(userRole);
+    if (!isResumeAuthorized) {
+      return NextResponse.json({ error: 'Forbidden: Access denied to candidate documents' }, { status: 403 });
+    }
+
+    try {
+      let app = await db.jobApplication.findUnique({
+        where: { id: applicationId },
+        select: { cvUrl: true, firstName: true, lastName: true, jobTitle: true },
+      });
+
+      if (app && app.cvUrl) {
+        targetPathname = app.cvUrl;
+        customFilename = `${app.firstName || ''}_${app.lastName || ''}_CV.pdf`.replace(/\s+/g, '_');
+      } else {
+        // Fallback to db.talent
+        const talent = await db.talent.findUnique({
+          where: { id: applicationId },
+          select: { resumeUrl: true, name: true, position: true },
+        });
+
+        if (talent && talent.resumeUrl) {
+          targetPathname = talent.resumeUrl;
+          customFilename = `${talent.name.replace(/\s+/g, '_')}_CV.pdf`;
+        } else {
+          return NextResponse.json({ error: 'Candidate application or CV document not found' }, { status: 404 });
+        }
+      }
+    } catch (_appErr) {
+      return NextResponse.json({ error: 'Failed to resolve application document' }, { status: 500 });
+    }
+  }
+
+  if (!targetPathname) {
     return NextResponse.json({ error: 'Missing document reference parameter' }, { status: 400 });
   }
 
   // Prevent path traversal
-  if (rawPathname.includes('..') || rawPathname.includes('\0')) {
+  if (targetPathname.includes('..') || targetPathname.includes('\0')) {
     return NextResponse.json({ error: 'Invalid document reference' }, { status: 400 });
+  }
+
+  // If candidate CV is an external URL, redirect directly to it
+  if (targetPathname.startsWith('http://') || targetPathname.startsWith('https://')) {
+    return NextResponse.redirect(targetPathname, { status: 307 });
   }
 
   const isResumeAuthorized = (RESUME_ALLOWED_ROLES as readonly string[]).includes(userRole);
@@ -138,18 +183,23 @@ export async function GET(req: NextRequest) {
 
   try {
     const resumeToken = process.env.RESUME_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
-    const safeFilename = sanitizeFilename(path.basename(rawPathname));
-    const isPdf = safeFilename.toLowerCase().endsWith('.pdf');
+    const safeFilename = sanitizeFilename(customFilename || path.basename(targetPathname));
+    const isPdf = safeFilename.toLowerCase().endsWith('.pdf') || targetPathname.toLowerCase().endsWith('.pdf');
 
+    const dispositionType = isInline ? 'inline' : 'attachment';
     const responseHeaders = new Headers();
     responseHeaders.set('Content-Type', isPdf ? 'application/pdf' : 'application/octet-stream');
-    responseHeaders.set('Content-Disposition', `attachment; filename="${safeFilename}"`);
+    responseHeaders.set('Content-Disposition', `${dispositionType}; filename="${safeFilename}"`);
     responseHeaders.set('X-Content-Type-Options', 'nosniff');
     responseHeaders.set('Cache-Control', 'private, no-store, max-age=0, must-revalidate');
 
+    if (isInline) {
+      responseHeaders.set('X-Frame-Options', 'SAMEORIGIN');
+    }
+
     if (resumeToken) {
       const { get } = await import('@vercel/blob');
-      const result = await get(rawPathname, {
+      const result = await get(targetPathname, {
         access: 'private',
         token: resumeToken,
       } as any);
@@ -164,7 +214,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const localPath = path.join(process.cwd(), 'private', 'private_resumes', safeFilename);
+    const localPath = path.join(process.cwd(), 'private', 'private_resumes', path.basename(targetPathname));
     try {
       const fileBuffer = await fs.readFile(localPath);
       return new NextResponse(fileBuffer, {
