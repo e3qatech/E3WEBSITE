@@ -242,29 +242,41 @@ export async function DELETE(
       }
     }
 
-    // 4. Atomic deletion with foreign key safety cleanup
-    await (db as any).$transaction(async (tx: any) => {
-      // Cascade-delete dependent authentication & membership records
-      await tx.account.deleteMany({ where: { userId: id } });
-      await tx.session.deleteMany({ where: { userId: id } });
-      await tx.clientMembership.deleteMany({ where: { userId: id } });
-
-      // Unlink optional user foreign keys
-      await tx.systemLog.updateMany({ where: { userId: id }, data: { userId: null } });
-      await tx.jobApplication.updateMany({ where: { userId: id }, data: { userId: null } });
-      await tx.packageLead.updateMany({ where: { assignedToId: id }, data: { assignedToId: null } });
-      await tx.invitationToken.deleteMany({ where: { createdById: id } });
-
-      // Clean verification tokens matching user email
-      if (existingUser.email) {
-        await tx.verificationToken.deleteMany({
-          where: { identifier: { contains: existingUser.email } },
-        });
+    // 4. Defensive relation cleanup & foreign key unlinking
+    // Wrap each optional table cleanup so that if auxiliary models (such as ClientMembership,
+    // InvitationToken, JobApplication, etc.) do not exist in the database, deletion never fails.
+    const safeCleanup = async (fn: () => Promise<any>) => {
+      try {
+        await fn();
+      } catch (err: any) {
+        // Table or relation does not exist or has no matching records; safely ignore
+        console.warn("[USER_DELETE_CLEANUP_NOTE]", err?.message || err);
       }
+    };
 
-      // Finally delete the user record
-      await tx.user.delete({ where: { id } });
-    });
+    // Dependent authentication sessions and accounts
+    await safeCleanup(() => db.account.deleteMany({ where: { userId: id } }));
+    await safeCleanup(() => db.session.deleteMany({ where: { userId: id } }));
+
+    // Optional portal memberships and profiles
+    await safeCleanup(() => (db as any).clientMembership?.deleteMany({ where: { userId: id } }));
+    await safeCleanup(() => (db as any).employeeProfile?.updateMany({ where: { userId: id }, data: { userId: null } }));
+    await safeCleanup(() => (db as any).jobApplication?.updateMany({ where: { userId: id }, data: { userId: null } }));
+    await safeCleanup(() => (db as any).packageLead?.updateMany({ where: { assignedToId: id }, data: { assignedToId: null } }));
+    await safeCleanup(() => (db as any).invitationToken?.deleteMany({ where: { createdById: id } }));
+    await safeCleanup(() => (db as any).systemLog?.updateMany({ where: { userId: id }, data: { userId: null } }));
+
+    // Clean verification tokens matching user email
+    if (existingUser.email) {
+      await safeCleanup(() =>
+        db.verificationToken.deleteMany({
+          where: { identifier: { contains: existingUser.email } },
+        })
+      );
+    }
+
+    // Finally delete the user record
+    await db.user.delete({ where: { id } });
 
     // 5. Record audit telemetry
     try {

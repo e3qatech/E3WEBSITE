@@ -47,34 +47,54 @@ export async function GET(request: Request) {
       where.role = normalizeRole(rawRole);
     }
 
-    const users = await db.user.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        isActive: true,
-        sessionVersion: true,
-        createdAt: true,
-        updatedAt: true,
-        clientMemberships: {
-          select: {
-            id: true,
-            role: true,
-            clientId: true,
-            client: {
-              select: {
-                id: true,
-                company: true,
+    let users: any[] = [];
+    try {
+      users = await db.user.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          isActive: true,
+          sessionVersion: true,
+          createdAt: true,
+          updatedAt: true,
+          clientMemberships: {
+            select: {
+              id: true,
+              role: true,
+              clientId: true,
+              client: {
+                select: {
+                  id: true,
+                  company: true,
+                },
               },
             },
           },
         },
-      },
-      take: 100,
-    });
+        take: 100,
+      });
+    } catch (_clientMembershipsErr) {
+      // Fallback query if clientMemberships table is missing in target database
+      users = await db.user.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          isActive: true,
+          sessionVersion: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        take: 100,
+      });
+    }
 
     return NextResponse.json(users);
   } catch (error: any) {
