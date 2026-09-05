@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useLocale } from "@/components/layout/LocaleProvider";
-import { Search, Plus, Shield, UserCheck, KeyRound, Building, Edit, Lock, Snowflake } from "lucide-react";
+import { Search, Plus, Shield, UserCheck, KeyRound, Building, Edit, Lock, Snowflake, Trash2, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
@@ -27,6 +27,8 @@ export type UserItem = {
 
 export const ROLES = [
   { value: "SUPER_ADMIN", label: "Super Admin", labelAr: "المدير العام", variant: "error" },
+  { value: "EVENTS_ADMIN", label: "Events Admin (Packages)", labelAr: "مدير باقات الفعاليات", variant: "purple" },
+  { value: "EVENTS_TEAM", label: "Events Team Coordinator", labelAr: "منسق فريق الفعاليات", variant: "purple" },
   { value: "B2C_ADMIN", label: "B2C Admin", labelAr: "مدير الأفراد (B2C)", variant: "purple" },
   { value: "B2B_ADMIN", label: "B2B Admin", labelAr: "مدير الشركات (B2B)", variant: "warning" },
   { value: "HR_ADMIN", label: "HR Admin", labelAr: "مدير الموارد البشرية", variant: "info" },
@@ -47,9 +49,11 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
   const [users, setUsers] = useState<UserItem[]>(initialUsers);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"" | "active" | "frozen">("");
   const [isAdding, setIsAdding] = useState(false);
   const [editingUser, setEditingUser] = useState<UserItem | null>(null);
   const [passwordUser, setPasswordUser] = useState<UserItem | null>(null);
+  const [deletingUser, setDeletingUser] = useState<UserItem | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -79,6 +83,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
       setUsers((prev) => [result, ...prev]);
       setIsAdding(false);
       router.refresh();
+      alert(isAr ? "تم إنشاء المستخدم بنجاح." : "User created successfully.");
     } catch (err: any) {
       alert(err.message || (isAr ? "فشل إنشاء المستخدم" : "Failed to create user"));
     } finally {
@@ -165,8 +170,8 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
   const handleToggleFreezeStatus = async (userId: string, currentStatus: boolean) => {
     const actionName = currentStatus ? (isAr ? "تجميد" : "Freeze") : (isAr ? "إلغاء تجميد" : "Unfreeze");
     const confirmFreezeMsg = isAr
-      ? `هل تريد ${actionName} هذا الحساب؟ ${currentStatus ? "سيتم إنهاء جميع الجلسات النشطة فوراً." : ""}`
-      : `${actionName} this user account? ${currentStatus ? "Their active login sessions will be immediately terminated." : ""}`;
+      ? `هل تريد ${actionName} هذا الحساب؟ ${currentStatus ? "سيتم إنهاء جميع الجلسات النشطة فوراً ومنعه من تسجيل الدخول." : "سيتمكن المستخدم من تسجيل الدخول مجدداً."}`
+      : `${actionName} this user account? ${currentStatus ? "Their active login sessions will be immediately terminated and login will be blocked." : "The user will be able to log in again."}`;
     if (!confirm(confirmFreezeMsg)) return;
     setUpdatingId(userId);
     try {
@@ -191,8 +196,8 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
 
   const handleRevokeSessions = async (userId: string) => {
     const confirmRevokeMsg = isAr
-      ? "هل تريد إلغاء جميع الجلسات النشطة لهذا المستخدم؟ سيُطلب منه تسجيل الدخول مجدداً."
-      : "Revoke all active sessions for this user? They will be forced to log in again.";
+      ? "هل تريد إلغاء جميع الجلسات النشطة لهذا المستخدم؟ سيُطلب منه تسجيل الدخول مجدداً على جميع الأجهزة."
+      : "Revoke all active sessions for this user? They will be forced to log in again on all devices.";
     if (!confirm(confirmRevokeMsg)) return;
     setUpdatingId(userId);
     try {
@@ -216,12 +221,39 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
     }
   };
 
+  const handleDeleteUser = async () => {
+    if (!deletingUser) return;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/admin/users/${deletingUser.id}`, {
+        method: "DELETE",
+      });
+
+      const result = await res.json();
+      if (!res.ok) {
+        throw new Error(result.error || (isAr ? "فشل حذف حساب المستخدم" : "Failed to delete user account"));
+      }
+
+      setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
+      setDeletingUser(null);
+      alert(isAr ? `تم حذف حساب ${deletingUser.email} نهائياً.` : `User account ${deletingUser.email} has been permanently deleted.`);
+    } catch (err: any) {
+      alert(err.message || (isAr ? "فشل حذف حساب المستخدم" : "Failed to delete user account"));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const filtered = users.filter((u) => {
     const matchesSearch =
       (u.name?.toLowerCase() || "").includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase());
     const matchesRole = !roleFilter || u.role === roleFilter;
-    return matchesSearch && matchesRole;
+    const matchesStatus =
+      !statusFilter ||
+      (statusFilter === "active" && u.isActive) ||
+      (statusFilter === "frozen" && !u.isActive);
+    return matchesSearch && matchesRole && matchesStatus;
   });
 
   const getRoleBadge = (role: string) => {
@@ -230,6 +262,8 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
     switch (role) {
       case "SUPER_ADMIN":
         return <Badge variant="error">{label}</Badge>;
+      case "EVENTS_ADMIN":
+      case "EVENTS_TEAM":
       case "B2C_ADMIN":
       case "STAFF":
         return <Badge variant="gradient">{label}</Badge>;
@@ -256,8 +290,8 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
           </h2>
           <p className="text-xs text-text-secondary">
             {isAr
-              ? "استعراض الحسابات النشطة، تعيين الأدوار والصلاحيات، تجميد الحسابات المشبوهة، وإلغاء الجلسات."
-              : "View active accounts, assign permissions, revoke sessions, or freeze compromised credentials."}
+              ? "استعراض الحسابات النشطة، تعيين الأدوار والصلاحيات، تجميد الحسابات المشبوهة، حذف الحسابات، وإلغاء الجلسات."
+              : "View active accounts, assign permissions, revoke sessions, freeze compromised credentials, or delete users."}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -268,7 +302,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
               placeholder={isAr ? "بحث بالاسم أو البريد..." : "Search user or email..."}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="ps-9 pe-4 py-2 bg-surface-default border border-border-default rounded-lg text-sm focus:outline-none focus:border-accent w-full md:w-64"
+              className="ps-9 pe-4 py-2 bg-surface-default border border-border-default rounded-lg text-sm focus:outline-none focus:border-accent w-full md:w-60"
             />
           </div>
 
@@ -283,6 +317,16 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                 {isAr ? r.labelAr : r.label}
               </option>
             ))}
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as any)}
+            className="px-3 py-2 bg-surface-default border border-border-default rounded-lg text-sm"
+          >
+            <option value="">{isAr ? "جميع الحالات" : "All Statuses"}</option>
+            <option value="active">{isAr ? "الحسابات النشطة فقط" : "Active Accounts Only"}</option>
+            <option value="frozen">{isAr ? "الحسابات المجمدة فقط" : "Frozen Accounts Only"}</option>
           </select>
 
           <Button className="gap-2" onClick={() => setIsAdding(true)}>
@@ -305,7 +349,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
               <button
                 type="button"
                 onClick={() => setIsAdding(false)}
-                className="text-text-tertiary hover:text-text-primary"
+                className="text-text-tertiary hover:text-text-primary cursor-pointer"
               >
                 ✕
               </button>
@@ -342,7 +386,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
               <input
                 type="password"
                 name="password"
-                placeholder={isAr ? "اتركه فارغاً لإرسال رابط التفعيل" : "Leave empty for magic claim link"}
+                placeholder={isAr ? "٨ أحرف على الأقل" : "Min. 8 chars with mixed case & number"}
                 className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-mono"
               />
             </div>
@@ -397,7 +441,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
               <button
                 type="button"
                 onClick={() => setEditingUser(null)}
-                className="text-text-tertiary hover:text-text-primary"
+                className="text-text-tertiary hover:text-text-primary cursor-pointer"
               >
                 ✕
               </button>
@@ -482,7 +526,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
               <button
                 type="button"
                 onClick={() => setPasswordUser(null)}
-                className="text-text-tertiary hover:text-text-primary"
+                className="text-text-tertiary hover:text-text-primary cursor-pointer"
               >
                 ✕
               </button>
@@ -491,11 +535,11 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
             <p className="text-xs text-text-secondary">
               {isAr ? (
                 <>
-                  تعيين كلمة مرور جديدة للحساب <strong className="text-text-primary font-mono">{passwordUser.email}</strong>. سيؤدي هذا الإجراء تلقائياً إلى إلغاء جميع جلسات تسجيل الدخول الحالية لهذا الحساب.
+                  تعيين كلمة مرور جديدة للحساب <strong className="text-text-primary font-mono">{passwordUser.email}</strong>. سيؤدي هذا الإجراء تلقائياً إلى إلغاء جميع جلسات تسجيل الدخول الحالية لهذا الحساب على كافة الأجهزة.
                 </>
               ) : (
                 <>
-                  Set a new password for <strong className="text-text-primary font-mono">{passwordUser.email}</strong>. This will automatically invalidate all existing login sessions for this account.
+                  Set a new password for <strong className="text-text-primary font-mono">{passwordUser.email}</strong>. This will automatically invalidate all existing login sessions across all devices for this account.
                 </>
               )}
             </p>
@@ -509,7 +553,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder={isAr ? "٦ أحرف على الأقل" : "At least 6 characters"}
+                placeholder={isAr ? "٨ أحرف على الأقل" : "At least 8 characters"}
                 className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-mono"
               />
             </div>
@@ -529,6 +573,70 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
               </Button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* DELETE USER CONFIRMATION MODAL */}
+      {deletingUser && (
+        <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-surface-default rounded-2xl w-full max-w-md p-6 border border-rose-500/30 shadow-2xl animate-in fade-in zoom-in duration-200 space-y-4">
+            <div className="flex items-center gap-3 text-rose-400">
+              <div className="p-2.5 rounded-full bg-rose-500/10 border border-rose-500/20">
+                <AlertTriangle className="w-6 h-6 text-rose-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-text-primary">
+                  {isAr ? "تأكيد حذف حساب المستخدم" : "Confirm Permanent Deletion"}
+                </h2>
+                <p className="text-xs text-rose-400 font-medium">
+                  {isAr ? "إجراء خطير ولا يمكن التراجع عنه" : "Destructive irreversible action"}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-surface-hover border border-border-default space-y-1.5 text-xs text-text-secondary">
+              <div>
+                <span className="font-bold text-text-primary">{isAr ? "الاسم: " : "Name: "}</span>
+                {deletingUser.name || (isAr ? "غير محدد" : "Unnamed")}
+              </div>
+              <div>
+                <span className="font-bold text-text-primary">{isAr ? "البريد: " : "Email: "}</span>
+                <span className="font-mono text-text-primary">{deletingUser.email}</span>
+              </div>
+              <div>
+                <span className="font-bold text-text-primary">{isAr ? "الدور الأمني: " : "Role: "}</span>
+                <span>{deletingUser.role}</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-text-secondary leading-relaxed">
+              {isAr
+                ? "سيؤدي هذا الإجراء إلى حذف هذا الحساب نهائياً من قاعدة البيانات، بالإضافة إلى إنهاء جميع الجلسات النشطة وإلغاء العضويات والارتباطات. لن تتمكن من استرجاع هذا الحساب بعد الحذف."
+                : "This will permanently remove this user account from the database, terminate all active sessions, and detach associated permissions. This action cannot be reversed."}
+            </p>
+
+            <div className="pt-2 flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={() => setDeletingUser(null)}
+              >
+                {isAr ? "إلغاء" : "Cancel"}
+              </Button>
+              <Button
+                type="button"
+                disabled={isSubmitting}
+                onClick={handleDeleteUser}
+                className="bg-rose-600 hover:bg-rose-500 text-white font-bold gap-2 cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" />
+                {isSubmitting
+                  ? (isAr ? "جاري الحذف..." : "Deleting...")
+                  : (isAr ? "نعم، احذف الحساب نهائياً" : "Yes, Delete Account")}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -593,7 +701,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                     <td className="px-6 py-4 text-xs font-mono text-text-secondary">
                       v{u.sessionVersion || 1}
                     </td>
-                    <td className="px-6 py-4 text-right space-x-1.5">
+                    <td className="px-6 py-4 text-right space-x-1.5 rtl:space-x-reverse">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -644,6 +752,17 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                         title={isAr ? "إلغاء الجلسات النشطة" : "Revoke active sessions"}
                       >
                         <KeyRound className="w-3.5 h-3.5" />
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={updatingId === u.id}
+                        onClick={() => setDeletingUser(u)}
+                        className="text-rose-400 hover:bg-rose-500/10 cursor-pointer"
+                        title={isAr ? "حذف حساب المستخدم نهائياً" : "Delete user account permanently"}
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-rose-400" />
                       </Button>
                     </td>
                   </tr>

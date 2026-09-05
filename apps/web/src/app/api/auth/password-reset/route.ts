@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
       const rawResetToken = crypto.randomBytes(32).toString('hex');
       const tokenHash = crypto.createHash('sha256').update(rawResetToken).digest('hex');
       const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-      const identifier = `pwd_reset:${cleanEmail}:${portal || 'staff'}`;
+      const identifier = `pwd_reset:${cleanEmail}:${portal || 'staff'}:${resolvedLocale}`;
 
       await db.verificationToken.create({
         data: {
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
 
       // Construct authoritative Password Reset URL (preview-aware and production-validated)
       const baseOrigin = resolveAuthoritativeOrigin(req);
-      const resetUrl = `${baseOrigin}/${resolvedLocale}/reset-password?token=${encodeURIComponent(rawResetToken)}`;
+      const resetUrl = `${baseOrigin}/${resolvedLocale}/reset-password?token=${encodeURIComponent(rawResetToken)}&portal=${encodeURIComponent(portal || 'staff')}`;
 
       // Dispatch password reset email via Resend
       const emailResult = await sendEmail({
@@ -194,6 +194,7 @@ export async function POST(req: NextRequest) {
           const parts = resetRecord.identifier.split(':');
           const email = parts[1];
           const portalKey = parts[2] || 'staff';
+          const localeKey = parts[3] || 'en';
 
           const user = await tx.user.findUnique({
             where: { email },
@@ -201,6 +202,10 @@ export async function POST(req: NextRequest) {
 
           if (!user) {
             throw new Error('USER_NOT_FOUND');
+          }
+
+          if (!user.isActive) {
+            throw new Error('ACCOUNT_FROZEN');
           }
 
           const hashedPassword = await bcrypt.hash(password, 10);
@@ -215,14 +220,17 @@ export async function POST(req: NextRequest) {
             },
           });
 
-          return { portal: portalKey };
+          return { portal: portalKey, locale: localeKey };
         });
 
         const portalKey = result.portal;
-        let redirectUrl = `/en/login/admin`;
-        if (portalKey === 'staff') redirectUrl = `/en/login/staff`;
-        if (portalKey === 'business') redirectUrl = `/en/login/business`;
-        if (portalKey === 'careers') redirectUrl = `/en/login/careers`;
+        const localeKey = result.locale === 'ar' ? 'ar' : 'en';
+
+        let redirectUrl = `/${localeKey}/login/admin`;
+        if (portalKey === 'events') redirectUrl = `/${localeKey}/login/events`;
+        if (portalKey === 'staff') redirectUrl = `/${localeKey}/login/staff`;
+        if (portalKey === 'business') redirectUrl = `/${localeKey}/login/business`;
+        if (portalKey === 'careers') redirectUrl = `/${localeKey}/login/careers`;
 
         return NextResponse.json({
           success: true,
@@ -235,6 +243,12 @@ export async function POST(req: NextRequest) {
           return NextResponse.json(
             { error: 'Invalid, expired, or already used password reset token' },
             { status: 400 }
+          );
+        }
+        if (txError.message === 'ACCOUNT_FROZEN') {
+          return NextResponse.json(
+            { error: 'This account has been frozen or deactivated. Please contact the platform administrator.' },
+            { status: 403 }
           );
         }
         if (txError.message === 'USER_NOT_FOUND') {
