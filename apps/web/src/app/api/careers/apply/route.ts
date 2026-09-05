@@ -117,14 +117,27 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 3. Create the application and link it to the user
+    // 3. Create the application and link it to the user with genuine AI parsing
     const candidateFullName = `${validatedData.firstName.trim()} ${validatedData.lastName.trim()}`;
-    const domainData = getDomainExtraction(verifiedJobTitle, verifiedDepartment || undefined, candidateFullName);
-    const initialParsedPayload = {
-      ...domainData,
-      parsedAt: new Date().toISOString(),
-      aiEngine: 'e3-domain-engine' as const,
-    };
+    let parsedPayload: any = null;
+    try {
+      parsedPayload = await parseResumeWithAI({
+        jobTitle: verifiedJobTitle,
+        department: verifiedDepartment || undefined,
+        candidateName: candidateFullName,
+        email: cleanEmail,
+        phone: validatedData.phone?.trim() || undefined,
+        cvUrl: validatedData.cvUrl || undefined,
+      });
+    } catch (parseErr) {
+      console.warn('[Apply Route] AI parse exception, falling back to domain extraction:', parseErr);
+      const domainData = getDomainExtraction(verifiedJobTitle, verifiedDepartment || undefined, candidateFullName, cleanEmail);
+      parsedPayload = {
+        ...domainData,
+        parsedAt: new Date().toISOString(),
+        aiEngine: 'e3-domain-engine',
+      };
+    }
 
     const application = await db.jobApplication.create({
       data: {
@@ -135,7 +148,7 @@ export async function POST(req: NextRequest) {
         jobTitle: verifiedJobTitle,
         department: verifiedDepartment,
         cvUrl: validatedData.cvUrl,
-        cvParsedData: initialParsedPayload,
+        cvParsedData: parsedPayload,
         portal: validatedData.portal,
         userId: user.id
       }
@@ -154,11 +167,11 @@ export async function POST(req: NextRequest) {
             department: verifiedDepartment,
             jobId: validatedData.jobId || null,
             resumeUrl: validatedData.cvUrl,
-            experienceLevel: `${domainData.experienceYears} Years`,
-            skills: domainData.skills,
+            experienceLevel: `${parsedPayload.experienceYears} Years`,
+            skills: parsedPayload.skills,
             languages: ["English", "Arabic"],
             status: "NEW",
-            notes: `[E3 AI] ${domainData.summary}`,
+            notes: `[E3 AI] ${parsedPayload.summary}`,
           }
         });
         talentId = talent.id;

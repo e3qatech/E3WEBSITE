@@ -58,10 +58,13 @@ export async function POST(
         });
       } catch (_tErr) {}
 
+      console.log(`[Re-Analyze] Application ${id} parsed successfully with engine: ${payload.aiEngine}`);
+
       return NextResponse.json({
         success: true,
+        aiEngine: payload.aiEngine,
         application: updatedApplication,
-        data: { application: updatedApplication },
+        data: { application: updatedApplication, aiEngine: payload.aiEngine },
       });
     }
 
@@ -107,11 +110,14 @@ export async function POST(
       createdAt: updatedTalent.appliedDate.toISOString(),
     };
 
+    console.log(`[Re-Analyze] Talent ${id} parsed successfully with engine: ${talentPayload.aiEngine}`);
+
     return NextResponse.json({
       success: true,
+      aiEngine: talentPayload.aiEngine,
       talent: updatedTalent,
       application: unifiedApp,
-      data: { application: unifiedApp, talent: updatedTalent },
+      data: { application: unifiedApp, talent: updatedTalent, aiEngine: talentPayload.aiEngine },
     });
   } catch (error) {
     console.error("[POST /api/careers/:id/parse] error:", error);

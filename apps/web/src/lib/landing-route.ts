@@ -194,6 +194,9 @@ export function sanitizeCallbackUrl(
     if (role === 'CLIENT' && decoded.includes('/dashboard')) {
       return `/${locale}/business`;
     }
+    if ((role === ('CANDIDATE' as any) || cleanRole === 'CANDIDATE') && decoded.includes('/dashboard')) {
+      return `/${locale}/candidate`;
+    }
     if (cleanRole === 'HR_ADMIN' || cleanRole === 'HR') {
       if (decoded.includes('/business') || decoded.includes('/candidate')) {
         return `/${locale}/dashboard/team`;

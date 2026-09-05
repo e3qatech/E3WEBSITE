@@ -24,7 +24,7 @@ export interface ParsedCvResult {
   languages?: string[];
   certifications?: string[];
   parsedAt: string;
-  aiEngine: 'gemini-2.0-flash' | 'e3-domain-engine' | 'document-ocr-engine';
+  aiEngine: string;
 }
 
 /**
@@ -386,22 +386,32 @@ export async function parseResumeWithAI(options: {
     mimeType = 'application/pdf',
   } = options;
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || process.env.GOOGLE_API_KEY;
   let extraction = getDomainExtraction(jobTitle, department, candidateName, email);
-  let aiEngine: 'gemini-2.0-flash' | 'e3-domain-engine' | 'document-ocr-engine' = 'e3-domain-engine';
+  let aiEngine: string = 'e3-domain-engine';
 
   // Retrieve actual document buffer from storage if not directly provided
   let fileBuffer: Buffer | null = buffer || null;
   let detectedMime = mimeType || 'application/pdf';
 
   if (!fileBuffer && cvUrl) {
-    // 1. Check if private Vercel Blob pathname
-    if (!cvUrl.startsWith('http://') && !cvUrl.startsWith('https://')) {
+    let targetPath = cvUrl.trim();
+    // Parse out pathname if an authenticated download proxy URL was provided
+    if (targetPath.includes('/api/upload/download')) {
+      try {
+        const dummyUrl = new URL(targetPath, 'http://localhost');
+        const param = dummyUrl.searchParams.get('pathname');
+        if (param) targetPath = param;
+      } catch (_uErr) {}
+    }
+
+    if (!targetPath.startsWith('http://') && !targetPath.startsWith('https://')) {
+      // 1. Check if private Vercel Blob pathname
       try {
         const resumeToken = process.env.RESUME_BLOB_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
         if (resumeToken) {
           const { get } = await import('@vercel/blob');
-          const blobRes = await get(cvUrl, { access: 'private', token: resumeToken } as any);
+          const blobRes = await get(targetPath, { access: 'private', token: resumeToken } as any);
           if (blobRes && blobRes.stream) {
             const chunks: Uint8Array[] = [];
             for await (const chunk of blobRes.stream as any) {
@@ -409,10 +419,11 @@ export async function parseResumeWithAI(options: {
             }
             fileBuffer = Buffer.concat(chunks);
             detectedMime = 'application/pdf';
+            console.log(`[AI CV Parser] Successfully fetched Blob stream for "${candidateName}" (${fileBuffer.length} bytes)`);
           }
         }
-      } catch (_bErr) {
-        // Blob fetch fallback
+      } catch (bErr) {
+        console.warn(`[AI CV Parser] Blob read note for ${targetPath}:`, (bErr as any)?.message || bErr);
       }
 
       // 2. Check local disk storage
@@ -420,20 +431,24 @@ export async function parseResumeWithAI(options: {
         try {
           const fs = await import('fs/promises');
           const path = await import('path');
-          const localPath = path.join(process.cwd(), 'private', 'private_resumes', path.basename(cvUrl));
+          const localPath = path.join(process.cwd(), 'private', 'private_resumes', path.basename(targetPath));
           fileBuffer = await fs.readFile(localPath);
+          console.log(`[AI CV Parser] Read local file for "${candidateName}" (${fileBuffer.length} bytes)`);
         } catch (_fErr) {}
       }
     } else {
       // 3. Full URL fetch
       try {
-        const res = await fetch(cvUrl, { signal: AbortSignal.timeout(8000) });
+        const res = await fetch(targetPath, { signal: AbortSignal.timeout(10000) });
         if (res.ok) {
           const ab = await res.arrayBuffer();
           fileBuffer = Buffer.from(ab);
           detectedMime = res.headers.get('content-type') || 'application/pdf';
+          console.log(`[AI CV Parser] Fetched external document for "${candidateName}" (${fileBuffer.length} bytes)`);
         }
-      } catch (_fErr) {}
+      } catch (fErr) {
+        console.warn(`[AI CV Parser] URL fetch note for ${targetPath}:`, (fErr as any)?.message || fErr);
+      }
     }
   }
 
@@ -502,44 +517,76 @@ Return STRICT JSON ONLY conforming to this schema:
         parts.push({ inlineData: fileInlineData });
       }
 
-      const geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts }],
-            generationConfig: {
-              responseMimeType: 'application/json',
-              temperature: 0.2,
-            },
-          }),
-        }
-      );
+      // Candidate models sequence with automatic fallback
+      const candidateModels = Array.from(
+        new Set([
+          process.env.GEMINI_MODEL,
+          'gemini-2.0-flash',
+          'gemini-2.5-flash',
+          'gemini-1.5-flash',
+          'gemini-1.5-flash-latest',
+          'gemini-2.0-flash-exp',
+          'gemini-1.5-pro',
+        ])
+      ).filter(Boolean) as string[];
 
-      if (geminiRes.ok) {
-        const geminiJson = await geminiRes.json();
-        const rawText = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (rawText) {
-          const parsed = JSON.parse(rawText);
-          extraction = {
-            skills: Array.isArray(parsed.skills) && parsed.skills.length > 0 ? parsed.skills : extraction.skills,
-            skillsCategorized: parsed.skillsCategorized || extraction.skillsCategorized,
-            experienceYears: typeof parsed.experienceYears === 'number' ? parsed.experienceYears : extraction.experienceYears,
-            education: parsed.education || extraction.education,
-            university: parsed.university || extraction.university,
-            graduationYear: parsed.graduationYear || extraction.graduationYear,
-            summary: parsed.summary || extraction.summary,
-            careerHistory: Array.isArray(parsed.careerHistory) && parsed.careerHistory.length > 0 ? parsed.careerHistory : extraction.careerHistory,
-            languages: Array.isArray(parsed.languages) ? parsed.languages : extraction.languages,
-            certifications: Array.isArray(parsed.certifications) ? parsed.certifications : extraction.certifications,
-          };
-          aiEngine = 'gemini-2.0-flash';
+      for (const model of candidateModels) {
+        try {
+          console.log(`[AI CV Parser] Querying Gemini model "${model}" for candidate: "${candidateName}"`);
+          const geminiRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ role: 'user', parts }],
+                generationConfig: {
+                  responseMimeType: 'application/json',
+                  temperature: 0.2,
+                },
+              }),
+              signal: AbortSignal.timeout(25000),
+            }
+          );
+
+          if (geminiRes.ok) {
+            const geminiJson = await geminiRes.json();
+            const rawText = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (rawText) {
+              const parsed = JSON.parse(rawText);
+              extraction = {
+                skills: Array.isArray(parsed.skills) && parsed.skills.length > 0 ? parsed.skills : extraction.skills,
+                skillsCategorized: parsed.skillsCategorized || extraction.skillsCategorized,
+                experienceYears: typeof parsed.experienceYears === 'number' ? parsed.experienceYears : extraction.experienceYears,
+                education: parsed.education || extraction.education,
+                university: parsed.university || extraction.university,
+                graduationYear: parsed.graduationYear || extraction.graduationYear,
+                summary: parsed.summary || extraction.summary,
+                careerHistory: Array.isArray(parsed.careerHistory) && parsed.careerHistory.length > 0 ? parsed.careerHistory : extraction.careerHistory,
+                languages: Array.isArray(parsed.languages) ? parsed.languages : extraction.languages,
+                certifications: Array.isArray(parsed.certifications) ? parsed.certifications : extraction.certifications,
+              };
+              aiEngine = model;
+              console.log(`[AI CV Parser] Successfully analyzed candidate "${candidateName}" with Gemini model "${model}".`);
+              break; // Success! Stop fallback loop
+            }
+          } else {
+            const errText = await geminiRes.text().catch(() => '');
+            console.warn(`[AI CV Parser] Gemini model "${model}" returned status ${geminiRes.status}:`, errText.substring(0, 200));
+          }
+        } catch (modelErr: any) {
+          console.warn(`[AI CV Parser] Model "${model}" failed for "${candidateName}":`, modelErr?.message || modelErr);
         }
       }
     } catch (aiErr) {
-      console.warn('[AI CV Parser] Gemini request failed, using domain engine:', aiErr);
+      console.warn('[AI CV Parser] Gemini execution exception, defaulting to domain engine:', aiErr);
     }
+  } else {
+    console.warn('[AI CV Parser] Notice: GEMINI_API_KEY / GOOGLE_AI_API_KEY is not configured in server environment.');
+  }
+
+  if (aiEngine === 'e3-domain-engine') {
+    console.log(`[AI CV Parser] Candidate "${candidateName}" parsed using e3-domain-engine fallback.`);
   }
 
   return {
