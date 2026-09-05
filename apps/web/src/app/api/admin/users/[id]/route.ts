@@ -10,6 +10,7 @@ const patchUserSchema = z.object({
   email: z.string().email("Invalid email address format").max(255).optional(),
   role: z.string().max(50).optional(),
   isActive: z.boolean().optional(),
+  isApproved: z.boolean().optional(),
   password: z.string().min(8, "Password must be at least 8 characters long").optional(),
   revokeSessions: z.boolean().optional(),
 }).strict();
@@ -55,7 +56,7 @@ export async function PATCH(
       );
     }
 
-    const { name, email, role, isActive, password, revokeSessions } = parseResult.data;
+    const { name, email, role, isActive, isApproved, password, revokeSessions } = parseResult.data;
 
     const existingUser = await db.user.findUnique({ where: { id } });
     if (!existingUser) {
@@ -110,7 +111,15 @@ export async function PATCH(
       data.role = normalizeRole(role);
     }
 
-    if (isActive !== undefined) {
+    if (isApproved !== undefined) {
+      const approved = Boolean(isApproved);
+      data.isActive = approved;
+      if (!approved) {
+        data.sessionVersion = (existingUser.sessionVersion || 1) + 1;
+      }
+    }
+
+    if (isActive !== undefined && isApproved === undefined) {
       const newActive = Boolean(isActive);
       data.isActive = newActive;
       // Freezing account automatically increments sessionVersion to revoke all active tokens immediately
@@ -145,8 +154,10 @@ export async function PATCH(
     // Record audit telemetry
     try {
       let auditAction = "USER_UPDATED";
-      if (isActive === false && existingUser.isActive === true) auditAction = "USER_FROZEN";
-      if (isActive === true && existingUser.isActive === false) auditAction = "USER_UNFROZEN";
+      if (isApproved === true) auditAction = "USER_APPROVED";
+      else if (isApproved === false) auditAction = "USER_APPROVAL_REVOKED";
+      else if (isActive === false && existingUser.isActive === true) auditAction = "USER_FROZEN";
+      else if (isActive === true && existingUser.isActive === false) auditAction = "USER_UNFROZEN";
       if (password) auditAction = "USER_PASSWORD_RESET_ADMIN";
 
       await db.systemLog.create({

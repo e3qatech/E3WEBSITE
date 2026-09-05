@@ -5,6 +5,8 @@ import { SystemBroadcastBanner } from "@/components/dashboard/SystemBroadcastBan
 import db from "@/lib/db"
 import { AdminThemeProvider } from "@/components/dashboard/ui/AdminThemeProvider"
 import { requirePortalAccess } from "@/lib/server-auth"
+import { auth } from "@/lib/auth"
+import { normalizeRole } from "@/lib/auth-roles"
 import { redirect } from "next/navigation"
 
 export default async function DashboardLayout({
@@ -17,9 +19,23 @@ export default async function DashboardLayout({
   const { locale } = await params;
   const isAr = locale === 'ar';
 
+  const session = await auth();
+  if (session?.user) {
+    const rawRole = (session.user as any)?.role;
+    const norm = normalizeRole(rawRole);
+    if (norm === 'CANDIDATE') {
+      redirect(`/${locale}/candidate`);
+      return null;
+    }
+    if (norm === 'CLIENT') {
+      redirect(`/${locale}/business`);
+      return null;
+    }
+  }
+
   try {
     await requirePortalAccess('admin');
-  } catch (authErr: any) {
+  } catch (_authErr: any) {
     redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard`);
     return null;
   }

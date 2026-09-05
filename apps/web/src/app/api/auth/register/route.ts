@@ -19,14 +19,36 @@ export async function POST(req: NextRequest) {
     const cleanEmail = email.trim().toLowerCase();
     const cleanName = name && typeof name === 'string' ? name.trim() : cleanEmail.split('@')[0];
 
+    // Prototype pollution defense
+    if (
+      body &&
+      (Object.prototype.hasOwnProperty.call(body, "__proto__") ||
+        Object.prototype.hasOwnProperty.call(body, "constructor") ||
+        Object.prototype.hasOwnProperty.call(body, "prototype"))
+    ) {
+      return NextResponse.json({ error: "Malformed request payload" }, { status: 400 });
+    }
+
     // Enforce Role Permissions & Prevent Public Admin Registration
-    const requestedRole = normalizeRole(rawRole);
-    if (requestedRole === 'SUPER_ADMIN' || requestedRole === 'SALES_ADMIN' || requestedRole === 'SUPPORT_ADMIN' || requestedRole === 'STAFF') {
+    const normalized = rawRole ? normalizeRole(rawRole) : 'CANDIDATE';
+    const cleanRawRole = String(rawRole || '').trim().toUpperCase();
+
+    const isAttemptingAdminOrStaff =
+      normalized !== 'CANDIDATE' && normalized !== 'CLIENT' ||
+      cleanRawRole.includes('ADMIN') ||
+      cleanRawRole.includes('STAFF') ||
+      cleanRawRole.includes('EVENT') ||
+      cleanRawRole.includes('HR') ||
+      cleanRawRole.includes('OPS');
+
+    if (isAttemptingAdminOrStaff) {
       return NextResponse.json(
-        { error: 'Admin and staff accounts cannot be created publicly. Please contact an administrator or request an invitation.' },
+        { error: 'Administrative and staff accounts cannot be self-registered. They require administrator invitation and approval.' },
         { status: 403 }
       );
     }
+
+    const assignedRole = normalized === 'CLIENT' ? 'CLIENT' : 'CANDIDATE';
 
     let existingUser: any = null;
     try {
@@ -53,7 +75,7 @@ export async function POST(req: NextRequest) {
           email: cleanEmail,
           name: cleanName,
           password: hashedPassword,
-          role: requestedRole, // 'CANDIDATE' (Customer) or 'CLIENT' (Organiser)
+          role: assignedRole, // 'CANDIDATE' (Customer) or 'CLIENT' (Organiser)
           isActive: true,
           sessionVersion: 1,
         },
@@ -64,7 +86,7 @@ export async function POST(req: NextRequest) {
         id: `usr_${Date.now()}`,
         email: cleanEmail,
         name: cleanName,
-        role: requestedRole,
+        role: assignedRole,
       };
     }
 

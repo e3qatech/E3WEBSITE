@@ -215,6 +215,8 @@ vi.mock('@/lib/db', () => {
 import { DELETE as deleteUserHandler, PATCH as patchUserHandler } from '../app/api/admin/users/[id]/route';
 import { POST as createUserHandler, GET as listUsersHandler } from '../app/api/admin/users/route';
 import { POST as passwordResetHandler } from '../app/api/auth/password-reset/route';
+import { POST as registerHandler } from '../app/api/auth/register/route';
+import { isAuthorizedForPortal, normalizeRole } from '@/lib/auth-roles';
 
 describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password Reset Suite', () => {
   beforeEach(async () => {
@@ -761,6 +763,121 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       expect(res.status).toBe(400);
       const data = await res.json();
       expect(data.error).toContain('Invalid, expired, or already used');
+    });
+  });
+
+  describe('5. Dashboard Access Approval & Strict Portal Isolation Suite', () => {
+    it('approving a user via PATCH /api/admin/users/[id] sets isActive: true and logs USER_APPROVED', async () => {
+      // Create a pending/inactive user
+      usersStore.push({
+        id: 'user-pending-1',
+        name: 'Pending Admin Candidate',
+        email: 'pending@e3.qa',
+        role: 'STAFF',
+        isActive: false,
+        sessionVersion: 1,
+      });
+
+      const req = new Request('http://localhost/api/admin/users/user-pending-1', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isApproved: true, isActive: true }),
+      });
+
+      const res = await patchUserHandler(req, { params: Promise.resolve({ id: 'user-pending-1' }) });
+      expect(res.status).toBe(200);
+      const data = await res.json();
+
+      expect(data.isActive).toBe(true);
+      const inStore = usersStore.find((u) => u.id === 'user-pending-1');
+      expect(inStore?.isActive).toBe(true);
+
+      expect(logsStore).toContainEqual(
+        expect.objectContaining({
+          action: 'USER_APPROVED',
+          entityId: 'user-pending-1',
+        })
+      );
+    });
+
+    it('rejects public self-registration attempting admin, HR, or staff roles with 403', async () => {
+      const maliciousRoles = ['SUPER_ADMIN', 'ADMIN', 'HR_ADMIN', 'STAFF', 'EVENTS_ADMIN', 'OPERATIONS_ADMIN'];
+
+      for (const forbiddenRole of maliciousRoles) {
+        const req = new Request('http://localhost/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: 'Malicious Actor',
+            email: `hacker-${forbiddenRole.toLowerCase()}@example.com`,
+            password: 'StrongPassword123!',
+            role: forbiddenRole,
+          }),
+        });
+
+        const res = await registerHandler(req as any);
+        expect(res.status).toBe(403);
+        const data = await res.json();
+        expect(data.error).toContain('Administrative and staff accounts cannot be self-registered');
+      }
+    });
+
+    it('allows public self-registration for CANDIDATE (applicant) and CLIENT (business)', async () => {
+      const candidateReq = new Request('http://localhost/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Real Applicant',
+          email: 'applicant-valid@example.com',
+          password: 'StrongPassword123!',
+          role: 'CANDIDATE',
+        }),
+      });
+
+      const candidateRes = await registerHandler(candidateReq as any);
+      expect(candidateRes.status).toBe(200);
+      const candidateData = await candidateRes.json();
+      expect(candidateData.success).toBe(true);
+      expect(candidateData.user.role).toBe('CANDIDATE');
+
+      const clientReq = new Request('http://localhost/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Enterprise Client',
+          email: 'client-valid@company.com',
+          password: 'StrongPassword123!',
+          role: 'CLIENT',
+        }),
+      });
+
+      const clientRes = await registerHandler(clientReq as any);
+      expect(clientRes.status).toBe(200);
+      const clientData = await clientRes.json();
+      expect(clientData.success).toBe(true);
+      expect(clientData.user.role).toBe('CLIENT');
+    });
+
+    it('strictly denies CANDIDATE and CLIENT roles from accessing the admin dashboard portal', () => {
+      expect(isAuthorizedForPortal('CANDIDATE', 'admin')).toBe(false);
+      expect(isAuthorizedForPortal('APPLICANT', 'admin')).toBe(false);
+      expect(isAuthorizedForPortal('CLIENT', 'admin')).toBe(false);
+      expect(isAuthorizedForPortal('BUSINESS_USER', 'admin')).toBe(false);
+
+      // Only administrative and staff roles are permitted for admin dashboard portal
+      expect(isAuthorizedForPortal('SUPER_ADMIN', 'admin')).toBe(true);
+      expect(isAuthorizedForPortal('SALES_ADMIN', 'admin')).toBe(true);
+      expect(isAuthorizedForPortal('SUPPORT_ADMIN', 'admin')).toBe(true);
+      expect(isAuthorizedForPortal('HR_ADMIN', 'admin')).toBe(true);
+      expect(isAuthorizedForPortal('OPERATIONS_ADMIN', 'admin')).toBe(true);
+    });
+
+    it('strictly isolates CANDIDATE to careers portal and CLIENT to business portal', () => {
+      expect(isAuthorizedForPortal('CANDIDATE', 'careers')).toBe(true);
+      expect(isAuthorizedForPortal('CANDIDATE', 'business')).toBe(false);
+
+      expect(isAuthorizedForPortal('CLIENT', 'business')).toBe(true);
+      expect(isAuthorizedForPortal('CLIENT', 'careers')).toBe(false);
     });
   });
 });

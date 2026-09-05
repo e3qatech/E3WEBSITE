@@ -13,6 +13,7 @@ export type UserItem = {
   email: string;
   role: string;
   isActive: boolean;
+  isApproved?: boolean;
   sessionVersion: number;
   createdAt: string;
   clientMemberships?: Array<{
@@ -27,13 +28,13 @@ export type UserItem = {
 
 export const ROLES = [
   { value: "SUPER_ADMIN", label: "Super Admin", labelAr: "المدير العام", variant: "error" },
-  { value: "EVENTS_ADMIN", label: "Events Admin (Packages)", labelAr: "مدير باقات الفعاليات", variant: "purple" },
-  { value: "EVENTS_TEAM", label: "Events Team Coordinator", labelAr: "منسق فريق الفعاليات", variant: "purple" },
-  { value: "B2C_ADMIN", label: "B2C Admin", labelAr: "مدير الأفراد (B2C)", variant: "purple" },
+  { value: "EVENTS_ADMIN", label: "Events Admin (Packages)", labelAr: "مدير باقات الفعاليات", variant: "gradient" },
+  { value: "EVENTS_TEAM", label: "Events Team Coordinator", labelAr: "منسق فريق الفعاليات", variant: "gradient" },
+  { value: "B2C_ADMIN", label: "B2C Admin", labelAr: "مدير الأفراد (B2C)", variant: "gradient" },
   { value: "B2B_ADMIN", label: "B2B Admin", labelAr: "مدير الشركات (B2B)", variant: "warning" },
   { value: "HR_ADMIN", label: "HR Admin", labelAr: "مدير الموارد البشرية", variant: "info" },
   { value: "OPERATIONS_ADMIN", label: "Operations Admin", labelAr: "مدير العمليات", variant: "warning" },
-  { value: "STAFF", label: "Staff", labelAr: "طاقم العمل", variant: "purple" },
+  { value: "STAFF", label: "Staff", labelAr: "طاقم العمل", variant: "gradient" },
   { value: "CLIENT", label: "Client / Business User", labelAr: "عميل / حساب أعمال", variant: "success" },
   { value: "CANDIDATE", label: "Candidate / Applicant", labelAr: "مرشح / متقدم للوظيفة", variant: "default" },
   { value: "SALES_ADMIN", label: "Sales Admin (B2B)", labelAr: "مدير المبيعات (B2B)", variant: "warning" },
@@ -49,7 +50,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
   const [users, setUsers] = useState<UserItem[]>(initialUsers);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"" | "active" | "frozen">("");
+  const [statusFilter, setStatusFilter] = useState<"" | "active" | "pending" | "frozen">("");
   const [isAdding, setIsAdding] = useState(false);
   const [editingUser, setEditingUser] = useState<UserItem | null>(null);
   const [passwordUser, setPasswordUser] = useState<UserItem | null>(null);
@@ -57,6 +58,29 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
   const [newPassword, setNewPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  const handleApproveUser = async (userId: string) => {
+    setUpdatingId(userId);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isApproved: true, isActive: true }),
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || (isAr ? "فشل اعتماد الحساب" : "Failed to approve account"));
+
+      setUsers((prev) =>
+        prev.map((u) => (u.id === userId ? { ...u, isApproved: true, isActive: true, sessionVersion: result.sessionVersion || u.sessionVersion } : u))
+      );
+      alert(isAr ? "تم اعتماد الحساب وتفعيله بنجاح." : "Account has been approved and activated.");
+    } catch (err: any) {
+      alert(err.message || (isAr ? "فشل اعتماد الحساب" : "Failed to approve account"));
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const handleCreateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -97,11 +121,19 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
     setIsSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
-    const data = {
+    const statusVal = formData.get("accountStatus");
+    const data: any = {
       name: formData.get("name"),
       email: formData.get("email"),
       role: formData.get("role"),
     };
+
+    if (statusVal === "frozen") {
+      data.isActive = false;
+    } else if (statusVal === "active") {
+      data.isActive = true;
+      data.isApproved = true;
+    }
 
     if (editingUser.role !== data.role) {
       const confirmRoleMsg = isAr
@@ -244,6 +276,9 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
     }
   };
 
+  const pendingCount = users.filter((u) => u.isApproved === false).length;
+  const frozenCount = users.filter((u) => !u.isActive && u.isApproved !== false).length;
+
   const filtered = users.filter((u) => {
     const matchesSearch =
       (u.name?.toLowerCase() || "").includes(search.toLowerCase()) ||
@@ -251,8 +286,9 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
     const matchesRole = !roleFilter || u.role === roleFilter;
     const matchesStatus =
       !statusFilter ||
-      (statusFilter === "active" && u.isActive) ||
-      (statusFilter === "frozen" && !u.isActive);
+      (statusFilter === "active" && u.isActive && u.isApproved !== false) ||
+      (statusFilter === "pending" && u.isApproved === false) ||
+      (statusFilter === "frozen" && !u.isActive && u.isApproved !== false);
     return matchesSearch && matchesRole && matchesStatus;
   });
 
@@ -283,6 +319,34 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
 
   return (
     <div className="space-y-6">
+      {/* PENDING APPROVAL NOTIFICATION BANNER */}
+      {pendingCount > 0 && (
+        <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-300 animate-in fade-in duration-300">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+            <div>
+              <p className="text-xs font-bold text-white">
+                {isAr
+                  ? `يوجد ${pendingCount} حساب إداري بانتظار اعتماد المدير العام.`
+                  : `There are ${pendingCount} administrative account(s) awaiting Super Admin approval.`}
+              </p>
+              <p className="text-[11px] text-amber-300/80">
+                {isAr
+                  ? "لا يمكن للمستخدمين الوصول إلى لوحة القيادة حتى يتم اعتماد حساباتهم."
+                  : "Users cannot access the dashboard or administrative portals until approved."}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("pending")}
+            className="px-3.5 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 rounded-xl text-amber-200 font-bold text-xs cursor-pointer transition-colors shrink-0"
+          >
+            {isAr ? `استعراض طلبات الاعتماد (${pendingCount})` : `Review Pending (${pendingCount})`}
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-bold text-text-primary">
@@ -326,7 +390,8 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
           >
             <option value="">{isAr ? "جميع الحالات" : "All Statuses"}</option>
             <option value="active">{isAr ? "الحسابات النشطة فقط" : "Active Accounts Only"}</option>
-            <option value="frozen">{isAr ? "الحسابات المجمدة فقط" : "Frozen Accounts Only"}</option>
+            <option value="pending">{isAr ? `بانتظار الاعتماد (${pendingCount})` : `Pending Approval (${pendingCount})`}</option>
+            <option value="frozen">{isAr ? `الحسابات المجمدة (${frozenCount})` : `Frozen Accounts (${frozenCount})`}</option>
           </select>
 
           <Button className="gap-2" onClick={() => setIsAdding(true)}>
@@ -491,6 +556,46 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
               </select>
             </div>
 
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-text-secondary">
+                {isAr ? "حالة الحساب والأمان *" : "Account Status & Security *"}
+              </label>
+              <select
+                name="accountStatus"
+                defaultValue={editingUser.isActive ? "active" : "frozen"}
+                className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm"
+              >
+                <option value="active">{isAr ? "نشط ومفعل (يسمح بالوصول وتسجيل الدخول)" : "Active & Approved (Access Granted)"}</option>
+                <option value="frozen">{isAr ? "مجمد (إلغاء الجلسات وحظر تسجيل الدخول فوراً)" : "Frozen / Suspended (Revoke Sessions & Block Login)"}</option>
+              </select>
+            </div>
+
+            {/* DANGER ZONE: DELETE ACCOUNT */}
+            <div className="p-3.5 bg-rose-500/5 border border-rose-500/20 rounded-xl flex items-center justify-between gap-3 mt-4">
+              <div>
+                <div className="text-xs font-bold text-rose-400">
+                  {isAr ? "منطقة الحذف النهائي" : "Permanent Account Deletion"}
+                </div>
+                <div className="text-[11px] text-text-tertiary">
+                  {isAr ? "حذف الحساب نهائياً وإلغاء كافة الصلاحيات والجلسات." : "Permanently remove this account and clean all associated records."}
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const toDelete = editingUser;
+                  setEditingUser(null);
+                  setDeletingUser(toDelete);
+                }}
+                className="border-rose-500/30 text-rose-400 hover:bg-rose-500/15 font-bold gap-1 text-xs cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                {isAr ? "حذف الحساب" : "Delete Account"}
+              </Button>
+            </div>
+
             <div className="pt-4 flex justify-end gap-3">
               <Button type="button" variant="outline" onClick={() => setEditingUser(null)}>
                 {isAr ? "إلغاء" : "Cancel"}
@@ -641,22 +746,23 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
       )}
 
       <div className="bg-surface-default border border-border-default rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto relative">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-surface-hover border-b border-border-default text-text-secondary">
               <tr>
-                <th className="px-6 py-4 font-medium">{isAr ? "المستخدم" : "User"}</th>
-                <th className="px-6 py-4 font-medium">{isAr ? "الدور الأمني" : "Canonical Role"}</th>
-                <th className="px-6 py-4 font-medium">{isAr ? "عضويات المنظمة" : "Tenant Memberships"}</th>
-                <th className="px-6 py-4 font-medium">{isAr ? "حالة الحساب" : "Account Status"}</th>
-                <th className="px-6 py-4 font-medium">{isAr ? "إصدار الجلسة" : "Session Version"}</th>
-                <th className="px-6 py-4 font-medium text-right">{isAr ? "الإجراءات" : "Actions"}</th>
+                <th className="px-5 py-3.5 font-semibold text-text-secondary">{isAr ? "المستخدم" : "User"}</th>
+                <th className="px-4 py-3.5 font-semibold text-text-secondary">{isAr ? "الدور الأمني" : "Canonical Role"}</th>
+                <th className="px-4 py-3.5 font-semibold text-text-secondary">{isAr ? "عضويات المنظمة" : "Tenant"}</th>
+                <th className="px-4 py-3.5 font-semibold text-text-secondary">{isAr ? "حالة الحساب" : "Account Status"}</th>
+                <th className="sticky end-0 bg-surface-hover/95 backdrop-blur z-20 px-4 py-3.5 font-bold text-text-primary text-right shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.3)] min-w-[280px]">
+                  {isAr ? "إجراءات التحكم (تجميد / حذف)" : "Actions & Controls"}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-default">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-text-tertiary">
+                  <td colSpan={5} className="px-6 py-12 text-center text-text-tertiary">
                     <Shield className="w-12 h-12 mx-auto mb-3 opacity-20" />
                     {isAr ? "لم يتم العثور على مستخدمين يطابقون البحث." : "No users found matching query."}
                   </td>
@@ -664,16 +770,28 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
               ) : (
                 filtered.map((u) => (
                   <tr key={u.id} className="hover:bg-surface-hover transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="font-bold text-text-primary">{u.name || (isAr ? "مستخدم بدون اسم" : "Unnamed User")}</div>
+                    {/* User Info & Session Version */}
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-text-primary">
+                          {u.name || (isAr ? "مستخدم بدون اسم" : "Unnamed User")}
+                        </span>
+                        <span className="text-[10px] text-text-tertiary font-mono bg-surface-hover px-1.5 py-0.5 rounded border border-border-default">
+                          v{u.sessionVersion || 1}
+                        </span>
+                      </div>
                       <div className="text-xs text-text-tertiary font-mono">{u.email}</div>
                     </td>
-                    <td className="px-6 py-4">
+
+                    {/* Role Badge */}
+                    <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
                         {getRoleBadge(u.role)}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+
+                    {/* Tenant Memberships */}
+                    <td className="px-4 py-3.5">
                       {u.clientMemberships && u.clientMemberships.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {u.clientMemberships.map((m) => (
@@ -684,86 +802,140 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                           ))}
                         </div>
                       ) : (
-                        <span className="text-xs text-text-tertiary">{isAr ? "لا يوجد" : "None"}</span>
+                        <span className="text-xs text-text-tertiary">-</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
-                      {u.isActive ? (
-                        <span className="inline-flex items-center gap-1 text-xs text-green-400 font-medium bg-green-500/10 px-2 py-1 rounded border border-green-500/20">
-                          <UserCheck className="w-3.5 h-3.5" /> {isAr ? "نشط" : "ACTIVE"}
-                        </span>
+
+                    {/* Account Status with Quick Action */}
+                    <td className="px-4 py-3.5">
+                      {u.isApproved === false ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1 text-xs text-amber-400 font-bold bg-amber-500/15 px-2.5 py-1 rounded-full border border-amber-500/30">
+                            <AlertTriangle className="w-3.5 h-3.5" /> {isAr ? "بانتظار الاعتماد" : "PENDING"}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleApproveUser(u.id)}
+                            className="text-[11px] text-emerald-400 hover:text-emerald-300 underline font-bold cursor-pointer"
+                          >
+                            {isAr ? "اعتماد" : "Approve"}
+                          </button>
+                        </div>
+                      ) : u.isActive ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1 text-xs text-green-400 font-bold bg-green-500/10 px-2.5 py-1 rounded-full border border-green-500/20">
+                            <UserCheck className="w-3.5 h-3.5" /> {isAr ? "نشط" : "ACTIVE"}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleFreezeStatus(u.id, true)}
+                            className="text-[11px] text-cyan-400 hover:text-cyan-300 underline font-semibold cursor-pointer"
+                            title={isAr ? "تجميد الحساب فوراً" : "Freeze account"}
+                          >
+                            {isAr ? "تجميد" : "Freeze"}
+                          </button>
+                        </div>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-xs text-rose-400 font-bold bg-rose-500/15 px-2 py-1 rounded border border-rose-500/30 animate-pulse">
-                          <Snowflake className="w-3.5 h-3.5" /> {isAr ? "مجمد" : "FROZEN"}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1 text-xs text-rose-400 font-bold bg-rose-500/20 px-2.5 py-1 rounded-full border border-rose-500/40 animate-pulse">
+                            <Snowflake className="w-3.5 h-3.5" /> {isAr ? "مجمد" : "FROZEN"}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleFreezeStatus(u.id, false)}
+                            className="text-[11px] text-emerald-400 hover:text-emerald-300 underline font-bold cursor-pointer"
+                            title={isAr ? "إلغاء التجميد" : "Unfreeze account"}
+                          >
+                            {isAr ? "إلغاء التجميد" : "Unfreeze"}
+                          </button>
+                        </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-xs font-mono text-text-secondary">
-                      v{u.sessionVersion || 1}
-                    </td>
-                    <td className="px-6 py-4 text-right space-x-1.5 rtl:space-x-reverse">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={updatingId === u.id}
-                        onClick={() => setEditingUser(u)}
-                        className="text-text-secondary hover:text-text-primary cursor-pointer"
-                        title={isAr ? "تعديل البيانات والدور" : "Edit credentials (name, email, role)"}
-                      >
-                        <Edit className="w-3.5 h-3.5 me-1" /> {isAr ? "تعديل" : "Edit"}
-                      </Button>
 
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={updatingId === u.id}
-                        onClick={() => setPasswordUser(u)}
-                        className="text-accent hover:bg-accent/10 cursor-pointer"
-                        title={isAr ? "تعيين كلمة مرور جديدة" : "Set new password"}
-                      >
-                        <Lock className="w-3.5 h-3.5 me-1" /> {isAr ? "كلمة المرور" : "Password"}
-                      </Button>
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={updatingId === u.id}
-                        onClick={() => handleToggleFreezeStatus(u.id, u.isActive)}
-                        className={`cursor-pointer ${u.isActive ? "text-rose-400 hover:bg-rose-400/10" : "text-emerald-400 hover:bg-emerald-400/10"}`}
-                        title={u.isActive ? (isAr ? "تجميد الحساب وإلغاء الجلسات" : "Freeze account and revoke sessions") : (isAr ? "إلغاء تجميد الحساب" : "Unfreeze account")}
-                      >
-                        {u.isActive ? (
-                          <>
-                            <Snowflake className="w-3.5 h-3.5 me-1" /> {isAr ? "تجميد" : "Freeze"}
-                          </>
+                    {/* Sticky Actions Column - NEVER Scrolled Off-screen */}
+                    <td className="sticky end-0 bg-surface-default/95 backdrop-blur z-10 px-4 py-3 text-right shadow-[-8px_0_12px_-4px_rgba(0,0,0,0.3)] whitespace-nowrap">
+                      <div className="inline-flex items-center gap-1.5 justify-end">
+                        {/* If pending approval, show Approve button */}
+                        {u.isApproved === false ? (
+                          <Button
+                            size="sm"
+                            disabled={updatingId === u.id}
+                            onClick={() => handleApproveUser(u.id)}
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold gap-1 text-xs shadow cursor-pointer"
+                            title={isAr ? "اعتماد الحساب وتفعيله" : "Approve and activate account"}
+                          >
+                            <UserCheck className="w-3.5 h-3.5" /> {isAr ? "اعتماد" : "Approve"}
+                          </Button>
                         ) : (
-                          <>
-                            <UserCheck className="w-3.5 h-3.5 me-1" /> {isAr ? "إلغاء التجميد" : "Unfreeze"}
-                          </>
+                          /* Freeze / Unfreeze Toggle Button */
+                          <Button
+                            size="sm"
+                            variant={u.isActive ? "outline" : "primary"}
+                            disabled={updatingId === u.id}
+                            onClick={() => handleToggleFreezeStatus(u.id, u.isActive)}
+                            className={
+                              u.isActive
+                                ? "border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 font-bold gap-1 text-xs cursor-pointer"
+                                : "bg-emerald-600 hover:bg-emerald-500 text-white font-bold gap-1 text-xs cursor-pointer"
+                            }
+                            title={
+                              u.isActive
+                                ? (isAr ? "تجميد الحساب فوراً وإلغاء جميع الجلسات" : "Freeze account immediately & revoke sessions")
+                                : (isAr ? "إلغاء تجميد الحساب وتمكين تسجيل الدخول" : "Unfreeze account & allow login")
+                            }
+                          >
+                            {u.isActive ? (
+                              <>
+                                <Snowflake className="w-3.5 h-3.5 text-cyan-400" />
+                                <span>{isAr ? "تجميد" : "Freeze"}</span>
+                              </>
+                            ) : (
+                              <>
+                                <UserCheck className="w-3.5 h-3.5 text-white" />
+                                <span>{isAr ? "إلغاء التجميد" : "Unfreeze"}</span>
+                              </>
+                            )}
+                          </Button>
                         )}
-                      </Button>
 
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={updatingId === u.id}
-                        onClick={() => handleRevokeSessions(u.id)}
-                        className="text-amber-400 hover:bg-amber-400/10 cursor-pointer"
-                        title={isAr ? "إلغاء الجلسات النشطة" : "Revoke active sessions"}
-                      >
-                        <KeyRound className="w-3.5 h-3.5" />
-                      </Button>
+                        {/* Delete Button */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={updatingId === u.id}
+                          onClick={() => setDeletingUser(u)}
+                          className="border-rose-500/40 text-rose-400 hover:bg-rose-500/15 font-bold gap-1 text-xs cursor-pointer"
+                          title={isAr ? "حذف الحساب نهائياً من قاعدة البيانات" : "Delete user account permanently"}
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                          <span>{isAr ? "حذف" : "Delete"}</span>
+                        </Button>
 
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={updatingId === u.id}
-                        onClick={() => setDeletingUser(u)}
-                        className="text-rose-400 hover:bg-rose-500/10 cursor-pointer"
-                        title={isAr ? "حذف حساب المستخدم نهائياً" : "Delete user account permanently"}
-                      >
-                        <Trash2 className="w-3.5 h-3.5 text-rose-400" />
-                      </Button>
+                        {/* Edit Button */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={updatingId === u.id}
+                          onClick={() => setEditingUser(u)}
+                          className="text-text-secondary hover:text-text-primary cursor-pointer text-xs gap-1"
+                          title={isAr ? "تعديل البيانات والدور" : "Edit credentials & role"}
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                          <span>{isAr ? "تعديل" : "Edit"}</span>
+                        </Button>
+
+                        {/* Reset Password Button */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={updatingId === u.id}
+                          onClick={() => setPasswordUser(u)}
+                          className="text-amber-400 hover:bg-amber-400/10 cursor-pointer text-xs"
+                          title={isAr ? "تعيين كلمة مرور جديدة" : "Set new password"}
+                        >
+                          <Lock className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))
