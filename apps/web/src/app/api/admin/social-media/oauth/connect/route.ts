@@ -64,6 +64,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.redirect(authUrl);
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'OAuth connect initiation failed.' }, { status: 500 });
+    console.error('[OAuth Connect Error]', err);
+    const origin = req.headers.get('origin') || req.nextUrl.origin;
+    return NextResponse.redirect(`${origin}/dashboard/social-media#accounts?notice=connect_error&message=${encodeURIComponent(err.message || 'Database connection retry needed')}`);
   }
 }

@@ -78,13 +78,9 @@ const prismaClientSingleton = () => {
     if (finalUrl.startsWith('postgres://') || finalUrl.startsWith('postgresql://')) {
       const parsedUrl = new URL(finalUrl);
       if (parsedUrl.hostname.includes('ep-snowy-hall-atkbimek')) {
-        parsedUrl.hostname = 'ep-frosty-poetry-atys9iw5-pooler.c-9.us-east-1.aws.neon.tech';
+        parsedUrl.hostname = 'ep-frosty-poetry-atys9iw5.c-9.us-east-1.aws.neon.tech';
       }
-      if (parsedUrl.hostname.endsWith('.neon.tech') && !parsedUrl.hostname.includes('-pooler')) {
-        const parts = parsedUrl.hostname.split('.');
-        parts[0] = parts[0] + '-pooler';
-        parsedUrl.hostname = parts.join('.');
-      }
+      // Only set pgbouncer=true if the hostname explicitly uses a pooler
       if (parsedUrl.hostname.includes('-pooler')) {
         parsedUrl.searchParams.set('pgbouncer', 'true');
       }

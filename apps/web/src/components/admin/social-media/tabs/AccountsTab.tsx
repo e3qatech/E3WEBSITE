@@ -33,6 +33,11 @@ export function AccountsTab({
   const [creating, setCreating] = useState(false);
 
   const handleOAuthConnect = (providerKey: string) => {
+    const prov = providers.find((p: any) => p.provider === providerKey);
+    if (!prov || !prov.appId) {
+      toast(`API Credentials for ${prov?.name || providerKey} are not configured yet. Configure them in the 'Platforms & API' tab first, or click 'Save Record' below for manual tracking.`, 'info');
+      return;
+    }
     window.location.href = `/api/admin/social-media/oauth/connect?provider=${providerKey}`;
   };
 
