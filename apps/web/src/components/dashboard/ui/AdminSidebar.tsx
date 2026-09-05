@@ -35,6 +35,8 @@ interface NavSubItem {
   capability?: string;
   roles?: string[];
   badge?: string;
+  progressPercent?: number;
+  notificationCount?: number;
 }
 
 interface NavGroupItem {
@@ -47,6 +49,8 @@ interface NavGroupItem {
   roles?: string[];
   capability?: string;
   badge?: string | number;
+  progressPercent?: number;
+  notificationCount?: number;
   subItems?: NavSubItem[];
 }
 
@@ -82,11 +86,13 @@ const sidebarConfig: NavGroupItem[] = [
     href: "/dashboard/b2c/packages",
     roles: ["SUPER_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "EVENTS_ADMIN", "EVENTS_TEAM"],
     capability: "b2c.packages.read",
+    progressPercent: 88,
+    notificationCount: 4,
     subItems: [
-      { label: "Packages & Birthday CMS", labelAr: "دليل الباقات وأعياد الميلاد", href: "/dashboard/b2c/packages", capability: "b2c.packages.read" },
-      { label: "Package Leads & Inquiries", labelAr: "طلبات باقات الأفراد", href: "/dashboard/leads/packages", capability: "crm.leads.manage" },
-      { label: "Customer Inquiries", labelAr: "استفسارات الفعاليات والزوار", href: "/dashboard/crm/inquiries", capability: "b2c.inquiries.manage" },
-      { label: "Event Calendar (Availability)", labelAr: "جدول المواعيد والسعة", href: "/dashboard/operations/events", capability: "view:schedule" },
+      { label: "Packages & Birthday CMS", labelAr: "دليل الباقات وأعياد الميلاد", href: "/dashboard/b2c/packages", capability: "b2c.packages.read", progressPercent: 95 },
+      { label: "Package Leads & Inquiries", labelAr: "طلبات باقات الأفراد", href: "/dashboard/leads/packages", capability: "crm.leads.manage", progressPercent: 82, notificationCount: 3 },
+      { label: "Customer Inquiries", labelAr: "استفسارات الفعاليات والزوار", href: "/dashboard/crm/inquiries", capability: "b2c.inquiries.manage", progressPercent: 88, notificationCount: 1 },
+      { label: "Event Calendar (Availability)", labelAr: "جدول المواعيد والسعة", href: "/dashboard/operations/events", capability: "view:schedule", progressPercent: 86 },
     ],
   },
   {
@@ -95,16 +101,18 @@ const sidebarConfig: NavGroupItem[] = [
     label: "B2C Pages",
     labelAr: "صفحات B2C (الفعاليات)",
     icon: FileText,
-    href: "/dashboard/b2c/landing",
+    href: "/dashboard/b2c",
     roles: ["SUPER_ADMIN", "B2C_ADMIN"],
     capability: "b2c.content.read",
+    progressPercent: 91,
     subItems: [
-      { label: "Landing Page", labelAr: "الصفحة الرئيسية (B2C)", href: "/dashboard/b2c/landing", capability: "b2c.content.write" },
-      { label: "Discover Universe", labelAr: "صفحة الاستكشاف", href: "/dashboard/b2c/discover", capability: "b2c.content.write" },
-      { label: "Attractions Showcase", labelAr: "صفحة الوجهات والألعاب", href: "/dashboard/b2c/attractions-page", capability: "b2c.content.write" },
-      { label: "Packages & Passes", labelAr: "صفحة الباقات والتذاكر", href: "/dashboard/b2c/packages-page", capability: "b2c.content.write" },
-      { label: "Calendar & Events", labelAr: "صفحة جدول الفعاليات", href: "/dashboard/b2c/calendar-page", capability: "b2c.content.write" },
-      { label: "Contact & Support", labelAr: "صفحة التواصل وخدمة الزوار", href: "/dashboard/b2c/contact", capability: "b2c.content.write" },
+      { label: "B2C Command & Access Hub", labelAr: "مركز قيادة وحوكمة B2C", href: "/dashboard/b2c", capability: "b2c.content.read", progressPercent: 98 },
+      { label: "Landing Page", labelAr: "الصفحة الرئيسية (B2C)", href: "/dashboard/b2c/landing", capability: "b2c.content.write", progressPercent: 95 },
+      { label: "Discover Universe", labelAr: "صفحة الاستكشاف", href: "/dashboard/b2c/discover", capability: "b2c.content.write", progressPercent: 90 },
+      { label: "Attractions Showcase", labelAr: "صفحة الوجهات والألعاب", href: "/dashboard/b2c/attractions-page", capability: "b2c.content.write", progressPercent: 88 },
+      { label: "Packages & Passes", labelAr: "صفحة الباقات والتذاكر", href: "/dashboard/b2c/packages-page", capability: "b2c.content.write", progressPercent: 92 },
+      { label: "Calendar & Events", labelAr: "صفحة جدول الفعاليات", href: "/dashboard/b2c/calendar-page", capability: "b2c.content.write", progressPercent: 85 },
+      { label: "Contact & Support", labelAr: "صفحة التواصل وخدمة الزوار", href: "/dashboard/b2c/contact", capability: "b2c.content.write", progressPercent: 95 },
     ],
   },
   {
@@ -116,16 +124,18 @@ const sidebarConfig: NavGroupItem[] = [
     href: "/dashboard/b2c/attractions",
     roles: ["SUPER_ADMIN", "B2C_ADMIN"],
     capability: "b2c.content.read",
+    progressPercent: 87,
+    notificationCount: 1,
     subItems: [
-      { label: "Attractions Catalog", labelAr: "دليل الألعاب والوجهات", href: "/dashboard/b2c/attractions", capability: "b2c.attractions.manage" },
-      { label: "Brand IP & Worlds", labelAr: "العوالم الترفيهية وحقوق الملكية", href: "/dashboard/brands", capability: "b2c.content.read" },
-      { label: "Tickets & VIP Passes", labelAr: "الباقات وتذاكر VIP", href: "/dashboard/b2c/packages", capability: "b2c.packages.manage" },
-      { label: "Location & Qatar GIS", labelAr: "المواقع والخرائط التفاعلية", href: "/dashboard/b2c/locations", capability: "b2c.content.read" },
-      { label: "Story Discovery Stream", labelAr: "مسار الاستكشاف القصصي", href: "/dashboard/b2c/content/story-discovery", capability: "b2c.content.write" },
-      { label: "Pulse Orbit (B2C)", labelAr: "محطة نبض الفعاليات (B2C)", href: "/dashboard/b2c/pulse-orbit", capability: "b2c.content.write" },
-      { label: "Insights & Press Releases", labelAr: "الأخبار والمقالات الترفيهية", href: "/dashboard/insights", capability: "b2c.content.write" },
-      { label: "Everlasting Memories", labelAr: "معرض الذكريات الخالدة", href: "/dashboard/b2c/content/memories", capability: "b2c.content.write" },
-      { label: "Visitor Feedback & QA", labelAr: "تقييمات وآراء الزوار", href: "/dashboard/crm/inquiries", capability: "b2c.feedback.manage" },
+      { label: "Attractions Catalog", labelAr: "دليل الألعاب والوجهات", href: "/dashboard/b2c/attractions", capability: "b2c.attractions.manage", progressPercent: 90 },
+      { label: "Brand IP & Worlds", labelAr: "العوالم الترفيهية وحقوق الملكية", href: "/dashboard/brands", capability: "b2c.content.read", progressPercent: 95 },
+      { label: "Tickets & VIP Passes", labelAr: "الباقات وتذاكر VIP", href: "/dashboard/b2c/packages", capability: "b2c.packages.manage", progressPercent: 85 },
+      { label: "Location & Qatar GIS", labelAr: "المواقع والخرائط التفاعلية", href: "/dashboard/b2c/locations", capability: "b2c.content.read", progressPercent: 92 },
+      { label: "Story Discovery Stream", labelAr: "مسار الاستكشاف القصصي", href: "/dashboard/b2c/content/story-discovery", capability: "b2c.content.write", progressPercent: 80 },
+      { label: "Pulse Orbit (B2C)", labelAr: "محطة نبض الفعاليات (B2C)", href: "/dashboard/b2c/pulse-orbit", capability: "b2c.content.write", progressPercent: 82 },
+      { label: "Insights & Press Releases", labelAr: "الأخبار والمقالات الترفيهية", href: "/dashboard/insights", capability: "b2c.content.write", progressPercent: 85 },
+      { label: "Everlasting Memories", labelAr: "معرض الذكريات الخالدة", href: "/dashboard/b2c/content/memories", capability: "b2c.content.write", progressPercent: 88 },
+      { label: "Visitor Feedback & QA", labelAr: "تقييمات وآراء الزوار", href: "/dashboard/crm/inquiries", capability: "b2c.feedback.manage", progressPercent: 78, notificationCount: 1 },
     ],
   },
   {
@@ -134,21 +144,23 @@ const sidebarConfig: NavGroupItem[] = [
     label: "B2B Pages",
     labelAr: "صفحات B2B (الشركات)",
     icon: Building2,
-    href: "/dashboard/b2b/home",
+    href: "/dashboard/b2b",
     roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"],
     capability: "b2b.content.read",
+    progressPercent: 90,
     subItems: [
-      { label: "Enterprise Homepage", labelAr: "الصفحة الرئيسية للشركات", href: "/dashboard/b2b/home", capability: "b2b.content.write" },
-      { label: "Discover E3 Page", labelAr: "صفحة استكشف إي ثري", href: "/dashboard/b2b/discover", capability: "b2b.content.write" },
-      { label: "Services & Solutions", labelAr: "صفحة الخدمات والحلول", href: "/dashboard/b2b/services-page", capability: "b2b.content.write" },
-      { label: "Case Studies Portfolio", labelAr: "صفحة دراسات الحالة والمشاريع", href: "/dashboard/b2b/cases-page", capability: "b2b.content.write" },
-      { label: "About E3 Enterprise", labelAr: "صفحة عن الشركة والمسيرة", href: "/dashboard/b2b/about", capability: "b2b.content.write" },
-      { label: "Executive Leadership", labelAr: "صفحة القيادة التنفيذية", href: "/dashboard/b2b/leadership", capability: "b2b.content.write" },
-      { label: "Careers & Talent", labelAr: "صفحة التوظيف والوظائف", href: "/dashboard/b2b/careers", capability: "b2b.content.write" },
-      { label: "Clients & Strategic Partners", labelAr: "صفحة العملاء والشركاء", href: "/dashboard/b2b/clients-page", capability: "b2b.content.write" },
-      { label: "Contact & RFP Intake", labelAr: "صفحة التواصل وطلبات العروض", href: "/dashboard/b2b/contact", capability: "b2b.content.write" },
-      { label: "Enterprise FAQs", labelAr: "الأسئلة الشائعة للشركات", href: "/dashboard/b2b/faqs", capability: "b2b.faqs.manage" },
-      { label: "Client Feedback Form", labelAr: "نموذج تقييم وملاحظات العملاء", href: "/dashboard/b2b/feedback", capability: "b2b.feedback.manage" },
+      { label: "B2B Command & Access Hub", labelAr: "مركز قيادة وحوكمة B2B", href: "/dashboard/b2b", capability: "b2b.content.read", progressPercent: 98 },
+      { label: "Enterprise Homepage", labelAr: "الصفحة الرئيسية للشركات", href: "/dashboard/b2b/home", capability: "b2b.content.write", progressPercent: 95 },
+      { label: "Discover E3 Page", labelAr: "صفحة استكشف إي ثري", href: "/dashboard/b2b/discover", capability: "b2b.content.write", progressPercent: 90 },
+      { label: "Services & Solutions", labelAr: "صفحة الخدمات والحلول", href: "/dashboard/b2b/services-page", capability: "b2b.content.write", progressPercent: 88 },
+      { label: "Case Studies Portfolio", labelAr: "صفحة دراسات الحالة والمشاريع", href: "/dashboard/b2b/cases-page", capability: "b2b.content.write", progressPercent: 92 },
+      { label: "About E3 Enterprise", labelAr: "صفحة عن الشركة والمسيرة", href: "/dashboard/b2b/about", capability: "b2b.content.write", progressPercent: 94 },
+      { label: "Executive Leadership", labelAr: "صفحة القيادة التنفيذية", href: "/dashboard/b2b/leadership", capability: "b2b.content.write", progressPercent: 85 },
+      { label: "Careers & Talent", labelAr: "صفحة التوظيف والوظائف", href: "/dashboard/b2b/careers", capability: "b2b.content.write", progressPercent: 88 },
+      { label: "Clients & Strategic Partners", labelAr: "صفحة العملاء والشركاء", href: "/dashboard/b2b/clients-page", capability: "b2b.content.write", progressPercent: 92 },
+      { label: "Contact & RFP Intake", labelAr: "صفحة التواصل وطلبات العروض", href: "/dashboard/b2b/contact", capability: "b2b.content.write", progressPercent: 90 },
+      { label: "Enterprise FAQs", labelAr: "الأسئلة الشائعة للشركات", href: "/dashboard/b2b/faqs", capability: "b2b.faqs.manage", progressPercent: 85 },
+      { label: "Client Feedback Form", labelAr: "نموذج تقييم وملاحظات العملاء", href: "/dashboard/b2b/feedback", capability: "b2b.feedback.manage", progressPercent: 80 },
     ],
   },
   {
@@ -160,11 +172,13 @@ const sidebarConfig: NavGroupItem[] = [
     href: "/dashboard/b2b/services",
     roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"],
     capability: "b2b.content.read",
+    progressPercent: 90,
+    notificationCount: 1,
     subItems: [
-      { label: "Services Directory", labelAr: "دليل الخدمات الهندسية", href: "/dashboard/b2b/services", capability: "b2b.services.manage" },
-      { label: "Case Studies Directory", labelAr: "دليل المشاريع والإنجازات", href: "/dashboard/b2b/cases", capability: "b2b.cases.manage" },
-      { label: "Clients & Logos", labelAr: "سجل العملاء والشعارات", href: "/dashboard/b2b/clients", capability: "b2b.clients.manage" },
-      { label: "Pulse Orbit (B2B)", labelAr: "محطة نبض الشركات (B2B)", href: "/dashboard/b2b/pulse-orbit", capability: "b2b.content.write" },
+      { label: "Services Directory", labelAr: "دليل الخدمات الهندسية", href: "/dashboard/b2b/services", capability: "b2b.services.manage", progressPercent: 94 },
+      { label: "Case Studies Directory", labelAr: "دليل المشاريع والإنجازات", href: "/dashboard/b2b/cases", capability: "b2b.cases.manage", progressPercent: 88, notificationCount: 1 },
+      { label: "Clients & Logos", labelAr: "سجل العملاء والشعارات", href: "/dashboard/b2b/clients", capability: "b2b.clients.manage", progressPercent: 92 },
+      { label: "Pulse Orbit (B2B)", labelAr: "محطة نبض الشركات (B2B)", href: "/dashboard/b2b/pulse-orbit", capability: "b2b.content.write", progressPercent: 85 },
     ],
   },
   {
@@ -176,10 +190,12 @@ const sidebarConfig: NavGroupItem[] = [
     href: "/dashboard/cms/media",
     roles: ["SUPER_ADMIN", "B2C_ADMIN", "B2B_ADMIN", "OPERATIONS_ADMIN"],
     capability: "media.read",
+    progressPercent: 80,
+    notificationCount: 2,
     subItems: [
-      { label: "Media Library & Folders", labelAr: "مكتبة الوسائط والمجلدات", href: "/dashboard/cms/media", capability: "media.read" },
-      { label: "Social Media Automation", labelAr: "إدارة وأتمتة التواصل", href: "/dashboard/social-media", roles: ["SUPER_ADMIN", "B2C_ADMIN"] },
-      { label: "CMS Pages Directory", labelAr: "فهرس صفحات النظام", href: "/dashboard/cms/pages", roles: ["SUPER_ADMIN", "B2C_ADMIN"] },
+      { label: "Media Library & Folders", labelAr: "مكتبة الوسائط والمجلدات", href: "/dashboard/cms/media", capability: "media.read", progressPercent: 86 },
+      { label: "Social Media Automation", labelAr: "إدارة وأتمتة التواصل", href: "/dashboard/social-media", roles: ["SUPER_ADMIN", "B2C_ADMIN"], progressPercent: 74, notificationCount: 2 },
+      { label: "CMS Pages Directory", labelAr: "فهرس صفحات النظام", href: "/dashboard/cms/pages", roles: ["SUPER_ADMIN", "B2C_ADMIN"], progressPercent: 80 },
     ],
   },
   {
@@ -191,10 +207,12 @@ const sidebarConfig: NavGroupItem[] = [
     href: "/dashboard/crm/leads",
     roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"],
     capability: "crm.leads.manage",
+    progressPercent: 72,
+    notificationCount: 2,
     subItems: [
-      { label: "Sales Pipeline & Deals", labelAr: "مسار صفقات المبيعات", href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"] },
-      { label: "Client Accounts", labelAr: "حسابات الشركات والعملاء", href: "/dashboard/crm/clients", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"] },
-      { label: "Newsletter Subscribers", labelAr: "المشتركون في النشرة", href: "/dashboard/crm/subscribers", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2C_ADMIN"] },
+      { label: "Sales Pipeline & Deals", labelAr: "مسار صفقات المبيعات", href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"], progressPercent: 70, notificationCount: 2 },
+      { label: "Client Accounts", labelAr: "حسابات الشركات والعملاء", href: "/dashboard/crm/clients", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"], progressPercent: 88, notificationCount: 1 },
+      { label: "Newsletter Subscribers", labelAr: "المشتركون في النشرة", href: "/dashboard/crm/subscribers", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2C_ADMIN"], progressPercent: 95 },
     ],
   },
   {
@@ -206,11 +224,13 @@ const sidebarConfig: NavGroupItem[] = [
     href: "/dashboard/team",
     roles: ["SUPER_ADMIN", "HR_ADMIN"],
     capability: "hr.team.manage",
+    progressPercent: 78,
+    notificationCount: 3,
     subItems: [
-      { label: "Team Profiles & Directory", labelAr: "دليل فريق العمل والكوادر", href: "/dashboard/team", capability: "hr.team.manage" },
-      { label: "Careers & Job Openings", labelAr: "الوظائف والشواغر المتاحة", href: "/dashboard/careers", capability: "hr.jobs.manage" },
-      { label: "Global Job Applications", labelAr: "طلبات التوظيف والمتقدمين", href: "/dashboard/careers/applications", capability: "hr.applications.manage" },
-      { label: "Talent Acquisition & AI Hub", labelAr: "مركز استقطاب المواهب ومحلل السير الذاتية", href: "/dashboard/crm/talent", capability: "hr.talent.manage" },
+      { label: "Team Profiles & Directory", labelAr: "دليل فريق العمل والكوادر", href: "/dashboard/team", capability: "hr.team.manage", progressPercent: 92 },
+      { label: "Careers & Job Openings", labelAr: "الوظائف والشواغر المتاحة", href: "/dashboard/careers", capability: "hr.jobs.manage", progressPercent: 65, notificationCount: 5 },
+      { label: "Global Job Applications", labelAr: "طلبات التوظيف والمتقدمين", href: "/dashboard/careers/applications", capability: "hr.applications.manage", progressPercent: 75, notificationCount: 2 },
+      { label: "Talent Acquisition & AI Hub", labelAr: "مركز استقطاب المواهب ومحلل السير الذاتية", href: "/dashboard/crm/talent", capability: "hr.talent.manage", progressPercent: 85, notificationCount: 3 },
     ],
   },
   {
@@ -222,10 +242,12 @@ const sidebarConfig: NavGroupItem[] = [
     href: "/dashboard/operations/events",
     roles: ["SUPER_ADMIN", "OPERATIONS_ADMIN"],
     capability: "operations.events.manage",
+    progressPercent: 84,
+    notificationCount: 1,
     subItems: [
-      { label: "Schedules & Capacity", labelAr: "جداول المواعيد والسعة", href: "/dashboard/operations/events", capability: "operations.events.manage" },
-      { label: "Catalog Generator", labelAr: "مولد الكتالوجات والمطبوعات", href: "/dashboard/operations/catalog", capability: "operations.catalog.manage" },
-      { label: "System Broadcasts", labelAr: "البث والإشعارات المباشرة", href: "/dashboard/operations/broadcast", capability: "operations.broadcast.manage" },
+      { label: "Schedules & Capacity", labelAr: "جداول المواعيد والسعة", href: "/dashboard/operations/events", capability: "operations.events.manage", progressPercent: 85 },
+      { label: "Catalog Generator", labelAr: "مولد الكتالوجات والمطبوعات", href: "/dashboard/operations/catalog", capability: "operations.catalog.manage", progressPercent: 90 },
+      { label: "System Broadcasts", labelAr: "البث والإشعارات المباشرة", href: "/dashboard/operations/broadcast", capability: "operations.broadcast.manage", progressPercent: 75, notificationCount: 1 },
     ],
   },
   {
@@ -535,10 +557,48 @@ export function AdminSidebar() {
                     </span>
                   )}
 
-                  {(!collapsed || mobileOpen) && item.badge && (
-                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                      {item.badge}
-                    </span>
+                  {(!collapsed || mobileOpen) && (
+                    <div className="flex items-center gap-1.5 shrink-0 ms-auto">
+                      {typeof item.progressPercent === "number" && (
+                        <span
+                          className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                          title={isAr ? `نسبة إنجاز القسم: ${item.progressPercent}%` : `Section Work Done: ${item.progressPercent}%`}
+                        >
+                          {item.progressPercent}%
+                        </span>
+                      )}
+                      {typeof item.notificationCount === "number" && item.notificationCount > 0 && (
+                        <span
+                          className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-purple-600 text-white shadow-xs animate-pulse"
+                          title={isAr ? `${item.notificationCount} إشعارات نشطة` : `${item.notificationCount} Active Notifications`}
+                        >
+                          {item.notificationCount}
+                        </span>
+                      )}
+                      {item.badge && (
+                        <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Collapsed view indicator dot */}
+                  {collapsed && !mobileOpen && typeof item.notificationCount === "number" && item.notificationCount > 0 && (
+                    <span
+                      className="absolute top-1 end-1 w-2.5 h-2.5 rounded-full bg-purple-500 ring-2 ring-white dark:ring-zinc-900 animate-pulse"
+                      title={isAr ? `${item.notificationCount} إشعارات نشطة` : `${item.notificationCount} Active Notifications`}
+                    />
+                  )}
+
+                  {/* Group progress bar underline */}
+                  {(!collapsed || mobileOpen) && typeof item.progressPercent === "number" && (
+                    <div className="absolute bottom-0 start-2.5 end-2.5 h-[2px] bg-zinc-200/50 dark:bg-zinc-800/80 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-purple-500 to-emerald-400 rounded-full"
+                        style={{ width: `${item.progressPercent}%` }}
+                      />
+                    </div>
                   )}
                 </MotionLink>
 
@@ -577,7 +637,7 @@ export function AdminSidebar() {
                           key={sub.href}
                           href={`/${currentLocale}${sub.href}`}
                           className={cn(
-                            "text-[11px] py-1.5 px-2.5 rounded-lg transition-all duration-150 relative flex items-center group/sub",
+                            "text-[11px] py-1.5 px-2.5 rounded-lg transition-all duration-150 relative flex items-center justify-between group/sub",
                             isSubActive
                               ? "text-[var(--color-primary)] font-bold bg-[var(--surface-selected)]"
                               : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
@@ -586,7 +646,36 @@ export function AdminSidebar() {
                           {isSubActive && (
                             <span className="absolute -start-[15px] w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]" />
                           )}
-                          <span className="truncate">{subTitle}</span>
+                          <span className="truncate flex-1 me-1.5">{subTitle}</span>
+
+                          {/* Work Done Progress & Active Notification Pill */}
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {typeof sub.progressPercent === "number" && (
+                              <div
+                                className="flex items-center gap-1"
+                                title={isAr ? `إنجاز العمل: ${sub.progressPercent}%` : `Work Done: ${sub.progressPercent}%`}
+                              >
+                                <span className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400">
+                                  {sub.progressPercent}%
+                                </span>
+                                <div className="w-6 h-1 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden">
+                                  <div
+                                    className="h-full bg-emerald-500 rounded-full"
+                                    style={{ width: `${sub.progressPercent}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+
+                            {typeof sub.notificationCount === "number" && sub.notificationCount > 0 && (
+                              <span
+                                className="px-1.5 py-0.2 rounded-md text-[9px] font-black bg-purple-600 text-white shadow-xs animate-pulse"
+                                title={isAr ? `${sub.notificationCount} إشعار نشط` : `${sub.notificationCount} active notifications`}
+                              >
+                                {sub.notificationCount}
+                              </span>
+                            )}
+                          </div>
                         </MotionLink>
                       );
                     })}

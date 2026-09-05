@@ -43,9 +43,16 @@ export default async function TalentPage(props: {
     }),
   ]);
 
-  // Merge into unified candidate profile schema
-  const unifiedTalent = [
-    ...applicationsList.map((app: any) => ({
+  // Merge into unified candidate profile schema with smart deduplication
+  const talentMap = new Map<string, any>();
+
+  // 1. Process JobApplications (the primary application records with active candidate status and parsed CV data)
+  for (const app of applicationsList) {
+    const emailKey = (app.email || "").trim().toLowerCase();
+    const roleKey = (app.jobTitle || "").trim().toLowerCase();
+    const dedupeKey = emailKey ? `${emailKey}::${roleKey}` : app.id;
+
+    talentMap.set(dedupeKey, {
       id: app.id,
       name: `${app.firstName || ""} ${app.lastName || ""}`.trim() || "Applicant",
       firstName: app.firstName,
@@ -69,37 +76,72 @@ export default async function TalentPage(props: {
       notes: (app.cvParsedData as any)?.summary || null,
       job: { title: app.jobTitle },
       source: "JOB_APPLICATION",
-    })),
-    ...talentList.map((t: any) => ({
-      id: t.id,
-      name: t.name,
-      firstName: t.name.split(" ")[0] || t.name,
-      lastName: t.name.split(" ").slice(1).join(" ") || "",
-      email: t.email,
-      phone: t.phone,
-      position: t.position || t.job?.title || "Professional",
-      department: t.department || t.job?.department || "General",
-      experienceLevel: t.experienceLevel || "Experienced",
-      status: t.status || "NEW",
-      rating: t.rating,
-      appliedDate: t.appliedDate.toISOString(),
-      resumeUrl: t.resumeUrl,
-      cvParsedData: t.skills
-        ? {
-            skills: Array.isArray(t.skills) ? t.skills : [],
-            experienceYears: 4,
-            summary: t.notes || "",
-          }
-        : null,
-      skills: t.skills || [],
-      languages: t.languages,
-      education: t.education,
-      certifications: t.certifications,
-      notes: t.notes,
-      job: t.job ? { title: t.job.title } : null,
-      source: "DIRECT_TALENT",
-    })),
-  ];
+    });
+  }
+
+  // 2. Process Talent table records (incorporate direct CRM talent, or merge extra CRM fields)
+  for (const t of talentList) {
+    const emailKey = (t.email || "").trim().toLowerCase();
+    const roleKey = (t.position || t.job?.title || "").trim().toLowerCase();
+    const dedupeKey = emailKey ? `${emailKey}::${roleKey}` : t.id;
+
+    if (talentMap.has(dedupeKey)) {
+      // Merge with existing JobApplication record: keep more advanced status, retain notes/rating if present
+      const existing = talentMap.get(dedupeKey);
+      const isExistingNew = existing.status === "NEW";
+      const isTalentAdvanced = t.status && t.status !== "NEW";
+
+      talentMap.set(dedupeKey, {
+        ...existing,
+        // If talent record was advanced in CRM while application was NEW, respect talent status
+        status: isTalentAdvanced && isExistingNew ? t.status : existing.status,
+        rating: existing.rating ?? t.rating,
+        phone: existing.phone || t.phone,
+        notes: existing.notes || t.notes,
+        resumeUrl: existing.resumeUrl || t.resumeUrl,
+        cvParsedData:
+          existing.cvParsedData ||
+          (t.skills ? { skills: t.skills, experienceYears: 4, summary: t.notes } : null),
+        skills:
+          Array.isArray(existing.skills) && existing.skills.length > 0
+            ? existing.skills
+            : t.skills || [],
+      });
+    } else {
+      // Direct CRM Talent record with no matching job application
+      talentMap.set(dedupeKey, {
+        id: t.id,
+        name: t.name,
+        firstName: t.name.split(" ")[0] || t.name,
+        lastName: t.name.split(" ").slice(1).join(" ") || "",
+        email: t.email,
+        phone: t.phone,
+        position: t.position || t.job?.title || "Professional",
+        department: t.department || t.job?.department || "General",
+        experienceLevel: t.experienceLevel || "Experienced",
+        status: t.status || "NEW",
+        rating: t.rating,
+        appliedDate: t.appliedDate.toISOString(),
+        resumeUrl: t.resumeUrl,
+        cvParsedData: t.skills
+          ? {
+              skills: Array.isArray(t.skills) ? t.skills : [],
+              experienceYears: 4,
+              summary: t.notes || "",
+            }
+          : null,
+        skills: t.skills || [],
+        languages: t.languages,
+        education: t.education,
+        certifications: t.certifications,
+        notes: t.notes,
+        job: t.job ? { title: t.job.title } : null,
+        source: "DIRECT_TALENT",
+      });
+    }
+  }
+
+  const unifiedTalent = Array.from(talentMap.values());
 
   return (
     <TalentList

@@ -30,6 +30,17 @@ import {
   ExternalLink,
   Tag,
   Building,
+  BarChart2,
+  BarChart3,
+  TrendingUp,
+  PieChart,
+  Percent,
+  Activity,
+  Layers,
+  ShieldCheck,
+  ChevronDown,
+  ChevronUp,
+  SlidersHorizontal,
 } from "lucide-react";
 import {
   DashboardPageShell,
@@ -55,6 +66,7 @@ const PIPELINE_STAGES = [
     dotColor: "bg-blue-500",
     badgeBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
     borderActive: "border-blue-500",
+    gradient: "from-blue-500 to-indigo-500",
   },
   {
     id: "SCREENING",
@@ -63,6 +75,7 @@ const PIPELINE_STAGES = [
     dotColor: "bg-amber-500",
     badgeBg: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
     borderActive: "border-amber-500",
+    gradient: "from-amber-500 to-orange-500",
   },
   {
     id: "INTERVIEW",
@@ -71,6 +84,7 @@ const PIPELINE_STAGES = [
     dotColor: "bg-purple-500",
     badgeBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
     borderActive: "border-purple-500",
+    gradient: "from-purple-500 to-violet-600",
   },
   {
     id: "OFFERED",
@@ -79,6 +93,7 @@ const PIPELINE_STAGES = [
     dotColor: "bg-indigo-500",
     badgeBg: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
     borderActive: "border-indigo-500",
+    gradient: "from-indigo-500 to-blue-600",
   },
   {
     id: "HIRED",
@@ -87,6 +102,7 @@ const PIPELINE_STAGES = [
     dotColor: "bg-emerald-500",
     badgeBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
     borderActive: "border-emerald-500",
+    gradient: "from-emerald-500 to-teal-500",
   },
   {
     id: "REJECTED",
@@ -95,6 +111,7 @@ const PIPELINE_STAGES = [
     dotColor: "bg-zinc-400 dark:bg-zinc-500",
     badgeBg: "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-500/20",
     borderActive: "border-zinc-500",
+    gradient: "from-zinc-400 to-zinc-600",
   },
 ];
 
@@ -107,9 +124,34 @@ export function TalentList({
   const { toast } = useToast();
   const isAr = locale === "ar";
 
-  const [talent, setTalent] = useState<Talent[]>(initialTalent);
-  const [activeView, setActiveView] = useState<"DIRECTORY" | "LEADERBOARD" | "INGEST">("DIRECTORY");
+  // Defensive deduplication across pool to ensure no candidate appears repeatedly
+  const deduplicatedInitial = useMemo(() => {
+    const map = new Map<string, Talent>();
+    for (const t of initialTalent) {
+      const email = (t.email || "").trim().toLowerCase();
+      const role = (t.position || t.job?.title || "").trim().toLowerCase();
+      const key = email ? `${email}::${role}` : t.id;
+      if (!map.has(key)) {
+        map.set(key, t);
+      } else {
+        const existing = map.get(key)!;
+        if (existing.status === "NEW" && t.status !== "NEW") {
+          map.set(key, { ...existing, status: t.status });
+        }
+      }
+    }
+    return Array.from(map.values());
+  }, [initialTalent]);
+
+  const [talent, setTalent] = useState<Talent[]>(deduplicatedInitial);
+
+  React.useEffect(() => {
+    setTalent(deduplicatedInitial);
+  }, [deduplicatedInitial]);
+
+  const [activeView, setActiveView] = useState<"DIRECTORY" | "ANALYTICS" | "LEADERBOARD" | "INGEST">("DIRECTORY");
   const [layoutMode, setLayoutMode] = useState<"GRID" | "TABLE">("GRID");
+  const [showQuickAnalytics, setShowQuickAnalytics] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [jobFilter, setJobFilter] = useState("ALL");
@@ -166,6 +208,86 @@ export function TalentList({
     });
     return Array.from(set);
   }, [talent]);
+
+  // Comprehensive Analytics Calculations for Visual Graphs
+  const analytics = useMemo(() => {
+    const total = talent.length || 1;
+    const stageCounts: Record<string, number> = {
+      NEW: 0,
+      SCREENING: 0,
+      INTERVIEW: 0,
+      OFFERED: 0,
+      HIRED: 0,
+      REJECTED: 0,
+    };
+
+    talent.forEach((t) => {
+      const s = t.status || "NEW";
+      if (stageCounts[s] !== undefined) stageCounts[s]++;
+      else stageCounts.NEW++;
+    });
+
+    // Department breakdown
+    const deptMap: Record<string, number> = {};
+    talent.forEach((t) => {
+      const d = t.department || "Operations";
+      deptMap[d] = (deptMap[d] || 0) + 1;
+    });
+    const deptList = Object.entries(deptMap)
+      .map(([dept, count]) => ({
+        dept,
+        count,
+        percent: Math.round((count / total) * 100),
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    // AI Score Distribution
+    let eliteCount = 0; // 90-100%
+    let strongCount = 0; // 80-89%
+    let potentialCount = 0; // 70-79%
+    let developingCount = 0; // <70%
+    let totalScore = 0;
+    let scoredCandidates = 0;
+
+    rankingsMap.forEach((rank) => {
+      const score = rank.matchScore || 0;
+      totalScore += score;
+      scoredCandidates++;
+      if (score >= 90) eliteCount++;
+      else if (score >= 80) strongCount++;
+      else if (score >= 70) potentialCount++;
+      else developingCount++;
+    });
+
+    const avgScore = scoredCandidates > 0 ? Math.round(totalScore / scoredCandidates) : 75;
+
+    // Work done calculation: percentage of candidates screened and processed beyond raw NEW state
+    const processedCandidates = talent.filter((t) => t.status !== "NEW").length;
+    const workDonePercent = Math.round((processedCandidates / total) * 100);
+
+    // Hire conversion rate
+    const hireRate = Math.round((stageCounts.HIRED / total) * 100);
+
+    return {
+      total: talent.length,
+      stageCounts,
+      deptList,
+      aiDistribution: {
+        elite: { count: eliteCount, percent: Math.round((eliteCount / total) * 100) },
+        strong: { count: strongCount, percent: Math.round((strongCount / total) * 100) },
+        potential: { count: potentialCount, percent: Math.round((potentialCount / total) * 100) },
+        developing: { count: developingCount, percent: Math.round((developingCount / total) * 100) },
+        avgScore,
+      },
+      workDonePercent,
+      hireRate,
+      activeNotifications: {
+        newSubmissions: stageCounts.NEW,
+        inInterview: stageCounts.INTERVIEW,
+        hired: stageCounts.HIRED,
+      },
+    };
+  }, [talent, rankingsMap]);
 
   // Filtered and sorted talent items
   const filtered = useMemo(() => {
@@ -288,7 +410,6 @@ export function TalentList({
     }
   };
 
-  // Metric computations
   const totalCount = talent.length;
   const inPipelineCount = talent.filter((t) => ["SCREENING", "INTERVIEW", "OFFERED"].includes(t.status)).length;
   const topMatchCount = Array.from(rankingsMap.values()).filter((r) => r.matchScore >= 80).length;
@@ -303,15 +424,15 @@ export function TalentList({
         title={isAr ? "مركز استقطاب المواهب والتوظيف الذكي" : "Talent Acquisition & AI Hub"}
         description={
           isAr
-            ? "لوحة التوظيف الشاملة: مسار المترشحين، التقييم المقارن بالذكاء الاصطناعي، واستيعاب السير الذاتية."
-            : "Unified candidate tracking pipeline, category comparative ranking, and instant AI resume ingestion."
+            ? "لوحة التوظيف الشاملة: مسار المترشحين، التحليلات البيانية، التقييم المقارن بالذكاء الاصطناعي، واستيعاب السير الذاتية."
+            : "Unified candidate tracking pipeline, visual recruitment graphs, comparative ranking, and instant AI resume ingestion."
         }
         breadcrumbs={[
           { label: isAr ? "الموارد البشرية" : "HR & Talent", href: `/${locale}/dashboard/crm/talent` },
           { label: isAr ? "استقطاب المواهب" : "Talent Acquisition" },
         ]}
         badge={{
-          label: `${totalCount} ${isAr ? "مرشح" : "Candidates"}`,
+          label: `${totalCount} ${isAr ? "مرشح" : "Candidates"} · ${analytics.workDonePercent}% ${isAr ? "منجز" : "Done"}`,
           variant: "indigo",
         }}
         primaryAction={{
@@ -360,9 +481,26 @@ export function TalentList({
             <span>{isAr ? "دليل فريق العمل (A4 PDF)" : "Team Directory (A4 PDF)"}</span>
           </Link>
         </div>
+
+        {/* Work Done Progress Chip */}
+        <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-white/5">
+          <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+          <span className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400">
+            {isAr ? "نسبة إنجاز فرز المواهب:" : "Vetting Work Done:"}
+          </span>
+          <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 font-mono">
+            {analytics.workDonePercent}%
+          </span>
+          <div className="w-12 h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden ms-1">
+            <div
+              className="h-full bg-gradient-to-r from-purple-600 to-emerald-500 rounded-full"
+              style={{ width: `${analytics.workDonePercent}%` }}
+            />
+          </div>
+        </div>
       </div>
 
-      {/* Recruiter KPI Cards Bar */}
+      {/* Recruiter KPI Cards Bar with Live Velocity */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
         <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-white/10 flex items-center justify-between shadow-xs">
           <div>
@@ -370,6 +508,9 @@ export function TalentList({
               {isAr ? "إجمالي بنك المواهب" : "Talent Pool Size"}
             </div>
             <div className="text-2xl font-black text-zinc-900 dark:text-white mt-1">{totalCount}</div>
+            <div className="text-[10px] text-zinc-400 mt-0.5">
+              {analytics.stageCounts.NEW} {isAr ? "جديد بانتظار الفرز" : "new submissions"}
+            </div>
           </div>
           <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-500 dark:text-blue-400 flex items-center justify-center">
             <Briefcase className="w-5 h-5" />
@@ -382,6 +523,9 @@ export function TalentList({
               {isAr ? "في مرحلة الفرز والمقابلة" : "Active In Pipeline"}
             </div>
             <div className="text-2xl font-black text-amber-500 dark:text-amber-400 mt-1">{inPipelineCount}</div>
+            <div className="text-[10px] text-amber-500/80 mt-0.5 font-medium">
+              {Math.round((inPipelineCount / (totalCount || 1)) * 100)}% {isAr ? "نشط في المسار" : "pipeline velocity"}
+            </div>
           </div>
           <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 dark:text-amber-400 flex items-center justify-center">
             <Clock className="w-5 h-5" />
@@ -394,6 +538,9 @@ export function TalentList({
               {isAr ? "نخبة التطابق الذكي (+80%)" : "Top AI Matches"}
             </div>
             <div className="text-2xl font-black text-purple-600 dark:text-purple-400 mt-1">{topMatchCount}</div>
+            <div className="text-[10px] text-purple-500/80 mt-0.5 font-medium">
+              {analytics.aiDistribution.avgScore}% {isAr ? "متوسط التقييم" : "avg AI fit index"}
+            </div>
           </div>
           <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center">
             <Award className="w-5 h-5" />
@@ -406,6 +553,9 @@ export function TalentList({
               {isAr ? "تم التعيين بنجاح" : "Hired & Onboarded"}
             </div>
             <div className="text-2xl font-black text-emerald-500 dark:text-emerald-400 mt-1">{hiredCount}</div>
+            <div className="text-[10px] text-emerald-500/80 mt-0.5 font-medium">
+              {analytics.hireRate}% {isAr ? "معدل التوظيف النهائي" : "hire conversion rate"}
+            </div>
           </div>
           <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 dark:text-emerald-400 flex items-center justify-center">
             <CheckCircle2 className="w-5 h-5" />
@@ -415,11 +565,11 @@ export function TalentList({
 
       {/* Main View Navigation Tabs */}
       <div className="p-3 rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 mt-6 shadow-xs">
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-white/10 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-white/10 w-full md:w-auto">
           <button
             type="button"
             onClick={() => setActiveView("DIRECTORY")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeView === "DIRECTORY"
                 ? "bg-purple-600 text-white shadow-xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-zinc-700"
@@ -431,8 +581,21 @@ export function TalentList({
 
           <button
             type="button"
+            onClick={() => setActiveView("ANALYTICS")}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              activeView === "ANALYTICS"
+                ? "bg-purple-600 text-white shadow-xs"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-zinc-700"
+            }`}
+          >
+            <BarChart3 className="w-4 h-4 text-emerald-400" />
+            <span>{isAr ? "التحليلات والمؤشرات البيانية" : "Visual Analytics & Graphs"}</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveView("LEADERBOARD")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeView === "LEADERBOARD"
                 ? "bg-purple-600 text-white shadow-xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-zinc-700"
@@ -445,7 +608,7 @@ export function TalentList({
           <button
             type="button"
             onClick={() => setActiveView("INGEST")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeView === "INGEST"
                 ? "bg-purple-600 text-white shadow-xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-zinc-700"
@@ -459,23 +622,34 @@ export function TalentList({
         {/* Global Search & Filters in Directory mode */}
         {activeView === "DIRECTORY" && (
           <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
-            <div className="relative flex-1 md:w-60">
+            {/* Quick Analytics Toggle */}
+            <button
+              type="button"
+              onClick={() => setShowQuickAnalytics(!showQuickAnalytics)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-bold transition-colors cursor-pointer"
+            >
+              <BarChart2 className="w-3.5 h-3.5 text-purple-500" />
+              <span>{showQuickAnalytics ? (isAr ? "إخفاء الرسوم" : "Hide Charts") : (isAr ? "عرض الرسوم" : "Show Charts")}</span>
+              {showQuickAnalytics ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+
+            <div className="relative flex-1 md:w-56">
               <Search className="w-3.5 h-3.5 absolute start-3 top-3 text-zinc-400" />
               <input
                 type="text"
-                placeholder={isAr ? "بحث بالاسم، التخصص، أو المهارات..." : "Search name, role, skills..."}
+                placeholder={isAr ? "بحث بالاسم أو المهارات..." : "Search name or skills..."}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 rounded-xl ps-8 pe-3 py-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-purple-500"
+                className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 rounded-xl ps-8 pe-3 py-1.5 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-purple-500"
               />
             </div>
 
             <select
               value={jobFilter}
               onChange={(e) => setJobFilter(e.target.value)}
-              className="px-3 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 rounded-xl text-xs text-zinc-700 dark:text-zinc-300 font-medium focus:outline-none focus:border-purple-500"
+              className="px-3 py-1.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 rounded-xl text-xs text-zinc-700 dark:text-zinc-300 font-medium focus:outline-none focus:border-purple-500"
             >
-              <option value="ALL">{isAr ? "كل التخصصات والوظائف" : "All Positions"}</option>
+              <option value="ALL">{isAr ? "كل التخصصات" : "All Roles"}</option>
               {allRoles.map((role) => (
                 <option key={role} value={role}>
                   {role}
@@ -486,11 +660,11 @@ export function TalentList({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-3 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 rounded-xl text-xs text-zinc-700 dark:text-zinc-300 font-medium focus:outline-none focus:border-purple-500"
+              className="px-3 py-1.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 rounded-xl text-xs text-zinc-700 dark:text-zinc-300 font-medium focus:outline-none focus:border-purple-500"
             >
-              <option value="MATCH">{isAr ? "ترتيب: أعلى تطابق AI" : "Sort: Top AI Match"}</option>
-              <option value="NEWEST">{isAr ? "ترتيب: الأحدث تقديماً" : "Sort: Newest Applied"}</option>
-              <option value="NAME">{isAr ? "ترتيب: أبجدياً بالاسم" : "Sort: Candidate Name"}</option>
+              <option value="MATCH">{isAr ? "أعلى تطابق AI" : "Top AI Match"}</option>
+              <option value="NEWEST">{isAr ? "الأحدث تقديماً" : "Newest"}</option>
+              <option value="NAME">{isAr ? "بالاسم (A-Z)" : "Name"}</option>
             </select>
 
             {/* Layout Toggle: Grid vs Table */}
@@ -527,6 +701,278 @@ export function TalentList({
       {/* VIEW 1: TALENT DIRECTORY & PRACTICAL PIPELINE */}
       {activeView === "DIRECTORY" && (
         <div className="mt-6 space-y-6">
+          {/* VISUAL ANALYTICS & GRAPH DECK (EXPANDABLE) */}
+          {showQuickAnalytics && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Graph 1: Recruitment Funnel & Conversion Velocity */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-white/10 shadow-xs flex flex-col justify-between space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                      <TrendingUp className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xs text-zinc-900 dark:text-white">
+                        {isAr ? "مسار تحويل التوظيف" : "Recruitment Funnel"}
+                      </h4>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                        {isAr ? "معدل التحويل عبر المراحل" : "Stage-by-stage velocity"}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                    {analytics.hireRate}% {isAr ? "توظيف" : "Hire"}
+                  </span>
+                </div>
+
+                {/* Funnel Step Bars */}
+                <div className="space-y-1.5 pt-1">
+                  {PIPELINE_STAGES.slice(0, 5).map((stage) => {
+                    const count = analytics.stageCounts[stage.id] || 0;
+                    const percent = Math.round((count / (analytics.total || 1)) * 100);
+
+                    return (
+                      <div
+                        key={stage.id}
+                        onClick={() => setStatusFilter(stage.id)}
+                        className="group cursor-pointer"
+                        title={isAr ? `تصفية حسب: ${stage.labelAr}` : `Filter by: ${stage.labelEn}`}
+                      >
+                        <div className="flex items-center justify-between text-[10px] mb-0.5">
+                          <span className="font-semibold text-zinc-600 dark:text-zinc-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                            {isAr ? stage.labelAr : stage.labelEn}
+                          </span>
+                          <span className="font-mono font-bold text-zinc-900 dark:text-white">
+                            {count} ({percent}%)
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full bg-gradient-to-r ${stage.gradient} transition-all duration-300`}
+                            style={{ width: `${Math.max(percent, count > 0 ? 8 : 0)}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Graph 2: AI Match Score Distribution Spectrum */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-white/10 shadow-xs flex flex-col justify-between space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                      <Cpu className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xs text-zinc-900 dark:text-white">
+                        {isAr ? "توزيع درجات AI" : "AI Score Spectrum"}
+                      </h4>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                        {isAr ? "مؤشر جودة المترشحين" : "Candidate tier density"}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-black text-purple-600 dark:text-purple-400 font-mono">
+                    {analytics.aiDistribution.avgScore}% {isAr ? "متوسط" : "Avg"}
+                  </span>
+                </div>
+
+                {/* Histogram Bars */}
+                <div className="space-y-2 pt-1 text-[10px]">
+                  <div>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                        {isAr ? "نخبة (90% - 100%)" : "Elite (90-100%)"}
+                      </span>
+                      <span className="font-mono font-bold text-zinc-900 dark:text-white">
+                        {analytics.aiDistribution.elite.count} ({analytics.aiDistribution.elite.percent}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
+                        style={{ width: `${Math.max(analytics.aiDistribution.elite.percent, analytics.aiDistribution.elite.count > 0 ? 10 : 0)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="font-semibold text-purple-600 dark:text-purple-400">
+                        {isAr ? "تطابق قوي (80% - 89%)" : "Strong Fit (80-89%)"}
+                      </span>
+                      <span className="font-mono font-bold text-zinc-900 dark:text-white">
+                        {analytics.aiDistribution.strong.count} ({analytics.aiDistribution.strong.percent}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-500"
+                        style={{ width: `${Math.max(analytics.aiDistribution.strong.percent, analytics.aiDistribution.strong.count > 0 ? 10 : 0)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="font-semibold text-blue-600 dark:text-blue-400">
+                        {isAr ? "مستوى واعد (70% - 79%)" : "Good Fit (70-79%)"}
+                      </span>
+                      <span className="font-mono font-bold text-zinc-900 dark:text-white">
+                        {analytics.aiDistribution.potential.count} ({analytics.aiDistribution.potential.percent}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400"
+                        style={{ width: `${Math.max(analytics.aiDistribution.potential.percent, analytics.aiDistribution.potential.count > 0 ? 10 : 0)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="font-semibold text-amber-600 dark:text-amber-400">
+                        {isAr ? "قيد المراجعة (< 70%)" : "Developing (<70%)"}
+                      </span>
+                      <span className="font-mono font-bold text-zinc-900 dark:text-white">
+                        {analytics.aiDistribution.developing.count} ({analytics.aiDistribution.developing.percent}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-400"
+                        style={{ width: `${Math.max(analytics.aiDistribution.developing.percent, analytics.aiDistribution.developing.count > 0 ? 10 : 0)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Graph 3: Department Talent Concentration Bar Chart */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-white/10 shadow-xs flex flex-col justify-between space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                      <Building className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xs text-zinc-900 dark:text-white">
+                        {isAr ? "توزيع الأقسام" : "Department Allocation"}
+                      </h4>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                        {isAr ? "حسب التخصصات التشغيلية" : "Candidate department share"}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-black text-zinc-900 dark:text-white font-mono">
+                    {analytics.deptList.length} {isAr ? "أقسام" : "Depts"}
+                  </span>
+                </div>
+
+                {/* Department Distribution Rows */}
+                <div className="space-y-2 pt-1 text-[10px]">
+                  {analytics.deptList.slice(0, 4).map((d) => (
+                    <div key={d.dept}>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="font-semibold text-zinc-700 dark:text-zinc-300 truncate max-w-[140px]">
+                          {d.dept}
+                        </span>
+                        <span className="font-mono font-bold text-zinc-900 dark:text-white">
+                          {d.count} ({d.percent}%)
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-purple-500 via-indigo-500 to-emerald-400"
+                          style={{ width: `${d.percent}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Graph 4: Recruiter Work Done Gauge & Active Notifications */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-white/10 shadow-xs flex flex-col justify-between space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xs text-zinc-900 dark:text-white">
+                        {isAr ? "نسبة إنجاز العمل" : "Work Done & Actions"}
+                      </h4>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                        {isAr ? "الإشعارات ومؤشر الإنجاز" : "Vetting progress & queue"}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                    {analytics.workDonePercent}%
+                  </span>
+                </div>
+
+                {/* Circular Gauge / Notifications */}
+                <div className="flex items-center gap-3 pt-1">
+                  {/* Circular Radial Meter */}
+                  <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
+                    <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15"
+                        fill="none"
+                        className="stroke-zinc-200 dark:stroke-zinc-800"
+                        strokeWidth="3.5"
+                      />
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15"
+                        fill="none"
+                        className="stroke-purple-600 dark:stroke-purple-400 transition-all duration-700"
+                        strokeWidth="3.5"
+                        strokeDasharray={`${(analytics.workDonePercent / 100) * 94.2} 94.2`}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <span className="absolute text-[11px] font-black font-mono text-zinc-900 dark:text-white">
+                      {analytics.workDonePercent}%
+                    </span>
+                  </div>
+
+                  {/* Notification Action Items */}
+                  <div className="space-y-1 text-[10px] flex-1">
+                    <div className="flex items-center justify-between p-1 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300">
+                      <span>{isAr ? "طلبات جديدة" : "New Submissions"}</span>
+                      <span className="font-bold font-mono px-1 rounded bg-blue-200/60 dark:bg-blue-800/60">
+                        {analytics.activeNotifications.newSubmissions}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between p-1 rounded-md bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300">
+                      <span>{isAr ? "مرحلة المقابلة" : "In Interview"}</span>
+                      <span className="font-bold font-mono px-1 rounded bg-purple-200/60 dark:bg-purple-800/60">
+                        {analytics.activeNotifications.inInterview}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between p-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300">
+                      <span>{isAr ? "تم التعيين" : "Hired"}</span>
+                      <span className="font-bold font-mono px-1 rounded bg-emerald-200/60 dark:bg-emerald-800/60">
+                        {analytics.activeNotifications.hired}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Practical Horizontal Stage Filter Ribbon */}
           <div className="flex flex-wrap items-center gap-2 p-2 rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-white/10 shadow-xs">
             <button
@@ -986,7 +1432,310 @@ export function TalentList({
         </div>
       )}
 
-      {/* VIEW 2: CATEGORY LEADERBOARD & COMPARATIVE RANKING */}
+      {/* VIEW 2: DEDICATED VISUAL ANALYTICS & GRAPH CENTER */}
+      {activeView === "ANALYTICS" && (
+        <div className="mt-6 space-y-6">
+          {/* Top Performance Analytics Banner */}
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-zinc-900/80 border border-purple-500/20 shadow-lg relative overflow-hidden">
+            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold">
+                  <BarChart3 className="w-3.5 h-3.5 text-purple-400" />
+                  <span>{isAr ? "مركز التحليلات البيانية المتقدمة" : "Advanced Recruitment Analytics & Metrics"}</span>
+                </div>
+                <h2 className="text-xl font-black text-white">
+                  {isAr ? "مؤشرات أداء استقطاب وتوظيف الكوادر" : "Talent Acquisition Performance & Conversion Matrix"}
+                </h2>
+                <p className="text-xs text-zinc-300 max-w-2xl">
+                  {isAr
+                    ? "تحليل شامل لمعدلات التحويل، سرعة فرز المترشحين، ومطابقة الذكاء الاصطناعي مع قياس التقدم التشغيلي."
+                    : "Comprehensive tracking of candidate conversion velocity, AI vetting confidence, and departmental staffing progression."}
+                </p>
+              </div>
+
+              {/* Work Done Large Metric */}
+              <div className="p-4 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md flex items-center gap-4 shrink-0">
+                <div className="text-end">
+                  <div className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                    {isAr ? "نسبة إنجاز العمل الكلي" : "Overall Work Done"}
+                  </div>
+                  <div className="text-3xl font-black text-emerald-400 font-mono mt-0.5">
+                    {analytics.workDonePercent}%
+                  </div>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold">
+                  <TrendingUp className="w-6 h-6" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2-Column Analytics Charts Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Chart 1: Recruitment Stage Conversion Funnel */}
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-white/10 shadow-xs space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-200/80 dark:border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                    <TrendingUp className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
+                      {isAr ? "مسار تحويل التوظيف (Recruitment Funnel)" : "Recruitment Funnel & Conversion Velocity"}
+                    </h3>
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                      {isAr ? "تدفق المترشحين من التقديم حتى التعيين" : "Candidate progression from application to onboarding"}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-end">
+                  <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                    {analytics.hireRate}% {isAr ? "معدل التعيين" : "Placement Rate"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Step Waterfall */}
+              <div className="space-y-3 pt-2">
+                {PIPELINE_STAGES.map((stage) => {
+                  const count = analytics.stageCounts[stage.id] || 0;
+                  const percent = Math.round((count / (analytics.total || 1)) * 100);
+
+                  return (
+                    <div key={stage.id} className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2.5 h-2.5 rounded-full ${stage.dotColor}`} />
+                          <span className="font-bold text-zinc-800 dark:text-zinc-200">
+                            {isAr ? stage.labelAr : stage.labelEn}
+                          </span>
+                        </div>
+                        <span className="font-mono font-bold text-zinc-900 dark:text-white">
+                          {count} {isAr ? "مترشح" : "candidates"} ({percent}%)
+                        </span>
+                      </div>
+                      <div className="w-full h-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full bg-gradient-to-r ${stage.gradient} transition-all duration-500`}
+                          style={{ width: `${Math.max(percent, count > 0 ? 5 : 0)}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Chart 2: AI Match Score Distribution Spectrum */}
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-white/10 shadow-xs space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-200/80 dark:border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                    <Cpu className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
+                      {isAr ? "طيف توزيع درجات الذكاء الاصطناعي" : "AI Match Score Quality Spectrum"}
+                    </h3>
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                      {isAr ? "توزيع المترشحين حسب دقة الملاءمة" : "Competency match index across talent pool"}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-end">
+                  <span className="text-xs font-black text-purple-600 dark:text-purple-400 font-mono">
+                    {analytics.aiDistribution.avgScore}% {isAr ? "متوسط التقييم" : "Average Fit Index"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Quality Tiers */}
+              <div className="space-y-3.5 pt-2">
+                <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="font-bold text-xs text-emerald-600 dark:text-emerald-400">
+                      {isAr ? "نخبة التطابق الذكي (90% - 100%)" : "Elite Match (90% - 100%)"}
+                    </span>
+                    <p className="text-[11px] text-zinc-500">
+                      {isAr ? "مترشحون جاهزون لتقديم العرض الفوري" : "Immediate interview & offer priority"}
+                    </p>
+                  </div>
+                  <span className="text-base font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                    {analytics.aiDistribution.elite.count} ({analytics.aiDistribution.elite.percent}%)
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-purple-500/5 border border-purple-500/20 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="font-bold text-xs text-purple-600 dark:text-purple-400">
+                      {isAr ? "تطابق قوي وموثوق (80% - 89%)" : "Strong Fit (80% - 89%)"}
+                    </span>
+                    <p className="text-[11px] text-zinc-500">
+                      {isAr ? "مؤهلات متوافقة تماماً مع متطلبات الوظيفة" : "Strong technical and venue qualifications"}
+                    </p>
+                  </div>
+                  <span className="text-base font-black text-purple-600 dark:text-purple-400 font-mono">
+                    {analytics.aiDistribution.strong.count} ({analytics.aiDistribution.strong.percent}%)
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="font-bold text-xs text-blue-600 dark:text-blue-400">
+                      {isAr ? "مستوى واعد (70% - 79%)" : "Good Fit (70% - 79%)"}
+                    </span>
+                    <p className="text-[11px] text-zinc-500">
+                      {isAr ? "مرشحون يتمتعون بإمكانيات واعدة" : "Promising background, secondary assessment"}
+                    </p>
+                  </div>
+                  <span className="text-base font-black text-blue-600 dark:text-blue-400 font-mono">
+                    {analytics.aiDistribution.potential.count} ({analytics.aiDistribution.potential.percent}%)
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="font-bold text-xs text-amber-600 dark:text-amber-400">
+                      {isAr ? "قيد المراجعة والتقييم (< 70%)" : "Developing (< 70%)"}
+                    </span>
+                    <p className="text-[11px] text-zinc-500">
+                      {isAr ? "بحاجة إلى فرز تفصيلي لملف الخبرات" : "Awaiting detailed recruiter portfolio review"}
+                    </p>
+                  </div>
+                  <span className="text-base font-black text-amber-600 dark:text-amber-400 font-mono">
+                    {analytics.aiDistribution.developing.count} ({analytics.aiDistribution.developing.percent}%)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Chart 3: Department Quota Allocation */}
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-white/10 shadow-xs space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-200/80 dark:border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                    <Building className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
+                      {isAr ? "توزيع الكوادر حسب الأقسام التشغيلية" : "Departmental Talent Allocation"}
+                    </h3>
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                      {isAr ? "كثافة المترشحين ونسبة تغطية الشواغر" : "Staffing density and pipeline share"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                {analytics.deptList.map((d) => (
+                  <div key={d.dept} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-zinc-800 dark:text-zinc-200">{d.dept}</span>
+                      <span className="font-mono font-bold text-zinc-900 dark:text-white">
+                        {d.count} {isAr ? "مترشح" : "candidates"} ({d.percent}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-600"
+                        style={{ width: `${d.percent}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Chart 4: Recruiter Operational Velocity & Milestone Tracker */}
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-white/10 shadow-xs space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-200/80 dark:border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-zinc-900 dark:text-white">
+                      {isAr ? "مؤشر إنجاز العمل والإجراءات النشطة" : "Recruiter Work Velocity & Active Queue"}
+                    </h3>
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                      {isAr ? "المهام المعلقة ومعدل إنجاز الفرز" : "Vetting progress and active pending actions"}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                  {analytics.workDonePercent}% {isAr ? "مكتمل" : "Completed"}
+                </span>
+              </div>
+
+              {/* Radial Progress + Notifications */}
+              <div className="flex flex-col sm:flex-row items-center gap-6 pt-2">
+                <div className="relative w-28 h-28 shrink-0 flex items-center justify-center">
+                  <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15"
+                      fill="none"
+                      className="stroke-zinc-100 dark:stroke-zinc-800"
+                      strokeWidth="3.5"
+                    />
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15"
+                      fill="none"
+                      className="stroke-emerald-500 transition-all duration-700"
+                      strokeWidth="3.5"
+                      strokeDasharray={`${(analytics.workDonePercent / 100) * 94.2} 94.2`}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div className="absolute text-center">
+                    <div className="text-xl font-black font-mono text-zinc-900 dark:text-white">
+                      {analytics.workDonePercent}%
+                    </div>
+                    <div className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider">
+                      {isAr ? "منجز" : "Done"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2 flex-1 w-full text-xs">
+                  <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/30 flex items-center justify-between">
+                    <span className="font-semibold text-blue-700 dark:text-blue-300">
+                      {isAr ? "مترشحون بانتظار الفرز والتقييم الأولي" : "New Submissions Awaiting Screening"}
+                    </span>
+                    <span className="font-mono font-bold px-2 py-0.5 rounded-lg bg-blue-600 text-white shadow-xs">
+                      {analytics.activeNotifications.newSubmissions}
+                    </span>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/30 flex items-center justify-between">
+                    <span className="font-semibold text-purple-700 dark:text-purple-300">
+                      {isAr ? "مقابلات مجدولة وقيد التنسيق" : "Active Interviews Scheduled"}
+                    </span>
+                    <span className="font-mono font-bold px-2 py-0.5 rounded-lg bg-purple-600 text-white shadow-xs">
+                      {analytics.activeNotifications.inInterview}
+                    </span>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/30 flex items-center justify-between">
+                    <span className="font-semibold text-emerald-700 dark:text-emerald-300">
+                      {isAr ? "كوادر تم تعيينها وانضمامها للفريق" : "Hired & Successfully Onboarded"}
+                    </span>
+                    <span className="font-mono font-bold px-2 py-0.5 rounded-lg bg-emerald-600 text-white shadow-xs">
+                      {analytics.activeNotifications.hired}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW 3: CATEGORY LEADERBOARD & COMPARATIVE RANKING */}
       {activeView === "LEADERBOARD" && (
         <div className="mt-6 space-y-6">
           {allRoles.map((roleName) => {
@@ -1120,7 +1869,7 @@ export function TalentList({
         </div>
       )}
 
-      {/* VIEW 3: AI RESUME SCANNER & INGESTION STUDIO */}
+      {/* VIEW 4: AI RESUME SCANNER & INGESTION STUDIO */}
       {activeView === "INGEST" && (
         <div className="mt-6 max-w-3xl mx-auto bg-white dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-white/10 rounded-2xl p-6 md:p-8 space-y-6 shadow-xl">
           <div className="flex items-center gap-3 pb-4 border-b border-zinc-200/80 dark:border-white/10">
