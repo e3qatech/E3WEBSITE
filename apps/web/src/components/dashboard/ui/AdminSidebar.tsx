@@ -95,7 +95,7 @@ const sidebarConfig: NavGroupItem[] = [
     labelAr: "صفحات B2C (الفعاليات)",
     icon: FileText,
     href: "/dashboard/b2c/landing",
-    roles: ["SUPER_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN"],
+    roles: ["SUPER_ADMIN", "B2C_ADMIN"],
     capability: "b2c.content.read",
     subItems: [
       { label: "Landing Page", labelAr: "الصفحة الرئيسية (B2C)", href: "/dashboard/b2c/landing", capability: "b2c.content.write" },
@@ -113,7 +113,7 @@ const sidebarConfig: NavGroupItem[] = [
     labelAr: "محتوى الألعاب والوجهات",
     icon: Star,
     href: "/dashboard/b2c/attractions",
-    roles: ["SUPER_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN"],
+    roles: ["SUPER_ADMIN", "B2C_ADMIN"],
     capability: "b2c.content.read",
     subItems: [
       { label: "Attractions Catalog", labelAr: "دليل الألعاب والوجهات", href: "/dashboard/b2c/attractions", capability: "b2c.attractions.manage" },
@@ -173,11 +173,11 @@ const sidebarConfig: NavGroupItem[] = [
     labelAr: "الوسائط والتواصل الاجتماعي",
     icon: Database,
     href: "/dashboard/cms/media",
-    roles: ["SUPER_ADMIN", "STAFF", "SALES_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "B2B_ADMIN", "HR_ADMIN", "OPERATIONS_ADMIN", "EVENTS_ADMIN", "EVENTS_TEAM"],
+    roles: ["SUPER_ADMIN", "B2C_ADMIN", "B2B_ADMIN", "OPERATIONS_ADMIN"],
     capability: "media.read",
     subItems: [
       { label: "Media Library & Folders", labelAr: "مكتبة الوسائط والمجلدات", href: "/dashboard/cms/media", capability: "media.read" },
-      { label: "Social Media Automation", labelAr: "إدارة وأتمتة التواصل", href: "/dashboard/social-media", roles: ["SUPER_ADMIN", "B2C_ADMIN", "SUPPORT_ADMIN"] },
+      { label: "Social Media Automation", labelAr: "إدارة وأتمتة التواصل", href: "/dashboard/social-media", roles: ["SUPER_ADMIN", "B2C_ADMIN"] },
       { label: "CMS Pages Directory", labelAr: "فهرس صفحات النظام", href: "/dashboard/cms/pages", roles: ["SUPER_ADMIN", "B2C_ADMIN"] },
     ],
   },
@@ -192,7 +192,6 @@ const sidebarConfig: NavGroupItem[] = [
     capability: "crm.leads.manage",
     subItems: [
       { label: "Sales Pipeline & Deals", labelAr: "مسار صفقات المبيعات", href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"] },
-      { label: "Package Inquiries", labelAr: "طلبات باقات الأفراد", href: "/dashboard/leads/packages", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"] },
       { label: "Client Accounts", labelAr: "حسابات الشركات والعملاء", href: "/dashboard/crm/clients", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"] },
       { label: "Team Directory & HR", labelAr: "فريق العمل والكوادر", href: "/dashboard/team", capability: "hr.team.manage" },
       { label: "Job Postings", labelAr: "إعلانات الوظائف", href: "/dashboard/careers", capability: "hr.jobs.manage" },
@@ -293,9 +292,13 @@ export function AdminSidebar() {
   const isAuthorized = React.useCallback(
     (itemRoles?: string[], itemCapability?: string) => {
       if (userRole === "SUPER_ADMIN" || userRole === "ADMIN") return true;
-      if (itemRoles && itemRoles.includes(userRole)) return true;
-      if (itemCapability && hasPermission(userRole, itemCapability)) return true;
-      return false;
+      if (itemRoles && itemRoles.length > 0) {
+        if (!itemRoles.includes(userRole)) return false;
+      }
+      if (itemCapability) {
+        return hasPermission(userRole, itemCapability);
+      }
+      return itemRoles ? itemRoles.includes(userRole) : false;
     },
     [userRole]
   );
@@ -584,7 +587,13 @@ export function AdminSidebar() {
             <div className="flex flex-col flex-1 min-w-0">
               <span className="text-xs font-bold text-[var(--text-primary)] truncate">{userName}</span>
               <span className={cn("text-[9px] px-1.5 py-0.2 rounded font-mono font-bold uppercase w-fit border", roleBadgeColor)}>
-                {userRole.replace("_", " ")}
+                {userRole === "EVENTS_ADMIN"
+                  ? "Events Admin"
+                  : userRole === "EVENTS_TEAM"
+                  ? "Events Coordinator"
+                  : userRole === "SUPPORT_ADMIN"
+                  ? "Support Admin"
+                  : userRole.replace(/_/g, " ")}
               </span>
             </div>
           </div>

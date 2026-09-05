@@ -22,7 +22,8 @@ export default async function OperationsEventsPage(props?: {
   const isAuthorized =
     userRole &&
     (hasPermission(userRole, "operations.events.manage") ||
-      ["SUPER_ADMIN", "OPERATIONS", "OPERATIONS_ADMIN"].includes(userRole))
+      hasPermission(userRole, "view:schedule") ||
+      ["SUPER_ADMIN", "OPERATIONS", "OPERATIONS_ADMIN", "EVENTS_ADMIN", "EVENTS_TEAM", "SUPPORT_ADMIN"].includes(userRole))
 
   if (!isAuthorized) {
     redirect(locale === "ar" ? "/ar/login" : "/login")
