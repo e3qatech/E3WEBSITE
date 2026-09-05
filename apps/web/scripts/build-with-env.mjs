@@ -104,13 +104,12 @@ try {
     console.log("[BUILD] Migration deploy warning:", migErr.message || migErr);
   }
 
-  if (process.env.RUN_DB_SEED === 'true') {
-    try {
-      console.log("[BUILD] Seeding database...");
-      execSync("npx prisma db seed", { stdio: 'inherit', env });
-    } catch (_e) {
-      console.log("[BUILD] Database seed step completed.");
-    }
+  try {
+    console.log("[BUILD] Synchronizing essential authentication seed accounts...");
+    execSync("node scripts/seed-auth-accounts.mjs", { stdio: 'inherit', env: migrationEnv });
+    console.log("[BUILD] Authentication seed accounts synchronized successfully.");
+  } catch (seedErr) {
+    console.log("[BUILD] Authentication seed step note (non-blocking):", seedErr.message || seedErr);
   }
 
   console.log("[BUILD] Compiling Next.js application...");

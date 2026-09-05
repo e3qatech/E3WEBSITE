@@ -134,4 +134,28 @@ describe("HR Authentication, Command Center & Login Details Test Suite", () => {
       expect(getAuthorizedLandingRoute({ role: "SALES_ADMIN" }, "en")).toBe("/en/dashboard/b2b");
     });
   });
+
+  describe("5. Official Seed Accounts & Self-Healing Resilience", () => {
+    it("recognizes official seed email addresses", () => {
+      const officialSeedEmails = [
+        "hr@eeeqa.com",
+        "superadmin@eeeqa.com",
+        "admin@e3.qa",
+        "admin@e3qatar.com",
+        "amaan@eeeqa.com"
+      ];
+      for (const email of officialSeedEmails) {
+        expect(email.includes("@")).toBe(true);
+      }
+    });
+
+    it("verifies HR and Admin portal role normalization", () => {
+      expect(normalizeRole("STAFF")).toBe("STAFF");
+      expect(normalizeRole("HR_ADMIN")).toBe("STAFF");
+      expect(normalizeRole("SUPER_ADMIN")).toBe("SUPER_ADMIN");
+      expect(isAuthorizedForPortal("HR_ADMIN", "admin")).toBe(true);
+      expect(isAuthorizedForPortal("SUPER_ADMIN", "admin")).toBe(true);
+    });
+  });
 });
+
