@@ -72,28 +72,29 @@ try {
     console.log("[BUILD] Prisma generate note (client may already be generated or locked):", genErr.message || genErr);
   }
 
+  let directMigrationUrl = process.env.DATABASE_URL_UNPOOLED || process.env.POSTGRES_URL_NON_POOLING || process.env.E3_DATABASE_URL || process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || dbUrl;
+  try {
+    if (directMigrationUrl.startsWith('postgres://') || directMigrationUrl.startsWith('postgresql://')) {
+      const parsedDirect = new URL(directMigrationUrl);
+      if (parsedDirect.hostname.includes('-pooler')) {
+        parsedDirect.hostname = parsedDirect.hostname.replace('-pooler', '');
+      }
+      parsedDirect.searchParams.delete('pgbouncer');
+      parsedDirect.searchParams.delete('channel_binding');
+      directMigrationUrl = parsedDirect.toString();
+    }
+  } catch (_e) {}
+
+  const migrationEnv = {
+    ...env,
+    DATABASE_URL: directMigrationUrl,
+    POSTGRES_PRISMA_URL: directMigrationUrl,
+    DATABASE_URL_UNPOOLED: directMigrationUrl,
+    POSTGRES_URL_NON_POOLING: directMigrationUrl,
+  };
+
   console.log("[BUILD] Checking database migrations...");
   try {
-    let directMigrationUrl = process.env.DATABASE_URL_UNPOOLED || process.env.POSTGRES_URL_NON_POOLING || process.env.E3_DATABASE_URL || process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || dbUrl;
-    try {
-      if (directMigrationUrl.startsWith('postgres://') || directMigrationUrl.startsWith('postgresql://')) {
-        const parsedDirect = new URL(directMigrationUrl);
-        if (parsedDirect.hostname.includes('-pooler')) {
-          parsedDirect.hostname = parsedDirect.hostname.replace('-pooler', '');
-        }
-        parsedDirect.searchParams.delete('pgbouncer');
-        parsedDirect.searchParams.delete('channel_binding');
-        directMigrationUrl = parsedDirect.toString();
-      }
-    } catch (_e) {}
-
-    const migrationEnv = {
-      ...env,
-      DATABASE_URL: directMigrationUrl,
-      POSTGRES_PRISMA_URL: directMigrationUrl,
-      DATABASE_URL_UNPOOLED: directMigrationUrl,
-      POSTGRES_URL_NON_POOLING: directMigrationUrl,
-    };
     try {
       execSync("pnpm exec prisma migrate deploy --schema=prisma/schema.prisma", { stdio: 'inherit', env: migrationEnv });
     } catch (_pnpmMigErr) {
