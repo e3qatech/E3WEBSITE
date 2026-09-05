@@ -72,10 +72,15 @@ export function proxy(req: NextRequest) {
   if (normalizedPath === '/staff-login' || normalizedPath === '/login/staff') {
     return NextResponse.redirect(new URL(`/${targetLocale}/login/admin`, nextUrl));
   }
+  if (normalizedPath === '/login') {
+    return NextResponse.redirect(new URL(`/${targetLocale}/login/admin`, nextUrl));
+  }
   if (
     normalizedPath === '/login/admin' ||
     normalizedPath === '/login/business' ||
-    normalizedPath === '/login/careers'
+    normalizedPath === '/login/careers' ||
+    normalizedPath === '/login/events' ||
+    normalizedPath === '/login/details'
   ) {
     return NextResponse.redirect(new URL(`/${targetLocale}${normalizedPath}`, nextUrl));
   }

@@ -26,6 +26,7 @@ import {
   DashboardPageHeader,
 } from "@/components/dashboard/ui";
 import { analyzeTeamMemberDataQuality } from "@/lib/team/team-resolver";
+import { TeamProfilePDFDownloadButton } from "./TeamProfilePDFDownloadButton";
 
 type FilterType = "all" | "visible" | "hidden" | "featured" | "missing_arabic";
 
@@ -42,6 +43,9 @@ export function TeamManagerClient({
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<any | null>(null);
+
+  // Multi-selection state for bulk PDF download
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Drag and Drop state
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -111,6 +115,40 @@ export function TeamManagerClient({
       return true;
     });
   }, [employees, searchTerm, activeFilter, qualityReports]);
+
+  // Selected employees list for bulk export
+  const selectedEmployees = useMemo(() => {
+    return employees.filter((emp) => selectedIds.has(emp.id));
+  }, [employees, selectedIds]);
+
+  const isAllSelected =
+    filteredEmployees.length > 0 &&
+    filteredEmployees.every((emp) => selectedIds.has(emp.id));
+
+  const handleToggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        filteredEmployees.forEach((emp) => next.delete(emp.id));
+        return next;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        filteredEmployees.forEach((emp) => next.add(emp.id));
+        return next;
+      });
+    }
+  };
+
+  const handleToggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   // Drag and drop handlers
   const handleDragStart = (e: React.DragEvent, index: number) => {
@@ -287,15 +325,63 @@ export function TeamManagerClient({
                 className="ps-9 w-full text-xs"
               />
             </div>
+
+            {/* Quick Export All Team Members */}
+            <TeamProfilePDFDownloadButton
+              members={employees}
+              variant="outline"
+              size="sm"
+              label="Export All PDF"
+              title="Download combined A4 portfolio PDF for all team members"
+            />
           </div>
         </div>
+
+        {/* Multi-Selection Bulk Action Bar */}
+        {selectedIds.size > 0 && (
+          <div className="p-3 bg-purple-950/30 border-b border-purple-800/40 flex flex-wrap items-center justify-between gap-3 px-6 animate-in fade-in duration-200">
+            <div className="flex items-center gap-3 text-xs">
+              <span className="font-bold text-white bg-purple-600 px-2.5 py-0.5 rounded-full shadow-sm">
+                {selectedIds.size} Selected
+              </span>
+              <span className="text-[var(--text-secondary)] hidden sm:inline">
+                Generate single combined A4 portfolio PDF (1 page per member)
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <TeamProfilePDFDownloadButton
+                members={selectedEmployees}
+                variant="secondary"
+                size="sm"
+                label={`Download ${selectedIds.size} Profiles (A4 PDF)`}
+                title="Download single combined PDF with each selected member on an A4 sheet"
+              />
+              <button
+                type="button"
+                onClick={() => setSelectedIds(new Set())}
+                className="px-2.5 py-1.5 rounded-lg border border-[var(--border-level-1)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+              >
+                Deselect
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-start">
             <thead className="bg-[var(--surface-hover)]/60 text-[var(--text-secondary)] uppercase text-xs font-bold border-b border-[var(--border-level-1)]">
               <tr>
-                <th className="px-4 py-4 w-12 text-center">Order</th>
+                <th className="px-3 py-4 w-10 text-center">
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    onChange={handleToggleSelectAll}
+                    className="rounded border-[var(--border-level-1)] text-purple-600 focus:ring-0 cursor-pointer"
+                    title={isAllSelected ? "Deselect all visible" : "Select all visible"}
+                  />
+                </th>
+                <th className="px-3 py-4 w-12 text-center">Order</th>
                 <th className="px-6 py-4 text-start">Profile</th>
                 <th className="px-6 py-4 text-start">Name & Arabic</th>
                 <th className="px-6 py-4 text-start">Designation & Dept</th>
@@ -334,9 +420,21 @@ export function TeamManagerClient({
                           ? "opacity-30 bg-[var(--surface-hover)]"
                           : isDropTarget
                           ? "border-t-2 border-[var(--color-primary)] bg-[var(--color-primary)]/10"
+                          : selectedIds.has(emp.id)
+                          ? "bg-purple-950/15 hover:bg-purple-950/25"
                           : "hover:bg-[var(--surface-hover)]/40"
                       }`}
                     >
+                      {/* Selection Checkbox */}
+                      <td className="px-3 py-4 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(emp.id)}
+                          onChange={() => handleToggleSelectOne(emp.id)}
+                          className="rounded border-[var(--border-level-1)] text-purple-600 focus:ring-0 cursor-pointer"
+                        />
+                      </td>
+
                       {/* Grip / Display Order */}
                       <td className="px-4 py-4 text-center">
                         <div className="flex items-center justify-center gap-1">
@@ -482,7 +580,14 @@ export function TeamManagerClient({
 
                       {/* Actions */}
                       <td className="px-6 py-4 text-end">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {/* Individual A4 PDF Download Button */}
+                          <TeamProfilePDFDownloadButton
+                            members={emp}
+                            variant="icon"
+                            title={`Download ${emp.firstName}'s A4 Profile PDF`}
+                          />
+
                           <button
                             onClick={() => {
                               setEditingEmployee(emp);

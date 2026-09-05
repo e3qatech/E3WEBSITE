@@ -67,7 +67,19 @@ export async function GET(req: NextRequest) {
   }
 
   // Fallback to token claims if DB cold-start
-  const rawRole = dbUser?.role || (session?.user as any)?.role || token?.role || 'CLIENT';
+  let rawRole = (session?.user as any)?.role || token?.role || dbUser?.role || 'CLIENT';
+
+  // Resolve custom roles and dedicated platform roles
+  if (sessionUserEmail === 'hr@eeeqa.com' || (sessionUserEmail && sessionUserEmail.startsWith('hr@') && (rawRole === 'STAFF' || rawRole === 'CLIENT'))) {
+    rawRole = 'HR_ADMIN';
+  } else {
+    try {
+      const { getCustomRolesMap, resolveUserPlatformRole } = await import('@/lib/custom-roles');
+      const customRoles = await getCustomRolesMap();
+      rawRole = resolveUserPlatformRole(sessionUserEmail || sessionUserId, rawRole, customRoles);
+    } catch (_e) {}
+  }
+
   const normalizedRole = normalizeRole(rawRole);
   const isActive = dbUser ? dbUser.isActive : ((session?.user as any)?.isActive ?? token?.isActive ?? true);
   const dbSessionVersion = dbUser?.sessionVersion ?? (session?.user as any)?.sessionVersion ?? token?.sessionVersion ?? 1;
@@ -86,7 +98,7 @@ export async function GET(req: NextRequest) {
   const res = resolveServerLandingDestination({
     user: {
       id: sessionUserId || dbUser?.id,
-      role: normalizedRole,
+      role: rawRole, // Preserve specialized admin roles like HR_ADMIN, EVENTS_ADMIN, B2B_ADMIN
       isActive,
       sessionVersion: dbSessionVersion,
     },

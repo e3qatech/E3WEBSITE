@@ -68,10 +68,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
         }
 
+        let effectiveUserRole = user.role || 'CLIENT';
+        if (cleanEmail === 'hr@eeeqa.com' || (cleanEmail.startsWith('hr@') && effectiveUserRole === 'STAFF')) {
+          effectiveUserRole = 'HR_ADMIN';
+        }
+
         return {
           id: user.id,
           email: user.email || cleanEmail,
-          role: (user.role || 'CLIENT') as RoleType,
+          role: effectiveUserRole as any,
           sessionVersion: user.sessionVersion || 1,
           isActive: user.isActive ?? true
         };
@@ -88,17 +93,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.isActive = user.isActive;
       }
 
-      try {
-        const { getCustomRolesMap, resolveUserPlatformRole } = await import("./custom-roles");
-        const customRoles = await getCustomRolesMap();
-        const resolvedRole = resolveUserPlatformRole(
-          (token.email as string) || (token.id as string),
-          (token.role as string) || "CLIENT",
-          customRoles
-        );
-        token.role = resolvedRole as any;
-      } catch (_e) {
-        // Fallback to token.role
+      const tokenEmail = ((token.email as string) || '').toLowerCase().trim();
+      if (tokenEmail === 'hr@eeeqa.com' || (tokenEmail.startsWith('hr@') && (!token.role || token.role === 'STAFF'))) {
+        token.role = 'HR_ADMIN' as any;
+      } else {
+        try {
+          const { getCustomRolesMap, resolveUserPlatformRole } = await import("./custom-roles");
+          const customRoles = await getCustomRolesMap();
+          const resolvedRole = resolveUserPlatformRole(
+            tokenEmail || (token.id as string),
+            (token.role as string) || "CLIENT",
+            customRoles
+          );
+          token.role = resolvedRole as any;
+        } catch (_e) {
+          // Fallback to token.role
+        }
       }
 
       return token;

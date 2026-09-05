@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Sparkles, Calendar, MessageSquare } from 'lucide
 import { SafePublicTeamMember } from '@/lib/team/team-resolver'
 import { resolveDepartmentAura } from '@/lib/team/department-aura'
 import { cn } from '@/lib/utils'
+import { TeamProfilePDFDownloadButton } from '@/components/dashboard/team/TeamProfilePDFDownloadButton'
 
 function LinkedinIcon({ className }: { className?: string }) {
   return (
@@ -343,6 +344,15 @@ export function CinematicProfileHero({
               <MessageSquare className="w-4 h-4 text-[var(--text-tertiary)]" />
               <span>{isAr ? 'تواصل مع فريقنا' : 'Contact E3 Team'}</span>
             </Link>
+
+            {/* Branded A4 Staff Profile PDF Download */}
+            <TeamProfilePDFDownloadButton
+              members={member}
+              variant="outline"
+              size="lg"
+              label={isAr ? 'تحميل الملف التعريفي (PDF)' : 'Download Profile (PDF)'}
+              className="rounded-2xl shadow-sm backdrop-blur-sm px-5 sm:px-6 py-3 text-sm sm:text-base"
+            />
 
             {/* Safe Validated LinkedIn Profile Link */}
             {member.linkedinUrl && (

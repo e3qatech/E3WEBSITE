@@ -5,10 +5,10 @@ import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { PortalConfig } from './PortalConfigs';
-import { PortalSelector } from './PortalSelector';
+import { PortalSelector, AdminWorkspaceKey } from './PortalSelector';
 import { PasswordField } from './PasswordField';
 import { PortalError } from './PortalError';
-import { Mail, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Mail, ArrowRight, ArrowLeft, KeyRound, Sparkles, ExternalLink } from 'lucide-react';
 
 interface LoginFormProps {
   config: PortalConfig;
@@ -36,11 +36,41 @@ export function LoginForm({ config, locale }: LoginFormProps) {
     return '';
   };
 
-  const [email, setEmail] = useState('');
+  const queryEmail = searchParams?.get('email') || '';
+  const queryWorkspace = searchParams?.get('workspace') as AdminWorkspaceKey | null;
+
+  const [email, setEmail] = useState(queryEmail);
   const [password, setPassword] = useState('');
   const [error, setError] = useState(getInitialError);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeWorkspace, setActiveWorkspace] = useState<'super' | 'b2b' | 'b2c'>('super');
+  const [showDemoLogins, setShowDemoLogins] = useState(false);
+  const [activeWorkspace, setActiveWorkspace] = useState<AdminWorkspaceKey>(
+    queryWorkspace && ['super', 'b2b', 'b2c', 'hr'].includes(queryWorkspace) ? queryWorkspace : 'super'
+  );
+
+  const handleEmailChange = (val: string) => {
+    setEmail(val);
+    if (error) setError('');
+  };
+
+  const handlePasswordChange = (val: string) => {
+    setPassword(val);
+    if (error) setError('');
+  };
+
+  const handleWorkspaceChange = (ws: AdminWorkspaceKey) => {
+    setActiveWorkspace(ws);
+    if (error) setError('');
+  };
+
+  const applyQuickLogin = (quickEmail: string, quickWorkspace?: AdminWorkspaceKey) => {
+    setEmail(quickEmail);
+    setPassword('Password123!');
+    if (quickWorkspace) {
+      setActiveWorkspace(quickWorkspace);
+    }
+    setError('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +128,7 @@ export function LoginForm({ config, locale }: LoginFormProps) {
       {config.showWorkspaceSelector && (
         <PortalSelector
           activeWorkspace={activeWorkspace}
-          onChange={setActiveWorkspace}
+          onChange={handleWorkspaceChange}
           isAr={isAr}
         />
       )}
@@ -116,7 +146,7 @@ export function LoginForm({ config, locale }: LoginFormProps) {
             type="email"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => handleEmailChange(e.target.value)}
             disabled={isLoading}
             placeholder="name@e3.qa"
             className="w-full bg-zinc-950 border border-white/15 rounded-xl ps-10 pe-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition-all font-sans"
@@ -140,7 +170,7 @@ export function LoginForm({ config, locale }: LoginFormProps) {
         </div>
         <PasswordField
           value={password}
-          onChange={setPassword}
+          onChange={handlePasswordChange}
           disabled={isLoading}
           isAr={isAr}
         />
@@ -159,6 +189,105 @@ export function LoginForm({ config, locale }: LoginFormProps) {
         <span>{isLoading ? (isAr ? 'جاري التحقق...' : 'Authenticating...') : isAr ? 'تسجيل الدخول' : 'Sign In'}</span>
         {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
       </button>
+
+      {/* Quick Demo Credentials & Login Details Helper Drawer */}
+      <div className="pt-2">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-xs">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setShowDemoLogins(!showDemoLogins)}
+              className="flex items-center gap-2 font-bold text-zinc-300 hover:text-emerald-400 transition-colors"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{isAr ? 'بيانات الدخول السريعة للاختبار' : 'Quick System Credentials'}</span>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">
+                {showDemoLogins ? (isAr ? 'إخفاء' : 'Hide') : (isAr ? 'عرض' : 'Auto-fill')}
+              </span>
+            </button>
+
+            <Link
+              href={`/${locale}/login/details`}
+              className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-white underline-offset-4 hover:underline"
+            >
+              <span>{isAr ? 'دليل الحسابات الكامل' : 'All Login Details'}</span>
+              <ExternalLink className="w-3 h-3" />
+            </Link>
+          </div>
+
+          {showDemoLogins && (
+            <div className="mt-3 pt-3 border-t border-white/10 space-y-2 animate-in fade-in duration-200">
+              <p className="text-[11px] text-zinc-400">
+                {isAr
+                  ? 'انقر على أي دور لتعبئة الحساب وكلمة المرور تلقائياً:'
+                  : 'Click any role to populate credentials instantly:'}
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => applyQuickLogin('hr@eeeqa.com', 'hr')}
+                  className="p-2 rounded-lg bg-zinc-900 border border-emerald-500/30 hover:border-emerald-500 hover:bg-zinc-800 text-start transition-all"
+                >
+                  <div className="font-bold text-emerald-400 text-[11px] flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" />
+                    <span>HR Admin</span>
+                  </div>
+                  <div className="text-[10px] text-zinc-400 truncate">hr@eeeqa.com</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => applyQuickLogin('superadmin@eeeqa.com', 'super')}
+                  className="p-2 rounded-lg bg-zinc-900 border border-white/10 hover:border-emerald-500 hover:bg-zinc-800 text-start transition-all"
+                >
+                  <div className="font-bold text-zinc-200 text-[11px]">Super Admin</div>
+                  <div className="text-[10px] text-zinc-400 truncate">superadmin@eeeqa.com</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => applyQuickLogin('sales@e3qatar.com', 'b2b')}
+                  className="p-2 rounded-lg bg-zinc-900 border border-white/10 hover:border-emerald-500 hover:bg-zinc-800 text-start transition-all"
+                >
+                  <div className="font-bold text-amber-400 text-[11px]">B2B Enterprise</div>
+                  <div className="text-[10px] text-zinc-400 truncate">sales@e3qatar.com</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => applyQuickLogin('events@e3qatar.com', 'b2c')}
+                  className="p-2 rounded-lg bg-zinc-900 border border-white/10 hover:border-emerald-500 hover:bg-zinc-800 text-start transition-all"
+                >
+                  <div className="font-bold text-purple-400 text-[11px]">Events / B2C</div>
+                  <div className="text-[10px] text-zinc-400 truncate">events@e3qatar.com</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => applyQuickLogin('staff@e3qatar.com', 'hr')}
+                  className="p-2 rounded-lg bg-zinc-900 border border-white/10 hover:border-emerald-500 hover:bg-zinc-800 text-start transition-all"
+                >
+                  <div className="font-bold text-zinc-300 text-[11px]">Operations Staff</div>
+                  <div className="text-[10px] text-zinc-400 truncate">staff@e3qatar.com</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => applyQuickLogin('admin@e3.qa', 'super')}
+                  className="p-2 rounded-lg bg-zinc-900 border border-white/10 hover:border-emerald-500 hover:bg-zinc-800 text-start transition-all"
+                >
+                  <div className="font-bold text-zinc-300 text-[11px]">Corporate Admin</div>
+                  <div className="text-[10px] text-zinc-400 truncate">admin@e3.qa</div>
+                </button>
+              </div>
+              <div className="flex items-center justify-between text-[10px] text-zinc-500 pt-1">
+                <span>Default Test Password: Password123!</span>
+                <span className="text-emerald-400/80">Neon Live Verified</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </form>
   );
 }

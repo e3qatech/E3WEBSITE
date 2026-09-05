@@ -43,43 +43,63 @@ export async function POST(req: Request) {
 
     const seedUsersData = [
       {
+        email: "superadmin@eeeqa.com",
+        name: "Super Administrator",
+        role: "SUPER_ADMIN",
+        customRole: "SUPER_ADMIN",
+      },
+      {
         email: "admin@e3qatar.com",
         name: "System SuperAdmin",
         role: "SUPER_ADMIN",
+        customRole: "SUPER_ADMIN",
+      },
+      {
+        email: "hr@eeeqa.com",
+        name: "HR & Talent Operations",
+        role: "STAFF",
+        customRole: "HR_ADMIN",
       },
       {
         email: "sales@e3qatar.com",
         name: "Sales Director",
         role: "SALES_ADMIN",
+        customRole: "SALES_ADMIN",
       },
       {
         email: "support@e3qatar.com",
         name: "Support Manager",
         role: "SUPPORT_ADMIN",
+        customRole: "SUPPORT_ADMIN",
       },
       {
         email: "events@e3qatar.com",
         name: "Events Experience Lead",
         role: "SUPPORT_ADMIN",
+        customRole: "EVENTS_ADMIN",
       },
       {
         email: "staff@e3qatar.com",
         name: "Field Operations Staff",
         role: "STAFF",
+        customRole: "STAFF",
       },
       {
         email: "client@e3qatar.com",
         name: "Corporate B2B Client",
         role: "CLIENT",
+        customRole: "CLIENT",
       },
       {
         email: "candidate@e3qatar.com",
         name: "Talent Applicant",
         role: "CANDIDATE",
+        customRole: "CANDIDATE",
       },
     ];
 
     const results = [];
+    const customRolesMap: Record<string, string> = {};
 
     for (const u of seedUsersData) {
       const userModel = (db as any).user || (db as any).users;
@@ -99,13 +119,24 @@ export async function POST(req: Request) {
             isActive: true,
           },
         });
-        results.push({ email: u.email, role: u.role, id: user.id });
+        if (u.customRole) {
+          customRolesMap[u.email.toLowerCase()] = u.customRole;
+          customRolesMap[user.id.toLowerCase()] = u.customRole;
+        }
+        results.push({ email: u.email, role: u.customRole || u.role, id: user.id });
       }
     }
 
+    try {
+      const { setCustomRoleForUser } = await import("@/lib/custom-roles");
+      for (const [key, val] of Object.entries(customRolesMap)) {
+        await setCustomRoleForUser(key, val);
+      }
+    } catch (_e) {}
+
     return NextResponse.json({
       success: true,
-      message: "Seeded test users for all 6 roles successfully.",
+      message: "Seeded test users for all administrative & client roles successfully.",
       users: results,
     });
   } catch (error: any) {

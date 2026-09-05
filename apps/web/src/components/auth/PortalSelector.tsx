@@ -1,31 +1,39 @@
 "use client";
 
 import React from 'react';
-import { ShieldCheck, Building2, Ticket } from 'lucide-react';
+import { ShieldCheck, Building2, Ticket, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+export type AdminWorkspaceKey = 'super' | 'b2b' | 'b2c' | 'hr';
+
 interface PortalSelectorProps {
-  activeWorkspace: 'super' | 'b2b' | 'b2c';
-  onChange: (workspace: 'super' | 'b2b' | 'b2c') => void;
+  activeWorkspace: AdminWorkspaceKey;
+  onChange: (workspace: AdminWorkspaceKey) => void;
   isAr: boolean;
 }
 
 export function PortalSelector({ activeWorkspace, onChange, isAr }: PortalSelectorProps) {
   const workspaces = [
     {
-      key: 'super',
+      key: 'super' as const,
       labelEn: 'Super Admin',
       labelAr: 'المشرف العام',
       icon: ShieldCheck,
     },
     {
-      key: 'b2b',
+      key: 'hr' as const,
+      labelEn: 'HR & Talent',
+      labelAr: 'الموارد والتوظيف',
+      icon: Users,
+    },
+    {
+      key: 'b2b' as const,
       labelEn: 'B2B Enterprise',
       labelAr: 'إدارة الشركات',
       icon: Building2,
     },
     {
-      key: 'b2c',
+      key: 'b2c' as const,
       labelEn: 'B2C Experiences',
       labelAr: 'إدارة الترفيه',
       icon: Ticket,
@@ -37,7 +45,7 @@ export function PortalSelector({ activeWorkspace, onChange, isAr }: PortalSelect
       <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400">
         {isAr ? 'اختر بيئة العمل الإدارية المستهدفة' : 'Select Target Administrative Workspace'}
       </label>
-      <div className="grid grid-cols-3 gap-2 bg-zinc-950 p-1.5 rounded-xl border border-white/10">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-zinc-950 p-1.5 rounded-xl border border-white/10">
         {workspaces.map((ws) => {
           const Icon = ws.icon;
           const isActive = activeWorkspace === ws.key;

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Search,
   Plus,
@@ -248,6 +249,47 @@ export function TalentList({
         }}
       />
 
+      {/* Quick Navigation Hub for HR & Recruitment Suite */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-2 rounded-2xl bg-[var(--surface-hover)]/40 border border-[var(--border-level-1)] mt-4 shadow-2xs">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] font-bold text-[var(--text-tertiary)] uppercase tracking-wider px-3">
+            {isAr ? "مركز التوظيف:" : "Recruitment Suite:"}
+          </span>
+
+          <Link
+            href={`/${locale}/dashboard/crm/talent`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[var(--color-primary)] text-white shadow-xs"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{isAr ? "استقطاب المواهب و AI" : "Talent Acquisition & AI Hub"}</span>
+          </Link>
+
+          <Link
+            href={`/${locale}/dashboard/careers/applications`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-transparent hover:border-[var(--border-level-1)] transition-all"
+          >
+            <FileText className="w-3.5 h-3.5 text-purple-400" />
+            <span>{isAr ? "طلبات التوظيف ومعاينة CV" : "Job Applications & CVs"}</span>
+          </Link>
+
+          <Link
+            href={`/${locale}/dashboard/careers`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-transparent hover:border-[var(--border-level-1)] transition-all"
+          >
+            <Briefcase className="w-3.5 h-3.5 text-indigo-400" />
+            <span>{isAr ? "شواغر الوظائف" : "Careers & Openings"}</span>
+          </Link>
+
+          <Link
+            href={`/${locale}/dashboard/team`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-transparent hover:border-[var(--border-level-1)] transition-all"
+          >
+            <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{isAr ? "دليل فريق العمل (A4 PDF)" : "Team Directory (A4 PDF)"}</span>
+          </Link>
+        </div>
+      </div>
+
       {/* Recruiter KPI Cards Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
         <div className="p-4 rounded-2xl bg-[var(--surface-default)] border border-[var(--border-level-1)] flex items-center justify-between">
@@ -306,10 +348,10 @@ export function TalentList({
           <button
             type="button"
             onClick={() => setActiveView("KANBAN")}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeView === "KANBAN"
                 ? "bg-[var(--color-primary)] text-white shadow-sm"
-                : "text-[var(--text-secondary)] hover:text-white"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-default)]"
             }`}
           >
             <Columns className="w-3.5 h-3.5" />
@@ -319,10 +361,10 @@ export function TalentList({
           <button
             type="button"
             onClick={() => setActiveView("LEADERBOARD")}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeView === "LEADERBOARD"
                 ? "bg-[var(--color-primary)] text-white shadow-sm"
-                : "text-[var(--text-secondary)] hover:text-white"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-default)]"
             }`}
           >
             <Award className="w-3.5 h-3.5" />
@@ -332,10 +374,10 @@ export function TalentList({
           <button
             type="button"
             onClick={() => setActiveView("INGEST")}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeView === "INGEST"
                 ? "bg-[var(--color-primary)] text-white shadow-sm"
-                : "text-[var(--text-secondary)] hover:text-white"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-default)]"
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
@@ -479,7 +521,7 @@ export function TalentList({
                             <select
                               value={cand.status}
                               onChange={(e) => updateStatus(cand.id, e.target.value)}
-                              className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded px-1.5 py-0.5 text-[10px] text-[var(--text-secondary)] focus:outline-none"
+                              className="bg-[var(--surface-default)] border border-[var(--border-level-1)] rounded px-1.5 py-0.5 text-[10px] text-[var(--text-primary)] font-medium focus:outline-none cursor-pointer"
                             >
                               {PIPELINE_STAGES.map((s) => (
                                 <option key={s.id} value={s.id}>
@@ -612,7 +654,7 @@ export function TalentList({
                                           createdAt: cand.appliedDate,
                                         })
                                       }
-                                      className="px-2.5 py-1 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-level-1)] text-xs font-bold hover:text-white flex items-center gap-1"
+                                      className="px-2.5 py-1 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-level-1)] text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--surface-default)] flex items-center gap-1 cursor-pointer transition-colors"
                                     >
                                       <Eye className="w-3 h-3 text-indigo-400" />
                                       <span>{isAr ? "معاينة" : "Preview"}</span>
@@ -621,7 +663,7 @@ export function TalentList({
                                   <button
                                     type="button"
                                     onClick={() => setSelectedTalentId(cand.id)}
-                                    className="px-2.5 py-1 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-level-1)] text-xs font-bold hover:text-white"
+                                    className="px-2.5 py-1 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-level-1)] text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--surface-default)] cursor-pointer transition-colors"
                                   >
                                     {isAr ? "تفاصيل" : "Profile"}
                                   </button>

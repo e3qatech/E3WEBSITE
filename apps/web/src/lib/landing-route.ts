@@ -1,6 +1,6 @@
 import { normalizeRole, isAuthorizedForPortal, VALID_PORTAL_KEYS, PortalKey } from './auth-roles';
 
-export type AdminWorkspace = 'super' | 'b2b' | 'b2c';
+export type AdminWorkspace = 'super' | 'b2b' | 'b2c' | 'hr';
 
 export interface ResolveLandingParams {
   user: {
@@ -56,10 +56,15 @@ export function resolveServerLandingDestination({
     return { destination: `/${validLocale}/dashboard/b2c/packages`, authorized: true };
   }
 
-  // 4. Resolve destination based on role and validated workspace
+  // 4. If user is HR_ADMIN or HR, route to Team / HR Directory
+  if (cleanUserRole === 'HR_ADMIN' || cleanUserRole === 'HR') {
+    return { destination: `/${validLocale}/dashboard/team`, authorized: true };
+  }
+
+  // 5. Resolve destination based on role and validated workspace
   if (role === 'SUPER_ADMIN') {
     if (requestedPortal === 'admin') {
-      const validWorkspaces: AdminWorkspace[] = ['super', 'b2b', 'b2c'];
+      const validWorkspaces: AdminWorkspace[] = ['super', 'b2b', 'b2c', 'hr'];
       const cleanWorkspace = workspace ? String(workspace).trim().toLowerCase() : 'super';
 
       if (!validWorkspaces.includes(cleanWorkspace as AdminWorkspace)) {
@@ -72,6 +77,9 @@ export function resolveServerLandingDestination({
       }
       if (cleanWorkspace === 'b2c') {
         return { destination: `/${validLocale}/dashboard/b2c/packages`, authorized: true };
+      }
+      if (cleanWorkspace === 'hr') {
+        return { destination: `/${validLocale}/dashboard/team`, authorized: true };
       }
       return { destination: `/${validLocale}/dashboard`, authorized: true };
     }
@@ -91,6 +99,10 @@ export function getAuthorizedLandingRoute(user?: { role?: string | null } | null
     return `/${validLocale}/dashboard/b2c/packages`;
   }
 
+  if (cleanRole === 'HR_ADMIN' || cleanRole === 'HR') {
+    return `/${validLocale}/dashboard/team`;
+  }
+
   const role = normalizeRole(user.role);
 
   switch (role) {
@@ -101,7 +113,7 @@ export function getAuthorizedLandingRoute(user?: { role?: string | null } | null
     case 'SUPPORT_ADMIN':
       return `/${validLocale}/dashboard/b2c/packages`;
     case 'STAFF':
-      return `/${validLocale}/staff`;
+      return `/${validLocale}/dashboard`;
     case 'CLIENT':
       return `/${validLocale}/business`;
     case ('CANDIDATE' as any):
@@ -182,8 +194,11 @@ export function sanitizeCallbackUrl(
     if (role === 'CLIENT' && decoded.includes('/dashboard')) {
       return `/${locale}/business`;
     }
-    if (role === ('CANDIDATE' as any) && (decoded.includes('/dashboard') || decoded.includes('/staff'))) {
-      return `/${locale}/candidate`;
+    if (cleanRole === 'HR_ADMIN' || cleanRole === 'HR') {
+      if (decoded.includes('/business') || decoded.includes('/candidate')) {
+        return `/${locale}/dashboard/team`;
+      }
+      return decoded;
     }
     if (role === 'STAFF' && (decoded.includes('/dashboard') || decoded.includes('/business'))) {
       return `/${locale}/staff`;

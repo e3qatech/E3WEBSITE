@@ -83,7 +83,7 @@ describe('Preview Admin Portal RBAC Regression Tests', () => {
       expect(result.destination).toBe('/en/dashboard/b2b');
     });
 
-    it('SUPER_ADMIN with workspace=b2c reaches /en/dashboard/b2c', () => {
+    it('SUPER_ADMIN with workspace=b2c reaches /en/dashboard/b2c/packages', () => {
       const result = resolveServerLandingDestination({
         user: superAdminUser,
         portal: 'admin',
@@ -91,7 +91,18 @@ describe('Preview Admin Portal RBAC Regression Tests', () => {
         locale: 'en'
       });
       expect(result.authorized).toBe(true);
-      expect(result.destination).toBe('/en/dashboard/b2c');
+      expect(result.destination).toBe('/en/dashboard/b2c/packages');
+    });
+
+    it('SUPER_ADMIN with workspace=hr reaches /en/dashboard/team', () => {
+      const result = resolveServerLandingDestination({
+        user: superAdminUser,
+        portal: 'admin',
+        workspace: 'hr',
+        locale: 'en'
+      });
+      expect(result.authorized).toBe(true);
+      expect(result.destination).toBe('/en/dashboard/team');
     });
 
     it('SUPER_ADMIN with invalid workspace fails closed safely to /en/dashboard', () => {
@@ -184,12 +195,26 @@ describe('Preview Admin Portal RBAC Regression Tests', () => {
       expect(isAuthorizedForPortal('EMPLOYEE', 'admin')).toBe(false);
     });
 
-    it('Privileged admin roles (SALES_ADMIN, SUPPORT_ADMIN, HR_ADMIN) succeed on admin portal', () => {
+    it('Privileged admin roles (SALES_ADMIN, SUPPORT_ADMIN, HR_ADMIN, HR) succeed on admin portal', () => {
       expect(isAuthorizedForPortal('SALES_ADMIN', 'admin')).toBe(true);
       expect(isAuthorizedForPortal('SUPPORT_ADMIN', 'admin')).toBe(true);
       expect(isAuthorizedForPortal('HR_ADMIN', 'admin')).toBe(true);
+      expect(isAuthorizedForPortal('HR', 'admin')).toBe(true);
       expect(isAdminRole('SALES_ADMIN')).toBe(true);
       expect(isAdminRole('SUPPORT_ADMIN')).toBe(true);
+      expect(isAdminRole('HR_ADMIN')).toBe(true);
+      expect(isAdminRole('HR')).toBe(true);
+    });
+
+    it('HR_ADMIN on admin portal resolves to /en/dashboard/team', () => {
+      const result = resolveServerLandingDestination({
+        user: { id: 'hr-1', role: 'HR_ADMIN', isActive: true, sessionVersion: 1 },
+        portal: 'admin',
+        workspace: 'super',
+        locale: 'en'
+      });
+      expect(result.authorized).toBe(true);
+      expect(result.destination).toBe('/en/dashboard/team');
     });
   });
 

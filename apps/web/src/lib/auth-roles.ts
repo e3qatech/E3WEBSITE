@@ -65,7 +65,7 @@ export const VALID_PORTAL_KEYS: PortalKey[] = ['admin', 'staff', 'business', 'ca
 export function allowedRolesForPortal(portal: PortalKey): string[] {
   switch (portal) {
     case 'admin':
-      return ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'B2C_ADMIN', 'B2B_ADMIN', 'HR_ADMIN', 'OPERATIONS_ADMIN'];
+      return ['SUPER_ADMIN', 'SALES_ADMIN', 'SUPPORT_ADMIN', 'B2C_ADMIN', 'B2B_ADMIN', 'HR_ADMIN', 'HR', 'OPERATIONS_ADMIN', 'EVENTS_ADMIN', 'EVENTS_TEAM'];
     case 'events':
       return ['SUPER_ADMIN', 'SUPPORT_ADMIN', 'B2C_ADMIN', 'EVENTS_ADMIN', 'EVENTS_TEAM'];
     case 'staff':
@@ -104,6 +104,7 @@ export function isAdminRole(role?: string | null): boolean {
     'B2C_ADMIN',
     'B2B_ADMIN',
     'HR_ADMIN',
+    'HR',
     'OPERATIONS_ADMIN',
     'EVENTS_ADMIN',
     'EVENTS_TEAM',

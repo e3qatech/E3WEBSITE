@@ -297,7 +297,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-primary truncate cursor-pointer"
+                className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-1)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] truncate cursor-pointer"
               >
                 <option value="ALL">{isAr ? "جميع الوظائف" : "All Roles"}</option>
                 {uniqueRoles.map((role) => (
@@ -310,7 +310,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full bg-surface-hover border border-border-default rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-primary cursor-pointer"
+                className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-1)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] cursor-pointer"
               >
                 <option value="ALL">{isAr ? "جميع الحالات" : "All Status"}</option>
                 <option value="NEW">{isAr ? "جديد" : "New"}</option>
@@ -376,7 +376,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
 
                     <div className="flex items-center justify-between text-[11px] text-text-secondary">
                       <span>{new Date(app.createdAt).toLocaleDateString()}</span>
-                      <span className="bg-zinc-800 px-2 py-0.5 rounded text-[10px] text-zinc-300">
+                      <span className="bg-[var(--surface-hover)] border border-[var(--border-level-1)] px-2 py-0.5 rounded text-[10px] text-[var(--text-secondary)] font-medium">
                         {app.portal}
                       </span>
                     </div>
@@ -394,10 +394,10 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
               {/* Header Info */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-1">
+                  <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">
                     {selectedApp.firstName} {selectedApp.lastName}
                   </h2>
-                  <p className="text-primary font-medium">
+                  <p className="text-[var(--color-primary)] font-medium">
                     {selectedApp.jobTitle}{" "}
                     {selectedApp.department ? `· ${selectedApp.department}` : ""}
                   </p>
@@ -407,7 +407,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                     value={selectedApp.status}
                     onChange={(e) => handleUpdateStatus(selectedApp.id, e.target.value)}
                     disabled={updating}
-                    className="bg-surface-hover border border-border-default rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary disabled:opacity-50"
+                    className="bg-[var(--surface-hover)] border border-[var(--border-level-1)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] font-semibold focus:outline-none focus:border-[var(--color-primary)] disabled:opacity-50 cursor-pointer"
                   >
                     <option value="NEW">{isAr ? "جديد" : "New"}</option>
                     <option value="REVIEWING">{isAr ? "قيد المراجعة" : "Reviewing"}</option>
@@ -429,10 +429,10 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                   <button
                     type="button"
                     onClick={() => setPreviewModalCandidate(selectedApp)}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600/15 hover:bg-indigo-600/25 text-indigo-300 border border-indigo-500/30 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600/15 hover:bg-indigo-600/25 text-indigo-400 dark:text-indigo-300 border border-indigo-500/30 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95"
                     title={isAr ? "معاينة السيرة الذاتية داخل المتصفح" : "Preview CV Document in Browser"}
                   >
-                    <Eye className="w-4 h-4 text-indigo-400" />
+                    <Eye className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
                     <span>{isAr ? "معاينة السيرة" : "Preview CV"}</span>
                   </button>
 
@@ -441,7 +441,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                     href={selectedApp.cvUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors"
+                    className="flex items-center px-3 py-2 bg-[var(--surface-hover)] border border-[var(--border-level-1)] text-[var(--text-primary)] rounded-lg text-sm font-medium hover:bg-[var(--surface-default)] transition-colors"
                   >
                     <Download className="w-4 h-4 me-1.5" /> {isAr ? "تحميل" : "Download"}
                   </a>
@@ -472,28 +472,28 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
 
               {/* Candidate Category Leaderboard & AI Ranking Banner */}
               {selectedAppRank && (
-                <div className="p-4 rounded-xl bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-zinc-900 border border-purple-800/40 space-y-3">
+                <div className="p-4 rounded-xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-purple-500/5 dark:from-purple-950/40 dark:via-indigo-950/30 dark:to-zinc-900 border border-purple-500/30 dark:border-purple-800/40 space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div
                         className={`w-11 h-11 rounded-xl flex items-center justify-center border font-black text-base shadow-sm ${
                           selectedAppRank.rank === 1
-                            ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                            : "bg-purple-500/20 text-purple-300 border-purple-500/40"
+                            ? "bg-amber-500/20 text-amber-500 dark:text-amber-300 border-amber-500/40"
+                            : "bg-purple-500/20 text-purple-600 dark:text-purple-300 border-purple-500/40"
                         }`}
                       >
                         #{selectedAppRank.rank}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
+                          <span className="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider">
                             {isAr ? "تصنيف المترشحين لنفس الوظيفة" : "Category Candidate Ranking"}
                           </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-200 border border-purple-500/30">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-700 dark:text-purple-200 border border-purple-500/30">
                             {selectedAppRank.tierLabel}
                           </span>
                         </div>
-                        <div className="text-sm font-bold text-white mt-0.5">
+                        <div className="text-sm font-bold text-[var(--text-primary)] mt-0.5">
                           {isAr
                             ? `المرتبة #${selectedAppRank.rank} من أصل ${selectedAppRank.totalCandidates} متقدمين لوظيفة "${selectedApp.jobTitle}"`
                             : `Rank #${selectedAppRank.rank} of ${selectedAppRank.totalCandidates} Applicants in "${selectedApp.jobTitle}"`}
@@ -501,21 +501,21 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 shrink-0 bg-black/30 px-3 py-2 rounded-xl border border-white/5">
+                    <div className="flex items-center gap-4 shrink-0 bg-[var(--surface-default)] px-3.5 py-2 rounded-xl border border-[var(--border-level-1)] shadow-xs">
                       <div className="text-end">
-                        <div className="text-[10px] text-zinc-400 uppercase font-bold">
+                        <div className="text-[10px] text-[var(--text-secondary)] uppercase font-bold">
                           {isAr ? "نسبة التطابق الذكي" : "AI Match Score"}
                         </div>
-                        <div className="text-xl font-black text-emerald-400">
+                        <div className="text-xl font-black text-emerald-600 dark:text-emerald-400">
                           {selectedAppRank.matchScore}%
                         </div>
                       </div>
-                      <div className="h-8 w-px bg-white/10" />
+                      <div className="h-8 w-px bg-[var(--border-level-1)]" />
                       <div>
-                        <div className="text-[10px] text-zinc-400 uppercase font-bold">
+                        <div className="text-[10px] text-[var(--text-secondary)] uppercase font-bold">
                           {isAr ? "التوصية" : "AI Decision"}
                         </div>
-                        <div className="text-xs font-bold text-purple-300">
+                        <div className="text-xs font-bold text-purple-700 dark:text-purple-300">
                           {selectedAppRank.recommendation.replace("_", " ")}
                         </div>
                       </div>
@@ -523,44 +523,44 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                   </div>
 
                   {/* Transparent Score Factor Breakdown Bar */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-white/5 text-[11px]">
-                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/20 text-zinc-300">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-[var(--border-level-1)] text-[11px]">
+                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-1)]">
                       <span>{isAr ? "تطابق المهارات:" : "Skills Match:"}</span>
-                      <strong className="text-emerald-400">{selectedAppRank.scoreBreakdown.skillsMatch}/40</strong>
+                      <strong className="text-emerald-600 dark:text-emerald-400 font-bold">{selectedAppRank.scoreBreakdown.skillsMatch}/40</strong>
                     </div>
-                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/20 text-zinc-300">
+                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-1)]">
                       <span>{isAr ? "سنوات الخبرة:" : "Experience:"}</span>
-                      <strong className="text-blue-400">{selectedAppRank.scoreBreakdown.experienceScore}/30</strong>
+                      <strong className="text-blue-600 dark:text-blue-400 font-bold">{selectedAppRank.scoreBreakdown.experienceScore}/30</strong>
                     </div>
-                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/20 text-zinc-300">
+                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-1)]">
                       <span>{isAr ? "مرحلة التقييم:" : "Stage Level:"}</span>
-                      <strong className="text-purple-400">{selectedAppRank.scoreBreakdown.stageProgressScore}/20</strong>
+                      <strong className="text-purple-600 dark:text-purple-400 font-bold">{selectedAppRank.scoreBreakdown.stageProgressScore}/20</strong>
                     </div>
-                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/20 text-zinc-300">
+                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[var(--surface-default)] text-[var(--text-secondary)] border border-[var(--border-level-1)]">
                       <span>{isAr ? "اكتمال الملف:" : "Profile Data:"}</span>
-                      <strong className="text-amber-400">{selectedAppRank.scoreBreakdown.completenessScore}/10</strong>
+                      <strong className="text-amber-600 dark:text-amber-400 font-bold">{selectedAppRank.scoreBreakdown.completenessScore}/10</strong>
                     </div>
                   </div>
                 </div>
               )}
 
               {/* Contact Info */}
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-surface-hover border border-border-default">
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-[var(--surface-hover)]/60 border border-[var(--border-level-1)]">
                 <div>
-                  <div className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">{isAr ? "البريد الإلكتروني" : "Email"}</div>
-                  <div className="text-sm text-white break-all">{selectedApp.email}</div>
+                  <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">{isAr ? "البريد الإلكتروني" : "Email"}</div>
+                  <div className="text-sm font-semibold text-[var(--text-primary)] break-all">{selectedApp.email}</div>
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">{isAr ? "رقم الهاتف" : "Phone"}</div>
-                  <div className="text-sm text-white">{selectedApp.phone || (isAr ? "غير متوفر" : "N/A")}</div>
+                  <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">{isAr ? "رقم الهاتف" : "Phone"}</div>
+                  <div className="text-sm font-semibold text-[var(--text-primary)]">{selectedApp.phone || (isAr ? "غير متوفر" : "N/A")}</div>
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">{isAr ? "مصدر التقديم" : "Applied via"}</div>
-                  <div className="text-sm text-white">{selectedApp.portal} {isAr ? "بوابة" : "Portal"}</div>
+                  <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">{isAr ? "مصدر التقديم" : "Applied via"}</div>
+                  <div className="text-sm font-semibold text-[var(--text-primary)]">{selectedApp.portal} {isAr ? "بوابة" : "Portal"}</div>
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">{isAr ? "تاريخ التقديم" : "Applied on"}</div>
-                  <div className="text-sm text-white">{new Date(selectedApp.createdAt).toLocaleString()}</div>
+                  <div className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">{isAr ? "تاريخ التقديم" : "Applied on"}</div>
+                  <div className="text-sm font-semibold text-[var(--text-primary)]">{new Date(selectedApp.createdAt).toLocaleString()}</div>
                 </div>
               </div>
 
@@ -569,7 +569,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                 <div className="flex items-center justify-between pb-2 border-b border-border-default/60">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-purple-400" />
-                    <h3 className="text-base font-bold text-white">
+                    <h3 className="text-base font-bold text-[var(--text-primary)]">
                       {isAr ? "جدول المقابلات المسجلة" : "Scheduled Candidate Interviews"}
                     </h3>
                   </div>
@@ -650,7 +650,7 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                       <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-border-default/60">
                         <div className="flex items-center gap-2">
                           <Cpu className="w-5 h-5 text-purple-400" />
-                          <h3 className="text-lg font-bold text-white">
+                          <h3 className="text-lg font-bold text-[var(--text-primary)]">
                             {isAr ? "التحليل الذكي لملف المترشح" : "AI Candidate Analysis"}
                           </h3>
                         </div>
@@ -704,19 +704,19 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                 
                 {selectedApp.cvParsedData ? (
                   <div className="space-y-6">
-                    <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
-                      <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-2">{isAr ? "الملخص التنفيذي" : "Executive Summary"}</h4>
-                      <p className="text-sm text-zinc-300 leading-relaxed">
+                    <div className="p-4 bg-purple-500/5 dark:bg-purple-950/20 border border-purple-500/20 dark:border-purple-800/40 rounded-xl">
+                      <h4 className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider mb-2">{isAr ? "الملخص التنفيذي" : "Executive Summary"}</h4>
+                      <p className="text-sm text-[var(--text-primary)] dark:text-zinc-200 leading-relaxed font-normal">
                         {selectedApp.cvParsedData.summary}
                       </p>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-6">
-                      <div className="p-4 bg-surface-hover border border-border-default rounded-xl">
-                        <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3">{isAr ? "المهارات المستخرجة" : "Extracted Skills"}</h4>
+                      <div className="p-4 bg-[var(--surface-hover)]/60 border border-[var(--border-level-1)] rounded-xl">
+                        <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-3">{isAr ? "المهارات المستخرجة" : "Extracted Skills"}</h4>
                         <div className="flex flex-wrap gap-2">
                           {(selectedApp.cvParsedData.skills || []).map((skill: string, i: number) => (
-                            <span key={i} className="px-2 py-1 bg-zinc-800 text-xs rounded-md text-zinc-300 border border-zinc-700">
+                            <span key={i} className="px-2.5 py-1 bg-[var(--surface-default)] text-xs rounded-md text-[var(--text-primary)] border border-[var(--border-level-1)] shadow-2xs">
                               {skill}
                             </span>
                           ))}
@@ -724,13 +724,13 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                       </div>
                       
                       <div className="space-y-4">
-                        <div className="p-4 bg-surface-hover border border-border-default rounded-xl">
-                          <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">{isAr ? "سنوات الخبرة" : "Years of Experience"}</h4>
-                          <p className="text-2xl font-bold text-white">{selectedApp.cvParsedData.experienceYears} {isAr ? "سنوات" : "Years"}</p>
+                        <div className="p-4 bg-[var(--surface-hover)]/60 border border-[var(--border-level-1)] rounded-xl">
+                          <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">{isAr ? "سنوات الخبرة" : "Years of Experience"}</h4>
+                          <p className="text-2xl font-black text-[var(--text-primary)]">{selectedApp.cvParsedData.experienceYears} {isAr ? "سنوات" : "Years"}</p>
                         </div>
-                        <div className="p-4 bg-surface-hover border border-border-default rounded-xl">
-                          <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">{isAr ? "المؤهل التعليمي" : "Education"}</h4>
-                          <p className="text-sm text-white">{selectedApp.cvParsedData.education}</p>
+                        <div className="p-4 bg-[var(--surface-hover)]/60 border border-[var(--border-level-1)] rounded-xl">
+                          <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">{isAr ? "المؤهل التعليمي" : "Education"}</h4>
+                          <p className="text-sm font-semibold text-[var(--text-primary)]">{selectedApp.cvParsedData.education}</p>
                         </div>
                       </div>
                     </div>
