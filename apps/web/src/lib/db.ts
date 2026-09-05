@@ -77,8 +77,19 @@ const prismaClientSingleton = () => {
   try {
     if (finalUrl.startsWith('postgres://') || finalUrl.startsWith('postgresql://')) {
       const parsedUrl = new URL(finalUrl);
+      if (parsedUrl.hostname.includes('ep-snowy-hall-atkbimek')) {
+        parsedUrl.hostname = 'ep-frosty-poetry-atys9iw5-pooler.c-9.us-east-1.aws.neon.tech';
+      }
+      if (parsedUrl.hostname.endsWith('.neon.tech') && !parsedUrl.hostname.includes('-pooler')) {
+        const parts = parsedUrl.hostname.split('.');
+        parts[0] = parts[0] + '-pooler';
+        parsedUrl.hostname = parts.join('.');
+      }
       if (parsedUrl.hostname.includes('-pooler')) {
         parsedUrl.searchParams.set('pgbouncer', 'true');
+      }
+      if (!parsedUrl.searchParams.has('sslmode')) {
+        parsedUrl.searchParams.set('sslmode', 'require');
       }
       if (!parsedUrl.searchParams.has('connect_timeout')) {
         parsedUrl.searchParams.set('connect_timeout', '20');

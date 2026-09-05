@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { socialAdapterRegistry } from '@/lib/social-media/adapters/registry';
 import { SocialProviderKey } from '@/lib/social-media/types';
+import { ensureSocialMediaTablesExist } from '@/lib/social-media/ensure-tables';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,12 +15,37 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const configRecord = await db.socialProviderConfig.findUnique({
-      where: { provider },
-    });
+    let configRecord: any = null;
+    try {
+      configRecord = await db.socialProviderConfig.findUnique({
+        where: { provider },
+      });
+    } catch (dbErr: any) {
+      if (String(dbErr?.message || '').includes('does not exist') || dbErr?.code === 'P2021') {
+        await ensureSocialMediaTablesExist(true);
+        configRecord = await db.socialProviderConfig.findUnique({
+          where: { provider },
+        });
+      } else {
+        throw dbErr;
+      }
+    }
+
+    if (!configRecord) {
+      await ensureSocialMediaTablesExist(true);
+      configRecord = await db.socialProviderConfig.findUnique({
+        where: { provider },
+      });
+    }
 
     if (!configRecord || !configRecord.enabled) {
       return NextResponse.json({ error: `Provider ${provider} is not configured or disabled.` }, { status: 400 });
+    }
+
+    if (!configRecord.appId) {
+      // Return helpful message with redirect link to Platforms tab to enter App ID
+      const origin = req.headers.get('origin') || req.nextUrl.origin;
+      return NextResponse.redirect(`${origin}/dashboard/social-media#platforms?notice=missing_credentials&provider=${provider}`);
     }
 
     const adapter = socialAdapterRegistry.getAdapter(provider);

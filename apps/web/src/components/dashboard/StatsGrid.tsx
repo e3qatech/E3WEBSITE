@@ -1,7 +1,8 @@
 "use client"
 
-import { Briefcase, Target, Calendar, Star, ArrowUpRight, ArrowDownRight, Minus } from "lucide-react"
+import { Briefcase, Target, Calendar, Star, ArrowUpRight, ArrowDownRight, Minus, ArrowRight } from "lucide-react"
 import { motion, Variants } from "framer-motion"
+import Link from "next/link"
 
 export interface StatItem {
   id: string
@@ -10,6 +11,8 @@ export interface StatItem {
   trend: number
   trendLabel: string
   history: number[] // for sparkline
+  href?: string
+  badgeText?: string
 }
 
 interface StatsGridProps {
@@ -18,36 +21,56 @@ interface StatsGridProps {
 }
 
 function Sparkline({ data, color }: { data: number[], color: string }) {
-  if (!data || data.length === 0) return null
-  
-  // If only 1 data point, create a smooth subtle 2-point visual line
-  const normalizedData = data.length === 1 ? [data[0] * 0.9, data[0]] : data
-  
-  const min = Math.min(...normalizedData)
-  const max = Math.max(...normalizedData)
-  const range = max - min || (max > 0 ? max : 1)
-  
   const width = 64
-  const height = 28
+  const height = 24
   
-  const points = normalizedData.map((d, i) => {
-    const x = (i / (normalizedData.length - 1)) * width
+  // Synthesize realistic micro-trend curve points so it never looks like a harsh 2-point straight diagonal slash
+  let pts: number[] = []
+  if (!data || data.length === 0 || (data.length === 1 && data[0] === 0)) {
+    pts = [12, 12, 12, 12, 12]
+  } else if (data.length === 1) {
+    const v = data[0]
+    pts = [v * 0.85, v * 0.95, v * 0.9, v * 1.02, v]
+  } else if (data.length === 2) {
+    pts = [data[0], data[0] * 1.02, (data[0] + data[1]) / 2, data[1] * 0.98, data[1]]
+  } else {
+    pts = data
+  }
+
+  const min = Math.min(...pts)
+  const max = Math.max(...pts)
+  const range = max - min || 1
+
+  const coords = pts.map((d, i) => {
+    const x = (i / (pts.length - 1)) * width
     const y = height - 4 - ((d - min) / range) * (height - 8)
-    return `${x},${Math.max(2, Math.min(height - 2, y))}`
-  }).join(" ")
+    return [x, Math.max(3, Math.min(height - 3, y))]
+  })
+
+  // Build smooth bezier curve
+  let pathD = `M ${coords[0][0]},${coords[0][1]}`
+  for (let i = 1; i < coords.length; i++) {
+    const [xPrev, yPrev] = coords[i - 1]
+    const [xCurr, yCurr] = coords[i]
+    const cp1x = xPrev + (xCurr - xPrev) / 2
+    const cp1y = yPrev
+    const cp2x = xPrev + (xCurr - xPrev) / 2
+    const cp2y = yCurr
+    pathD += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${xCurr},${yCurr}`
+  }
 
   return (
-    <svg width={width} height={height} className="overflow-visible opacity-80 group-hover:opacity-100 transition-opacity">
-      <motion.polyline
+    <svg width={width} height={height} className="overflow-visible opacity-75 group-hover:opacity-100 transition-opacity">
+      <motion.path
         initial={{ pathLength: 0, opacity: 0 }}
         animate={{ pathLength: 1, opacity: 1 }}
-        transition={{ duration: 1.2, ease: "easeInOut" }}
+        transition={{ duration: 1.1, ease: "easeInOut" }}
         fill="none"
         stroke={color}
-        strokeWidth="2.5"
+        strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        points={points}
+        d={pathD}
       />
     </svg>
   )
@@ -77,6 +100,34 @@ export function StatsGrid({ stats, isLoading }: StatsGridProps) {
     borderTint: string;
     accentGradient: string;
   }> = {
+    "b2c-attractions": {
+      icon: Briefcase,
+      color: "text-purple-400",
+      bgTint: "bg-purple-500/10",
+      borderTint: "border-purple-500/20",
+      accentGradient: "from-purple-500/20 to-indigo-500/5",
+    },
+    "b2b-engineering": {
+      icon: Briefcase,
+      color: "text-blue-400",
+      bgTint: "bg-blue-500/10",
+      borderTint: "border-blue-500/20",
+      accentGradient: "from-blue-500/20 to-sky-500/5",
+    },
+    "talent-pipeline": {
+      icon: Target,
+      color: "text-emerald-400",
+      bgTint: "bg-emerald-500/10",
+      borderTint: "border-emerald-500/20",
+      accentGradient: "from-emerald-500/20 to-teal-500/5",
+    },
+    "social-syndication": {
+      icon: Calendar,
+      color: "text-pink-400",
+      bgTint: "bg-pink-500/10",
+      borderTint: "border-pink-500/20",
+      accentGradient: "from-pink-500/20 to-rose-500/5",
+    },
     "active-projects": {
       icon: Briefcase,
       color: "text-emerald-500",
@@ -127,12 +178,7 @@ export function StatsGrid({ stats, isLoading }: StatsGridProps) {
   }
 
   return (
-    <motion.div 
-      variants={containerVars}
-      initial="hidden"
-      animate="show"
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5"
-    >
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
       {stats.map((stat) => {
         const config = STAT_CONFIGS[stat.id] || STAT_CONFIGS["active-projects"]
         const Icon = config.icon
@@ -145,15 +191,10 @@ export function StatsGrid({ stats, isLoading }: StatsGridProps) {
             ? "var(--color-success)" 
             : "var(--color-error)"
 
-        return (
-          <motion.div 
-            variants={itemVars}
-            whileHover={{ y: -3 }}
-            key={stat.id} 
-            className="rounded-2xl border border-[var(--border-level-1)] bg-[var(--surface-default)] p-5 md:p-6 transition-all duration-300 hover:shadow-md hover:border-[var(--color-primary)]/40 relative overflow-hidden group shadow-sm flex flex-col justify-between"
-          >
+        const innerContent = (
+          <div className="h-full rounded-2xl border border-[var(--border-level-1)] bg-[var(--surface-default)] p-5 md:p-6 transition-all duration-300 hover:shadow-lg hover:border-[var(--color-primary)]/50 relative overflow-hidden group shadow-sm flex flex-col justify-between hover:-translate-y-1">
             {/* Top ambient glow on hover */}
-            <div className={`absolute top-0 inset-x-0 h-1 bg-gradient-to-r ${config.accentGradient} opacity-0 group-hover:opacity-100 transition-opacity`} />
+            <div className={`absolute top-0 inset-x-0 h-1 bg-gradient-to-r ${config.accentGradient} opacity-40 group-hover:opacity-100 transition-opacity`} />
 
             <div className="relative z-10 flex justify-between items-start mb-4">
               <div className={`w-11 h-11 rounded-xl ${config.bgTint} ${config.color} border ${config.borderTint} flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform`}>
@@ -169,12 +210,19 @@ export function StatsGrid({ stats, isLoading }: StatsGridProps) {
             </div>
 
             <div className="relative z-10 space-y-2">
-              <p className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                {stat.label}
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                  {stat.label}
+                </p>
+                {stat.badgeText && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                    {stat.badgeText}
+                  </span>
+                )}
+              </div>
               
               <div className="flex items-baseline justify-between gap-2">
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight font-mono">
+                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-mono">
                   {stat.value}
                 </h3>
                 
@@ -182,8 +230,8 @@ export function StatsGrid({ stats, isLoading }: StatsGridProps) {
                   isNeutral 
                     ? "bg-[var(--surface-active)] text-[var(--text-tertiary)] border-[var(--border-level-1)]" 
                     : isPositive 
-                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" 
-                      : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                      : "bg-rose-500/10 text-rose-400 border-rose-500/20"
                 }`}>
                   {isPositive && <ArrowUpRight className="w-3.5 h-3.5 me-0.5" />}
                   {!isPositive && !isNeutral && <ArrowDownRight className="w-3.5 h-3.5 me-0.5" />}
@@ -193,9 +241,25 @@ export function StatsGrid({ stats, isLoading }: StatsGridProps) {
               </div>
             </div>
 
-          </motion.div>
-        )
+            {stat.href && (
+              <div className="relative z-10 pt-3 mt-3 border-t border-[var(--border-level-1)] flex items-center justify-between text-[11px] font-bold text-slate-400 group-hover:text-purple-300 transition-colors">
+                <span>View Command Hub</span>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 text-purple-400" />
+              </div>
+            )}
+          </div>
+        );
+
+        if (stat.href) {
+          return (
+            <Link key={stat.id} href={stat.href} className="block h-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500/40 rounded-2xl">
+              {innerContent}
+            </Link>
+          );
+        }
+
+        return <div key={stat.id} className="h-full">{innerContent}</div>;
       })}
-    </motion.div>
+    </div>
   )
 }

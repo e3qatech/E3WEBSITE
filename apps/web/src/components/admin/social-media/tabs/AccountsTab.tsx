@@ -19,7 +19,7 @@ interface AccountsTabProps {
 
 export function AccountsTab({
   accounts,
-  providers: _providers,
+  providers,
   onRefresh,
   onRunSync,
   syncing,
@@ -206,10 +206,19 @@ export function AccountsTab({
                   <option value="LINKEDIN">LinkedIn</option>
                   <option value="MANUAL">Manual / Custom Account</option>
                 </select>
+                {selectedProvider !== 'MANUAL' && (
+                  <p className="text-[11px] mt-1">
+                    {providers.find((p: any) => p.provider === selectedProvider)?.appId ? (
+                      <span className="text-emerald-400 font-medium">✓ Platform API credentials are configured</span>
+                    ) : (
+                      <span className="text-amber-400">⚠️ API credentials not set (Configure in Platforms tab for live OAuth)</span>
+                    )}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-slate-300">Public Username</label>
+                <label className="font-bold text-slate-300">Public Username / Handle</label>
                 <input
                   type="text"
                   value={username}
@@ -225,26 +234,28 @@ export function AccountsTab({
                   type="text"
                   value={internalName}
                   onChange={e => setInternalName(e.target.value)}
-                  placeholder="e.g. E3 Qatar Official Instagram"
+                  placeholder="e.g. E3 Qatar Official Channel"
                   className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white"
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-3 pt-2">
-              <button
-                onClick={() => handleOAuthConnect(selectedProvider)}
-                className="flex-1 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl cursor-pointer"
-              >
-                Connect via OAuth
-              </button>
+              {selectedProvider !== 'MANUAL' && (
+                <button
+                  onClick={() => handleOAuthConnect(selectedProvider)}
+                  className="flex-1 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl cursor-pointer"
+                >
+                  Connect via OAuth
+                </button>
+              )}
 
               <button
                 onClick={handleCreateManualAccount}
                 disabled={creating}
                 className="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl cursor-pointer"
               >
-                Save Record
+                {creating ? 'Saving...' : 'Save Record'}
               </button>
 
               <button

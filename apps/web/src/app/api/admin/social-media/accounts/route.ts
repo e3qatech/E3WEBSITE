@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
-
 import { checkSocialAdminAuth } from '@/lib/social-media/auth-check';
+import { ensureSocialMediaTablesExist } from '@/lib/social-media/ensure-tables';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,17 +12,37 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
     }
 
-    const accounts = await db.socialAccount.findMany({
-      include: {
-        providerConfig: {
-          select: { name: true, provider: true, enabled: true },
+    let accounts: any[];
+    try {
+      accounts = await db.socialAccount.findMany({
+        include: {
+          providerConfig: {
+            select: { name: true, provider: true, enabled: true },
+          },
+          _count: {
+            select: { posts: true },
+          },
         },
-        _count: {
-          select: { posts: true },
-        },
-      },
-      orderBy: { sortOrder: 'asc' },
-    });
+        orderBy: { sortOrder: 'asc' },
+      });
+    } catch (dbErr: any) {
+      if (String(dbErr?.message || '').includes('does not exist') || dbErr?.code === 'P2021') {
+        await ensureSocialMediaTablesExist(true);
+        accounts = await db.socialAccount.findMany({
+          include: {
+            providerConfig: {
+              select: { name: true, provider: true, enabled: true },
+            },
+            _count: {
+              select: { posts: true },
+            },
+          },
+          orderBy: { sortOrder: 'asc' },
+        });
+      } else {
+        throw dbErr;
+      }
+    }
 
     const sanitized = accounts.map((a: any) => {
       const { encryptedData, encryptedAccessToken, encryptedRefreshToken, ...rest } = a;
@@ -49,12 +69,38 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { provider, internalName, username, displayName, profileUrl, profileImageUrl, brandId, attractionId, portal } = body;
 
-    const providerConfig = await db.socialProviderConfig.findUnique({
-      where: { provider },
-    });
+    let providerConfig: any = null;
+    try {
+      providerConfig = await db.socialProviderConfig.findUnique({
+        where: { provider },
+      });
+    } catch (findErr: any) {
+      if (String(findErr?.message || '').includes('does not exist') || findErr?.code === 'P2021') {
+        await ensureSocialMediaTablesExist(true);
+        providerConfig = await db.socialProviderConfig.findUnique({
+          where: { provider },
+        });
+      } else {
+        throw findErr;
+      }
+    }
 
     if (!providerConfig) {
-      return NextResponse.json({ success: false, error: `Provider configuration for ${provider} does not exist.` }, { status: 400 });
+      await ensureSocialMediaTablesExist(true);
+      providerConfig = await db.socialProviderConfig.findUnique({
+        where: { provider },
+      });
+    }
+
+    if (!providerConfig) {
+      // Fallback create minimal provider config
+      providerConfig = await db.socialProviderConfig.create({
+        data: {
+          provider,
+          name: String(provider).replace('_', ' '),
+          enabled: true,
+        },
+      });
     }
 
     const providerAccountId = `manual_${Date.now()}_${Math.random().toString(36).substring(7)}`;
@@ -76,14 +122,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    await db.socialAuditLog.create({
-      data: {
-        action: 'ACCOUNT_CONNECT',
-        targetType: 'SOCIAL_ACCOUNT',
-        targetId: account.id,
-        summary: `Created account record ${account.internalName}`,
-      },
-    });
+    try {
+      await db.socialAuditLog.create({
+        data: {
+          action: 'ACCOUNT_CONNECT',
+          targetType: 'SOCIAL_ACCOUNT',
+          targetId: account.id,
+          summary: `Created account record ${account.internalName}`,
+        },
+      });
+    } catch (_auditErr) {}
 
     return NextResponse.json({ success: true, data: account });
   } catch (err: any) {

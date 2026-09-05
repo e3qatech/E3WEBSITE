@@ -76,8 +76,14 @@ try {
   try {
     if (directMigrationUrl.startsWith('postgres://') || directMigrationUrl.startsWith('postgresql://')) {
       const parsedDirect = new URL(directMigrationUrl);
+      if (parsedDirect.hostname.includes('ep-snowy-hall-atkbimek')) {
+        parsedDirect.hostname = 'ep-frosty-poetry-atys9iw5.c-9.us-east-1.aws.neon.tech';
+      }
       if (parsedDirect.hostname.includes('-pooler')) {
         parsedDirect.hostname = parsedDirect.hostname.replace('-pooler', '');
+      }
+      if (!parsedDirect.searchParams.has('sslmode')) {
+        parsedDirect.searchParams.set('sslmode', 'require');
       }
       parsedDirect.searchParams.delete('pgbouncer');
       parsedDirect.searchParams.delete('channel_binding');
@@ -103,6 +109,14 @@ try {
     console.log("[BUILD] Database migrations applied successfully.");
   } catch (migErr) {
     console.log("[BUILD] Migration deploy warning:", migErr.message || migErr);
+  }
+
+  try {
+    console.log("[BUILD] Ensuring social media tables and provider configs...");
+    execSync("node scripts/ensure-social-media-tables.mjs", { stdio: 'inherit', env: migrationEnv });
+    console.log("[BUILD] Social media tables verified successfully.");
+  } catch (socialErr) {
+    console.log("[BUILD] Social media tables step note (non-blocking):", socialErr.message || socialErr);
   }
 
   try {

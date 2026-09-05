@@ -106,7 +106,7 @@ const sidebarConfig: NavGroupItem[] = [
     capability: "b2c.content.read",
     progressPercent: 91,
     subItems: [
-      { label: "B2C Command & Access Hub", labelAr: "مركز قيادة وحوكمة B2C", href: "/dashboard/b2c", capability: "b2c.content.read", progressPercent: 98 },
+      { label: "Command & Access Hub", labelAr: "مركز القيادة والحوكمة", href: "/dashboard/b2c", capability: "b2c.content.read", progressPercent: 98 },
       { label: "Landing Page", labelAr: "الصفحة الرئيسية (B2C)", href: "/dashboard/b2c/landing", capability: "b2c.content.write", progressPercent: 95 },
       { label: "Discover Universe", labelAr: "صفحة الاستكشاف", href: "/dashboard/b2c/discover", capability: "b2c.content.write", progressPercent: 90 },
       { label: "Attractions Showcase", labelAr: "صفحة الوجهات والألعاب", href: "/dashboard/b2c/attractions-page", capability: "b2c.content.write", progressPercent: 88 },
@@ -149,7 +149,7 @@ const sidebarConfig: NavGroupItem[] = [
     capability: "b2b.content.read",
     progressPercent: 90,
     subItems: [
-      { label: "B2B Command & Access Hub", labelAr: "مركز قيادة وحوكمة B2B", href: "/dashboard/b2b", capability: "b2b.content.read", progressPercent: 98 },
+      { label: "Command & Access Hub", labelAr: "مركز القيادة والحوكمة", href: "/dashboard/b2b", capability: "b2b.content.read", progressPercent: 98 },
       { label: "Enterprise Homepage", labelAr: "الصفحة الرئيسية للشركات", href: "/dashboard/b2b/home", capability: "b2b.content.write", progressPercent: 95 },
       { label: "Discover E3 Page", labelAr: "صفحة استكشف إي ثري", href: "/dashboard/b2b/discover", capability: "b2b.content.write", progressPercent: 90 },
       { label: "Services & Solutions", labelAr: "صفحة الخدمات والحلول", href: "/dashboard/b2b/services-page", capability: "b2b.content.write", progressPercent: 88 },
@@ -403,10 +403,10 @@ export function AdminSidebar() {
   }, [isAuthorized, activeCategory, searchQuery]);
 
   const toggleSubMenu = (id: string) => {
-    setOpenSubMenus((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    setOpenSubMenus((prev) => {
+      const isCurrentlyOpen = prev[id] ?? false;
+      return isCurrentlyOpen ? {} : { [id]: true };
+    });
   };
 
   const categories = [
@@ -561,7 +561,7 @@ export function AdminSidebar() {
                     <div className="flex items-center gap-1.5 shrink-0 ms-auto">
                       {typeof item.progressPercent === "number" && (
                         <span
-                          className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                          className="text-[10px] font-mono font-medium text-emerald-500 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-md"
                           title={isAr ? `نسبة إنجاز القسم: ${item.progressPercent}%` : `Section Work Done: ${item.progressPercent}%`}
                         >
                           {item.progressPercent}%
@@ -569,7 +569,7 @@ export function AdminSidebar() {
                       )}
                       {typeof item.notificationCount === "number" && item.notificationCount > 0 && (
                         <span
-                          className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-purple-600 text-white shadow-xs animate-pulse"
+                          className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30"
                           title={isAr ? `${item.notificationCount} إشعارات نشطة` : `${item.notificationCount} Active Notifications`}
                         >
                           {item.notificationCount}
@@ -586,19 +586,9 @@ export function AdminSidebar() {
                   {/* Collapsed view indicator dot */}
                   {collapsed && !mobileOpen && typeof item.notificationCount === "number" && item.notificationCount > 0 && (
                     <span
-                      className="absolute top-1 end-1 w-2.5 h-2.5 rounded-full bg-purple-500 ring-2 ring-white dark:ring-zinc-900 animate-pulse"
+                      className="absolute top-1 end-1 w-2.5 h-2.5 rounded-full bg-purple-500 ring-2 ring-white dark:ring-zinc-900"
                       title={isAr ? `${item.notificationCount} إشعارات نشطة` : `${item.notificationCount} Active Notifications`}
                     />
-                  )}
-
-                  {/* Group progress bar underline */}
-                  {(!collapsed || mobileOpen) && typeof item.progressPercent === "number" && (
-                    <div className="absolute bottom-0 start-2.5 end-2.5 h-[2px] bg-zinc-200/50 dark:bg-zinc-800/80 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-500 to-emerald-400 rounded-full"
-                        style={{ width: `${item.progressPercent}%` }}
-                      />
-                    </div>
                   )}
                 </MotionLink>
 
@@ -646,30 +636,22 @@ export function AdminSidebar() {
                           {isSubActive && (
                             <span className="absolute -start-[15px] w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]" />
                           )}
-                          <span className="truncate flex-1 me-1.5">{subTitle}</span>
+                          <span className="truncate flex-1 me-2">{subTitle}</span>
 
                           {/* Work Done Progress & Active Notification Pill */}
                           <div className="flex items-center gap-1.5 shrink-0">
                             {typeof sub.progressPercent === "number" && (
-                              <div
-                                className="flex items-center gap-1"
+                              <span
+                                className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 group-hover/sub:text-emerald-400 transition-colors"
                                 title={isAr ? `إنجاز العمل: ${sub.progressPercent}%` : `Work Done: ${sub.progressPercent}%`}
                               >
-                                <span className="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400">
-                                  {sub.progressPercent}%
-                                </span>
-                                <div className="w-6 h-1 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden">
-                                  <div
-                                    className="h-full bg-emerald-500 rounded-full"
-                                    style={{ width: `${sub.progressPercent}%` }}
-                                  />
-                                </div>
-                              </div>
+                                {sub.progressPercent}%
+                              </span>
                             )}
 
                             {typeof sub.notificationCount === "number" && sub.notificationCount > 0 && (
                               <span
-                                className="px-1.5 py-0.2 rounded-md text-[9px] font-black bg-purple-600 text-white shadow-xs animate-pulse"
+                                className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30"
                                 title={isAr ? `${sub.notificationCount} إشعار نشط` : `${sub.notificationCount} active notifications`}
                               >
                                 {sub.notificationCount}

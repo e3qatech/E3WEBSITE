@@ -44,6 +44,38 @@ export function SocialMediaManagerView() {
   const [syncing, setSyncing] = useState(false);
   const [accessDenied, setAccessDenied] = useState(false);
 
+  const VALID_TABS = React.useMemo(() => [
+    "overview", "platforms", "accounts", "feeds", "library",
+    "manual", "placements", "sync", "health", "settings"
+  ], []);
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    if (typeof window !== 'undefined') {
+      const currentUrl = new URL(window.location.href);
+      currentUrl.hash = `#${tabId}`;
+      window.history.replaceState(null, '', currentUrl.toString());
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const parseTabFromLocation = () => {
+        const hash = window.location.hash.replace(/^#/, '').split('?')[0];
+        const searchParams = new URLSearchParams(window.location.search);
+        const tabParam = searchParams.get('tab') || searchParams.get('section');
+        const target = hash || tabParam;
+        if (target && VALID_TABS.includes(target)) {
+          setActiveTab(target);
+        }
+      };
+
+      parseTabFromLocation();
+      window.addEventListener('hashchange', parseTabFromLocation);
+      return () => window.removeEventListener('hashchange', parseTabFromLocation);
+    }
+  }, [VALID_TABS]);
+
   const [accounts, setAccounts] = useState<any[]>([]);
   const [providers, setProviders] = useState<any[]>([]);
   const [feeds, setFeeds] = useState<any[]>([]);
@@ -66,12 +98,12 @@ export function SocialMediaManagerView() {
         fetch("/api/admin/social-media/diagnostics").then((r) => r.json()),
       ]);
 
-      if (accRes.success) setAccounts(accRes.data || []);
-      if (provRes.success) setProviders(provRes.data || []);
-      if (feedRes.success) setFeeds(feedRes.data || []);
-      if (placeRes.success) setPlacements(placeRes.data || []);
-      if (postRes.success) setPosts(postRes.data || []);
-      if (jobRes.success) setSyncJobs(jobRes.data?.recentSyncJobs || []);
+      if (accRes?.success) setAccounts(accRes.data || []);
+      if (provRes?.success) setProviders(provRes.data || []);
+      if (feedRes?.success) setFeeds(feedRes.data || []);
+      if (placeRes?.success) setPlacements(placeRes.data || []);
+      if (postRes?.success) setPosts(postRes.data || []);
+      if (jobRes?.success) setSyncJobs(jobRes.data?.recentSyncJobs || []);
     } catch (err: any) {
       console.error("[SOCIAL_MANAGER_FETCH_ERROR]", err);
       toast(isAr ? "تعذر تحميل بيانات التواصل الاجتماعي" : "Failed to load social media data", "error");
@@ -166,7 +198,7 @@ export function SocialMediaManagerView() {
       <DashboardSectionNavigator
         sections={SECTIONS}
         activeSectionId={activeTab}
-        onSectionChange={setActiveTab}
+        onSectionChange={handleTabChange}
       />
 
       {/* Tab Content Area */}
@@ -178,7 +210,7 @@ export function SocialMediaManagerView() {
             feeds={feeds}
             postsCount={posts.length}
             syncJobs={syncJobs}
-            onNavigateTab={setActiveTab}
+            onNavigateTab={handleTabChange}
             onRunSync={() => handleRunSync()}
             syncing={syncing}
           />

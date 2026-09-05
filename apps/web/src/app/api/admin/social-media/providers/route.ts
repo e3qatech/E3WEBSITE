@@ -3,6 +3,7 @@ import db from '@/lib/db';
 import { encryptSecret, maskSecret, isMaskedString } from '@/lib/social-media/encryption';
 import { SocialProviderKey } from '@/lib/social-media/types';
 import { checkSocialAdminAuth } from '@/lib/social-media/auth-check';
+import { ensureSocialMediaTablesExist } from '@/lib/social-media/ensure-tables';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,9 +13,28 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: authCheck.user ? 403 : 401 });
   }
   try {
-    const configs = await db.socialProviderConfig.findMany({
-      orderBy: { provider: 'asc' },
-    });
+    let configs: any[] = [];
+    try {
+      configs = await db.socialProviderConfig.findMany({
+        orderBy: { provider: 'asc' },
+      });
+    } catch (dbErr: any) {
+      if (String(dbErr?.message || '').includes('does not exist') || dbErr?.code === 'P2021') {
+        await ensureSocialMediaTablesExist(true);
+        configs = await db.socialProviderConfig.findMany({
+          orderBy: { provider: 'asc' },
+        });
+      } else {
+        throw dbErr;
+      }
+    }
+
+    if (configs.length === 0) {
+      await ensureSocialMediaTablesExist(true);
+      configs = await db.socialProviderConfig.findMany({
+        orderBy: { provider: 'asc' },
+      });
+    }
 
     // Mask secret values in response and omit raw secret properties
     const sanitized = configs.map((c: any) => {
@@ -46,9 +66,21 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Provider key is required.' }, { status: 400 });
     }
 
-    const existing = await db.socialProviderConfig.findUnique({
-      where: { provider: provider as SocialProviderKey },
-    });
+    let existing: any = null;
+    try {
+      existing = await db.socialProviderConfig.findUnique({
+        where: { provider: provider as SocialProviderKey },
+      });
+    } catch (findErr: any) {
+      if (String(findErr?.message || '').includes('does not exist') || findErr?.code === 'P2021') {
+        await ensureSocialMediaTablesExist(true);
+        existing = await db.socialProviderConfig.findUnique({
+          where: { provider: provider as SocialProviderKey },
+        });
+      } else {
+        throw findErr;
+      }
+    }
 
     let finalSecret = existing?.encryptedSecret || null;
     if (secret && !isMaskedString(secret)) {
