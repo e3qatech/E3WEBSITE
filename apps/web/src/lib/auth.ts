@@ -87,6 +87,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.sessionVersion = user.sessionVersion;
         token.isActive = user.isActive;
       }
+
+      try {
+        const { getCustomRolesMap, resolveUserPlatformRole } = await import("./custom-roles");
+        const customRoles = await getCustomRolesMap();
+        const resolvedRole = resolveUserPlatformRole(
+          (token.email as string) || (token.id as string),
+          (token.role as string) || "CLIENT",
+          customRoles
+        );
+        token.role = resolvedRole as any;
+      } catch (_e) {
+        // Fallback to token.role
+      }
+
       return token;
     },
     async session({ session, token }) {

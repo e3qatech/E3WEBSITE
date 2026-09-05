@@ -88,8 +88,9 @@ describe('Events Team RBAC, Package Management & Portal Login Suite', () => {
       expect(hasPermission('EVENTS_ADMIN', 'media.write')).toBe(true);
     });
 
-    it('grants EVENTS_TEAM package and lead privileges', () => {
-      expect(hasPermission('EVENTS_TEAM', 'b2c.packages.manage')).toBe(true);
+    it('grants EVENTS_TEAM package read and lead privileges while denying package editing', () => {
+      expect(hasPermission('EVENTS_TEAM', 'b2c.packages.read')).toBe(true);
+      expect(hasPermission('EVENTS_TEAM', 'b2c.packages.manage')).toBe(false);
       expect(hasPermission('EVENTS_TEAM', 'crm.leads.manage')).toBe(true);
     });
 

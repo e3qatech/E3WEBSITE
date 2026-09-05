@@ -13,8 +13,12 @@ export default async function LeadDetailPage({
   params: Promise<{ id: string }>
 }) {
   const session = await auth()
-  if (!session || !["SUPER_ADMIN", "SALES", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
+  if (!session?.user) {
     redirect("/login")
+  }
+  const role = (session.user as any)?.role;
+  if (!["SUPER_ADMIN", "ADMIN", "SALES", "SALES_ADMIN", "B2B_ADMIN"].includes(role)) {
+    redirect("/dashboard/leads/packages");
   }
 
   const { id } = await params

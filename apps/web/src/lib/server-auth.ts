@@ -66,8 +66,17 @@ export async function requireCurrentUser() {
     throw new AppAuthError(403, "Forbidden: Session revoked or stale");
   }
 
-  const normalizedUserRole = normalizeRole(user.role);
-  const cleanRawRole = user.role ? String(user.role).trim().toUpperCase() : "";
+  let canonicalRole = user.role ? String(user.role).trim().toUpperCase() : "CLIENT";
+  try {
+    const { getCustomRolesMap, resolveUserPlatformRole } = await import("./custom-roles");
+    const customRoles = await getCustomRolesMap();
+    canonicalRole = resolveUserPlatformRole(user.email || user.id, canonicalRole, customRoles);
+  } catch (_err) {
+    // Fallback to user.role
+  }
+
+  const normalizedUserRole = normalizeRole(canonicalRole);
+  const cleanRawRole = String(canonicalRole).trim().toUpperCase();
   const permissions = (cleanRawRole in rolePermissions)
     ? (rolePermissions as any)[cleanRawRole]
     : rolePermissions[normalizedUserRole] || [];
@@ -76,8 +85,8 @@ export async function requireCurrentUser() {
     id: user.id,
     name: user.name,
     email: user.email,
-    role: normalizedUserRole,
-    rawRole: user.role,
+    role: cleanRawRole as any,
+    rawRole: cleanRawRole,
     sessionVersion: dbSessionVersion,
     permissions
   };

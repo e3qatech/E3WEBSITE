@@ -178,7 +178,37 @@ export async function PATCH(
       // Non-blocking audit failure
     }
 
-    return NextResponse.json(updatedUser);
+    if (role !== undefined) {
+      const cleanRequestedRole = String(role).trim().toUpperCase();
+      if (
+        cleanRequestedRole === "EVENTS_ADMIN" ||
+        cleanRequestedRole === "EVENTS_TEAM" ||
+        cleanRequestedRole === "HR_ADMIN" ||
+        cleanRequestedRole === "OPERATIONS_ADMIN" ||
+        cleanRequestedRole === "B2C_ADMIN" ||
+        cleanRequestedRole === "B2B_ADMIN"
+      ) {
+        try {
+          const { setCustomRoleForUser } = await import("@/lib/custom-roles");
+          await setCustomRoleForUser(id, cleanRequestedRole);
+          if (existingUser.email) {
+            await setCustomRoleForUser(existingUser.email, cleanRequestedRole);
+          }
+        } catch (_e) {}
+      }
+    }
+
+    let returnedRole = updatedUser.role;
+    try {
+      const { getCustomRolesMap, resolveUserPlatformRole } = await import("@/lib/custom-roles");
+      const customRoles = await getCustomRolesMap();
+      returnedRole = resolveUserPlatformRole(updatedUser.email || id, updatedUser.role, customRoles);
+    } catch (_e) {}
+
+    return NextResponse.json({
+      ...updatedUser,
+      role: returnedRole,
+    });
   } catch (error: any) {
     if (error instanceof AppAuthError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });

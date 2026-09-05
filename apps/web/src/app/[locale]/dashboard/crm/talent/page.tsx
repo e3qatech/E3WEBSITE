@@ -9,8 +9,12 @@ export const metadata = {
 
 export default async function TalentPage() {
   const session = await auth()
-  if (!session || !["SUPER_ADMIN", "HR", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
+  if (!session?.user) {
     redirect("/login")
+  }
+  const role = (session.user as any)?.role;
+  if (!["SUPER_ADMIN", "ADMIN", "HR", "HR_ADMIN"].includes(role)) {
+    redirect("/dashboard/b2c/packages");
   }
 
   const talent = await db.talent.findMany({

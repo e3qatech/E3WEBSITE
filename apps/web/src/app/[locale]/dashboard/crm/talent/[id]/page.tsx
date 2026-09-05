@@ -13,8 +13,12 @@ export default async function TalentDetailPage({
   params: Promise<{ id: string }>
 }) {
   const session = await auth()
-  if (!session || !["SUPER_ADMIN", "HR", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
+  if (!session?.user) {
     redirect("/login")
+  }
+  const role = (session.user as any)?.role;
+  if (!["SUPER_ADMIN", "ADMIN", "HR", "HR_ADMIN"].includes(role)) {
+    redirect("/dashboard/b2c/packages");
   }
 
   const { id } = await params

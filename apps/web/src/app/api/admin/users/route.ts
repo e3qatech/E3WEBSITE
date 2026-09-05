@@ -96,7 +96,21 @@ export async function GET(request: Request) {
       });
     }
 
-    return NextResponse.json(users);
+    let customRoles: Record<string, string> = {};
+    try {
+      const { getCustomRolesMap } = await import("@/lib/custom-roles");
+      customRoles = await getCustomRolesMap();
+    } catch (_e) {}
+
+    const enhancedUsers = users.map((u) => {
+      const customRole = customRoles[u.id.toLowerCase()] || (u.email ? customRoles[u.email.toLowerCase()] : null);
+      return {
+        ...u,
+        role: customRole || u.role,
+      };
+    });
+
+    return NextResponse.json(enhancedUsers);
   } catch (error: any) {
     if (error instanceof AppAuthError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });
@@ -207,7 +221,29 @@ export async function POST(request: Request) {
       // Non-blocking
     }
 
-    return NextResponse.json(newUser, { status: 201 });
+    const cleanRequestedRole = String(role).trim().toUpperCase();
+    if (
+      cleanRequestedRole === "EVENTS_ADMIN" ||
+      cleanRequestedRole === "EVENTS_TEAM" ||
+      cleanRequestedRole === "HR_ADMIN" ||
+      cleanRequestedRole === "OPERATIONS_ADMIN" ||
+      cleanRequestedRole === "B2C_ADMIN" ||
+      cleanRequestedRole === "B2B_ADMIN"
+    ) {
+      try {
+        const { setCustomRoleForUser } = await import("@/lib/custom-roles");
+        await setCustomRoleForUser(newUser.id, cleanRequestedRole);
+        await setCustomRoleForUser(cleanEmail, cleanRequestedRole);
+      } catch (_e) {}
+    }
+
+    return NextResponse.json(
+      {
+        ...newUser,
+        role: cleanRequestedRole || newUser.role,
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
     if (error instanceof AppAuthError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });

@@ -9,8 +9,12 @@ export const metadata = {
 
 export default async function ClientsPage() {
   const session = await auth()
-  if (!session || !["SUPER_ADMIN", "SALES", "SUPPORT_ADMIN"].includes((session.user as any)?.role)) {
+  if (!session?.user) {
     redirect("/login")
+  }
+  const role = (session.user as any)?.role;
+  if (!["SUPER_ADMIN", "ADMIN", "SALES", "SALES_ADMIN", "B2B_ADMIN"].includes(role)) {
+    redirect("/dashboard/leads/packages");
   }
 
   const clients = await db.client.findMany({

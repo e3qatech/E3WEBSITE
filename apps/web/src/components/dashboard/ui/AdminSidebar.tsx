@@ -80,10 +80,12 @@ const sidebarConfig: NavGroupItem[] = [
     icon: Star,
     href: "/dashboard/b2c/packages",
     roles: ["SUPER_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "EVENTS_ADMIN", "EVENTS_TEAM"],
-    capability: "b2c.packages.manage",
+    capability: "b2c.packages.read",
     subItems: [
-      { label: "Packages & Birthday CMS", labelAr: "دليل الباقات وأعياد الميلاد", href: "/dashboard/b2c/packages", capability: "b2c.packages.manage" },
+      { label: "Packages & Birthday CMS", labelAr: "دليل الباقات وأعياد الميلاد", href: "/dashboard/b2c/packages", capability: "b2c.packages.read" },
       { label: "Package Leads & Inquiries", labelAr: "طلبات باقات الأفراد", href: "/dashboard/leads/packages", capability: "crm.leads.manage" },
+      { label: "Customer Inquiries", labelAr: "استفسارات الفعاليات والزوار", href: "/dashboard/crm/inquiries", capability: "b2c.inquiries.manage" },
+      { label: "Event Calendar (Availability)", labelAr: "جدول المواعيد والسعة", href: "/dashboard/operations/events", capability: "view:schedule" },
     ],
   },
   {
@@ -111,7 +113,7 @@ const sidebarConfig: NavGroupItem[] = [
     labelAr: "محتوى الألعاب والوجهات",
     icon: Star,
     href: "/dashboard/b2c/attractions",
-    roles: ["SUPER_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "EVENTS_ADMIN", "EVENTS_TEAM"],
+    roles: ["SUPER_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN"],
     capability: "b2c.content.read",
     subItems: [
       { label: "Attractions Catalog", labelAr: "دليل الألعاب والوجهات", href: "/dashboard/b2c/attractions", capability: "b2c.attractions.manage" },
@@ -175,8 +177,8 @@ const sidebarConfig: NavGroupItem[] = [
     capability: "media.read",
     subItems: [
       { label: "Media Library & Folders", labelAr: "مكتبة الوسائط والمجلدات", href: "/dashboard/cms/media", capability: "media.read" },
-      { label: "Social Media Automation", labelAr: "إدارة وأتمتة التواصل", href: "/dashboard/social-media", capability: "media.read" },
-      { label: "CMS Pages Directory", labelAr: "فهرس صفحات النظام", href: "/dashboard/cms/pages", capability: "b2c.content.read" },
+      { label: "Social Media Automation", labelAr: "إدارة وأتمتة التواصل", href: "/dashboard/social-media", roles: ["SUPER_ADMIN", "B2C_ADMIN", "SUPPORT_ADMIN"] },
+      { label: "CMS Pages Directory", labelAr: "فهرس صفحات النظام", href: "/dashboard/cms/pages", roles: ["SUPER_ADMIN", "B2C_ADMIN"] },
     ],
   },
   {
@@ -186,17 +188,17 @@ const sidebarConfig: NavGroupItem[] = [
     labelAr: "المبيعات والتوظيف",
     icon: Activity,
     href: "/dashboard/crm/leads",
-    roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN", "HR_ADMIN", "SUPPORT_ADMIN", "B2C_ADMIN", "EVENTS_ADMIN", "EVENTS_TEAM"],
+    roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN", "HR_ADMIN"],
     capability: "crm.leads.manage",
     subItems: [
-      { label: "Sales Pipeline & Deals", labelAr: "مسار صفقات المبيعات", href: "/dashboard/crm/leads", capability: "crm.leads.manage" },
-      { label: "Package Inquiries", labelAr: "طلبات باقات الأفراد", href: "/dashboard/leads/packages", capability: "crm.leads.manage" },
-      { label: "Client Accounts", labelAr: "حسابات الشركات والعملاء", href: "/dashboard/crm/clients", capability: "crm.clients.manage" },
+      { label: "Sales Pipeline & Deals", labelAr: "مسار صفقات المبيعات", href: "/dashboard/crm/leads", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"] },
+      { label: "Package Inquiries", labelAr: "طلبات باقات الأفراد", href: "/dashboard/leads/packages", roles: ["SUPER_ADMIN", "SALES_ADMIN", "SUPPORT_ADMIN"] },
+      { label: "Client Accounts", labelAr: "حسابات الشركات والعملاء", href: "/dashboard/crm/clients", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2B_ADMIN"] },
       { label: "Team Directory & HR", labelAr: "فريق العمل والكوادر", href: "/dashboard/team", capability: "hr.team.manage" },
       { label: "Job Postings", labelAr: "إعلانات الوظائف", href: "/dashboard/careers", capability: "hr.jobs.manage" },
       { label: "Job Applications", labelAr: "طلبات التوظيف والمتقدمين", href: "/dashboard/careers/applications", capability: "hr.applications.manage" },
       { label: "Talent AI Parser", labelAr: "محلل السير الذاتية بالذكاء الاصطناعي", href: "/dashboard/crm/talent", capability: "hr.talent.manage" },
-      { label: "Newsletter Subscribers", labelAr: "المشتركون في النشرة", href: "/dashboard/crm/subscribers", capability: "crm.subscribers.manage" },
+      { label: "Newsletter Subscribers", labelAr: "المشتركون في النشرة", href: "/dashboard/crm/subscribers", roles: ["SUPER_ADMIN", "SALES_ADMIN", "B2C_ADMIN"] },
     ],
   },
   {
@@ -312,7 +314,12 @@ export function AdminSidebar() {
         }
 
         const accessibleSubItems = group.subItems
-          ? group.subItems.filter((sub) => isAuthorized(sub.roles || group.roles, sub.capability || group.capability))
+          ? group.subItems.filter((sub) => {
+              if (userRole === "SUPER_ADMIN" || userRole === "ADMIN") return true;
+              if (sub.capability) return hasPermission(userRole, sub.capability);
+              if (sub.roles) return sub.roles.includes(userRole);
+              return isAuthorized(group.roles, group.capability);
+            })
           : undefined;
 
         if (group.subItems && accessibleSubItems && accessibleSubItems.length === 0) {
