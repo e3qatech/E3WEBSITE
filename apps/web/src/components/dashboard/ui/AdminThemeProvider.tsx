@@ -19,16 +19,20 @@ export function AdminThemeProvider({ children }: { children: React.ReactNode }) 
       window.addEventListener('storage', callback);
       return () => window.removeEventListener('storage', callback);
     },
-    () => (typeof window !== "undefined" ? window.localStorage.getItem("e3-admin-theme") as Theme | null : null) || "system",
+    () => (typeof window !== "undefined" ? (window.localStorage.getItem("e3-admin-theme") || window.localStorage.getItem("themePreference") || window.localStorage.getItem("theme")) as Theme | null : null) || "system",
     () => "system" as Theme
   );
   
-  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("light");
+  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("dark");
   const mounted = useMounted();
 
   const setThemeState = React.useCallback((newTheme: Theme) => {
-    window.localStorage.setItem("e3-admin-theme", newTheme);
-    window.dispatchEvent(new Event('storage'));
+    try {
+      window.localStorage.setItem("e3-admin-theme", newTheme);
+      window.localStorage.setItem("themePreference", newTheme);
+      window.localStorage.setItem("theme", newTheme);
+      window.dispatchEvent(new Event('storage'));
+    } catch (_e) {}
   }, []);
 
   useEffect(() => {
@@ -43,12 +47,16 @@ export function AdminThemeProvider({ children }: { children: React.ReactNode }) 
     const effectiveTheme = theme === "system" ? getSystemTheme() : theme;
     
     root.setAttribute("data-theme", effectiveTheme);
+    root.classList.remove("dark", "light");
+    root.classList.add(effectiveTheme);
     root.style.colorScheme = effectiveTheme;
     
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Expected pattern for hydration
     setResolvedTheme(effectiveTheme as "dark" | "light");
     try {
       localStorage.setItem("e3-admin-theme", theme);
+      localStorage.setItem("themePreference", theme);
+      localStorage.setItem("theme", effectiveTheme);
     } catch (_e) {}
   }, [theme, mounted]);
 
@@ -62,6 +70,8 @@ export function AdminThemeProvider({ children }: { children: React.ReactNode }) 
       setResolvedTheme(nextTheme);
       const root = window.document.documentElement;
       root.setAttribute("data-theme", nextTheme);
+      root.classList.remove("dark", "light");
+      root.classList.add(nextTheme);
       root.style.colorScheme = nextTheme;
     };
 

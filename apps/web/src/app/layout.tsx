@@ -94,16 +94,18 @@ export default async function RootLayout({
   return (
     <html lang="en" data-theme="dark" className={`${manrope.variable} ${ibmPlexSansArabic.variable}`} suppressHydrationWarning>
       <body className="antialiased font-sans bg-[var(--surface-default)] text-[var(--text-primary)]" suppressHydrationWarning>
-        <Script id="theme-script">
+        <Script id="theme-script" strategy="beforeInteractive">
           {`
             (function() {
               try {
-                var storedTheme = localStorage.getItem('theme');
-                if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                  document.documentElement.setAttribute('data-theme', 'dark');
-                } else if (storedTheme === 'light') {
-                  document.documentElement.setAttribute('data-theme', 'light');
-                }
+                var stored = localStorage.getItem('e3-admin-theme') || localStorage.getItem('themePreference') || localStorage.getItem('theme');
+                var isDark = stored === 'dark' || (!stored || stored === 'system' ? window.matchMedia('(prefers-color-scheme: dark)').matches : false);
+                var theme = isDark ? 'dark' : 'light';
+                var root = document.documentElement;
+                root.setAttribute('data-theme', theme);
+                root.classList.remove('dark', 'light');
+                root.classList.add(theme);
+                root.style.colorScheme = theme;
               } catch (e) {}
             })();
           `}

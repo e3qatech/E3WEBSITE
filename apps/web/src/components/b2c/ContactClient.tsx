@@ -26,6 +26,70 @@ import { useB2CTheme, B2CInput } from "@/components/ui/B2CThemeComponents";
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
 import { PublicSiteSettings } from "@/lib/settings/public-settings-dto";
 import { cn } from "@/lib/utils";
+function normalizeExternalUrl(raw?: string): string {
+  if (!raw) return "#";
+  const trimmed = raw.trim();
+  if (!trimmed) return "#";
+  if (
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("mailto:") ||
+    trimmed.startsWith("tel:")
+  ) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
+function InstagramIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
+
+function TwitterXIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+function LinkedInIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76c.99 0 1.79-.8 1.79-1.79 0-.99-.8-1.79-1.79-1.79-.99 0-1.79.8-1.79 1.79 0 .99.8 1.79 1.79 1.79m1.4 9.74v-8.37H5.06v8.37h2.8z" />
+    </svg>
+  );
+}
+
+function YouTubeIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.5 12 3.5 12 3.5s-7.505 0-9.377.55a3.016 3.016 0 0 0-2.122 2.136C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.55 9.376.55 9.376.55s7.505 0 9.377-.55a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+    </svg>
+  );
+}
+
+function FacebookIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  );
+}
+
+function SnapchatIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.03 2.05c-3.76 0-6.15 2.69-6.15 5.56 0 .84.23 1.83.67 2.66.12.22.1.37-.05.51-.31.29-.9.7-1.25.86-.39.18-.75.46-.77.89-.02.44.29.74.77.9.68.23 1.45.1 1.79.02.26-.06.46.06.57.26.31.55 1.05 1.5 2.5 1.63.47.04.83.2 1.06.44.25.26.38.64.44 1.13.06.46-.17.75-.48.97-.47.33-1.27.67-2.34.8-.46.06-.72.37-.62.77.1.41.48.56.97.47 1.01-.18 2.21-.69 2.86-1.2.22-.17.43-.19.64-.07.69.41 1.65.65 2.52.65.88 0 1.83-.24 2.52-.65.21-.12.42-.1.64.07.65.51 1.85 1.02 2.86 1.2.49.09.87-.06.97-.47.1-.4-.16-.71-.62-.77-1.07-.13-1.87-.47-2.34-.8-.31-.22-.54-.51-.48-.97.06-.49.19-.87.44-1.13.23-.24.59-.4 1.06-.44 1.45-.13 2.19-1.08 2.5-1.63.11-.2.31-.32.57-.26.34.08 1.11.21 1.79-.02.48-.16.79-.46.77-.9-.02-.43-.38-.71-.77-.89-.35-.16-.94-.57-1.25-.86-.15-.14-.17-.29-.05-.51.44-.83.67-1.82.67-2.66 0-2.87-2.39-5.56-6.15-5.56z" />
+    </svg>
+  );
+}
 
 export function ContactClient({
   locale = "en",
@@ -62,11 +126,51 @@ export function ContactClient({
     ? siteSettings?.addressAr || "الدوحة، دولة قطر"
     : siteSettings?.addressEn || "Doha, State of Qatar";
 
+
+
   const socialLinks = [
-    { key: "socialInstagram", url: siteSettings?.socialInstagram, label: "Instagram", icon: Globe },
-    { key: "socialLinkedin", url: siteSettings?.socialLinkedin, label: "LinkedIn", icon: Globe },
-    { key: "socialYoutube", url: siteSettings?.socialYoutube, label: "YouTube", icon: Globe },
-    { key: "socialTwitter", url: siteSettings?.socialTwitter, label: "X (Twitter)", icon: Send },
+    {
+      key: "socialInstagram",
+      url: siteSettings?.socialInstagram,
+      label: "Instagram",
+      icon: InstagramIcon,
+      hoverClass: "hover:text-[#E4405F] hover:border-[#E4405F]/60 hover:bg-[#E4405F]/10",
+    },
+    {
+      key: "socialTwitter",
+      url: siteSettings?.socialTwitter,
+      label: "X (Twitter)",
+      icon: TwitterXIcon,
+      hoverClass: "hover:text-[var(--text-primary)] hover:border-[var(--text-primary)]/60 hover:bg-[var(--text-primary)]/10",
+    },
+    {
+      key: "socialLinkedin",
+      url: siteSettings?.socialLinkedin,
+      label: "LinkedIn",
+      icon: LinkedInIcon,
+      hoverClass: "hover:text-[#0A66C2] hover:border-[#0A66C2]/60 hover:bg-[#0A66C2]/10",
+    },
+    {
+      key: "socialYoutube",
+      url: siteSettings?.socialYoutube,
+      label: "YouTube",
+      icon: YouTubeIcon,
+      hoverClass: "hover:text-[#FF0000] hover:border-[#FF0000]/60 hover:bg-[#FF0000]/10",
+    },
+    {
+      key: "socialFacebook",
+      url: siteSettings?.socialFacebook,
+      label: "Facebook",
+      icon: FacebookIcon,
+      hoverClass: "hover:text-[#1877F2] hover:border-[#1877F2]/60 hover:bg-[#1877F2]/10",
+    },
+    {
+      key: "socialSnapchat",
+      url: siteSettings?.socialSnapchat,
+      label: "Snapchat",
+      icon: SnapchatIcon,
+      hoverClass: "hover:text-[#FFFC00] hover:border-[#FFFC00]/60 hover:bg-[#FFFC00]/10",
+    },
   ].filter((s) => Boolean(s.url && s.url.trim().length > 0));
 
   const toggleFaq = (id: string) => {
@@ -324,13 +428,17 @@ export function ContactClient({
                         return (
                           <a
                             key={s.key}
-                            href={s.url}
+                            href={normalizeExternalUrl(s.url)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-8 h-8 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--e3-royal-blue)] hover:border-[var(--e3-royal-blue)] flex items-center justify-center transition-colors shadow-xs"
+                            className={cn(
+                              "w-8 h-8 rounded-lg bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-secondary)] flex items-center justify-center transition-all duration-200 shadow-xs",
+                              s.hoverClass
+                            )}
                             title={s.label}
+                            aria-label={s.label}
                           >
-                            <Icon size={14} />
+                            <Icon className="w-3.5 h-3.5 shrink-0" />
                           </a>
                         );
                       })}
@@ -377,6 +485,7 @@ export function ContactClient({
 }
 
 function SupportForm({ attractions, isAr }: { attractions: any[]; isAr: boolean }) {
+  const [category, setCategory] = useState("ticket_issue");
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -524,15 +633,35 @@ function SupportForm({ attractions, isAr }: { attractions: any[]; isAr: boolean 
           <div className="relative flex items-center">
             <select
               name="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border text-sm transition-colors outline-none bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-primary)] focus:border-[var(--e3-royal-blue)] appearance-none cursor-pointer"
             >
               <option value="ticket_issue">{isAr ? "استفسار عن التذاكر والحجوزات" : "Ticket Issue"}</option>
+              <option value="packages_birthday">{isAr ? "باقات الفعاليات أو أعياد الميلاد" : "Packages or Birthday"}</option>
               <option value="venue_question">{isAr ? "معلومات الوجهات والفعاليات" : "Venue Question"}</option>
               <option value="complaint">{isAr ? "شكوى أو ملاحظة تشغيلية" : "Complaint / Feedback"}</option>
               <option value="other">{isAr ? "أخرى" : "Other"}</option>
             </select>
             <ChevronDown className="absolute end-3 w-4 h-4 text-[var(--text-tertiary)] pointer-events-none" />
           </div>
+          {category === "packages_birthday" && (
+            <div className="mt-1.5 p-3 rounded-xl bg-purple-500/10 border border-purple-500/25 text-xs text-[var(--text-secondary)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 animate-in fade-in duration-200">
+              <span>
+                {isAr
+                  ? "هل تخطط لحفل عيد ميلاد أو حجز باقة ترفيهية خاصة؟ يمكنك أيضاً استعراض جميع الباقات الجاهزة:"
+                  : "Planning a birthday party or special group event? You can also explore all active packages directly:"}
+              </span>
+              <a
+                href={`/${isAr ? "ar" : "en"}/b2c/packages`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-purple-400 hover:text-purple-300 underline shrink-0 inline-flex items-center gap-1"
+              >
+                {isAr ? "استعراض الباقات ←" : "Explore Packages →"}
+              </a>
+            </div>
+          )}
         </div>
       </div>
 

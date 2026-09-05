@@ -314,6 +314,20 @@ export function PulseOrbitNav({
         processedDestinations.unshift(discoverItem);
       }
     }
+  } else {
+    // Ensure B2C always includes Contact page in the destinations list
+    const hasContact = processedDestinations.some((d: any) => d.href === '/b2c/contact' || d.href?.endsWith('/contact'));
+    if (!hasContact) {
+      processedDestinations.push({
+        labelEn: 'Contact',
+        labelAr: 'تواصل معنا',
+        href: '/b2c/contact',
+        icon: DEST_ICON_MAP['/b2c/contact'] || PhoneCall,
+        descEn: '24/7 guest support, venue location, and concierge services.',
+        descAr: 'خدمة الزوار، مواقع الفعاليات، واستفسارات الحجز.',
+        mediaUrl: 'https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/D85_8202.jpg',
+      });
+    }
   }
 
   const destinationList = processedDestinations.filter((d: any) => !d.href?.includes('/tickets'));
@@ -467,7 +481,7 @@ export function PulseOrbitNav({
         )}
       >
         <div className="container mx-auto flex items-center justify-between px-4 sm:px-6">
-          {/* Main Navigation Bar Logo & Home Switcher */}
+          {/* Main Navigation Bar Logo */}
           <div className="flex items-center gap-3">
             {/* Logo -> Main Gateway (B2B & B2C Selector) */}
             <Link
@@ -485,23 +499,6 @@ export function PulseOrbitNav({
                 size="md"
               />
             </Link>
-
-            {/* Dedicated Home Icon -> Portal Landing Page */}
-            <Link
-              href={`/${locale}${type === 'b2c' ? '/b2c' : '/b2b'}`}
-              onMouseEnter={() => playSpatialHoverSound(0, 'tab')}
-              onClick={() => setMenuOpen(false)}
-              className={cn(
-                "inline-flex items-center justify-center h-8.5 w-8.5 rounded-full border transition-all cursor-pointer select-none",
-                isLight
-                  ? "border-slate-200 bg-white/90 text-slate-700 hover:bg-slate-100 hover:text-emerald-600 hover:border-emerald-300 shadow-xs"
-                  : "border-slate-800 bg-slate-900/80 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-400 hover:bg-slate-800"
-              )}
-              title={isAr ? (type === 'b2c' ? "الرئيسية — تجارب إي ثري" : "الرئيسية — قطاع الأعمال") : (type === 'b2c' ? "B2C Experiences Home" : "B2B Enterprise Home")}
-              aria-label={isAr ? "الصفحة الرئيسية للمنصة" : "Portal Home"}
-            >
-              <Home className="h-4 w-4" />
-            </Link>
           </div>
 
           {/* Desktop Links (Resting State) */}
@@ -511,7 +508,31 @@ export function PulseOrbitNav({
               ? "border-slate-200 bg-white/85 shadow-sm"
               : "border-slate-800/80 bg-slate-900/60"
           )}>
-            {destinationList.slice(0, isB2BPortal ? 5 : 4).map((dest: any) => {
+            {/* Dedicated Home Icon inside Nav Bar (Placed next to Attractions) */}
+            <Link
+              href={localizeHref(type === 'b2c' ? '/b2c' : '/b2b', locale)}
+              onMouseEnter={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const pan = ((rect.left + rect.width / 2) / window.innerWidth - 0.5) * 1.5;
+                playSpatialHoverSound(pan, 'tab');
+              }}
+              className={cn(
+                'flex items-center justify-center rounded-full h-7 w-7 transition-all select-none cursor-pointer shrink-0',
+                (pathname === `/${locale}/b2c` || pathname === `/${locale}/b2b` || pathname === `/${locale}` || pathname === '/b2c' || pathname === '/b2b' || pathname === '/')
+                  ? (isLight
+                      ? 'bg-emerald-500/15 text-emerald-800 border border-emerald-500/30 font-bold shadow-sm'
+                      : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold shadow-sm')
+                  : (isLight
+                      ? 'text-slate-700 hover:bg-slate-100 hover:text-slate-950'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white')
+              )}
+              title={isAr ? (type === 'b2c' ? "الرئيسية — تجارب إي ثري" : "الرئيسية — قطاع الأعمال") : (type === 'b2c' ? "B2C Experiences Home" : "B2B Enterprise Home")}
+              aria-label={isAr ? "الصفحة الرئيسية للمنصة" : "Portal Home"}
+            >
+              <Home className="h-3.5 w-3.5" />
+            </Link>
+
+            {destinationList.slice(0, 5).map((dest: any) => {
               const isActive = pathname?.includes(dest.href);
               return (
                 <Link

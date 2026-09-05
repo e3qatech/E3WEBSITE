@@ -59,12 +59,14 @@ export function ThemeProvider({
     };
 
     const currentResolved = computeResolvedTheme(themePreference);
-// eslint-disable-next-line react-hooks/set-state-in-effect
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setResolvedTheme(currentResolved);
 
     // Apply data-theme attribute directly on document root
     const root = document.documentElement;
     root.setAttribute("data-theme", currentResolved);
+    root.classList.remove("dark", "light");
+    root.classList.add(currentResolved);
     root.style.colorScheme = currentResolved;
 
     const handleSystemChange = (e: MediaQueryListEvent) => {
@@ -72,6 +74,8 @@ export function ThemeProvider({
         const newSystemTheme: ResolvedTheme = e.matches ? "dark" : "light";
         setResolvedTheme(newSystemTheme);
         root.setAttribute("data-theme", newSystemTheme);
+        root.classList.remove("dark", "light");
+        root.classList.add(newSystemTheme);
         root.style.colorScheme = newSystemTheme;
       }
     };
@@ -83,9 +87,12 @@ export function ThemeProvider({
   const setThemePreference = React.useCallback((newPref: ThemePreference) => {
     setThemePreferenceState(newPref);
     if (typeof window !== "undefined") {
-      localStorage.setItem("themePreference", newPref);
-      localStorage.setItem("theme", newPref);
-      window.dispatchEvent(new Event("storage"));
+      try {
+        localStorage.setItem("themePreference", newPref);
+        localStorage.setItem("theme", newPref);
+        localStorage.setItem("e3-admin-theme", newPref);
+        window.dispatchEvent(new Event("storage"));
+      } catch (_e) {}
     }
   }, []);
 
