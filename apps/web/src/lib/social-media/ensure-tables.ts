@@ -1,5 +1,9 @@
 import db from '@/lib/db';
 
+declare const globalThis: {
+  _e3SocialSchemaInitialized?: boolean;
+} & typeof global;
+
 let isSchemaInitialized = false;
 
 /**
@@ -7,8 +11,20 @@ let isSchemaInitialized = false;
  * Safe, idempotent (IF NOT EXISTS / ON CONFLICT DO NOTHING), and resilient across Neon / Vercel environments.
  */
 export async function ensureSocialMediaTablesExist(force = false): Promise<boolean> {
-  if (isSchemaInitialized && !force) {
+  if ((isSchemaInitialized || globalThis._e3SocialSchemaInitialized) && !force) {
     return true;
+  }
+
+  // Fast-path probe: If the table already exists, skip running all DDL
+  if (!force) {
+    try {
+      await db.$queryRawUnsafe(`SELECT 1 FROM "SocialProviderConfig" LIMIT 1`);
+      isSchemaInitialized = true;
+      globalThis._e3SocialSchemaInitialized = true;
+      return true;
+    } catch (_probeErr) {
+      // Table doesn't exist yet, proceed to execute DDL
+    }
   }
 
   try {
@@ -422,6 +438,7 @@ export async function ensureSocialMediaTablesExist(force = false): Promise<boole
     }
 
     isSchemaInitialized = true;
+    globalThis._e3SocialSchemaInitialized = true;
     return true;
   } catch (err: any) {
     console.warn('[Social Schema Guard] Note during DDL execution:', err.message || err);

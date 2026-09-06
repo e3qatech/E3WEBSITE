@@ -11,12 +11,8 @@ import {
   Share2, 
   ShieldCheck, 
   ExternalLink,
-  Layers,
-  FileText,
   BarChart3,
-  TrendingUp,
-  Cpu,
-  RefreshCw
+  Cpu
 } from "lucide-react"
 import { AdminButton } from "@/components/dashboard/ui/AdminButton"
 import { StatsGrid, StatItem } from "@/components/dashboard/StatsGrid"
@@ -26,6 +22,8 @@ import { LiveOccupancy } from "@/components/shared/LiveOccupancy"
 import { LiveWebsiteChangesWidget } from "@/components/dashboard/ui/LiveWebsiteChangesWidget"
 import { requirePortalAccess } from "@/lib/server-auth"
 import { redirect } from "next/navigation"
+
+import { memoryCache } from "@/lib/cache/memory-cache"
 
 export const metadata = {
   title: "Executive Command Center | E3 Admin | E3 Qatar"
@@ -53,33 +51,40 @@ export default async function DashboardOverviewPage({
   const greetingAr = hour < 12 ? "صباح الخير" : "مساء الخير";
   const greeting = isAr ? greetingAr : greetingEn;
 
-  // Real Database Telemetry Aggregations
+  // Real Database Telemetry Aggregations (Cached for 30s to keep dashboard instant)
   let attractionsCount = 36;
   let servicesCount = 13;
   let caseStudiesCount = 4;
   let eventsCount = 31;
   let talentCount = 21;
   let socialCount = 6;
-  let systemLogs: any[] = [];
 
   try {
-    const results = await Promise.all([
-      db.attraction.count().catch(() => 36),
-      db.service.count().catch(() => 13),
-      db.caseStudy.count().catch(() => 4),
-      db.calendarEvent.count().catch(() => 31),
-      db.talent.count().catch(() => 21),
-      db.socialAccount.count().catch(() => 6),
-      db.systemLog ? db.systemLog.findMany({ orderBy: { createdAt: 'desc' }, take: 4 }).catch(() => []) : [],
-    ]);
+    const telemetry = await memoryCache.getOrSet('dashboard_overview_telemetry', 30_000, async () => {
+      const results = await Promise.all([
+        db.attraction.count().catch(() => 36),
+        db.service.count().catch(() => 13),
+        db.caseStudy.count().catch(() => 4),
+        db.calendarEvent.count().catch(() => 31),
+        db.talent.count().catch(() => 21),
+        db.socialAccount.count().catch(() => 6),
+      ]);
+      return {
+        attractionsCount: (results[0] as number) || 36,
+        servicesCount: (results[1] as number) || 13,
+        caseStudiesCount: (results[2] as number) || 4,
+        eventsCount: (results[3] as number) || 31,
+        talentCount: (results[4] as number) || 21,
+        socialCount: (results[5] as number) || 6,
+      };
+    });
 
-    attractionsCount = (results[0] as number) || 36;
-    servicesCount = (results[1] as number) || 13;
-    caseStudiesCount = (results[2] as number) || 4;
-    eventsCount = (results[3] as number) || 31;
-    talentCount = (results[4] as number) || 21;
-    socialCount = (results[5] as number) || 6;
-    systemLogs = (results[6] as any[]) || [];
+    attractionsCount = telemetry.attractionsCount;
+    servicesCount = telemetry.servicesCount;
+    caseStudiesCount = telemetry.caseStudiesCount;
+    eventsCount = telemetry.eventsCount;
+    talentCount = telemetry.talentCount;
+    socialCount = telemetry.socialCount;
   } catch (e) {
     console.error("Dashboard data fetch note:", e);
   }

@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth';
 import db from "@/lib/db";
 import { hasPermission } from "@/lib/permissions";
 import {
-  resolvePublicSiteSettings,
+  getPublicSettingsServer,
   getMaskedAdminSettings,
   isSensitiveKey,
   isMaskedOrBlankSecretSubmission,
@@ -199,24 +199,21 @@ export async function GET(req: Request) {
       });
     }
 
-    // 2. Canonical Public View (Strict allowlist DTO only)
-    const settingModel = (db as any).siteSettings || (db as any).setting;
-    let settings: any[] = [];
-    if (settingModel) {
-      if (type) {
-        settings = await settingModel.findMany({ where: { type: type as any } });
-      } else {
-        settings = await settingModel.findMany();
+    // 2. Canonical Public View (Strict allowlist DTO with memoryCache & HTTP cache headers)
+    const publicData = await getPublicSettingsServer();
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: publicData,
+        settings: Object.entries(publicData).map(([key, value]) => ({ key, value })),
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        },
       }
-    }
-
-    const publicData = resolvePublicSiteSettings(settings || []);
-
-    return NextResponse.json({
-      success: true,
-      data: publicData,
-      settings: Object.entries(publicData).map(([key, value]) => ({ key, value })),
-    });
+    );
   } catch (error) {
     console.error("Error fetching settings:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

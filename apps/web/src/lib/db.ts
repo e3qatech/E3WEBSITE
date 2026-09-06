@@ -20,7 +20,9 @@ const prismaClientSingleton = () => {
   // Auto-load local environment file in development if DATABASE_URL is not yet in process.env
   if (process.env.NODE_ENV !== 'production' && !process.env.DATABASE_URL && !process.env.E3_DATABASE_URL && !process.env.POSTGRES_PRISMA_URL) {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const fs = require('fs');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const path = require('path');
       const candidateFiles = [
         path.resolve(process.cwd(), '.env.local'),
@@ -77,9 +79,6 @@ const prismaClientSingleton = () => {
   try {
     if (finalUrl.startsWith('postgres://') || finalUrl.startsWith('postgresql://')) {
       const parsedUrl = new URL(finalUrl);
-      if (parsedUrl.hostname.includes('ep-snowy-hall-atkbimek')) {
-        parsedUrl.hostname = 'ep-frosty-poetry-atys9iw5.c-9.us-east-1.aws.neon.tech';
-      }
       // Only set pgbouncer=true if the hostname explicitly uses a pooler
       if (parsedUrl.hostname.includes('-pooler')) {
         parsedUrl.searchParams.set('pgbouncer', 'true');
@@ -122,25 +121,28 @@ const prismaClientSingleton = () => {
     query: {
       $allModels: {
         async $allOperations({ operation, model, args, query }: any) {
-          const TIMEOUT_MS = 30000;
-          const maxAttempts = 5;
+          const TIMEOUT_MS = 10000;
+          const maxAttempts = 2;
           let attempt = 0;
 
           while (attempt < maxAttempts) {
             attempt++;
-            const start = performance.now();
+            let timerId: any = null;
             const timeoutPromise = new Promise((_, reject) => {
-              setTimeout(
+              timerId = setTimeout(
                 () => reject(new Error(`[DB TIMEOUT] ${model}.${operation} exceeded ${TIMEOUT_MS}ms`)),
                 TIMEOUT_MS
               );
+              if (timerId && typeof timerId === 'object' && typeof timerId.unref === 'function') {
+                timerId.unref();
+              }
             });
 
             try {
+              const start = !isProduction ? performance.now() : 0;
               const result = await Promise.race([query(args), timeoutPromise]);
-              const duration = performance.now() - start;
-              if (!isProduction && duration > 1000) {
-                console.warn(`[PRISMA SLOW QUERY] ${model}.${operation} took ${Math.round(duration)}ms`);
+              if (!isProduction && (performance.now() - start) > 1000) {
+                console.warn(`[PRISMA SLOW QUERY] ${model}.${operation} took ${Math.round(performance.now() - start)}ms`);
               }
               return result;
             } catch (error: any) {
@@ -158,16 +160,24 @@ const prismaClientSingleton = () => {
                 errMsg.includes('ETIMEDOUT');
 
               if (isTransientConnError && attempt < maxAttempts) {
-                const backoffMs = 1000 + (attempt - 1) * 600;
-                console.warn(
-                  `[DB RETRY] Transient Neon connection drop in ${model}.${operation}. Waking serverless compute, retrying in ${backoffMs}ms (${attempt}/${maxAttempts})...`
-                );
+                const backoffMs = 300 * attempt;
+                if (!isProduction) {
+                  console.warn(
+                    `[DB RETRY] Transient Neon connection drop in ${model}.${operation}. Retrying in ${backoffMs}ms (${attempt}/${maxAttempts})...`
+                  );
+                }
                 await new Promise((resolve) => setTimeout(resolve, backoffMs));
                 continue;
               }
 
-              console.error(`[DB ERROR] ${model}.${operation} failed:`, errMsg);
+              if (!isProduction) {
+                console.error(`[DB ERROR] ${model}.${operation} failed:`, errMsg);
+              }
               throw error;
+            } finally {
+              if (timerId) {
+                clearTimeout(timerId);
+              }
             }
           }
         }

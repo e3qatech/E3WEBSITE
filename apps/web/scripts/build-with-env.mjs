@@ -33,9 +33,6 @@ let dbUrl = process.env.E3_DATABASE_URL || process.env.DATABASE_URL || process.e
 try {
   if (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://')) {
     const parsedUrl = new URL(dbUrl);
-    if (parsedUrl.hostname.includes('ep-snowy-hall-atkbimek')) {
-      parsedUrl.hostname = 'ep-frosty-poetry-atys9iw5-pooler.c-9.us-east-1.aws.neon.tech';
-    }
     if (parsedUrl.hostname.endsWith('.neon.tech') && !parsedUrl.hostname.includes('-pooler')) {
       const parts = parsedUrl.hostname.split('.');
       parts[0] = parts[0] + '-pooler';
@@ -76,9 +73,6 @@ try {
   try {
     if (directMigrationUrl.startsWith('postgres://') || directMigrationUrl.startsWith('postgresql://')) {
       const parsedDirect = new URL(directMigrationUrl);
-      if (parsedDirect.hostname.includes('ep-snowy-hall-atkbimek')) {
-        parsedDirect.hostname = 'ep-frosty-poetry-atys9iw5.c-9.us-east-1.aws.neon.tech';
-      }
       if (parsedDirect.hostname.includes('-pooler')) {
         parsedDirect.hostname = parsedDirect.hostname.replace('-pooler', '');
       }
