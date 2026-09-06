@@ -107,6 +107,15 @@ export function PackageMicrositeClient({
   const couponDiscount = appliedCoupon ? Math.min(grossSubtotal, (appliedCoupon.discountAmount || 0)) : 0
   const estimatedTotal = Math.max(0, grossSubtotal - couponDiscount)
 
+  const handleSelectTier = (tier: any) => {
+    if (!tier) return
+    setSelectedTier(tier)
+    const tierMin = Math.max(minGuests, tier.includedGuests || tier.guestCount || minGuests)
+    if (guestCount < tierMin) {
+      setGuestCount(tierMin)
+    }
+  }
+
   const handleAddOnQtyChange = (addonId: string, delta: number) => {
     setSelectedAddOnQty(prev => {
       const cur = prev[addonId] || 0
@@ -320,108 +329,144 @@ export function PackageMicrositeClient({
 
         {/* 3. PACKAGE TIERS COMPARISON */}
         {tiers.length > 0 && (
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl md:text-4xl font-black font-display uppercase tracking-tight mb-2">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono font-bold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{isAr ? "مستويات وفئات الباقة" : "Available Package Tiers"}</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-black font-display uppercase tracking-tight text-white">
                 {isAr ? "اختر المستوى المناسب" : "Choose Your Package Tier"}
               </h2>
-              <p className="text-xs text-[var(--text-secondary)]">
-                {isAr ? "قارن بين المستويات واختر ما يناسب عدد ضيوفك وميزانيتك." : "Compare package tiers and select the ideal experience for your group."}
+              <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
+                {isAr ? "قارن بين المستويات الفورية واختر ما يناسب عدد ضيوفك وميزانيتك." : "Compare package tiers and select the ideal experience for your group."}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {tiers.map(t => {
-                const isSelected = selectedTier?.id === t.id
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+              {tiers.map((t: any, idx: number) => {
+                const isSelected = Boolean(
+                  selectedTier && (
+                    (selectedTier.id && t.id && selectedTier.id === t.id) ||
+                    (selectedTier.nameEn && t.nameEn && selectedTier.nameEn === t.nameEn) ||
+                    selectedTier === t
+                  )
+                )
                 const tierIncludedGuests = Math.max(minGuests, t.includedGuests || t.guestCount || minGuests)
+
+                // Benefits / inclusions display list
+                const displayItems = (() => {
+                  if (isAr) {
+                    const arabicTierItems = t.includedItemsAr || t.benefitsAr
+                    if (Array.isArray(arabicTierItems) && arabicTierItems.length > 0) return arabicTierItems
+                    const fallbackInclusions = inclusions.map((inc: any) => inc.titleAr || inc.titleEn).filter(Boolean)
+                    return fallbackInclusions.length > 0
+                      ? fallbackInclusions
+                      : ["دخول الفعالية والأنشطة الترفيهية المعتمدة", "خدمات الضيافة والتنسيق المعتمدة"]
+                  }
+                  const englishTierItems = t.includedItems || t.includedItemsEn || t.benefits || []
+                  if (Array.isArray(englishTierItems) && englishTierItems.length > 0) return englishTierItems
+                  return inclusions.map((inc: any) => inc.titleEn).filter(Boolean)
+                })()
+
                 return (
-                  <InteractiveCard
-                    key={t.id}
+                  <div
+                    key={t.id || t.nameEn || idx}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleSelectTier(t)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault()
+                        handleSelectTier(t)
+                      }
+                    }}
                     className={cn(
-                      "p-8 flex flex-col justify-between relative transition-all duration-300",
+                      "relative rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-200 cursor-pointer select-none group text-start outline-none",
                       isSelected
-                        ? "border-2 border-[var(--e3-royal-blue)] bg-gradient-to-b from-blue-950/20 via-[var(--surface-hover)] to-[var(--surface-default)] shadow-2xl shadow-blue-500/10 scale-[1.02]"
-                        : "border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:border-slate-700"
+                        ? "bg-gradient-to-b from-blue-950/40 via-slate-900/95 to-[#08151B] border-2 border-blue-500 shadow-2xl shadow-blue-500/15 ring-2 ring-blue-500/20 scale-[1.02] z-10"
+                        : "bg-slate-900/60 hover:bg-slate-900/90 border border-slate-800 hover:border-slate-700 shadow-xl hover:-translate-y-1"
                     )}
-                    glowColor={isSelected ? "rgba(59, 130, 246, 0.45)" : "rgba(26, 31, 214, 0.2)"}
                   >
                     {t.recommended && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-extrabold uppercase tracking-widest shadow-md">
-                        {isAr ? "المستوى الموصى به" : "Recommended"}
+                      <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-pink-950/60 z-20 whitespace-nowrap">
+                        ★ {isAr ? "المستوى الموصى به" : "Recommended"}
                       </span>
                     )}
 
                     <div className="space-y-4">
-                      <div>
-                        <h3 className="text-xl font-bold font-display uppercase text-[var(--text-primary)]">
-                          {isAr ? t.nameAr || t.nameEn : t.nameEn}
-                        </h3>
-                        <div className="mt-2 text-3xl font-black font-mono text-[var(--e3-royal-blue)]">
-                          {t.price} QAR
-                        </div>
-                        <span className="text-[10px] text-[var(--text-tertiary)] font-mono">
-                          {isAr ? `يشمل حتى ${tierIncludedGuests} ضيفاً` : `Includes up to ${tierIncludedGuests} guests`}
-                          {t.durationMinutes ? ` • ${t.durationMinutes} ${isAr ? "دقيقة" : "Mins"}` : ''}
-                        </span>
+                      {/* Active / Select Header Badge */}
+                      <div className="flex items-center justify-between gap-2">
+                        {isSelected ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 text-[10px] font-bold font-mono uppercase tracking-wider">
+                            <Check className="w-3 h-3 text-blue-400" />
+                            {isAr ? "الفئة المختارة" : "Active Selection"}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700/60 text-slate-400 text-[10px] font-medium font-mono uppercase tracking-wider group-hover:border-slate-600 group-hover:text-slate-300 transition-colors">
+                            {isAr ? "انقر للاختيار" : "Click to Select"}
+                          </span>
+                        )}
                       </div>
 
-                      <div className="space-y-2 border-t border-[var(--border-level-2)] pt-4">
-                        {(() => {
-                          if (isAr) {
-                            // 1. Use existing Arabic tier-benefit fields if available
-                            const arabicTierItems = t.includedItemsAr || t.benefitsAr
-                            if (Array.isArray(arabicTierItems) && arabicTierItems.length > 0) {
-                              return arabicTierItems.map((item: string, idx: number) => (
-                                <div key={idx} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
-                                  <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                                  <span>{item}</span>
-                                </div>
-                              ))
-                            }
+                      {/* Title & Price */}
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-black font-display uppercase tracking-tight text-white group-hover:text-blue-300 transition-colors line-clamp-2">
+                          {isAr ? t.nameAr || t.nameEn : t.nameEn}
+                        </h3>
 
-                            // 2. Arabic-safe presentation fallback based on package's existing Arabic inclusions
-                            const fallbackInclusions = inclusions
-                              .map((inc: any) => inc.titleAr || inc.titleEn)
-                              .filter(Boolean)
+                        <div className="mt-3 flex items-baseline gap-1.5">
+                          <span className={cn(
+                            "text-3xl sm:text-4xl font-black font-mono tracking-tight",
+                            isSelected
+                              ? "text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300"
+                              : "text-white group-hover:text-blue-400 transition-colors"
+                          )}>
+                            {t.price}
+                          </span>
+                          <span className="text-xs font-mono font-bold text-slate-400 uppercase">QAR</span>
+                        </div>
 
-                            const displayItems = fallbackInclusions.length > 0
-                              ? fallbackInclusions
-                              : ["دخول الفعالية والأنشطة الترفيهية المعتمدة", "خدمات الضيافة والتنسيق المعتمدة"]
+                        <div className="mt-2.5 inline-flex flex-wrap items-center gap-2 text-[11px] font-mono text-slate-400 bg-slate-800/60 px-2.5 py-1 rounded-lg border border-slate-700/50">
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3 h-3 text-slate-400" />
+                            {isAr ? `يشمل حتى ${tierIncludedGuests} ضيوف` : `Includes up to ${tierIncludedGuests} guests`}
+                          </span>
+                          {t.durationMinutes && (
+                            <span className="flex items-center gap-1">
+                              <span>•</span>
+                              <Clock className="w-3 h-3 text-slate-400" />
+                              {t.durationMinutes} {isAr ? "دقيقة" : "Mins"}
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-                            return displayItems.map((item: string, idx: number) => (
-                              <div key={idx} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
-                                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                                <span>{item}</span>
-                              </div>
-                            ))
-                          }
-
-                          // English mode: display English tier benefits
-                          const englishTierItems = t.includedItems || t.includedItemsEn || t.benefits || []
-                          return englishTierItems.map((item: string, idx: number) => (
-                            <div key={idx} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
-                              <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                              <span>{item}</span>
+                      {/* Benefits Checklist */}
+                      <div className="space-y-2.5 border-t border-slate-800/80 pt-4 mt-4">
+                        {displayItems.map((item: string, i: number) => (
+                          <div key={i} className="flex items-start gap-2.5 text-xs text-slate-300 font-medium">
+                            <div className="w-4 h-4 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                              <Check className="w-2.5 h-2.5 text-emerald-400" />
                             </div>
-                          ))
-                        })()}
+                            <span className="leading-snug">{item}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
+                    {/* Action Button */}
                     <button
                       type="button"
-                      onClick={() => {
-                        setSelectedTier(t);
-                        const tierMin = Math.max(minGuests, t.includedGuests || t.guestCount || minGuests);
-                        if (guestCount < tierMin) {
-                          setGuestCount(tierMin);
-                        }
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleSelectTier(t)
                       }}
                       className={cn(
-                        "w-full mt-6 py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer",
+                        "w-full mt-6 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer",
                         isSelected
                           ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-lg shadow-blue-600/30 hover:brightness-110 active:scale-[0.98]"
-                          : "bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] active:scale-[0.98]"
+                          : "bg-slate-800/80 hover:bg-slate-700/90 border border-slate-700 text-slate-300 hover:text-white active:scale-[0.98]"
                       )}
                     >
                       {isSelected && <Check className="w-4 h-4 text-emerald-300" />}
@@ -431,7 +476,7 @@ export function PackageMicrositeClient({
                           : (isAr ? "اختيار هذه الفئة" : "Select Tier")}
                       </span>
                     </button>
-                  </InteractiveCard>
+                  </div>
                 )
               })}
             </div>
@@ -439,42 +484,42 @@ export function PackageMicrositeClient({
         )}
 
         {/* 4. INTERACTIVE PRICE CALCULATOR & CUSTOMIZER */}
-        <div className="p-6 md:p-8 rounded-3xl bg-[var(--surface-default)] border border-[var(--border-level-2)] shadow-xl space-y-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-level-2)] pb-6">
+        <div className="p-6 md:p-8 rounded-3xl bg-[#08151B] border border-slate-800 shadow-2xl space-y-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Calculator className="w-4 h-4 text-[var(--e3-royal-blue)]" />
-                <span className="text-xs font-mono font-bold uppercase text-[var(--e3-royal-blue)] tracking-wider">
+                <Calculator className="w-4 h-4 text-blue-400" />
+                <span className="text-xs font-mono font-bold uppercase text-blue-400 tracking-wider">
                   {isAr ? "حاسبة الأسعار التفاعلية" : "Interactive Price Calculator"}
                 </span>
               </div>
-              <h2 className="text-2xl md:text-3xl font-black font-display uppercase tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-black font-display uppercase tracking-tight text-white">
                 {isAr ? "خصص تجربتك واحسب التكلفة الفورية" : "Customize & Calculate Instant Total"}
               </h2>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[var(--e3-royal-blue)]/10 border border-[var(--e3-royal-blue)]/30 text-right rtl:text-left">
-              <span className="text-[10px] font-bold text-[var(--text-secondary)] block uppercase">
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 text-right rtl:text-left shadow-md">
+              <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">
                 {isAr ? "الإجمالي التقديري" : "Estimated Total"}
               </span>
-              <span className="text-3xl font-black font-mono text-[var(--e3-royal-blue)]">
+              <span className="text-3xl font-black font-mono text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
                 {estimatedTotal.toLocaleString()} QAR
               </span>
             </div>
           </div>
 
           {/* GUEST CAPACITY SELECTOR */}
-          <div className="p-6 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] space-y-4">
+          <div className="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[var(--e3-royal-blue)]/10 flex items-center justify-center text-[var(--e3-royal-blue)]">
+                <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                   <Users className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                  <h3 className="text-sm font-bold text-white">
                     {isAr ? "عدد الضيوف المتوقع" : "Expected Guest Count"}
                   </h3>
-                  <p className="text-xs text-[var(--text-secondary)]">
+                  <p className="text-xs text-slate-400">
                     {isAr
                       ? `تشمل الفئة ${includedGuests} ضيوف. الضيف الإضافي: ${extraGuestPrice} ر.ق`
                       : `Tier includes ${includedGuests} guests. Extra guests: ${extraGuestPrice} QAR each`}
@@ -488,18 +533,18 @@ export function PackageMicrositeClient({
                   type="button"
                   onClick={() => setGuestCount(prev => Math.max(minGuests, prev - 1))}
                   disabled={guestCount <= minGuests}
-                  className="w-9 h-9 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-xs font-bold disabled:opacity-30 hover:border-[var(--e3-royal-blue)] transition-colors cursor-pointer"
+                  className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-xs font-bold text-white disabled:opacity-30 transition-colors cursor-pointer"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
-                <div className="px-4 py-1.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] text-center min-w-[70px]">
-                  <span className="font-mono font-black text-base text-[var(--text-primary)]">{guestCount}</span>
+                <div className="px-4 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-center min-w-[70px]">
+                  <span className="font-mono font-black text-base text-white">{guestCount}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setGuestCount(prev => Math.min(maxGuests, prev + 1))}
                   disabled={guestCount >= maxGuests}
-                  className="w-9 h-9 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-xs font-bold disabled:opacity-30 hover:border-[var(--e3-royal-blue)] transition-colors cursor-pointer"
+                  className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-xs font-bold text-white disabled:opacity-30 transition-colors cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -517,7 +562,7 @@ export function PackageMicrositeClient({
                   const val = parseInt(e.target.value, 10);
                   setGuestCount(isNaN(val) ? minGuests : Math.max(minGuests, Math.min(maxGuests, val)));
                 }}
-                className="w-full accent-[var(--e3-royal-blue)] cursor-pointer h-2 bg-[var(--surface-default)] rounded-lg"
+                className="w-full accent-[var(--e3-royal-blue)] cursor-pointer h-2 bg-slate-800 rounded-lg"
               />
               <div className="flex justify-between text-[10px] font-mono text-[var(--text-tertiary)]">
                 <span>{minGuests} {isAr ? "حد أدنى" : "Min"}</span>
