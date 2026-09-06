@@ -1937,8 +1937,12 @@ export const DEFAULT_B2C_PACKAGES_PAGE_CONTENT = {
   descAr: "اكتشفوا باقات أعياد الميلاد والمجموعات والمدارس والشركات في وجهات E3 الترفيهية.",
   primaryCtaEn: "Find Your Package",
   primaryCtaAr: "اختر باقتك",
-  secondaryCtaEn: "Plan a Custom Event",
-  secondaryCtaAr: "خطط لفعاليتك الخاصة",
+  secondaryCtaEn: "Inquire via WhatsApp",
+  secondaryCtaAr: "استفسار عبر واتساب",
+  whatsappNumber: "+974 5113 8418",
+  whatsappUrl: "",
+  whatsappMessageEn: "Hello E3 Qatar, I would like to inquire about package bookings and celebrations.",
+  whatsappMessageAr: "مرحباً إي ثري قطر، أود الاستفسار عن باقات وفعاليات الاحتفالات.",
   campaignBadgeEn: "VIP PACKAGES & EVENTS",
   campaignBadgeAr: "باقات كبار الشخصيات",
   heroMedia: {
@@ -2842,7 +2846,7 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     const discoverDefaults = DEFAULT_B2C_DISCOVER_CONTENT;
     const raw = rawContent || {};
 
-    let sectionOrder = Array.isArray(raw.sectionOrder) && raw.sectionOrder.length > 0 
+    const sectionOrder = Array.isArray(raw.sectionOrder) && raw.sectionOrder.length > 0 
       ? [...raw.sectionOrder] 
       : [...discoverDefaults.sectionOrder];
       
@@ -2925,7 +2929,7 @@ export function getMergedCMSPageContent(slug: string, rawContent?: any) {
     const defaults = DEFAULT_B2B_PULSE_ORBIT_CONTENT;
     const rawDests = Array.isArray(raw.destinations) && raw.destinations.length > 0 ? raw.destinations : defaults.destinations;
     const hasDiscover = rawDests.some((d: any) => d.href === '/b2b/discover' || d.id === 'discover');
-    let mergedDests = [...rawDests];
+    const mergedDests = [...rawDests];
     if (!hasDiscover) {
       const discoverDefault = defaults.destinations.find((d: any) => d.id === 'discover') || {
         id: "discover",

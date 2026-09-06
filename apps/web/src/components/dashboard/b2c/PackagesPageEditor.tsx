@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Save, SlidersHorizontal, Package, ArrowRight, AlertCircle, RefreshCw } from "lucide-react";
+import { Save, SlidersHorizontal, Package, ArrowRight, AlertCircle, RefreshCw, MessageSquare, ExternalLink, Copy, Check, Phone, Globe } from "lucide-react";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
 import { UniversalMediaSectionEditor, DEFAULT_UNIVERSAL_MEDIA, UniversalMediaConfig } from "@/components/dashboard/ui/UniversalMediaSectionEditor";
 import {
@@ -22,17 +22,56 @@ import {
 } from "@/components/dashboard/ui";
 
 import { useLocale } from "@/components/layout/LocaleProvider";
-import { localizeHref } from "@/lib/url-helper";
+import { localizeHref, buildWhatsappUrl } from "@/lib/url-helper";
 import { E3LivingHeroEditor } from "@/components/dashboard/b2c/E3LivingHeroEditor";
 
 const SECTIONS: EditorSectionItem[] = [
   { id: "headlines", label: "1. Hero Copy & Headlines", labelAr: "1. العناوين والنصوص الترويجية" },
-  { id: "ctas", label: "2. CTAs, Pricing & Badges", labelAr: "2. أزرار الحجز والأسعار والشارات" },
+  { id: "ctas", label: "2. CTAs, Badges & WhatsApp", labelAr: "2. الأزرار والشارات والواتساب" },
   { id: "hero-media", label: "3. Hero Media Background", labelAr: "3. خلفية الوسائط الرئيسية" },
   { id: "footer-media", label: "4. Footer Media & Poster", labelAr: "4. وسائط وخلفية التذييل" },
 ];
 
-export function PackagesPageEditor() {
+export interface PackagesPageConfig {
+  eyebrowEn: string;
+  eyebrowAr: string;
+  titleEn: string;
+  titleAr: string;
+  fixedHeadlineEn?: string;
+  fixedHeadlineAr?: string;
+  headlineTemplateEn?: string;
+  headlineTemplateAr?: string;
+  rotatingWordsEn?: string[];
+  rotatingWordsAr?: string[];
+  descEn: string;
+  descAr: string;
+  primaryCtaEn: string;
+  primaryCtaAr: string;
+  secondaryCtaEn: string;
+  secondaryCtaAr: string;
+  whatsappNumber: string;
+  whatsappUrl: string;
+  whatsappMessageEn: string;
+  whatsappMessageAr: string;
+  campaignBadgeEn: string;
+  campaignBadgeAr: string;
+  heroMedia: UniversalMediaConfig;
+  footerMedia: UniversalMediaConfig;
+  preset?: string;
+  animationSpeed?: number;
+  animationDuration?: number;
+  animationType?: string;
+  wordStyle?: string;
+  alignmentEn?: string;
+  alignmentAr?: string;
+  alignment?: string;
+  enableRotatingWords?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  [key: string]: any;
+}
+
+export function PackagesPageEditor({ initialConfig }: { initialConfig?: Partial<PackagesPageConfig> } = {}) {
   const router = useRouter();
   let locale: 'en' | 'ar' = 'en';
   let dir: 'ltr' | 'rtl' = 'ltr';
@@ -47,7 +86,7 @@ export function PackagesPageEditor() {
   }
   const isAr = locale === "ar";
   const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialConfig);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -55,8 +94,9 @@ export function PackagesPageEditor() {
   const [activeSectionId, setActiveSectionId] = useState("headlines");
   const [dirtySections, setDirtySections] = useState<Set<string>>(new Set());
   const [languageMode, setLanguageMode] = useState<LanguageEditMode>("both");
+  const [copiedLink, setCopiedLink] = useState(false);
 
-  const [pageConfig, setPageConfig] = useState({
+  const [pageConfig, setPageConfig] = useState<PackagesPageConfig>({
     eyebrowEn: "E3 CELEBRATIONS & GROUP PACKAGES",
     eyebrowAr: "باقات الفعاليات والاحتفالات الاستثنائية",
     titleEn: "Big Moments Deserve Bigger Experiences",
@@ -65,8 +105,12 @@ export function PackagesPageEditor() {
     descAr: "اكتشفوا باقات أعياد الميلاد والمجموعات والمدارس والشركات في وجهات E3 الترفيهية.",
     primaryCtaEn: "Find Your Package",
     primaryCtaAr: "اختر باقتك",
-    secondaryCtaEn: "Plan a Custom Event",
-    secondaryCtaAr: "خطط لفعاليتك الخاصة",
+    secondaryCtaEn: "Inquire via WhatsApp",
+    secondaryCtaAr: "استفسار عبر واتساب",
+    whatsappNumber: "+974 5113 8418",
+    whatsappUrl: "",
+    whatsappMessageEn: "Hello E3 Qatar, I would like to inquire about package bookings and celebrations.",
+    whatsappMessageAr: "مرحباً إي ثري قطر، أود الاستفسار عن باقات وفعاليات الاحتفالات.",
     campaignBadgeEn: "VIP PACKAGES & EVENTS",
     campaignBadgeAr: "باقات كبار الشخصيات",
     heroMedia: {
@@ -81,9 +125,14 @@ export function PackagesPageEditor() {
     } as UniversalMediaConfig,
     seoTitle: "Packages & Birthdays | E3 Qatar",
     seoDescription: "Book custom birthday packages, VIP party rooms, and group events.",
+    ...(initialConfig || {}),
   });
 
   useEffect(() => {
+    if (initialConfig) {
+      setLoading(false);
+      return;
+    }
     let active = true;
     async function loadData() {
       try {
@@ -91,7 +140,7 @@ export function PackagesPageEditor() {
         if (!res.ok) throw new Error("Failed to load packages page settings");
         const json = await res.json();
         if (active && json?.data?.content) {
-          setPageConfig((prev) => ({ ...prev, ...json.data.content }));
+          setPageConfig((prev: PackagesPageConfig) => ({ ...prev, ...json.data.content }));
         }
       } catch (e: any) {
         if (active) {
@@ -108,7 +157,7 @@ export function PackagesPageEditor() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [initialConfig]);
 
   const handleRetry = () => {
     setLoading(true);
@@ -117,15 +166,15 @@ export function PackagesPageEditor() {
       .then((res) => res.json())
       .then((json) => {
         if (json?.data?.content) {
-          setPageConfig((prev) => ({ ...prev, ...json.data.content }));
+          setPageConfig((prev: PackagesPageConfig) => ({ ...prev, ...json.data.content }));
         }
       })
       .catch((e) => setError(e?.message || "Error loading page settings"))
       .finally(() => setLoading(false));
   };
 
-  const updateField = (updater: (prev: typeof pageConfig) => typeof pageConfig) => {
-    setPageConfig((prev) => {
+  const updateField = (updater: (prev: PackagesPageConfig) => PackagesPageConfig) => {
+    setPageConfig((prev: PackagesPageConfig) => {
       const next = updater(prev);
       setIsDirty(true);
       setDirtySections((s) => new Set(s).add(activeSectionId));
@@ -154,6 +203,14 @@ export function PackagesPageEditor() {
       setSaving(false);
     }
   };
+
+  const previewWhatsappUrl = buildWhatsappUrl({
+    phoneOrUrl: pageConfig.whatsappUrl || pageConfig.whatsappNumber || "+974 5113 8418",
+    message: isAr
+      ? (pageConfig.whatsappMessageAr || "مرحباً إي ثري قطر، أود الاستفسار عن باقات وفعاليات الاحتفالات.")
+      : (pageConfig.whatsappMessageEn || "Hello E3 Qatar, I would like to inquire about package bookings and celebrations."),
+    defaultPhone: "+974 5113 8418",
+  });
 
   return (
     <DashboardPageShell variant="wide">
@@ -250,9 +307,9 @@ export function PackagesPageEditor() {
                     url: "#packages-list"
                   },
                   secondaryCta: {
-                    labelEn: pageConfig.secondaryCtaEn || "Plan a Custom Event",
-                    labelAr: pageConfig.secondaryCtaAr || "خطط لفعاليتك الخاصة",
-                    url: "#custom-enquiry"
+                    labelEn: pageConfig.secondaryCtaEn || "Inquire via WhatsApp",
+                    labelAr: pageConfig.secondaryCtaAr || "استفسار عبر واتساب",
+                    url: previewWhatsappUrl
                   },
                   media: pageConfig.heroMedia,
                   preset: (pageConfig as any).preset || "day-builder",
@@ -305,40 +362,144 @@ export function PackagesPageEditor() {
               />
             </div>
 
-            {/* 2. CTAs and Badges Card */}
+            {/* 2. CTAs, WhatsApp and Badges Card */}
             <div id="ctas" className={activeSectionId === "ctas" ? "block" : "hidden"}>
-              <DashboardSectionCard
-                title={isAr ? "أزرار الحجز وشارات الفعاليات" : "Call to Action Buttons & Campaign Badge"}
-                description={isAr ? "تخصيص أزرار الحجز الرئيسية وشارات العروض والحملات." : "Configure action buttons and campaign promo badges."}
-                icon={<SlidersHorizontal className="w-5 h-5 text-[var(--color-primary)]" />}
-              >
-                <DashboardBilingualField
-                  label={isAr ? "زر الإجراء الرئيسي" : "Primary Action Button"}
-                  valueEn={pageConfig.primaryCtaEn}
-                  valueAr={pageConfig.primaryCtaAr}
-                  onChangeEn={(val) => updateField((p) => ({ ...p, primaryCtaEn: val }))}
-                  onChangeAr={(val) => updateField((p) => ({ ...p, primaryCtaAr: val }))}
-                  mode={languageMode}
-                />
+              <div className="space-y-6">
+                <DashboardSectionCard
+                  title={isAr ? "أزرار الحجز وشارات الفعاليات" : "Call to Action Buttons & Campaign Badge"}
+                  description={isAr ? "تخصيص أزرار الحجز الرئيسية وشارات العروض والحملات." : "Configure action buttons and campaign promo badges."}
+                  icon={<SlidersHorizontal className="w-5 h-5 text-[var(--color-primary)]" />}
+                >
+                  <DashboardBilingualField
+                    label={isAr ? "زر الإجراء الرئيسي" : "Primary Action Button"}
+                    valueEn={pageConfig.primaryCtaEn || ""}
+                    valueAr={pageConfig.primaryCtaAr || ""}
+                    onChangeEn={(val) => updateField((p) => ({ ...p, primaryCtaEn: val }))}
+                    onChangeAr={(val) => updateField((p) => ({ ...p, primaryCtaAr: val }))}
+                    mode={languageMode}
+                  />
 
-                <DashboardBilingualField
-                  label={isAr ? "زر الإجراء الثانوي" : "Secondary Action Button"}
-                  valueEn={pageConfig.secondaryCtaEn}
-                  valueAr={pageConfig.secondaryCtaAr}
-                  onChangeEn={(val) => updateField((p) => ({ ...p, secondaryCtaEn: val }))}
-                  onChangeAr={(val) => updateField((p) => ({ ...p, secondaryCtaAr: val }))}
-                  mode={languageMode}
-                />
+                  <DashboardBilingualField
+                    label={isAr ? "زر الإجراء الثانوي (واتساب)" : "Secondary Action Button (WhatsApp Tab)"}
+                    valueEn={pageConfig.secondaryCtaEn || ""}
+                    valueAr={pageConfig.secondaryCtaAr || ""}
+                    onChangeEn={(val) => updateField((p) => ({ ...p, secondaryCtaEn: val }))}
+                    onChangeAr={(val) => updateField((p) => ({ ...p, secondaryCtaAr: val }))}
+                    mode={languageMode}
+                  />
 
-                <DashboardBilingualField
-                  label={isAr ? "نص شارة الحملة" : "Campaign Badge Label"}
-                  valueEn={pageConfig.campaignBadgeEn}
-                  valueAr={pageConfig.campaignBadgeAr}
-                  onChangeEn={(val) => updateField((p) => ({ ...p, campaignBadgeEn: val }))}
-                  onChangeAr={(val) => updateField((p) => ({ ...p, campaignBadgeAr: val }))}
-                  mode={languageMode}
-                />
-              </DashboardSectionCard>
+                  <DashboardBilingualField
+                    label={isAr ? "نص شارة الحملة" : "Campaign Badge Label"}
+                    valueEn={pageConfig.campaignBadgeEn || ""}
+                    valueAr={pageConfig.campaignBadgeAr || ""}
+                    onChangeEn={(val) => updateField((p) => ({ ...p, campaignBadgeEn: val }))}
+                    onChangeAr={(val) => updateField((p) => ({ ...p, campaignBadgeAr: val }))}
+                    mode={languageMode}
+                  />
+                </DashboardSectionCard>
+
+                {/* WhatsApp Direct Package Inquiry Integration Card */}
+                <DashboardSectionCard
+                  title={isAr ? "إعدادات الربط المباشر مع واتساب للباقات" : "WhatsApp Package Inquiry Configuration"}
+                  description={
+                    isAr
+                      ? "إدارة وتعديل رقم هاتف الواتساب أو الرابط المباشر، وتخصيص رسالة الاستفسار التلقائية."
+                      : "Add or modify the WhatsApp phone number or direct link, and customize bilingual pre-filled inquiry messages."
+                  }
+                  icon={<MessageSquare className="w-5 h-5 text-emerald-400" />}
+                >
+                  <div className="space-y-4">
+                    {/* Phone & Custom URL Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>{isAr ? "رقم هاتف واتساب (مع الرمز الدولي)" : "WhatsApp Phone Number (with Country Code)"}</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={pageConfig.whatsappNumber ?? "+974 5113 8418"}
+                          onChange={(e) => updateField((p) => ({ ...p, whatsappNumber: e.target.value }))}
+                          placeholder="+974 5113 8418"
+                          className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] font-mono focus:outline-none focus:border-emerald-500 transition-colors"
+                        />
+                        <p className="text-[10px] text-[var(--text-tertiary)]">
+                          {isAr
+                            ? "مثال: 97451138418+ (يُستخدم لإنشاء رابط https://wa.me تلقائياً)"
+                            : "e.g. +974 5113 8418 (automatically converts to https://wa.me/97451138418)"}
+                        </p>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-2">
+                          <Globe className="w-3.5 h-3.5 text-sky-400" />
+                          <span>{isAr ? "رابط واتساب مخصص (اختياري)" : "Custom WhatsApp URL Override (Optional)"}</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={pageConfig.whatsappUrl ?? ""}
+                          onChange={(e) => updateField((p) => ({ ...p, whatsappUrl: e.target.value }))}
+                          placeholder="https://wa.me/97451138418 or https://chat.whatsapp.com/..."
+                          className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] font-mono focus:outline-none focus:border-emerald-500 transition-colors"
+                        />
+                        <p className="text-[10px] text-[var(--text-tertiary)]">
+                          {isAr
+                            ? "اتركه فارغاً لاستخدام رقم الهاتف أعلاه، أو أدخل رابط محادثة مخصص أو رابط مجموعة."
+                            : "Leave blank to auto-format from phone number, or provide a custom direct link or group invite."}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Bilingual Inquiry Pre-filled Messages */}
+                    <DashboardBilingualField
+                      label={isAr ? "رسالة الاستفسار التلقائية المسبقة" : "Pre-filled WhatsApp Inquiry Message"}
+                      valueEn={pageConfig.whatsappMessageEn ?? "Hello E3 Qatar, I would like to inquire about package bookings and celebrations."}
+                      valueAr={pageConfig.whatsappMessageAr ?? "مرحباً إي ثري قطر، أود الاستفسار عن باقات وفعاليات الاحتفالات."}
+                      onChangeEn={(val) => updateField((p) => ({ ...p, whatsappMessageEn: val }))}
+                      onChangeAr={(val) => updateField((p) => ({ ...p, whatsappMessageAr: val }))}
+                      mode={languageMode}
+                    />
+
+                    {/* Live Generated WhatsApp Link Preview Box */}
+                    <div className="p-4 rounded-2xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-xs font-bold text-[var(--text-primary)]">
+                            {isAr ? "معاينة رابط واتساب الفعلي المباشر:" : "Live Generated WhatsApp Link Preview:"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(previewWhatsappUrl);
+                              setCopiedLink(true);
+                              setTimeout(() => setCopiedLink(false), 2000);
+                            }}
+                            className="px-3 py-1.5 rounded-lg border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:bg-[var(--surface-subtle)] text-[11px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                            <span>{copiedLink ? (isAr ? "تم النسخ" : "Copied!") : (isAr ? "نسخ الرابط" : "Copy Link")}</span>
+                          </button>
+                          <a
+                            href={previewWhatsappUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-bold flex items-center gap-1.5 shadow-sm transition-all hover:scale-105 cursor-pointer"
+                          >
+                            <span>{isAr ? "اختبار الرابط الآن" : "Test Link"}</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        </div>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-1)] text-[11px] font-mono text-emerald-600 dark:text-emerald-400 break-all select-all">
+                        {previewWhatsappUrl}
+                      </div>
+                    </div>
+                  </div>
+                </DashboardSectionCard>
+              </div>
             </div>
 
             {/* 3. Universal Hero Media Section */}
@@ -346,7 +507,7 @@ export function PackagesPageEditor() {
               <UniversalMediaSectionEditor
                 title={isAr ? "وسائط وخلفية الهيدر الرئيسي" : "Packages Hero Media Banner"}
                 subtitle={isAr ? "إعدادات وسائط الهيدر التفاعلية الداعمة للفيديو، الصور، والمشاهد الحركية." : "Universal hero media configuration supporting Video, Image, 3D Canvas, IFrame, and Mobile Fallbacks."}
-                value={pageConfig.heroMedia}
+                value={pageConfig.heroMedia || DEFAULT_UNIVERSAL_MEDIA}
                 onChange={(heroMedia: UniversalMediaConfig) => updateField((p) => ({ ...p, heroMedia }))}
                 accentColor="purple"
               />
@@ -357,7 +518,7 @@ export function PackagesPageEditor() {
               <UniversalMediaSectionEditor
                 title={isAr ? "وسائط وخلفية التذييل" : "Packages Footer Banner Media"}
                 subtitle={isAr ? "إعدادات وسائط بنر التذييل الداعمة للفيديو، الصور، والوسائط المتعددة." : "Universal footer media configuration supporting Video, Image, 3D Canvas, and Mobile Fallbacks."}
-                value={pageConfig.footerMedia}
+                value={pageConfig.footerMedia || DEFAULT_UNIVERSAL_MEDIA}
                 onChange={(footerMedia: UniversalMediaConfig) => updateField((p) => ({ ...p, footerMedia }))}
                 accentColor="indigo"
               />

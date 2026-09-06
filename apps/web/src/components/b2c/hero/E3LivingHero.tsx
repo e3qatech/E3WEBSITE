@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from 'framer-motion'
 import { Sparkles, ArrowRight, ChevronDown } from 'lucide-react'
 import { UniversalMediaRenderer, UniversalMediaType } from '@/components/shared/UniversalMediaRenderer'
-import { localizeHref } from '@/lib/url-helper'
+import { localizeHref, isExternalUrl } from '@/lib/url-helper'
 import { cn } from '@/lib/utils'
 import { useCapabilityTier } from '@/lib/motion/capability-context'
 
@@ -49,12 +49,20 @@ export interface E3LivingHeroProps {
     labelEn?: string
     labelAr?: string
     url?: string
+    icon?: React.ReactNode
+    target?: string
+    rel?: string
+    className?: string
     onClick?: () => void
   }
   secondaryCta?: {
     labelEn?: string
     labelAr?: string
     url?: string
+    icon?: React.ReactNode
+    target?: string
+    rel?: string
+    className?: string
     onClick?: () => void
   }
   media?: {
@@ -795,21 +803,45 @@ export function E3LivingHero({
           >
             {primaryCta && (
               primaryCta.url ? (
-                <Link
-                  href={localizeHref(primaryCta.url, locale)}
-                  className="min-h-[48px] px-7 sm:px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-white dark:text-slate-950 font-black text-sm uppercase tracking-wider transition-all shadow-xl hover:shadow-emerald-500/25 hover:scale-105 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer select-none"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>{isAr ? (primaryCta.labelAr || primaryCta.labelEn) : (primaryCta.labelEn || primaryCta.labelAr)}</span>
-                  <ArrowRight className={cn("w-4 h-4", isAr ? "rotate-180" : "")} />
-                </Link>
+                isExternalUrl(primaryCta.url) || primaryCta.target === '_blank' ? (
+                  <a
+                    href={primaryCta.url}
+                    target={primaryCta.target || "_blank"}
+                    rel={primaryCta.rel || "noopener noreferrer"}
+                    className={cn(
+                      "min-h-[48px] px-7 sm:px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-white dark:text-slate-950 font-black text-sm uppercase tracking-wider transition-all shadow-xl hover:shadow-emerald-500/25 hover:scale-105 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer select-none",
+                      primaryCta.className
+                    )}
+                  >
+                    {primaryCta.icon || <Sparkles className="w-4 h-4" />}
+                    <span>{isAr ? (primaryCta.labelAr || primaryCta.labelEn) : (primaryCta.labelEn || primaryCta.labelAr)}</span>
+                    <ArrowRight className={cn("w-4 h-4", isAr ? "rotate-180" : "")} />
+                  </a>
+                ) : (
+                  <Link
+                    href={localizeHref(primaryCta.url, locale)}
+                    target={primaryCta.target}
+                    rel={primaryCta.rel}
+                    className={cn(
+                      "min-h-[48px] px-7 sm:px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-white dark:text-slate-950 font-black text-sm uppercase tracking-wider transition-all shadow-xl hover:shadow-emerald-500/25 hover:scale-105 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer select-none",
+                      primaryCta.className
+                    )}
+                  >
+                    {primaryCta.icon || <Sparkles className="w-4 h-4" />}
+                    <span>{isAr ? (primaryCta.labelAr || primaryCta.labelEn) : (primaryCta.labelEn || primaryCta.labelAr)}</span>
+                    <ArrowRight className={cn("w-4 h-4", isAr ? "rotate-180" : "")} />
+                  </Link>
+                )
               ) : (
                 <button
                   type="button"
                   onClick={primaryCta.onClick}
-                  className="min-h-[48px] px-7 sm:px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-white dark:text-slate-950 font-black text-sm uppercase tracking-wider transition-all shadow-xl hover:shadow-emerald-500/25 hover:scale-105 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer select-none"
+                  className={cn(
+                    "min-h-[48px] px-7 sm:px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-400 text-white dark:text-slate-950 font-black text-sm uppercase tracking-wider transition-all shadow-xl hover:shadow-emerald-500/25 hover:scale-105 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer select-none",
+                    primaryCta.className
+                  )}
                 >
-                  <Sparkles className="w-4 h-4" />
+                  {primaryCta.icon || <Sparkles className="w-4 h-4" />}
                   <span>{isAr ? (primaryCta.labelAr || primaryCta.labelEn) : (primaryCta.labelEn || primaryCta.labelAr)}</span>
                   <ArrowRight className={cn("w-4 h-4", isAr ? "rotate-180" : "")} />
                 </button>
@@ -818,18 +850,43 @@ export function E3LivingHero({
 
             {secondaryCta && (
               secondaryCta.url ? (
-                <Link
-                  href={localizeHref(secondaryCta.url, locale)}
-                  className="min-h-[48px] px-6 sm:px-7 py-3.5 rounded-2xl border border-[var(--border-level-2)] bg-[var(--surface-default)]/80 hover:bg-[var(--surface-hover)] text-[var(--text-primary)] font-bold text-sm transition-all hover:border-[var(--color-primary)] flex items-center justify-center gap-2 cursor-pointer select-none backdrop-blur-md shadow-sm"
-                >
-                  <span>{isAr ? (secondaryCta.labelAr || secondaryCta.labelEn) : (secondaryCta.labelEn || secondaryCta.labelAr)}</span>
-                </Link>
+                isExternalUrl(secondaryCta.url) || secondaryCta.target === '_blank' ? (
+                  <a
+                    href={secondaryCta.url}
+                    target={secondaryCta.target || "_blank"}
+                    rel={secondaryCta.rel || "noopener noreferrer"}
+                    className={cn(
+                      "min-h-[48px] px-6 sm:px-7 py-3.5 rounded-2xl border border-[var(--border-level-2)] bg-[var(--surface-default)]/80 hover:bg-[var(--surface-hover)] text-[var(--text-primary)] font-bold text-sm transition-all hover:border-[var(--color-primary)] flex items-center justify-center gap-2 cursor-pointer select-none backdrop-blur-md shadow-sm",
+                      secondaryCta.className
+                    )}
+                  >
+                    {secondaryCta.icon}
+                    <span>{isAr ? (secondaryCta.labelAr || secondaryCta.labelEn) : (secondaryCta.labelEn || secondaryCta.labelAr)}</span>
+                  </a>
+                ) : (
+                  <Link
+                    href={localizeHref(secondaryCta.url, locale)}
+                    target={secondaryCta.target}
+                    rel={secondaryCta.rel}
+                    className={cn(
+                      "min-h-[48px] px-6 sm:px-7 py-3.5 rounded-2xl border border-[var(--border-level-2)] bg-[var(--surface-default)]/80 hover:bg-[var(--surface-hover)] text-[var(--text-primary)] font-bold text-sm transition-all hover:border-[var(--color-primary)] flex items-center justify-center gap-2 cursor-pointer select-none backdrop-blur-md shadow-sm",
+                      secondaryCta.className
+                    )}
+                  >
+                    {secondaryCta.icon}
+                    <span>{isAr ? (secondaryCta.labelAr || secondaryCta.labelEn) : (secondaryCta.labelEn || secondaryCta.labelAr)}</span>
+                  </Link>
+                )
               ) : (
                 <button
                   type="button"
                   onClick={secondaryCta.onClick}
-                  className="min-h-[48px] px-6 sm:px-7 py-3.5 rounded-2xl border border-[var(--border-level-2)] bg-[var(--surface-default)]/80 hover:bg-[var(--surface-hover)] text-[var(--text-primary)] font-bold text-sm transition-all hover:border-[var(--color-primary)] flex items-center justify-center gap-2 cursor-pointer select-none backdrop-blur-md shadow-sm"
+                  className={cn(
+                    "min-h-[48px] px-6 sm:px-7 py-3.5 rounded-2xl border border-[var(--border-level-2)] bg-[var(--surface-default)]/80 hover:bg-[var(--surface-hover)] text-[var(--text-primary)] font-bold text-sm transition-all hover:border-[var(--color-primary)] flex items-center justify-center gap-2 cursor-pointer select-none backdrop-blur-md shadow-sm",
+                    secondaryCta.className
+                  )}
                 >
+                  {secondaryCta.icon}
                   <span>{isAr ? (secondaryCta.labelAr || secondaryCta.labelEn) : (secondaryCta.labelEn || secondaryCta.labelAr)}</span>
                 </button>
               )

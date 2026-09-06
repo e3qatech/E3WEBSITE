@@ -340,3 +340,38 @@ export function getSafeAnchorProps(url: string | null | undefined, currentLocale
     href: localizeHref(url, currentLocale),
   };
 }
+
+/**
+ * Builds a standardized, validated WhatsApp direct chat URL.
+ * Supports raw phone numbers (with or without country code), full WhatsApp URLs,
+ * and optional pre-filled inquiry messages.
+ */
+export function buildWhatsappUrl(params?: {
+  phoneOrUrl?: string | null;
+  message?: string | null;
+  defaultPhone?: string;
+}): string {
+  const defaultNum = params?.defaultPhone || '+974 5113 8418';
+  const raw = (params?.phoneOrUrl || '').trim();
+  const message = (params?.message || '').trim();
+
+  // If already a full URL
+  if (raw.startsWith('http://') || raw.startsWith('https://')) {
+    if (message && !raw.includes('text=')) {
+      const separator = raw.includes('?') ? '&' : '?';
+      return `${raw}${separator}text=${encodeURIComponent(message)}`;
+    }
+    return raw;
+  }
+
+  // Otherwise normalize as phone number
+  const candidate = raw || defaultNum;
+  const cleanDigits = candidate.replace(/\D/g, '');
+  const baseDigits = cleanDigits || '97451138418';
+
+  if (message) {
+    return `https://wa.me/${baseDigits}?text=${encodeURIComponent(message)}`;
+  }
+  return `https://wa.me/${baseDigits}`;
+}
+
