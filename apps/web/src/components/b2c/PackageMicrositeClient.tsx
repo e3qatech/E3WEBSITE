@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { 
   Check, 
   Download, 
@@ -57,7 +57,8 @@ export function PackageMicrositeClient({
 
   const [selectedTier, setSelectedTier] = useState<any>(tiers[0] || null)
   const [guestCount, setGuestCount] = useState<number>(() => {
-    return selectedTier?.guestCount || selectedTier?.includedGuests || minGuests || 15
+    const candidate = selectedTier?.includedGuests || selectedTier?.guestCount || minGuests || 12
+    return Math.max(minGuests, Math.min(maxGuests, candidate))
   })
   const [selectedAddOnQty, setSelectedAddOnQty] = useState<{ [id: string]: number }>({})
   const [couponCode, setCouponCode] = useState("")
@@ -68,10 +69,27 @@ export function PackageMicrositeClient({
   const [isTermsOpen, setIsTermsOpen] = useState(false)
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false)
   const [isAttractionPreviewOpen, setIsAttractionPreviewOpen] = useState(false)
+  const [isFooterVisible, setIsFooterVisible] = useState(false)
+  const bottomSentinelRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const sentinel = bottomSentinelRef.current
+    if (!sentinel) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFooterVisible(entry.isIntersecting)
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [])
 
   // Dynamic Price Breakdown
   const tierPrice = selectedTier ? (selectedTier.price || 0) : (pkg.startingPrice || 0)
-  const includedGuests = selectedTier?.includedGuests || selectedTier?.guestCount || minGuests || 10
+  const includedGuests = Math.max(minGuests, selectedTier?.includedGuests || selectedTier?.guestCount || minGuests)
   const extraGuestPrice = selectedTier?.extraGuestPrice ?? pkg.extraGuestPrice ?? 0
   const extraGuestsCount = Math.max(0, guestCount - includedGuests)
   const extraGuestsTotal = extraGuestsCount * extraGuestPrice
@@ -140,7 +158,7 @@ export function PackageMicrositeClient({
   const hasRecordRotatingWords = isAr ? rotatingWordsAr.length > 0 : rotatingWordsEn.length > 0;
 
   return (
-    <div className="min-h-screen text-[var(--text-primary)] font-poppins pb-24" dir={isAr ? "rtl" : "ltr"}>
+    <div className="min-h-screen text-[var(--text-primary)] font-poppins pb-36" dir={isAr ? "rtl" : "ltr"}>
       {/* 1. MICROSITE HERO */}
       {hasRecordRotatingWords ? (
         <E3LivingHero
@@ -168,7 +186,7 @@ export function PackageMicrositeClient({
             mediaUrl: pkg.heroMediaUrl || pkg.coverMediaUrl || "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=1200&q=80"
           }}
           preset="record-accent"
-          accentColor={pkg.accentColor || "#f59e0b"}
+          accentColor={pkg.accentColor || "#3b82f6"}
           locale={locale}
         />
       ) : (
@@ -236,10 +254,14 @@ export function PackageMicrositeClient({
 
             {/* Action CTAs */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
-              <Button size="lg" onClick={() => setIsEnquiryOpen(true)} className="gap-2 shadow-lg">
+              <button
+                type="button"
+                onClick={() => setIsEnquiryOpen(true)}
+                className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold text-sm shadow-xl shadow-pink-950/50 hover:shadow-pink-700/50 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              >
                 <Send className="w-4 h-4" />
-                {isAr ? "طلب حجز واستفسار" : "Enquire Now"}
-              </Button>
+                <span>{isAr ? "طلب حجز واستفسار" : "Enquire Now"}</span>
+              </button>
               {pkg.bookingQubeUrl && (
                 <a href={pkg.bookingQubeUrl} target="_blank" rel="noopener noreferrer">
                   <Button variant="outline" size="lg" className="gap-2">
@@ -311,17 +333,20 @@ export function PackageMicrositeClient({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {tiers.map(t => {
                 const isSelected = selectedTier?.id === t.id
+                const tierIncludedGuests = Math.max(minGuests, t.includedGuests || t.guestCount || minGuests)
                 return (
                   <InteractiveCard
                     key={t.id}
                     className={cn(
-                      "p-8 flex flex-col justify-between relative",
-                      t.recommended && "border-2 border-[var(--e3-royal-blue)] shadow-xl"
+                      "p-8 flex flex-col justify-between relative transition-all duration-300",
+                      isSelected
+                        ? "border-2 border-[var(--e3-royal-blue)] bg-gradient-to-b from-blue-950/20 via-[var(--surface-hover)] to-[var(--surface-default)] shadow-2xl shadow-blue-500/10 scale-[1.02]"
+                        : "border border-[var(--border-level-2)] bg-[var(--surface-default)] hover:border-slate-700"
                     )}
-                    glowColor="rgba(26, 31, 214, 0.4)"
+                    glowColor={isSelected ? "rgba(59, 130, 246, 0.45)" : "rgba(26, 31, 214, 0.2)"}
                   >
                     {t.recommended && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[var(--e3-royal-blue)] text-white text-[10px] font-extrabold uppercase tracking-widest shadow">
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-extrabold uppercase tracking-widest shadow-md">
                         {isAr ? "المستوى الموصى به" : "Recommended"}
                       </span>
                     )}
@@ -335,7 +360,7 @@ export function PackageMicrositeClient({
                           {t.price} QAR
                         </div>
                         <span className="text-[10px] text-[var(--text-tertiary)] font-mono">
-                          {isAr ? `يشمل حتى ${t.guestCount} ضيفاً` : `Includes up to ${t.guestCount} guests`}
+                          {isAr ? `يشمل حتى ${tierIncludedGuests} ضيفاً` : `Includes up to ${tierIncludedGuests} guests`}
                           {t.durationMinutes ? ` • ${t.durationMinutes} ${isAr ? "دقيقة" : "Mins"}` : ''}
                         </span>
                       </div>
@@ -383,18 +408,29 @@ export function PackageMicrositeClient({
                       </div>
                     </div>
 
-                    <Button
+                    <button
+                      type="button"
                       onClick={() => {
                         setSelectedTier(t);
-                        if (guestCount < (t.guestCount || t.includedGuests || minGuests)) {
-                          setGuestCount(t.guestCount || t.includedGuests || minGuests);
+                        const tierMin = Math.max(minGuests, t.includedGuests || t.guestCount || minGuests);
+                        if (guestCount < tierMin) {
+                          setGuestCount(tierMin);
                         }
                       }}
-                      variant={isSelected ? "primary" : "outline"}
-                      className="w-full mt-6 text-xs font-bold uppercase"
+                      className={cn(
+                        "w-full mt-6 py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer",
+                        isSelected
+                          ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-lg shadow-blue-600/30 hover:brightness-110 active:scale-[0.98]"
+                          : "bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] active:scale-[0.98]"
+                      )}
                     >
-                      {isSelected ? (isAr ? "✓ الفئة المختارة" : "✓ Selected Tier") : (isAr ? "اختيار هذه الفئة" : "Select Tier")}
-                    </Button>
+                      {isSelected && <Check className="w-4 h-4 text-emerald-300" />}
+                      <span>
+                        {isSelected
+                          ? (isAr ? "الفئة المختارة" : "Selected Tier")
+                          : (isAr ? "اختيار هذه الفئة" : "Select Tier")}
+                      </span>
+                    </button>
                   </InteractiveCard>
                 )
               })}
@@ -476,13 +512,16 @@ export function PackageMicrositeClient({
                 type="range"
                 min={minGuests}
                 max={maxGuests}
-                value={guestCount}
-                onChange={e => setGuestCount(parseInt(e.target.value) || minGuests)}
+                value={Math.max(minGuests, Math.min(maxGuests, guestCount))}
+                onChange={e => {
+                  const val = parseInt(e.target.value, 10);
+                  setGuestCount(isNaN(val) ? minGuests : Math.max(minGuests, Math.min(maxGuests, val)));
+                }}
                 className="w-full accent-[var(--e3-royal-blue)] cursor-pointer h-2 bg-[var(--surface-default)] rounded-lg"
               />
               <div className="flex justify-between text-[10px] font-mono text-[var(--text-tertiary)]">
                 <span>{minGuests} {isAr ? "حد أدنى" : "Min"}</span>
-                <span className={extraGuestsCount > 0 ? "text-amber-500 font-bold" : "text-emerald-500 font-bold"}>
+                <span className={extraGuestsCount > 0 ? "text-sky-400 font-bold" : "text-emerald-500 font-bold"}>
                   {extraGuestsCount > 0
                     ? `+${extraGuestsCount} ${isAr ? "ضيوف إضافيين" : "extra guests"} (+${extraGuestsTotal.toLocaleString()} QAR)`
                     : (isAr ? "مشمل بالكامل ضمن سعر الفئة" : "Fully covered by tier base")}
@@ -599,16 +638,14 @@ export function PackageMicrositeClient({
                   placeholder={isAr ? "أدخل رمز الكوبون (مثال: E3VIP20)" : "Enter coupon code (e.g. E3VIP20)"}
                   className="flex-1 bg-[var(--surface-default)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs font-mono uppercase text-[var(--text-primary)] focus:outline-none focus:border-[var(--e3-royal-blue)]"
                 />
-                <Button
+                <button
                   type="button"
-                  size="sm"
-                  variant="outline"
                   onClick={handleApplyCoupon}
                   disabled={couponLoading || !couponCode.trim()}
-                  className="text-xs"
+                  className="text-xs font-bold px-4 py-2 rounded-xl bg-[var(--e3-royal-blue)] hover:bg-blue-600 disabled:opacity-40 text-white transition-colors cursor-pointer"
                 >
                   {couponLoading ? "..." : (isAr ? "تطبيق" : "Apply")}
-                </Button>
+                </button>
               </div>
             )}
 
@@ -661,13 +698,14 @@ export function PackageMicrositeClient({
                 </span>
               </div>
 
-              <Button
+              <button
+                type="button"
                 onClick={() => setIsEnquiryOpen(true)}
-                className="gap-2 shadow-lg px-6 py-2.5 text-xs font-bold uppercase tracking-wider"
+                className="gap-2.5 px-7 py-3 rounded-2xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white text-xs font-bold uppercase tracking-wider shadow-xl shadow-pink-950/40 hover:shadow-pink-700/40 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center cursor-pointer"
               >
                 <Send className="w-4 h-4" />
-                {isAr ? "طلب حجز واستفسار بهذا التخصيص" : "Enquire With This Setup"}
-              </Button>
+                <span>{isAr ? "طلب حجز واستفسار بهذا التخصيص" : "Enquire With This Setup"}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -838,7 +876,7 @@ export function PackageMicrositeClient({
                   <div className="space-y-4 text-xs leading-relaxed text-[var(--text-secondary)]">
                     <div className="p-4 rounded-2xl bg-[var(--surface-hover)]/40 border border-[var(--border-level-2)] space-y-2">
                       <h4 className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4 text-amber-500" />
+                        <Sparkles className="w-4 h-4 text-purple-400" />
                         {isAr ? "نبذة عن الوجهة والمرافق" : "Venue Overview & Facilities"}
                       </h4>
                       <p>
@@ -978,7 +1016,7 @@ export function PackageMicrositeClient({
               {/* Cancellation Policy */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)]">
-                  <RotateCcw className="w-4 h-4 text-amber-500" />
+                  <RotateCcw className="w-4 h-4 text-sky-400" />
                   <span>{isAr ? "سياسة الإلغاء وتعديل الموعد" : "Cancellation & Rescheduling Policy"}</span>
                 </div>
                 <p className="text-xs text-[var(--text-secondary)] leading-relaxed p-4 rounded-2xl bg-[var(--surface-hover)]/40 border border-[var(--border-level-2)]">
@@ -1017,17 +1055,28 @@ export function PackageMicrositeClient({
               </div>
 
               <div className="flex justify-end pt-2">
-                <Button onClick={() => setIsTermsOpen(false)} className="text-xs font-bold px-6">
+                <button
+                  type="button"
+                  onClick={() => setIsTermsOpen(false)}
+                  className="text-xs font-bold px-6 py-2.5 rounded-xl bg-[var(--e3-royal-blue)] hover:bg-blue-600 text-white transition-colors cursor-pointer"
+                >
                   {isAr ? "فهمت وموافق" : "Understood & Close"}
-                </Button>
+                </button>
               </div>
             </div>
           </div>
         )}
+        {/* Bottom Sentinel to detect when user reaches the end of package content / global footer */}
+        <div ref={bottomSentinelRef} className="h-4 w-full pointer-events-none" />
       </section>
 
       {/* STICKY BOTTOM ENQUIRY BAR */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface-default)]/90 backdrop-blur-md border-t border-[var(--border-level-2)] p-4 shadow-2xl">
+      <div
+        className={cn(
+          "fixed bottom-0 left-0 right-0 z-40 bg-[#07151B] border-t border-slate-800/80 p-4 shadow-[0_-12px_32px_rgba(0,0,0,0.9)] transition-all duration-300 ease-in-out",
+          (isFooterVisible || isEnquiryOpen) ? "translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100 pointer-events-auto"
+        )}
+      >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -1038,15 +1087,19 @@ export function PackageMicrositeClient({
                 ({guestCount} {isAr ? "ضيوف" : "guests"})
               </span>
             </div>
-            <span className="text-lg md:text-xl font-black font-mono text-[var(--e3-royal-blue)]">
+            <span className="text-lg md:text-xl font-black font-mono text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
               {estimatedTotal.toLocaleString()} QAR
             </span>
           </div>
 
-          <Button onClick={() => setIsEnquiryOpen(true)} className="gap-2 shadow">
+          <button
+            type="button"
+            onClick={() => setIsEnquiryOpen(true)}
+            className="gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-pink-950/50 hover:shadow-pink-700/50 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center cursor-pointer"
+          >
             <Send className="w-4 h-4" />
-            {isAr ? "استفسر عن هذه الباقة" : "Enquire For Date"}
-          </Button>
+            <span>{isAr ? "استفسر عن هذه الباقة" : "Enquire For Date"}</span>
+          </button>
         </div>
       </div>
 

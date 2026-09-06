@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Check, Send, AlertCircle, Tag, Sparkles, Plus, Minus, Users, Download, Share2, Mail, CreditCard, ExternalLink } from "lucide-react"
+import { X, Check, Send, AlertCircle, Sparkles, Plus, Minus, Download, Share2, Mail, CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
 
@@ -25,7 +25,7 @@ export function PackageEnquiryModal({
   selectedPackage,
   selectedTier,
   selectedAddOns = [],
-  estimatedTotal = 0,
+  estimatedTotal: _estimatedTotal = 0,
   guestCount,
   appliedCoupon: initialAppliedCoupon = null
 }: PackageEnquiryModalProps) {
@@ -41,14 +41,14 @@ export function PackageEnquiryModal({
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
   const [whatsApp, setWhatsApp] = useState("")
-  const [contactMethod, setContactMethod] = useState("WHATSAPP")
+  const [contactMethod, _setContactMethod] = useState("WHATSAPP")
   
   const [celebrationName, setCelebrationName] = useState("")
   const [ageGroup, setAgeGroup] = useState("")
   const [preferredDate, setPreferredDate] = useState("")
-  const [alternativeDate, setAlternativeDate] = useState("")
+  const [alternativeDate, _setAlternativeDate] = useState("")
   const [specialRequests, setSpecialRequests] = useState("")
-  const [marketingConsent, setMarketingConsent] = useState(false)
+  const [marketingConsent, _setMarketingConsent] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(true)
 
   // Modular Tiers
@@ -276,7 +276,7 @@ export function PackageEnquiryModal({
       }
 
       const data = await res.json()
-      setReferenceNumber(data.referenceNumber || `E3-LEAD-${Date.now().toString().slice(-6)}`)
+      setReferenceNumber(data.referenceNumber || "E3-LEAD-SUBMITTED")
       if (data.quoteNumber) setQuoteNumber(data.quoteNumber)
       if (data.quoteId) setQuoteId(data.quoteId)
       setSuccess(true)
@@ -891,15 +891,14 @@ export function PackageEnquiryModal({
                 <Button type="button" variant="outline" size="sm" onClick={onClose}>
                   {isAr ? "إلغاء" : "Cancel"}
                 </Button>
-                <Button
+                <button
                   type="submit"
-                  size="sm"
                   disabled={submitting || isBelowMin || isAboveMax}
-                  className="gap-2"
+                  className="gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold text-xs shadow-lg shadow-pink-950/40 hover:shadow-pink-700/40 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  {submitting ? (isAr ? "جاري الإرسال..." : "Submitting...") : (isAr ? "إرسال الطلب الآن" : "Submit Enquiry")}
-                </Button>
+                  <span>{submitting ? (isAr ? "جاري الإرسال..." : "Submitting...") : (isAr ? "إرسال الطلب الآن" : "Submit Enquiry")}</span>
+                </button>
               </div>
             </form>
           )}
