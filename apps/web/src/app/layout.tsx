@@ -48,10 +48,20 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description: "Qatar's premier event engineering and entertainment agency. We specialize in transforming spaces into unforgettable experiences for both B2B and B2C clients.",
     metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'),
-    icons: faviconUrl ? {
-      icon: faviconUrl,
-      apple: faviconUrl,
-    } : undefined,
+    icons: {
+      icon: [
+        { url: faviconUrl || '/favicon.ico', sizes: 'any' },
+        { url: '/favicon-48x48.png', sizes: '48x48', type: 'image/png' },
+        { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+        { url: '/favicon-192x192.png', sizes: '192x192', type: 'image/png' },
+        { url: '/favicon.svg', type: 'image/svg+xml' },
+      ],
+      apple: [
+        { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      ],
+      shortcut: faviconUrl || '/favicon.ico',
+    },
+    manifest: '/site.webmanifest',
     openGraph: {
       title: "E3 - We Build Experiences",
       description: "End-to-end event engineering, entertainment solutions, and immersive installations in Qatar and the MENA region.",
@@ -93,6 +103,16 @@ export default async function RootLayout({
 
   return (
     <html lang="en" data-theme="dark" className={`${manrope.variable} ${ibmPlexSansArabic.variable}`} suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon-48x48.png" type="image/png" sizes="48x48" />
+        <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96" />
+        <link rel="icon" href="/favicon-192x192.png" type="image/png" sizes="192x192" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <meta name="theme-color" content="#090d16" />
+      </head>
       <body className="antialiased font-sans bg-[var(--surface-default)] text-[var(--text-primary)]" suppressHydrationWarning>
         <Script id="theme-script" strategy="beforeInteractive">
           {`

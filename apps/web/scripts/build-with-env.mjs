@@ -121,6 +121,14 @@ try {
     console.log("[BUILD] Authentication seed step note (non-blocking):", seedErr.message || seedErr);
   }
 
+  try {
+    console.log("[BUILD] Ensuring brand favicons and webmanifest assets...");
+    execSync("node scripts/generate-favicons.mjs", { stdio: 'inherit', env });
+    console.log("[BUILD] Brand favicons verified successfully.");
+  } catch (favErr) {
+    console.log("[BUILD] Favicons step note (non-blocking):", favErr.message || favErr);
+  }
+
   console.log("[BUILD] Compiling Next.js application...");
   try {
     execSync("pnpm exec next build", { stdio: 'inherit', env });
