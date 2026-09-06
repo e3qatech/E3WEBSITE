@@ -73,7 +73,34 @@ export type Capability =
   | 'client.documents.own'
   | 'candidate.profile.own'
   | 'candidate.applications.own'
-  | 'candidate.documents.own';
+  | 'candidate.documents.own'
+  // Influencer & Creator Management
+  | 'influencer.read'
+  | 'influencer.create'
+  | 'influencer.update'
+  | 'influencer.archive'
+  | 'influencer.review'
+  | 'influencer.viewSensitive'
+  | 'influencer.viewCommercial'
+  | 'influencer.featurePublicly'
+  | 'influencerCampaign.read'
+  | 'influencerCampaign.create'
+  | 'influencerCampaign.update'
+  | 'influencerCampaign.approve'
+  | 'influencerCampaign.invite'
+  | 'influencerCampaign.manageAttendance'
+  | 'influencerCampaign.export'
+  | 'influencerContent.read'
+  | 'influencerContent.review'
+  | 'influencerContent.clientApprove'
+  | 'influencerContent.verifyPublication'
+  | 'influencerContent.sendToMediaLibrary'
+  | 'influencerFinance.read'
+  | 'influencerFinance.update'
+  | 'influencerFinance.markPaid'
+  | 'influencerReport.read'
+  | 'influencerReport.export'
+  | 'influencerSettings.manage';
 
 /**
  * Granular capability-based RBAC matrix for E3 Qatar platform.
@@ -96,6 +123,11 @@ export const rolePermissions: Record<Role, string[]> = {
     'view:leads',
     'view:dashboard',
     'view:schedule',
+    'influencer.read',
+    'influencerCampaign.read',
+    'influencerCampaign.manageAttendance',
+    'influencerContent.read',
+    'influencerReport.read',
   ],
 
   EVENTS_TEAM: [
@@ -131,6 +163,25 @@ export const rolePermissions: Record<Role, string[]> = {
     'manage:events',
     'manage:tickets',
     'manage:feedback',
+    // Influencer capabilities
+    'influencer.read',
+    'influencer.create',
+    'influencer.update',
+    'influencer.review',
+    'influencer.featurePublicly',
+    'influencerCampaign.read',
+    'influencerCampaign.create',
+    'influencerCampaign.update',
+    'influencerCampaign.invite',
+    'influencerCampaign.manageAttendance',
+    'influencerCampaign.export',
+    'influencerContent.read',
+    'influencerContent.review',
+    'influencerContent.verifyPublication',
+    'influencerContent.sendToMediaLibrary',
+    'influencerFinance.read',
+    'influencerReport.read',
+    'influencerReport.export',
   ],
 
   SUPPORT_ADMIN: [
@@ -227,6 +278,9 @@ export const rolePermissions: Record<Role, string[]> = {
     'view:staff_dashboard',
     'view:staff_profile',
     'upload:staff_media',
+    'influencer.read',
+    'influencerCampaign.read',
+    'influencerContent.read',
   ],
 
   CLIENT: [

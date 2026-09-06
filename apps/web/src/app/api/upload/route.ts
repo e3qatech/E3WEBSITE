@@ -8,8 +8,10 @@ import { hasPermission } from "@/lib/permissions";
 import { isValidMagicBytes, isValidDocxOoxml } from "@/lib/security";
 import { rateLimit } from "@/lib/rate-limit";
 import db from "@/lib/db";
+import { validateCreatorToken } from "@/lib/influencer/tokens";
 
 const CMS_MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
 const RESUME_MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const RFP_MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
@@ -40,15 +42,35 @@ const KNOWN_CONTEXTS = [
   'public_resume',
   'public_rfp',
   'public_attachment',
+  'creator_application',
+  'creator_portal',
+  'influencer_document',
   'cms_media',
   'brand_logo',
   'general_upload',
 ] as const;
 
-async function checkUploadAuth(context?: string | null): Promise<boolean> {
+async function checkUploadAuth(context?: string | null, creatorToken?: string | null): Promise<boolean> {
   // 1. Strictly enumerated public upload contexts do not require session auth
-  if (context === 'public_resume' || context === 'public_rfp' || context === 'public_attachment') {
+  if (
+    context === 'public_resume' ||
+    context === 'public_rfp' ||
+    context === 'public_attachment' ||
+    context === 'creator_application'
+  ) {
     return true;
+  }
+
+  // 1b. Creator portal uploads can authenticate via scoped creator token
+  if (context === 'creator_portal' && creatorToken) {
+    try {
+      const tokenCheck = await validateCreatorToken(creatorToken);
+      if (tokenCheck.isValid) {
+        return true;
+      }
+    } catch (_e) {
+      // Proceed to session check
+    }
   }
 
   // 2. Private/CMS upload contexts require a valid, verified server session
@@ -77,9 +99,22 @@ async function checkUploadAuth(context?: string | null): Promise<boolean> {
       return true;
     }
 
+    // Explicit permission mapping for sensitive influencer documents
+    if (context === 'influencer_document') {
+      return (
+        hasPermission(userRole, 'influencer.create') ||
+        hasPermission(userRole, 'influencer.update') ||
+        hasPermission(userRole, 'influencer.viewCommercial') ||
+        hasPermission(userRole, 'influencerFinance.update')
+      );
+    }
+
     return (
       hasPermission(userRole, 'media.write') ||
       hasPermission(userRole, 'media.read') ||
+      hasPermission(userRole, 'influencer.create') ||
+      hasPermission(userRole, 'influencer.update') ||
+      hasPermission(userRole, 'influencerCampaign.update') ||
       hasPermission(userRole, 'b2c.content.write') ||
       hasPermission(userRole, 'b2c.attractions.manage') ||
       hasPermission(userRole, 'b2b.content.write')
@@ -139,14 +174,20 @@ export async function POST(request: Request) {
   // 1. Handle Vercel Blob client token generation (JSON request)
   if (contentType.includes("application/json")) {
     try {
+      const headerCreatorToken = request.headers.get("x-creator-token");
       const body = (await request.json()) as HandleUploadBody;
       const jsonResponse = await handleUpload({
         body,
         request,
         onBeforeGenerateToken: async (pathname, clientPayload) => {
           let context: string | null = null;
+          let creatorToken: string | null = headerCreatorToken;
           if (clientPayload) {
-            try { context = JSON.parse(clientPayload).context; } catch {}
+            try {
+              const parsed = JSON.parse(clientPayload);
+              context = parsed.context;
+              if (parsed.creatorToken) creatorToken = parsed.creatorToken;
+            } catch {}
           }
 
           // Strict rejection: B2B RFP uploads MUST use the direct FormData workflow
@@ -158,12 +199,16 @@ export async function POST(request: Request) {
             throw new Error("Invalid upload context");
           }
 
-          const isAuthed = await checkUploadAuth(context);
+          const isAuthed = await checkUploadAuth(context, creatorToken);
           if (!isAuthed) {
             throw new Error("Unauthorized");
           }
 
-          if (context === 'public_resume' || context === 'public_attachment') {
+          if (
+            context === 'public_resume' ||
+            context === 'public_attachment' ||
+            context === 'creator_application'
+          ) {
             const rl = await rateLimit(`rate_limit:upload:${ip}`, 5, 60, false);
             if (!rl.success) throw new Error(rl.error);
           }
@@ -174,6 +219,9 @@ export async function POST(request: Request) {
           if (context === 'public_resume' || context === 'public_attachment') {
             maxSize = RESUME_MAX_FILE_SIZE;
             allowedTypes = RESUME_TYPES;
+          } else if (context === 'creator_application') {
+            maxSize = 15 * 1024 * 1024;
+            allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
           }
 
           return {
@@ -197,22 +245,25 @@ export async function POST(request: Request) {
   try {
     const data = await request.formData();
     const context = data.get('context') as string | null;
+    const headerCreatorToken = request.headers.get("x-creator-token");
+    const formCreatorToken = (data.get('creator_token') as string | null) || headerCreatorToken;
 
     // Validate upload context against strict allowlist
     if (context && !(KNOWN_CONTEXTS as readonly string[]).includes(context)) {
       return NextResponse.json({ success: false, error: 'Unknown upload context' }, { status: 400 });
     }
 
-    const isAuthed = await checkUploadAuth(context);
+    const isAuthed = await checkUploadAuth(context, formCreatorToken);
     const isPublicResume = context === 'public_resume';
     const isPublicRfp = context === 'public_rfp';
     const isPublicAttachment = context === 'public_attachment';
+    const isCreatorApplication = context === 'creator_application';
 
-    if (!isAuthed && !isPublicResume && !isPublicRfp && !isPublicAttachment) {
+    if (!isAuthed && !isPublicResume && !isPublicRfp && !isPublicAttachment && !isCreatorApplication) {
       return NextResponse.json({ success: false, error: 'Unauthorized: Authentication required' }, { status: 401 });
     }
 
-    if (isPublicResume || isPublicRfp || isPublicAttachment) {
+    if (isPublicResume || isPublicRfp || isPublicAttachment || isCreatorApplication) {
       const rl = await rateLimit(`rate_limit:upload:${ip}`, 5, 60, false);
       if (!rl.success) return NextResponse.json({ success: false, error: rl.error }, { status: 429 });
     }
@@ -231,7 +282,11 @@ export async function POST(request: Request) {
     } else if (isPublicRfp) {
       maxSize = RFP_MAX_FILE_SIZE;
       validExtensions = RFP_EXTENSIONS;
+    } else if (isCreatorApplication) {
+      maxSize = 15 * 1024 * 1024;
+      validExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf'];
     }
+
 
     if (file.size > maxSize) {
       return NextResponse.json({

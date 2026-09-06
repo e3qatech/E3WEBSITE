@@ -21,6 +21,7 @@ import {
   X,
   Building2,
   Users,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminTheme } from "./AdminThemeProvider";
@@ -196,6 +197,29 @@ const sidebarConfig: NavGroupItem[] = [
       { label: "Media Library & Folders", labelAr: "مكتبة الوسائط والمجلدات", href: "/dashboard/cms/media", capability: "media.read", progressPercent: 86 },
       { label: "Social Media Automation", labelAr: "إدارة وأتمتة التواصل", href: "/dashboard/social-media", roles: ["SUPER_ADMIN", "B2C_ADMIN"], progressPercent: 74, notificationCount: 2 },
       { label: "CMS Pages Directory", labelAr: "فهرس صفحات النظام", href: "/dashboard/cms/pages", roles: ["SUPER_ADMIN", "B2C_ADMIN"], progressPercent: 80 },
+    ],
+  },
+  {
+    id: "marketing-influencers",
+    category: "all",
+    label: "Influencer Management",
+    labelAr: "إدارة المؤثرين وصناع المحتوى",
+    icon: Sparkles,
+    href: "/dashboard/marketing/influencers",
+    roles: ["SUPER_ADMIN", "B2C_ADMIN", "EVENTS_ADMIN", "EVENTS_TEAM", "STAFF"],
+    capability: "influencer.read",
+    progressPercent: 92,
+    notificationCount: 3,
+    subItems: [
+      { label: "Command Overview", labelAr: "نظرة عامة ومؤشرات الأداء", href: "/dashboard/marketing/influencers", capability: "influencer.read", progressPercent: 95 },
+      { label: "Creator Directory", labelAr: "دليل صناع المحتوى", href: "/dashboard/marketing/influencers/directory", capability: "influencer.read", progressPercent: 92 },
+      { label: "Applications Inbox", labelAr: "طلبات الانضمام والمراجعة", href: "/dashboard/marketing/influencers/applications", capability: "influencer.review", progressPercent: 88, notificationCount: 2 },
+      { label: "Campaigns Hub", labelAr: "حملات المؤثرين", href: "/dashboard/marketing/influencers/campaigns", capability: "influencerCampaign.read", progressPercent: 90 },
+      { label: "Content Review Queue", labelAr: "مراجعة واعتماد المحتوى", href: "/dashboard/marketing/influencers/content-review", capability: "influencerContent.review", progressPercent: 85, notificationCount: 1 },
+      { label: "Event & Visit Calendar", labelAr: "جدول الزيارات والفعاليات", href: "/dashboard/marketing/influencers/calendar", capability: "influencerCampaign.read", progressPercent: 90 },
+      { label: "Performance Reports", labelAr: "تقارير الأداء ومبيعات التذاكر", href: "/dashboard/marketing/influencers/reports", capability: "influencerReport.read", progressPercent: 95 },
+      { label: "Reconciliation Queue", labelAr: "طابور تسوية المبيعات", href: "/dashboard/marketing/influencers/reconciliation", capability: "influencerFinance.read", progressPercent: 95 },
+      { label: "Scoring & Settings", labelAr: "إعدادات وأوزان التقييم", href: "/dashboard/marketing/influencers/settings", capability: "influencerSettings.manage", progressPercent: 90 },
     ],
   },
   {

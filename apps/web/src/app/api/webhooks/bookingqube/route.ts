@@ -27,7 +27,13 @@ const webhookPayloadSchema = z.object({
   type: z.enum(['ticket.purchased', 'ticket.cancelled', 'event.capacity_changed']),
   scheduleId: z.string().optional(),
   quantity: z.number().int().positive().optional(),
-  newCapacity: z.number().int().nonnegative().optional()
+  newCapacity: z.number().int().nonnegative().optional(),
+  promoCode: z.string().optional(),
+  trackingCode: z.string().optional(),
+  orderId: z.string().optional(),
+  grossRevenue: z.number().optional(),
+  discountAmount: z.number().optional(),
+  currency: z.string().optional(),
 }).strict()
 
 // ─── Development-only memory idempotency ────────────────────────────────────
@@ -147,18 +153,17 @@ async function markFailed(eventId: string): Promise<void> {
 // ─── Route Handler ──────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  // 0. Validate secret is configured (production guard)
+  // 0. Validate secret is configured (production guard - FAIL CLOSED)
   const secret = process.env.BOOKINGQUBE_WEBHOOK_SECRET;
   if (!secret) {
-    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
-      // Development/test fallback — allow with a warning
-      console.warn('[WEBHOOK] BOOKINGQUBE_WEBHOOK_SECRET not set — using empty string')
-    } else {
-      console.error('[WEBHOOK] BOOKINGQUBE_WEBHOOK_SECRET is not configured')
-      return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 })
+    if (process.env.NODE_ENV === 'production' || process.env.FAIL_CLOSED_WEBHOOK === 'true') {
+      console.error('[WEBHOOK] BOOKINGQUBE_WEBHOOK_SECRET is not configured in production — FAILING CLOSED');
+      return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
     }
+    // Development fallback with warning
+    console.warn('[WEBHOOK] BOOKINGQUBE_WEBHOOK_SECRET not set — development fallback');
   }
-  const effectiveSecret = secret || ''
+  const effectiveSecret = secret || '';
 
   try {
     // 1. Read exact raw body bytes
@@ -256,7 +261,110 @@ export async function POST(req: NextRequest) {
             break
         }
       } else {
-        console.warn(`[WEBHOOK] Event ${eventId}: missing scheduleId, no side effects`)
+        console.warn(`[WEBHOOK] Event ${eventId}: missing scheduleId, checking attribution`)
+      }
+
+      // Influencer conversion attribution & reconciliation
+      if (eventType === 'ticket.purchased' && (parsed.data.promoCode || parsed.data.trackingCode)) {
+        try {
+          const cleanCode = parsed.data.promoCode ? parsed.data.promoCode.trim().toUpperCase() : null;
+          const promo = cleanCode ? await (db as any).promoCode.findUnique({ where: { code: cleanCode } }) : null;
+          const tracking = parsed.data.trackingCode ? await (db as any).trackingLink.findUnique({ where: { shortCode: parsed.data.trackingCode.trim().toUpperCase() } }) : null;
+
+          if (promo || tracking) {
+            const campaignId = promo?.campaignId || tracking?.campaignId;
+            const campaignCreatorId = promo?.campaignCreatorId || tracking?.campaignCreatorId;
+            const gross = parsed.data.grossRevenue || 100;
+            const discount = parsed.data.discountAmount || 0;
+
+            await (db as any).influencerConversion.upsert({
+              where: { externalEventId: eventId },
+              create: {
+                campaignId,
+                campaignCreatorId,
+                promoCodeId: promo?.id || null,
+                trackingLinkId: tracking?.id || null,
+                reconciliationStatus: 'MATCHED',
+                externalEventId: eventId,
+                externalOrderId: parsed.data.orderId || eventId,
+                ticketCount: quantity || 1,
+                grossRevenue: gross,
+                discountAmount: discount,
+                refundAmount: 0,
+                netRevenue: Math.max(0, gross - discount),
+                currency: parsed.data.currency || 'QAR',
+                rawPayloadJson: payload as any,
+              },
+              update: {},
+            });
+
+            if (promo) {
+              await (db as any).promoCode.update({
+                where: { id: promo.id },
+                data: { usageCount: { increment: 1 } },
+              });
+            }
+          } else {
+            // UNMATCHED CODE — record in reconciliation queue for audit & manual attribution
+            const unmatched = cleanCode || parsed.data.trackingCode;
+            const gross = parsed.data.grossRevenue || 100;
+            const discount = parsed.data.discountAmount || 0;
+
+            await (db as any).influencerConversion.upsert({
+              where: { externalEventId: eventId },
+              create: {
+                campaignId: null,
+                campaignCreatorId: null,
+                promoCodeId: null,
+                trackingLinkId: null,
+                unmatchedCode: unmatched,
+                reconciliationStatus: 'UNMATCHED_CODE',
+                externalEventId: eventId,
+                externalOrderId: parsed.data.orderId || eventId,
+                ticketCount: quantity || 1,
+                grossRevenue: gross,
+                discountAmount: discount,
+                refundAmount: 0,
+                netRevenue: Math.max(0, gross - discount),
+                currency: parsed.data.currency || 'QAR',
+                rawPayloadJson: payload as any,
+              },
+              update: {},
+            });
+            console.warn(`[WEBHOOK] Unmatched conversion recorded for code "${unmatched}" [event: ${eventId}]`);
+          }
+        } catch (convErr) {
+          console.error('[WEBHOOK] Attribution conversion tracking error:', convErr);
+        }
+      } else if (eventType === 'ticket.cancelled') {
+        try {
+          const targetOrderId = parsed.data.orderId;
+          const refund = parsed.data.grossRevenue;
+
+          // Find conversions by externalOrderId or externalEventId
+          const existingConversions = await (db as any).influencerConversion.findMany({
+            where: {
+              OR: [
+                { externalOrderId: targetOrderId || '__NONE__' },
+                { externalEventId: eventId },
+              ],
+            },
+          });
+
+          for (const conv of existingConversions) {
+            const actualRefund = refund !== undefined ? refund : Number(conv.grossRevenue);
+            const newNet = Math.max(0, Number(conv.grossRevenue) - Number(conv.discountAmount) - actualRefund);
+            await (db as any).influencerConversion.update({
+              where: { id: conv.id },
+              data: {
+                refundAmount: actualRefund,
+                netRevenue: newNet,
+              },
+            });
+          }
+        } catch (_refundErr) {
+          console.error('[WEBHOOK] Error processing refund attribution:', _refundErr);
+        }
       }
 
       // Side effects succeeded — mark completed
