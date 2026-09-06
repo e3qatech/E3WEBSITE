@@ -127,7 +127,7 @@ export function PackageEnquiryModal({
 
   // Real-time Pricing Calculations
   const tierPrice = activeTier ? (activeTier.price || 0) : (selectedPackage?.startingPrice || 0)
-  const includedGuestsInTier = activeTier?.includedGuests || activeTier?.guestCount || packageMinGuests || 10
+  const includedGuestsInTier = Math.max(packageMinGuests, activeTier?.includedGuests || activeTier?.guestCount || packageMinGuests)
   const extraPricePerGuest = activeTier?.extraGuestPrice ?? selectedPackage?.extraGuestPrice ?? 0
 
   // Safe guest count for financial calculation
@@ -323,29 +323,30 @@ export function PackageEnquiryModal({
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto" dir={isAr ? "rtl" : "ltr"}>
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          className="relative w-full max-w-xl bg-[var(--surface-default)] rounded-3xl border border-[var(--border-level-2)] shadow-2xl p-6 md:p-8 text-[var(--text-primary)] my-8 max-h-[90vh] overflow-y-auto font-poppins"
+          initial={{ opacity: 0, scale: 0.96, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: 10 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="relative w-full max-w-2xl bg-[#08151B] rounded-3xl border border-slate-800 shadow-2xl p-6 sm:p-8 text-[var(--text-primary)] my-6 max-h-[92vh] overflow-y-auto font-poppins custom-scrollbar"
         >
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 rtl:right-auto rtl:left-5 w-8 h-8 rounded-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+            className="absolute top-5 right-5 rtl:right-auto rtl:left-5 w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/80 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-colors cursor-pointer z-10"
           >
             <X className="w-4 h-4" />
           </button>
 
           {success ? (
             <div className="text-center py-6 space-y-5">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto shadow-lg shadow-emerald-950/40">
                 <Check className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="text-2xl font-black font-display tracking-tight text-[var(--text-primary)]">
+                <h3 className="text-2xl font-black font-display tracking-tight text-white">
                   {isAr ? "تم إنشاء عرض السعر واستلام طلبك!" : "Quotation Generated & Enquiry Received!"}
                 </h3>
-                <p className="text-xs text-[var(--text-secondary)] max-w-md mx-auto mt-1.5 leading-relaxed">
+                <p className="text-xs text-slate-400 max-w-md mx-auto mt-1.5 leading-relaxed">
                   {isAr 
                     ? "تم إعداد مقترح وعرض السعر الرسمي بنجاح. يمكنك تحميله بصيغة PDF، مشاركته مع الشركاء، أو سداد الدفعة المقدمة لتثبيت الموعد."
                     : "Your official package quotation is ready! Download the PDF proposal, copy the shareable link, or secure your date with an instant deposit."
@@ -355,19 +356,19 @@ export function PackageEnquiryModal({
 
               {/* Reference Badges */}
               <div className="flex flex-wrap items-center justify-center gap-2">
-                <div className="p-2.5 px-3.5 bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl font-mono text-xs text-[var(--color-primary)] font-bold">
+                <div className="p-2.5 px-3.5 bg-slate-900/80 border border-slate-800 rounded-xl font-mono text-xs text-blue-400 font-bold">
                   {isAr ? "رقم عرض السعر:" : "Quote #:"} {quoteTarget}
                 </div>
                 {referenceNumber && referenceNumber !== quoteTarget && (
-                  <div className="p-2.5 px-3.5 bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl font-mono text-xs text-[var(--text-secondary)]">
+                  <div className="p-2.5 px-3.5 bg-slate-900/80 border border-slate-800 rounded-xl font-mono text-xs text-slate-400">
                     {isAr ? "طلب حجز:" : "Lead #:"} {referenceNumber}
                   </div>
                 )}
               </div>
 
               {/* Action Buttons Hub */}
-              <div className="p-4 rounded-2xl bg-[var(--bg-level-1)] border border-[var(--border-level-2)] space-y-3 text-start">
-                <span className="text-[10px] font-mono uppercase text-[var(--text-tertiary)] block font-bold text-center">
+              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-3 text-start">
+                <span className="text-[10px] font-mono uppercase text-slate-400 block font-bold text-center tracking-wider">
                   {isAr ? "خيارات عرض السعر والدفع" : "Quote Actions & Payment"}
                 </span>
 
@@ -376,18 +377,18 @@ export function PackageEnquiryModal({
                     href={quoteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-[var(--color-primary)] text-xs font-bold text-[var(--text-primary)] transition-all cursor-pointer shadow-xs"
+                    className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:border-blue-500 text-xs font-bold text-white transition-all cursor-pointer shadow-xs hover:bg-slate-700"
                   >
-                    <Download className="w-4 h-4 text-sky-500" />
+                    <Download className="w-4 h-4 text-sky-400" />
                     <span>{isAr ? "تحميل عرض السعر (PDF)" : "Download Quote (PDF)"}</span>
                   </a>
 
                   <button
                     type="button"
                     onClick={handleCopyQuoteLink}
-                    className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-[var(--color-primary)] text-xs font-bold text-[var(--text-primary)] transition-all cursor-pointer shadow-xs"
+                    className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:border-purple-500 text-xs font-bold text-white transition-all cursor-pointer shadow-xs hover:bg-slate-700"
                   >
-                    <Share2 className="w-4 h-4 text-purple-500" />
+                    <Share2 className="w-4 h-4 text-purple-400" />
                     <span>{copiedLink ? (isAr ? "تم نسخ الرابط!" : "Link Copied!") : (isAr ? "مشاركة رابط العرض" : "Share Quote Link")}</span>
                   </button>
 
@@ -395,9 +396,9 @@ export function PackageEnquiryModal({
                     type="button"
                     onClick={handleEmailCustomerQuote}
                     disabled={sendingEmail}
-                    className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-2)] hover:border-[var(--color-primary)] text-xs font-bold text-[var(--text-primary)] transition-all cursor-pointer shadow-xs"
+                    className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:border-amber-500 text-xs font-bold text-white transition-all cursor-pointer shadow-xs hover:bg-slate-700"
                   >
-                    <Mail className="w-4 h-4 text-amber-500" />
+                    <Mail className="w-4 h-4 text-amber-400" />
                     <span>{emailDispatched ? (isAr ? "تم الإرسال بالبريد!" : "Email Sent!") : (isAr ? "إرسال العرض لإيميلي" : "Email Me Quote")}</span>
                   </button>
 
@@ -405,7 +406,7 @@ export function PackageEnquiryModal({
                     href={`${quoteUrl}#payment`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all cursor-pointer shadow-sm"
+                    className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold transition-all cursor-pointer shadow-md shadow-emerald-950/30"
                   >
                     <CreditCard className="w-4 h-4" />
                     <span>{isAr ? "سداد الدفعة المقدمة" : "Pay Deposit Online"}</span>
@@ -414,7 +415,7 @@ export function PackageEnquiryModal({
               </div>
 
               <div className="pt-2">
-                <Button onClick={onClose} variant="outline" className="text-xs font-bold">
+                <Button onClick={onClose} variant="outline" className="text-xs font-bold rounded-xl border-slate-700 text-slate-300 hover:bg-slate-800">
                   {isAr ? "إغلاق النافذة" : "Close Window"}
                 </Button>
               </div>
@@ -432,58 +433,64 @@ export function PackageEnquiryModal({
               />
 
               {/* Header */}
-              <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-mono font-bold uppercase tracking-wider mb-2">
+              <div className="space-y-1">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-mono font-bold uppercase tracking-wider mb-1">
                   <Sparkles className="w-3.5 h-3.5" />
                   {isAr ? "طلب حجز واستفسار رسمي" : "Official Package Enquiry"}
                 </span>
-                <h3 className="text-xl md:text-2xl font-black font-display tracking-tight text-[var(--text-primary)]">
+                <h3 className="text-xl sm:text-2xl font-black font-display tracking-tight text-white">
                   {selectedPackage 
                     ? (isAr ? (selectedPackage.titleAr || selectedPackage.titleEn) : selectedPackage.titleEn)
                     : (isAr ? "استفسار عن باقات إي ثري" : "E3 Package Booking Request")
                   }
                 </h3>
-
-                {/* Modular Tier Selector */}
-                {availableTiers.length > 1 && (
-                  <div className="mt-2.5">
-                    <span className="text-[10px] font-mono uppercase text-[var(--text-tertiary)] block mb-1.5 font-bold">
-                      {isAr ? "اختر فئة الباقة:" : "Choose Package Tier:"}
-                    </span>
-                    <div className="flex flex-wrap gap-2">
-                      {availableTiers.map((tier: any) => {
-                        const isTierActive = activeTier?.id === tier.id
-                        return (
-                          <button
-                            key={tier.id}
-                            type="button"
-                            onClick={() => {
-                              setActiveTier(tier)
-                              if (expectedGuests < (tier.guestCount || tier.includedGuests || packageMinGuests)) {
-                                setExpectedGuests(tier.guestCount || tier.includedGuests || packageMinGuests)
-                              }
-                            }}
-                            className={cn(
-                              "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-2",
-                              isTierActive
-                                ? "bg-[var(--e3-royal-blue)] text-white border-[var(--e3-royal-blue)] shadow-md"
-                                : "bg-[var(--surface-hover)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-white"
-                            )}
-                          >
-                            <span>{isAr ? tier.nameAr || tier.nameEn : tier.nameEn}</span>
-                            <span className="font-mono text-[10px] opacity-80">{tier.price} QAR</span>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-                {availableTiers.length === 1 && activeTier && (
-                  <p className="text-xs text-[var(--e3-royal-blue)] font-bold mt-0.5">
-                    {isAr ? "الفئة المختارة:" : "Selected Tier:"} {isAr ? (activeTier.nameAr || activeTier.nameEn) : activeTier.nameEn} ({activeTier.price} QAR)
-                  </p>
-                )}
               </div>
+
+              {/* Modular Tier Selector */}
+              {availableTiers.length > 1 && (
+                <div className="pt-2">
+                  <span className="text-[11px] font-mono uppercase text-slate-400 font-bold block mb-2 tracking-wider">
+                    {isAr ? "اختر فئة الباقة:" : "Choose Package Tier:"}
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    {availableTiers.map((tier: any) => {
+                      const isTierActive = activeTier?.id === tier.id
+                      return (
+                        <button
+                          key={tier.id}
+                          type="button"
+                          onClick={() => {
+                            setActiveTier(tier)
+                            const tierMin = Math.max(packageMinGuests, tier.includedGuests || tier.guestCount || packageMinGuests)
+                            if (expectedGuests < tierMin) {
+                              setExpectedGuests(tierMin)
+                            }
+                          }}
+                          className={cn(
+                            "p-3 rounded-2xl border text-start transition-all cursor-pointer flex flex-col justify-between gap-1.5",
+                            isTierActive
+                              ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white border-blue-400/50 shadow-lg shadow-blue-500/20 scale-[1.01]"
+                              : "bg-slate-900/60 hover:bg-slate-800/80 border-slate-800 text-slate-300 hover:text-white"
+                          )}
+                        >
+                          <span className="text-xs font-bold leading-snug line-clamp-2">{isAr ? tier.nameAr || tier.nameEn : tier.nameEn}</span>
+                          <span className={cn("font-mono text-xs font-black mt-auto", isTierActive ? "text-white" : "text-blue-400")}>
+                            {tier.price} QAR
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+              {availableTiers.length === 1 && activeTier && (
+                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                  <span className="text-xs text-slate-400 font-bold">{isAr ? "الفئة المختارة:" : "Selected Tier:"}</span>
+                  <span className="text-xs font-bold text-white">
+                    {isAr ? (activeTier.nameAr || activeTier.nameEn) : activeTier.nameEn} ({activeTier.price} QAR)
+                  </span>
+                </div>
+              )}
 
               {errorMsg && (
                 <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
@@ -492,34 +499,39 @@ export function PackageEnquiryModal({
                 </div>
               )}
 
-              {/* Lead Type Radio */}
-              <div className="flex flex-wrap gap-2 pt-1">
-                {[
-                  { id: "BIRTHDAY", labelEn: "Birthday Party", labelAr: "حفل عيد ميلاد" },
-                  { id: "GROUP_SCHOOL", labelEn: "School / Nursery", labelAr: "مدرسة / حضانة" },
-                  { id: "CORPORATE", labelEn: "Corporate Outing", labelAr: "فعالية شركات" },
-                  { id: "GENERAL", labelEn: "Group Booking", labelAr: "حجز جماعي" }
-                ].map(type => (
-                  <button
-                    key={type.id}
-                    type="button"
-                    onClick={() => setLeadType(type.id)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer",
-                      leadType === type.id
-                        ? "bg-[var(--e3-royal-blue)]/20 border-[var(--e3-royal-blue)] text-[var(--text-primary)] shadow-sm"
-                        : "bg-[var(--surface-hover)] border-[var(--border-level-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                    )}
-                  >
-                    {isAr ? type.labelAr : type.labelEn}
-                  </button>
-                ))}
+              {/* Event Type Radio */}
+              <div className="pt-2">
+                <span className="text-[11px] font-mono uppercase text-slate-400 font-bold block mb-2 tracking-wider">
+                  {isAr ? "نوع الفعالية أو الحجز:" : "Event Type:"}
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: "BIRTHDAY", labelEn: "Birthday Party", labelAr: "حفل عيد ميلاد" },
+                    { id: "GROUP_SCHOOL", labelEn: "School / Nursery", labelAr: "مدرسة / حضانة" },
+                    { id: "CORPORATE", labelEn: "Corporate Outing", labelAr: "فعالية شركات" },
+                    { id: "GENERAL", labelEn: "Group Booking", labelAr: "حجز جماعي" }
+                  ].map(type => (
+                    <button
+                      key={type.id}
+                      type="button"
+                      onClick={() => setLeadType(type.id)}
+                      className={cn(
+                        "px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer",
+                        leadType === type.id
+                          ? "bg-purple-600/20 border-purple-500/60 text-purple-300 shadow-sm font-bold"
+                          : "bg-slate-900/50 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700"
+                      )}
+                    >
+                      {isAr ? type.labelAr : type.labelEn}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Contact Fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div>
-                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
                     {isAr ? "الاسم الكامل *" : "Contact Name *"}
                   </label>
                   <input
@@ -528,12 +540,12 @@ export function PackageEnquiryModal({
                     value={customerName}
                     onChange={e => setCustomerName(e.target.value)}
                     placeholder={isAr ? "الاسم الكريم" : "Your Name"}
-                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[var(--e3-royal-blue)]"
+                    className="w-full bg-slate-900/70 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all font-medium"
                   />
                 </div>
 
-                <div>
-                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
                     {leadType === "CORPORATE" 
                       ? (isAr ? "اسم الشركة *" : "Company Name *")
                       : (isAr ? "الجهة أو المدرسة (اختياري)" : "Organization / School")
@@ -544,12 +556,12 @@ export function PackageEnquiryModal({
                     value={companyOrOrg}
                     onChange={e => setCompanyOrOrg(e.target.value)}
                     placeholder={leadType === "CORPORATE" ? "Company name" : "School / Group"}
-                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[var(--e3-royal-blue)]"
+                    className="w-full bg-slate-900/70 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all font-medium"
                   />
                 </div>
 
-                <div>
-                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
                     {isAr ? "البريد الإلكتروني *" : "Email Address *"}
                   </label>
                   <input
@@ -558,12 +570,12 @@ export function PackageEnquiryModal({
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="email@example.com"
-                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[var(--e3-royal-blue)] font-mono"
+                    className="w-full bg-slate-900/70 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all font-mono"
                   />
                 </div>
 
-                <div>
-                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
                     {isAr ? "رقم الهاتف / الواتساب *" : "Phone / WhatsApp Number *"}
                   </label>
                   <input
@@ -575,30 +587,30 @@ export function PackageEnquiryModal({
                       setPhone(e.target.value)
                     }}
                     placeholder="+974 XXXX XXXX"
-                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[var(--e3-royal-blue)] font-mono"
+                    className="w-full bg-slate-900/70 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all font-mono"
                   />
                 </div>
 
-                <div>
-                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
                     {isAr ? "التاريخ المفضل" : "Preferred Event Date"}
                   </label>
                   <input
                     type="date"
                     value={preferredDate}
                     onChange={e => setPreferredDate(e.target.value)}
-                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[var(--e3-royal-blue)] font-mono"
+                    className="w-full bg-slate-900/70 border border-slate-700/70 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all font-mono"
                   />
                 </div>
 
                 {/* Expected Guest Count with Stepper & Capacity Guard */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs font-bold text-[var(--text-secondary)]">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
                       {isAr ? "عدد الحضور المتوقع *" : "Expected Guest Count *"}
                     </label>
-                    <span className="text-[10px] font-mono text-[var(--text-tertiary)]">
-                      {packageMinGuests} - {packageMaxGuests} {isAr ? "ضيوف" : "guests"}
+                    <span className="text-[10px] font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50">
+                      {packageMinGuests}–{packageMaxGuests} {isAr ? "ضيوف" : "guests"}
                     </span>
                   </div>
 
@@ -607,9 +619,9 @@ export function PackageEnquiryModal({
                       type="button"
                       onClick={() => setExpectedGuests(prev => Math.max(packageMinGuests, prev - 1))}
                       disabled={expectedGuests <= packageMinGuests}
-                      className="w-8 h-8 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] flex items-center justify-center text-xs font-bold disabled:opacity-30 hover:border-[var(--e3-royal-blue)] cursor-pointer"
+                      className="w-10 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white flex items-center justify-center disabled:opacity-30 disabled:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
                     >
-                      <Minus className="w-3.5 h-3.5" />
+                      <Minus className="w-4 h-4" />
                     </button>
                     <input
                       type="number"
@@ -622,19 +634,19 @@ export function PackageEnquiryModal({
                         if (expectedGuests > packageMaxGuests) setExpectedGuests(packageMaxGuests)
                       }}
                       className={cn(
-                        "w-full text-center bg-[var(--surface-hover)] border rounded-xl px-2 py-1.5 text-xs font-mono font-bold focus:outline-none",
+                        "w-full text-center bg-slate-900/80 border rounded-xl h-9 text-xs font-mono font-black focus:outline-none transition-all",
                         isBelowMin || isAboveMax
                           ? "border-rose-500 text-rose-400"
-                          : "border-[var(--border-level-2)] text-[var(--text-primary)] focus:border-[var(--e3-royal-blue)]"
+                          : "border-slate-700/80 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50"
                       )}
                     />
                     <button
                       type="button"
                       onClick={() => setExpectedGuests(prev => Math.min(packageMaxGuests, prev + 1))}
                       disabled={expectedGuests >= packageMaxGuests}
-                      className="w-8 h-8 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] flex items-center justify-center text-xs font-bold disabled:opacity-30 hover:border-[var(--e3-royal-blue)] cursor-pointer"
+                      className="w-10 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white flex items-center justify-center disabled:opacity-30 disabled:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-4 h-4" />
                     </button>
                   </div>
 
@@ -652,19 +664,21 @@ export function PackageEnquiryModal({
                         : `⛔ Venue maximum capacity is ${packageMaxGuests} guests. Cannot exceed capacity limit.`}
                     </p>
                   )}
-                  {!isBelowMin && !isAboveMax && extraGuestsCount > 0 && (
-                    <p className="text-[10px] text-[var(--text-tertiary)] font-mono mt-1">
-                      {isAr
-                        ? `تشمل الباقة ${includedGuestsInTier} ضيوف. (+${extraGuestsCount} ضيوف إضافيين × ${extraPricePerGuest} ر.ق).`
-                        : `Includes ${includedGuestsInTier} guests. +${extraGuestsCount} extra guests calculated (+${extraGuestsTotal.toLocaleString()} QAR).`}
+                  {!isBelowMin && !isAboveMax && (
+                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                      {extraGuestsCount > 0
+                        ? (isAr
+                            ? `تشمل الباقة ${includedGuestsInTier} ضيوف. (+${extraGuestsCount} ضيوف إضافيين × ${extraPricePerGuest} ر.ق)`
+                            : `Includes ${includedGuestsInTier} guests. +${extraGuestsCount} extra guests (+${extraGuestsTotal.toLocaleString()} QAR).`)
+                        : (isAr ? `مشمل بالكامل ضمن سعر الفئة (${includedGuestsInTier} ضيوف)` : `Covered by tier base (${includedGuestsInTier} guests included)`)}
                     </p>
                   )}
                 </div>
 
                 {leadType === "BIRTHDAY" && (
                   <>
-                    <div>
-                      <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
                         {isAr ? "اسم صاحب / صاحبة العيد" : "Birthday Child / Celebrant Name"}
                       </label>
                       <input
@@ -672,11 +686,11 @@ export function PackageEnquiryModal({
                         value={celebrationName}
                         onChange={e => setCelebrationName(e.target.value)}
                         placeholder="e.g. Tariq"
-                        className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[var(--e3-royal-blue)]"
+                        className="w-full bg-slate-900/70 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all font-medium"
                       />
                     </div>
-                    <div>
-                      <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
                         {isAr ? "العمر المحتفى به" : "Turning Age"}
                       </label>
                       <input
@@ -684,16 +698,16 @@ export function PackageEnquiryModal({
                         value={ageGroup}
                         onChange={e => setAgeGroup(e.target.value)}
                         placeholder="e.g. 7 years old"
-                        className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[var(--e3-royal-blue)]"
+                        className="w-full bg-slate-900/70 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all font-medium"
                       />
                     </div>
                   </>
                 )}
 
                 {/* Coupon & Referral Code Row */}
-                <div className="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <div>
-                    <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                <div className="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
                       {isAr ? "رمز الكوبون الترويجي" : "Promo / Coupon Code"}
                     </label>
                     <div className="flex items-center gap-2">
@@ -702,18 +716,16 @@ export function PackageEnquiryModal({
                         value={couponCodeInput}
                         onChange={e => setCouponCodeInput(e.target.value)}
                         placeholder="e.g. E3-SUMMER"
-                        className="flex-1 bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs font-mono uppercase focus:outline-none focus:border-[var(--e3-royal-blue)]"
+                        className="flex-1 bg-slate-900/70 border border-slate-700/70 rounded-xl px-3.5 py-2 text-xs font-mono uppercase text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all"
                       />
-                      <Button
+                      <button
                         type="button"
-                        size="sm"
-                        variant="outline"
                         disabled={validatingCoupon || !couponCodeInput}
                         onClick={handleApplyCoupon}
-                        className="h-8 text-xs font-bold px-3 shrink-0"
+                        className="h-9 text-xs font-bold px-4 rounded-xl bg-[var(--e3-royal-blue)] hover:bg-blue-600 disabled:opacity-40 text-white transition-colors cursor-pointer shrink-0"
                       >
                         {validatingCoupon ? "..." : (isAr ? "تطبيق" : "Apply")}
-                      </Button>
+                      </button>
                     </div>
                     {couponError && <p className="text-[10px] text-rose-400 mt-1">{couponError}</p>}
                     {appliedCoupon && (
@@ -723,8 +735,8 @@ export function PackageEnquiryModal({
                     )}
                   </div>
 
-                  <div>
-                    <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
                       {isAr ? "كود الإحالة (اختياري)" : "Referral Code (Optional)"}
                     </label>
                     <input
@@ -732,115 +744,113 @@ export function PackageEnquiryModal({
                       value={referralCodeInput}
                       onChange={e => setReferralCodeInput(e.target.value)}
                       placeholder="e.g. REF-12345"
-                      className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs font-mono uppercase focus:outline-none focus:border-[var(--e3-royal-blue)]"
+                      className="w-full bg-slate-900/70 border border-slate-700/70 rounded-xl px-3.5 py-2 text-xs font-mono uppercase text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all"
                     />
                   </div>
                 </div>
+              </div>
 
-                {/* MODAL ADD-ONS SELECTOR */}
-                {availableAddOns.length > 0 && (
-                  <div className="col-span-1 sm:col-span-2 pt-3 border-t border-[var(--border-level-2)] space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="text-xs font-mono font-bold uppercase text-[var(--text-primary)] tracking-wider">
-                          {isAr ? "تخصيص الخدمات والإضافات (اختياري)" : "Customize Add-Ons & Experiences"}
-                        </h4>
-                        <p className="text-[10px] text-[var(--text-secondary)]">
-                          {isAr ? "اختر الخدمات الإضافية لاحتفالك وسنقوم بإضافتها لعرض السعر." : "Select optional party add-ons, cakes, or hosts with instant price calculation."}
-                        </p>
-                      </div>
-                    </div>
+              {/* MODAL ADD-ONS SELECTOR */}
+              {availableAddOns.length > 0 && (
+                <div className="pt-3 border-t border-slate-800 space-y-2">
+                  <div>
+                    <h4 className="text-xs font-mono font-bold uppercase text-slate-300 tracking-wider">
+                      {isAr ? "تخصيص الخدمات والإضافات (اختياري)" : "Customize Add-Ons & Experiences"}
+                    </h4>
+                    <p className="text-[10px] text-slate-400">
+                      {isAr ? "اختر الخدمات الإضافية لاحتفالك وسنقوم بإضافتها لعرض السعر." : "Select optional party add-ons, cakes, or hosts with instant price calculation."}
+                    </p>
+                  </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-                      {availableAddOns.map((addon: any) => {
-                        const qty = modalAddOnQty[addon.id] || 0
-                        const isPerGuest = addon.priceType === "PER_GUEST"
-                        const lineTotal = isPerGuest ? (addon.price || 0) * safeGuests * qty : (addon.price || 0) * qty
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-1.5 custom-scrollbar">
+                    {availableAddOns.map((addon: any) => {
+                      const qty = modalAddOnQty[addon.id] || 0
+                      const isPerGuest = addon.priceType === "PER_GUEST"
+                      const lineTotal = isPerGuest ? (addon.price || 0) * safeGuests * qty : (addon.price || 0) * qty
 
-                        return (
-                          <div
-                            key={addon.id}
-                            className={cn(
-                              "p-2.5 rounded-xl border transition-all flex items-center justify-between gap-2",
-                              qty > 0
-                                ? "bg-[var(--surface-hover)] border-[var(--e3-royal-blue)]/60 shadow-sm"
-                                : "bg-[var(--surface-subtle)]/40 border-[var(--border-level-2)]"
-                            )}
-                          >
-                            <div className="min-w-0 flex-1">
-                              <h5 className="font-bold text-xs text-[var(--text-primary)] truncate">
-                                {isAr ? addon.titleAr || addon.titleEn : addon.titleEn}
-                              </h5>
-                              <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-                                <span className="text-[11px] font-mono font-bold text-[var(--e3-royal-blue)]">
-                                  +{addon.price} QAR {isPerGuest ? (isAr ? "/ ضيف" : "/ guest") : ""}
+                      return (
+                        <div
+                          key={addon.id}
+                          className={cn(
+                            "p-3 rounded-2xl border transition-all flex items-center justify-between gap-3",
+                            qty > 0
+                              ? "bg-blue-950/25 border-blue-500/50 shadow-sm"
+                              : "bg-slate-900/50 border-slate-800 hover:border-slate-700"
+                          )}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <h5 className="font-bold text-xs text-white truncate" title={isAr ? addon.titleAr || addon.titleEn : addon.titleEn}>
+                              {isAr ? addon.titleAr || addon.titleEn : addon.titleEn}
+                            </h5>
+                            <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                              <span className="text-[11px] font-mono font-bold text-blue-400">
+                                +{addon.price} QAR {isPerGuest ? (isAr ? "/ ضيف" : "/ guest") : ""}
+                              </span>
+                              {isPerGuest && qty > 0 && (
+                                <span className="text-[9px] font-mono bg-blue-500/15 text-blue-300 px-1.5 py-0.5 rounded">
+                                  {addon.price} × {safeGuests} = {lineTotal.toLocaleString()} QAR
                                 </span>
-                                {isPerGuest && qty > 0 && (
-                                  <span className="text-[9px] font-mono bg-[var(--e3-royal-blue)]/10 text-[var(--e3-royal-blue)] px-1.5 py-0.5 rounded">
-                                    {addon.price} × {safeGuests} = {lineTotal.toLocaleString()} QAR
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <button
-                                type="button"
-                                onClick={() => handleAddOnQtyChange(addon.id, -1)}
-                                disabled={qty <= 0}
-                                className="w-6 h-6 rounded-lg bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-xs font-bold disabled:opacity-30 hover:border-[var(--e3-royal-blue)] cursor-pointer"
-                              >
-                                <Minus className="w-3 h-3" />
-                              </button>
-                              <span className="w-4 text-center font-mono font-bold text-xs">{qty}</span>
-                              <button
-                                type="button"
-                                onClick={() => handleAddOnQtyChange(addon.id, 1)}
-                                disabled={addon.maxQty && qty >= addon.maxQty}
-                                className="w-6 h-6 rounded-lg bg-[var(--surface-default)] border border-[var(--border-level-2)] flex items-center justify-center text-xs font-bold hover:border-[var(--e3-royal-blue)] cursor-pointer"
-                              >
-                                <Plus className="w-3 h-3" />
-                              </button>
+                              )}
                             </div>
                           </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
 
-                <div className="col-span-1 sm:col-span-2">
-                  <label className="text-xs font-bold text-[var(--text-secondary)] block mb-1">
-                    {isAr ? "ملاحظات أو طلبات خاصة" : "Special Requests or Catering Requirements"}
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={specialRequests}
-                    onChange={e => setSpecialRequests(e.target.value)}
-                    placeholder={isAr ? "اذكر أي تفاصيل إضافية أو ثيم مخصص..." : "Any custom theme, food allergies, or timing notes..."}
-                    className="w-full bg-[var(--surface-hover)] border border-[var(--border-level-2)] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[var(--e3-royal-blue)] resize-none"
-                  />
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleAddOnQtyChange(addon.id, -1)}
+                              disabled={qty <= 0}
+                              className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-xs font-bold text-white disabled:opacity-30 disabled:hover:bg-slate-800 transition-colors cursor-pointer"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="w-5 text-center font-mono font-bold text-xs text-white">{qty}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleAddOnQtyChange(addon.id, 1)}
+                              disabled={addon.maxQty && qty >= addon.maxQty}
+                              className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-xs font-bold text-white hover:border-blue-500 transition-colors cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
+                  {isAr ? "ملاحظات أو طلبات خاصة" : "Special Requests or Catering Requirements"}
+                </label>
+                <textarea
+                  rows={2}
+                  value={specialRequests}
+                  onChange={e => setSpecialRequests(e.target.value)}
+                  placeholder={isAr ? "اذكر أي تفاصيل إضافية أو ثيم مخصص..." : "Any custom theme, food allergies, or timing notes..."}
+                  className="w-full bg-slate-900/70 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none"
+                />
               </div>
 
               {/* REAL-TIME DYNAMIC PRICE BREAKDOWN */}
-              <div className="p-4 bg-gradient-to-br from-[var(--surface-hover)] to-[var(--surface-subtle)] border border-[var(--border-level-2)] rounded-2xl space-y-2">
-                <div className="flex items-center justify-between text-xs font-mono text-[var(--text-secondary)]">
+              <div className="p-4 sm:p-5 bg-gradient-to-br from-slate-900/90 to-slate-950/90 border border-slate-800 rounded-2xl space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-mono text-slate-400">
                   <span>{isAr ? "الفئة الأساسية" : "Base Tier"}:</span>
-                  <span className="font-bold text-[var(--text-primary)]">{tierPrice.toLocaleString()} QAR</span>
+                  <span className="font-bold text-white">{tierPrice.toLocaleString()} QAR</span>
                 </div>
 
                 {extraGuestsTotal > 0 && (
-                  <div className="flex items-center justify-between text-xs font-mono text-amber-400">
+                  <div className="flex items-center justify-between text-xs font-mono text-sky-400">
                     <span>+{extraGuestsCount} {isAr ? "ضيوف إضافيين:" : "extra guests:"}</span>
                     <span className="font-bold">+{extraGuestsTotal.toLocaleString()} QAR</span>
                   </div>
                 )}
 
                 {modalAddOnsTotal > 0 && (
-                  <div className="flex items-center justify-between text-xs font-mono text-[var(--text-secondary)]">
+                  <div className="flex items-center justify-between text-xs font-mono text-slate-300">
                     <span>{isAr ? "الإضافات المختارة:" : "Selected Add-Ons:"}</span>
-                    <span className="font-bold text-[var(--text-primary)]">+{modalAddOnsTotal.toLocaleString()} QAR</span>
+                    <span className="font-bold text-white">+{modalAddOnsTotal.toLocaleString()} QAR</span>
                   </div>
                 )}
 
@@ -851,18 +861,18 @@ export function PackageEnquiryModal({
                   </div>
                 )}
 
-                <div className="pt-2 border-t border-[var(--border-level-2)] flex items-center justify-between">
+                <div className="pt-2.5 border-t border-slate-800 flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-bold text-[var(--text-primary)] block">
+                    <span className="text-xs font-bold text-white block">
                       {isAr ? "إجمالي الباقة التقديري:" : "Estimated Package Total:"}
                     </span>
-                    <span className="text-[10px] text-[var(--text-tertiary)] font-mono">
+                    <span className="text-[10px] text-slate-400 font-mono">
                       ({safeGuests} {isAr ? "ضيوف" : "guests"}
                       {activeTier ? ` • ${isAr ? activeTier.nameAr || activeTier.nameEn : activeTier.nameEn}` : ""})
                     </span>
                   </div>
                   <div className="text-end">
-                    <span className="text-xl font-black font-mono text-[var(--e3-royal-blue)]">
+                    <span className="text-2xl font-black font-mono text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
                       {finalEstimatedTotal.toLocaleString()} QAR
                     </span>
                   </div>
@@ -870,14 +880,14 @@ export function PackageEnquiryModal({
               </div>
 
               {/* Terms Consent (Preserving required Arabic PDPL string) */}
-              <div className="space-y-2 text-xs text-[var(--text-secondary)]">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <div className="space-y-2 text-xs text-slate-400">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={termsAccepted}
                     onChange={e => setTermsAccepted(e.target.checked)}
                     required
-                    className="rounded text-[var(--e3-royal-blue)]"
+                    className="w-4 h-4 rounded text-[var(--e3-royal-blue)] accent-[var(--e3-royal-blue)]"
                   />
                   <span>
                     {isAr 
@@ -888,13 +898,13 @@ export function PackageEnquiryModal({
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
-                <Button type="button" variant="outline" size="sm" onClick={onClose}>
+                <Button type="button" variant="outline" size="sm" onClick={onClose} className="rounded-xl border-slate-700 text-slate-300 hover:bg-slate-800">
                   {isAr ? "إلغاء" : "Cancel"}
                 </Button>
                 <button
                   type="submit"
                   disabled={submitting || isBelowMin || isAboveMax}
-                  className="gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold text-xs shadow-lg shadow-pink-950/40 hover:shadow-pink-700/40 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
+                  className="gap-2 px-7 py-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold text-xs shadow-xl shadow-pink-950/40 hover:shadow-pink-700/40 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{submitting ? (isAr ? "جاري الإرسال..." : "Submitting...") : (isAr ? "إرسال الطلب الآن" : "Submit Enquiry")}</span>
