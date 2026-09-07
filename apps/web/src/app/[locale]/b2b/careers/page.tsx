@@ -8,6 +8,7 @@ import {
   formatJobPresentation,
   FormattedPublicJob,
 } from "@/lib/careers/job-eligibility";
+import { getBaseUrl } from "@/lib/seo-helper";
 import { CinematicCareersHero } from "@/components/b2b/careers/CinematicCareersHero";
 import { ActiveJobsSection } from "@/components/b2b/careers/ActiveJobsSection";
 import { GeneralCvUploadSection } from "@/components/b2b/careers/GeneralCvUploadSection";
@@ -45,24 +46,28 @@ export async function generateMetadata(props: {
     ? seo.metaDescriptionAr || cms.hero?.subtitleAr || "انضم إلى نخبة مهندسي التجارب، مصممي المسارح الحركية، ومخرجي أضخم الفعاليات الترفيهية والثقافية في دولة قطر."
     : seo.metaDescriptionEn || cms.hero?.subtitleEn || "Join an elite collective of spatial architects, technical directors, AV systems engineers, and live experience pioneers in Qatar.";
 
+  const baseUrl = getBaseUrl();
+
   return {
     title,
     description,
     keywords: isAr ? seo.keywordsAr : seo.keywordsEn,
     alternates: {
-      canonical: `/${locale}/b2b/careers`,
+      canonical: `${baseUrl}/${locale}/b2b/careers`,
       languages: {
-        en: "/en/b2b/careers",
-        ar: "/ar/b2b/careers",
+        en: `${baseUrl}/en/b2b/careers`,
+        ar: `${baseUrl}/ar/b2b/careers`,
+        "x-default": `${baseUrl}/en/b2b/careers`,
       },
     },
     openGraph: {
       title,
       description,
-      url: `https://e3.qa/${locale}/b2b/careers`,
+      url: `${baseUrl}/${locale}/b2b/careers`,
       siteName: isAr ? "إي ثري قطر" : "E3 Qatar",
       locale: isAr ? "ar_QA" : "en_US",
       type: "website",
+      images: [{ url: `${baseUrl}/og-image-default.jpg` }],
     },
   };
 }

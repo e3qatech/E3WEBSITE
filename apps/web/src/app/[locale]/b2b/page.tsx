@@ -18,6 +18,7 @@ import { filterAndResolvePublicPartners } from '@/lib/partners/partner-resolver'
 
 import { getCMSPageContentServer } from '@/lib/cms-server'
 import { memoryCache } from '@/lib/cache/memory-cache'
+import { getBaseUrl } from '@/lib/seo-helper'
 
 export const revalidate = 60;
 
@@ -28,32 +29,67 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const cms = await getCMSPageContentServer('b2b-home');
   const seo = cms?.seo || {};
 
+  const defaultTitleEn = "Event Management Company in Qatar | Corporate Events & Production | E3";
+  const defaultTitleAr = "شركة تنظيم فعاليات ومؤتمرات في قطر | إدارة وتجهيز المعارض | إي ثري";
+
+  const defaultDescEn = "Premier event management and production company in Doha, Qatar. Turnkey corporate conferences, exhibition booth fabrication, kinetic AV staging, and live brand activations.";
+  const defaultDescAr = "الشركة الرائدة في تنظيم وإدارة الفعاليات والمؤتمرات والمعارض في الدوحة وقطر. تجهيز المنصات والمسارح، الأنظمة الصوتية والضوئية، وتجارب الشركات الكبرى.";
+
   const title = isAr
-    ? seo.metaTitleAr || cms.hero?.titleAr || "إي ثري قطر | شريك الفعاليات الكبرى وتطوير الوجهات الترفيهية"
-    : seo.metaTitleEn || cms.hero?.titleEn || "E3 Qatar | Enterprise Event Engineering & Destination Atelier";
+    ? seo.metaTitleAr || defaultTitleAr
+    : seo.metaTitleEn || defaultTitleEn;
 
   const description = isAr
-    ? seo.metaDescriptionAr || cms.hero?.subtitleAr || "نحن نصمم ونبني ونشغل ونوسع تجارب الترفيه الغامرة في جميع أنحاء قطر."
-    : seo.metaDescriptionEn || cms.hero?.subtitleEn || "We design, build, operate, and scale immersive entertainment experiences across Qatar.";
+    ? seo.metaDescriptionAr || defaultDescAr
+    : seo.metaDescriptionEn || defaultDescEn;
+
+  const keywords = isAr
+    ? seo.keywordsAr || [
+        "شركة تنظيم فعاليات قطر",
+        "تنظيم مؤتمرات ومعارض الدوحة",
+        "تجهيز مسارح واستاندات قطر",
+        "إدارة الفعاليات الكبرى قطر",
+        "خدمات إنتاج الفعاليات الدوحة",
+      ]
+    : seo.keywordsEn || [
+        "event management company qatar",
+        "corporate event organizers doha",
+        "event production qatar",
+        "exhibition stand fabrication doha",
+        "conference management qatar",
+        "av rental staging qatar",
+        "e3 b2b qatar",
+      ];
+
+  const baseUrl = getBaseUrl();
 
   return {
     title,
     description,
-    keywords: isAr ? seo.keywordsAr : seo.keywordsEn,
+    keywords,
     alternates: {
-      canonical: `/${locale}/b2b`,
+      canonical: `${baseUrl}/${locale}/b2b`,
       languages: {
-        en: "/en/b2b",
-        ar: "/ar/b2b",
+        en: `${baseUrl}/en/b2b`,
+        ar: `${baseUrl}/ar/b2b`,
+        "x-default": `${baseUrl}/en/b2b`,
       },
     },
     openGraph: {
       title,
       description,
-      url: `https://e3.qa/${locale}/b2b`,
+      url: `${baseUrl}/${locale}/b2b`,
       siteName: isAr ? "إي ثري قطر" : "E3 Qatar",
       locale: isAr ? "ar_QA" : "en_US",
       type: "website",
+      images: [
+        {
+          url: `${baseUrl}/og-image-default.jpg`,
+          width: 1200,
+          height: 630,
+          alt: isAr ? "إي ثري لقطاع الأعمال وتنظيم الفعاليات" : "E3 Qatar Corporate Event Management",
+        },
+      ],
     },
   };
 }

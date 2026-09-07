@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import db from "@/lib/db";
 
 export async function GET() {
-  let content = "User-agent: *\nAllow: /\nDisallow: /dashboard/\nDisallow: /api/\nSitemap: https://e3.qa/api/sitemap/generate";
+  let content = "User-agent: *\nAllow: /\nDisallow: /dashboard/\nDisallow: /api/\nSitemap: https://e3.qa/sitemap.xml\nSitemap: https://e3.qa/api/sitemap/generate";
 
   try {
     const setting = await db.setting.findFirst({

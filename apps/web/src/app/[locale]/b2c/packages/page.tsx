@@ -1,13 +1,47 @@
 import { Metadata } from "next";
 import { PackagesClient } from "@/components/b2c/PackagesClient";
 import db from "@/lib/db";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Packages | E3 Qatar",
-  description: "Book VIP birthday parties, corporate team-building outings, and exclusive venue buyouts across Qatar.",
-};
+export async function generateMetadata(props: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await props.params;
+  const isAr = locale === "ar";
+  const baseUrl = getBaseUrl();
+
+  const title = isAr
+    ? "باقات الفعاليات وحفلات أعياد الميلاد والشركات في قطر | إي ثري"
+    : "Group Entertainment Packages & Birthday Bookings in Qatar | E3";
+
+  const description = isAr
+    ? "احجز باقات حفلات أعياد الميلاد، فعاليات بناء فريق العمل للشركات، والزيارات الجماعية الحصرية في أفضل وجهات قطر الترفيهية."
+    : "Book VIP birthday parties, corporate team outings, school field trips, and exclusive venue buyouts across Qatar's top attractions.";
+
+  return {
+    title,
+    description,
+    keywords: isAr
+      ? ["باقات ترفيهية قطر", "حفلات اعياد ميلاد الدوحة", "حجوزات شركات فعاليات قطر", "عروض ترفيه جماعي قطر"]
+      : ["entertainment packages qatar", "birthday parties doha", "corporate outings qatar", "group venue buyouts qatar"],
+    alternates: {
+      canonical: `${baseUrl}/${locale}/b2c/packages`,
+      languages: {
+        en: `${baseUrl}/en/b2c/packages`,
+        ar: `${baseUrl}/ar/b2c/packages`,
+        "x-default": `${baseUrl}/en/b2c/packages`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/${locale}/b2c/packages`,
+      images: [{ url: `${baseUrl}/og-image-default.jpg` }],
+    },
+  };
+}
 
 export default async function PackagesPage(props: {
   params: Promise<{ locale: string }>;

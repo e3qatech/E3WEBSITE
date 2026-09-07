@@ -9,6 +9,7 @@ import {
 import { ServiceMicrositeClient } from "@/components/b2b/services/ServiceMicrositeClient";
 import { getPublicCaseStudies } from "@/lib/case-studies";
 import { adaptDbServiceToPresentation } from "@/lib/services/service-adapters";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -38,15 +39,15 @@ export async function generateMetadata({
   }
 
   const title = isAr
-    ? dbService.titleAr || "الخدمات — إي ثري لقطاع الأعمال"
-    : dbService.titleEn || "Services — E3 Enterprise Atelier";
+    ? (dbService.titleAr ? `${dbService.titleAr} | خدمات الفعاليات في قطر` : "خدمات تنظيم وإنتاج الفعاليات في قطر")
+    : (dbService.titleEn ? `${dbService.titleEn} | Event Services in Qatar` : "Event Production & Staging Services in Qatar");
 
   const description = isAr
-    ? dbService.taglineAr || "خدمات وحلول متكاملة لقطاع الفعاليات والترفيه في قطر."
-    : dbService.taglineEn || "Turnkey entertainment, event engineering, operations, and spatial solutions in Qatar.";
+    ? dbService.taglineAr || "خدمات وحلول متكاملة لقطاع الفعاليات والمعارض والترفيه في قطر."
+    : dbService.taglineEn || "Turnkey event engineering, staging, production, and spatial solutions in Doha, Qatar.";
 
   const heroImage = dbService?.heroMediaUrl || dbService?.thumbnail || canonical?.heroMediaUrl;
-  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://eeeqa.com").replace(/\/$/, "");
+  const siteUrl = getBaseUrl();
   const canonicalSlug = canonical?.slug || slug;
   const canonicalPath = `/b2b/services/${canonicalSlug}`;
   const ogUrl = `${siteUrl}/${locale}${canonicalPath}`;
@@ -55,10 +56,10 @@ export async function generateMetadata({
     title: `${title} | E3 Qatar`,
     description,
     openGraph: {
-      title,
+      title: `${title} | E3 Qatar`,
       description,
       url: ogUrl,
-      images: heroImage ? [{ url: heroImage }] : [],
+      images: heroImage ? [{ url: heroImage }] : [{ url: `${siteUrl}/og-image-default.jpg` }],
     },
     alternates: {
       canonical: `${siteUrl}/${locale}${canonicalPath}`,

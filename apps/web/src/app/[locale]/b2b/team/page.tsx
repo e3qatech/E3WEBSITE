@@ -3,6 +3,7 @@ import db from '@/lib/db';
 import { filterAndResolvePublicTeamMembers } from '@/lib/team/team-resolver';
 import { getCMSPageContentServer } from '@/lib/cms-server';
 import { B2BTeamClient } from '@/components/b2b/team/B2BTeamClient';
+import { getBaseUrl } from '@/lib/seo-helper';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -27,7 +28,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     ? cmsContent?.descAr || 'تعرف على نخبة المهندسين والمبدعين والمنتجين والمخططين في E3 قطر الذين يصنعون أضخم التجارب والفعاليات الحية.'
     : cmsContent?.descEn || 'Meet the strategists, designers, producers, technicians and operators who build world-class live experiences in Qatar.';
 
-  const canonicalUrl = `https://eeeqa.com/${locale}/b2b/team`;
+  const baseUrl = getBaseUrl();
+  const canonicalUrl = `${baseUrl}/${locale}/b2b/team`;
 
   return {
     title,
@@ -35,8 +37,9 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        en: 'https://eeeqa.com/en/b2b/team',
-        ar: 'https://eeeqa.com/ar/b2b/team',
+        en: `${baseUrl}/en/b2b/team`,
+        ar: `${baseUrl}/ar/b2b/team`,
+        'x-default': `${baseUrl}/en/b2b/team`,
       },
     },
     openGraph: {
@@ -45,6 +48,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
       url: canonicalUrl,
       type: 'website',
       siteName: isAr ? 'إي ثري قطر' : 'E3 Experiences Qatar',
+      images: [{ url: `${baseUrl}/og-image-default.jpg` }],
     },
     twitter: {
       card: 'summary_large_image',

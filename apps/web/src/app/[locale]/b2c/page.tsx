@@ -5,6 +5,7 @@ import { B2CLandingClient } from '@/components/b2c/B2CLandingClient';
 import { formatLocalizedText } from '@/lib/utils';
 import { memoryCache } from '@/lib/cache/memory-cache';
 import { getLiveB2CBrandsFromDB } from '@/lib/cms-brands-db';
+import { getBaseUrl } from '@/lib/seo-helper';
 
 export const revalidate = 60;
 
@@ -21,36 +22,75 @@ export async function generateMetadata(props: {
     console.warn("[B2C Landing Metadata] Failed to query CMS content:", error);
   }
 
+  const defaultTitleEn = 'Attractions, Theme Parks & Family Entertainment in Qatar | E3';
+  const defaultTitleAr = 'وجهات ترفيهية وفعاليات عائلية في قطر | مدن ترفيهية وتذاكر | إي ثري';
+
+  const defaultDescEn = "Discover Qatar's top live attractions, family entertainment centers, world-record events like InflataRUN, and ticketed shows in Doha.";
+  const defaultDescAr = 'استكشف أفضل الأماكن والوجهات الترفيهية في قطر والدوحة. فعاليات عائلية كبرى، مدن ترفيهية تفاعلية، وتذاكر العروض الحية من إي ثري.';
+
   const seo = cmsData?.seo || {};
 
-  const titleEn = seo.metaTitleEn || 'Experiences | E3 Qatar';
-  const titleAr = seo.metaTitleAr || 'التجارب | إي ثري قطر | خبراء هندسة الفعاليات';
+  const titleEn = seo.metaTitleEn || defaultTitleEn;
+  const titleAr = seo.metaTitleAr || defaultTitleAr;
 
-  const descEn = seo.metaDescriptionEn || 'Immersive entertainment landmarks, InflataRUN world records, and kinetic attraction worlds in Qatar.';
-  const descAr = seo.metaDescriptionAr || 'وجهات ترفيهية غامرة، أرقام قياسية عالمية مع إنفلاتارن، وعوالم تفاعلية حركية في قطر.';
+  const descEn = seo.metaDescriptionEn || defaultDescEn;
+  const descAr = seo.metaDescriptionAr || defaultDescAr;
+
+  const keywords = isAr
+    ? seo.keywordsAr || [
+        'أماكن ترفيهية في قطر',
+        'فعاليات عائلية في الدوحة',
+        'مدن ترفيهية في قطر',
+        'إنفلاتارن قطر',
+        'تذاكر فعاليات قطر',
+        'أنشطة أطفال الدوحة',
+      ]
+    : seo.keywordsEn || [
+        'attractions in qatar',
+        'family entertainment doha',
+        'theme parks qatar',
+        'inflatarun qatar',
+        'kids activities doha',
+        'events in qatar',
+        'qatar tickets',
+      ];
+
+  const baseUrl = getBaseUrl();
 
   return {
     title: isAr ? { absolute: titleAr } : titleEn,
     description: isAr ? descAr : descEn,
-    keywords: isAr ? seo.keywordsAr : seo.keywordsEn,
+    keywords,
     alternates: {
-      canonical: `/${locale}/b2c`,
+      canonical: `${baseUrl}/${locale}/b2c`,
       languages: {
-        en: '/en/b2c',
-        ar: '/ar/b2c',
+        en: `${baseUrl}/en/b2c`,
+        ar: `${baseUrl}/ar/b2c`,
+        'x-default': `${baseUrl}/en/b2c`,
       },
     },
     openGraph: {
       title: isAr ? titleAr : titleEn,
       description: isAr ? descAr : descEn,
+      url: `${baseUrl}/${locale}/b2c`,
+      siteName: isAr ? 'إي ثري قطر' : 'E3 Qatar',
       locale: isAr ? 'ar_QA' : 'en_US',
       alternateLocale: isAr ? ['en_US'] : ['ar_QA'],
       type: 'website',
+      images: [
+        {
+          url: `${baseUrl}/og-image-default.jpg`,
+          width: 1200,
+          height: 630,
+          alt: isAr ? 'وجهات وفعاليات إي ثري قطر' : 'E3 Qatar Attractions & Family Entertainment',
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: isAr ? titleAr : titleEn,
       description: isAr ? descAr : descEn,
+      images: [`${baseUrl}/og-image-default.jpg`],
     },
   };
 }

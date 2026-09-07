@@ -146,7 +146,7 @@ export function proxy(req: NextRequest) {
     }
   }
 
-  // 7. Missing Locale Prefix Routing for Unprefixed Paths
+  // 7. Missing Locale Prefix Routing for Unprefixed Paths (308 Permanent Redirect for SEO)
   if (
     normalizedPath.startsWith('/dashboard') ||
     normalizedPath.startsWith('/b2b') ||
@@ -154,7 +154,7 @@ export function proxy(req: NextRequest) {
     normalizedPath.startsWith('/business') ||
     normalizedPath.startsWith('/candidate')
   ) {
-    return NextResponse.redirect(new URL(`/${targetLocale}${nextUrl.pathname}${nextUrl.search}`, nextUrl));
+    return NextResponse.redirect(new URL(`/${targetLocale}${nextUrl.pathname}${nextUrl.search}`, nextUrl), 308);
   }
 
   // 8. Team Route Non-Streamed HTTP Canonicalization & 404 Guard

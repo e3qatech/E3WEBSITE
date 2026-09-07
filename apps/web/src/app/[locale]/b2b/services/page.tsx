@@ -22,6 +22,7 @@ import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
 import { getCanonicalService } from '@/lib/services/canonical-services'
 import { decodeHtmlEntities } from '@/lib/services/service-adapters'
 import { localizeHref } from '@/lib/url-helper'
+import { getBaseUrl } from '@/lib/seo-helper'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -43,25 +44,28 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const seo = cms.seo || {}
 
   const title = isAr 
-    ? (seo.metaTitleAr || 'الخدمات والقدرات — إي ثري لقطاع الأعمال') 
-    : (seo.metaTitleEn || 'Services & Capabilities — E3 Enterprise Atelier')
+    ? (seo.metaTitleAr || 'خدمات تنظيم الفعاليات والمعارض في قطر | تجهيز المسارح والصوتيات') 
+    : (seo.metaTitleEn || 'Event Production & Management Services in Qatar | AV, Staging & Fabrication')
     
   const description = isAr 
-    ? (seo.metaDescriptionAr || 'خدمات التصميم الفضائي، هندسة الفعاليات، الأنظمة الصوتية والضوئية، والإنتاج الحي في قطر.') 
-    : (seo.metaDescriptionEn || 'Turnkey spatial design, event engineering, kinetic AV, live production, and landmark attraction operations in Qatar.')
+    ? (seo.metaDescriptionAr || 'خدمات إنتاج وتجهيز الفعاليات الكبرى والمعارض في قطر. تجهيز المنصات والمسارح، الصوت والإضاءة، والتصميم والتنفيذ المتكامل بالدوحة.') 
+    : (seo.metaDescriptionEn || 'Turnkey event production, exhibition stand fabrication, kinetic AV staging, spatial design, and landmark attraction operations in Doha, Qatar.')
 
-  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://eeeqa.com').replace(/\/$/, '');
+  const siteUrl = getBaseUrl();
   const canonicalPath = '/b2b/services';
   const ogUrl = `${siteUrl}/${locale}${canonicalPath}`;
 
   return {
     title: `${title} | E3 Qatar`,
     description,
+    keywords: isAr
+      ? ['خدمات تنظيم فعاليات قطر', 'تجهيز معارض الدوحة', 'تأجير اضاءة وصوتيات قطر', 'تنفيذ مسارح قطر']
+      : ['event management services qatar', 'corporate event production doha', 'exhibition stand fabrication qatar', 'av staging rental qatar'],
     openGraph: {
       title: isAr ? (seo.ogTitleAr || title) : (seo.ogTitleEn || title),
       description: isAr ? (seo.ogDescriptionAr || description) : (seo.ogDescriptionEn || description),
       url: ogUrl,
-      images: seo.ogImage ? [{ url: seo.ogImage }] : []
+      images: seo.ogImage ? [{ url: seo.ogImage }] : [{ url: `${siteUrl}/og-image-default.jpg` }]
     },
     alternates: {
       canonical: `${siteUrl}/${locale}${canonicalPath}`,

@@ -1715,16 +1715,16 @@ export const DEFAULT_B2B_SERVICES_CONTENT = {
     primaryLink: "/b2b/contact"
   },
   seo: {
-    metaTitleEn: "Services & Capabilities — E3 Enterprise Atelier",
-    metaTitleAr: "الخدمات والقدرات — إي ثري لقطاع الأعمال",
-    metaDescriptionEn: "Turnkey spatial design, event engineering, kinetic AV, live production, and landmark attraction operations in Qatar.",
-    metaDescriptionAr: "خدمات التصميم الفضائي، هندسة الفعاليات، الأنظمة الصوتية والضوئية، والإنتاج الحي في قطر.",
-    ogTitleEn: "Services & Capabilities — E3 Enterprise Atelier",
-    ogTitleAr: "الخدمات والقدرات — إي ثري لقطاع الأعمال",
-    ogDescriptionEn: "Turnkey spatial design, event engineering, kinetic AV, live production, and landmark attraction operations in Qatar.",
-    ogDescriptionAr: "خدمات التصميم الفضائي، هندسة الفعاليات، الأنظمة الصوتية والضوئية، والإنتاج الحي في قطر.",
-    ogImage: "",
-    canonicalUrl: "https://e3.qa/b2b/services"
+    metaTitleEn: "Event Production & Management Services in Qatar | AV, Staging & Fabrication",
+    metaTitleAr: "خدمات تنظيم الفعاليات والمعارض في قطر | تجهيز المسارح والصوتيات",
+    metaDescriptionEn: "Turnkey event production, exhibition stand fabrication, kinetic AV staging, spatial design, and landmark attraction operations in Doha, Qatar.",
+    metaDescriptionAr: "خدمات إنتاج وتجهيز الفعاليات الكبرى والمعارض في قطر. تجهيز المنصات والمسارح، الصوت والإضاءة، والتصميم والتنفيذ المتكامل بالدوحة.",
+    ogTitleEn: "Event Production & Management Services in Qatar | AV, Staging & Fabrication",
+    ogTitleAr: "خدمات تنظيم الفعاليات والمعارض في قطر | تجهيز المسارح والصوتيات",
+    ogDescriptionEn: "Turnkey event production, exhibition stand fabrication, kinetic AV staging, spatial design, and landmark attraction operations in Doha, Qatar.",
+    ogDescriptionAr: "خدمات إنتاج وتجهيز الفعاليات الكبرى والمعارض في قطر. تجهيز المنصات والمسارح، الصوت والإضاءة، والتصميم والتنفيذ المتكامل بالدوحة.",
+    ogImage: "https://e3.qa/og-image-default.jpg",
+    canonicalUrl: "https://e3.qa/en/b2b/services"
   }
 };
 

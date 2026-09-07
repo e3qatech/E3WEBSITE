@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Metadata } from "next";
 import { getPublicFeaturedCreators } from "@/lib/influencer/influencer-service";
 import {
   Sparkles,
@@ -9,6 +10,45 @@ import {
   CheckCircle2,
   ExternalLink,
 } from "lucide-react";
+import { getBaseUrl } from "@/lib/seo-helper";
+
+export async function generateMetadata(props: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await props.params;
+  const isAr = locale === "ar";
+  const baseUrl = getBaseUrl();
+
+  const title = isAr
+    ? "شبكة صناع المحتوى والمؤثرين في قطر | إي ثري"
+    : "Creator Collective & Influencer Network in Qatar | E3";
+
+  const description = isAr
+    ? "اكتشف وتعاون مع نخبة من صناع المحتوى والمؤثرين ورواد الإعلام الرقمي في الفعاليات والوجهات الترفيهية في قطر."
+    : "Discover and collaborate with visionary storytellers, vloggers, and creative ambassadors driving entertainment culture across Qatar.";
+
+  return {
+    title,
+    description,
+    keywords: isAr
+      ? ["صناع محتوى قطر", "مؤثرين الدوحة", "تسويق المؤثرين قطر", "شراكات فعاليات قطر"]
+      : ["creators in qatar", "influencers doha", "influencer marketing qatar", "event ambassadors doha"],
+    alternates: {
+      canonical: `${baseUrl}/${locale}/creators`,
+      languages: {
+        en: `${baseUrl}/en/creators`,
+        ar: `${baseUrl}/ar/creators`,
+        "x-default": `${baseUrl}/en/creators`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/${locale}/creators`,
+      images: [{ url: `${baseUrl}/og-image-default.jpg` }],
+    },
+  };
+}
 
 export default async function PublicCreatorsDirectoryPage({
   params,

@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PackageMicrositeClient } from "@/components/b2c/PackageMicrositeClient";
 import db from "@/lib/db";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export const dynamic = "force-dynamic";
 
@@ -29,17 +30,26 @@ export async function generateMetadata(props: {
     ? (pkg.shortDescriptionAr || pkg.shortDescriptionEn || "")
     : (pkg.shortDescriptionEn || "");
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://e3.qa";
+  const baseUrl = getBaseUrl();
+  const canonicalUrl = `${baseUrl}/${locale}/b2c/packages/${pkg.slug}`;
 
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        en: `${baseUrl}/en/b2c/packages/${pkg.slug}`,
+        ar: `${baseUrl}/ar/b2c/packages/${pkg.slug}`,
+        "x-default": `${baseUrl}/en/b2c/packages/${pkg.slug}`,
+      },
+    },
     openGraph: {
       title,
       description,
-      images: pkg.coverMediaUrl ? [pkg.coverMediaUrl] : undefined,
-      url: `${baseUrl}/${locale}/b2c/packages/${pkg.slug}`
-    }
+      images: pkg.coverMediaUrl ? [{ url: pkg.coverMediaUrl }] : [{ url: `${baseUrl}/og-image-default.jpg` }],
+      url: canonicalUrl,
+    },
   };
 }
 

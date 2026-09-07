@@ -4,6 +4,7 @@ import { getMergedCMSPageContent } from "@/lib/cms-default-pages"
 import { CaseStudiesIndexClient } from '@/components/b2b/CaseStudiesIndexClient'
 import { Metadata } from 'next'
 import { getPublicCaseStudies, enrichCaseStudyWithDefaults } from '@/lib/case-studies'
+import { getBaseUrl } from '@/lib/seo-helper'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -14,27 +15,36 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const pageData = await db.pages.findUnique({ where: { slug: 'b2b-cases' } }).catch(() => null);
   const cms = getMergedCMSPageContent('b2b-cases', pageData?.content);
 
+  const baseUrl = getBaseUrl();
+  const canonicalUrl = `${baseUrl}/${locale}/b2b/case-studies`;
+
   const title = isAr 
-    ? (cms.seo?.metaTitleAr || cms.hero?.titleAr || "سجل الإنجازات والمشاريع — E3")
-    : (cms.seo?.metaTitleEn || cms.hero?.titleEn || "Case Studies & Landmark Projects — E3 Enterprise");
+    ? (cms.seo?.metaTitleAr || cms.hero?.titleAr || "دراسات الحالة وأضخم مشاريع الفعاليات في قطر | إي ثري")
+    : (cms.seo?.metaTitleEn || cms.hero?.titleEn || "Case Studies & Major Event Projects in Qatar | E3");
     
   const description = isAr 
-    ? (cms.seo?.metaDescriptionAr || cms.hero?.subtitleAr || "")
-    : (cms.seo?.metaDescriptionEn || cms.hero?.subtitleEn || "");
-
-  const canonicalUrl = `https://e3.qa/${locale}/b2b/case-studies`;
+    ? (cms.seo?.metaDescriptionAr || cms.hero?.subtitleAr || "استكشف سجل إنجازات ومشاريع إي ثري قطر في تنظيم كبرى الفعاليات والمؤتمرات، مهرجانات المناطيد، والأرقام القياسية العالمية في الدوحة.")
+    : (cms.seo?.metaDescriptionEn || cms.hero?.subtitleEn || "Explore E3 Qatar's portfolio of landmark corporate events, mega festival staging, Doha balloon parades, and Guinness World Record activations.");
 
   return {
     title,
     description,
+    keywords: isAr
+      ? ["مشاريع فعاليات قطر", "تنظيم مهرجانات الدوحة", "سجل اعمال اي ثري قطر"]
+      : ["event case studies qatar", "major events doha", "festival production portfolio qatar"],
     alternates: {
       canonical: canonicalUrl,
+      languages: {
+        en: `${baseUrl}/en/b2b/case-studies`,
+        ar: `${baseUrl}/ar/b2b/case-studies`,
+        "x-default": `${baseUrl}/en/b2b/case-studies`,
+      },
     },
     openGraph: {
       title: isAr ? (cms.seo?.ogTitleAr || title) : (cms.seo?.ogTitleEn || title),
       description: isAr ? (cms.seo?.ogDescriptionAr || description) : (cms.seo?.ogDescriptionEn || description),
       url: canonicalUrl,
-      images: cms.seo?.ogImage ? [{ url: cms.seo.ogImage }] : [],
+      images: cms.seo?.ogImage ? [{ url: cms.seo.ogImage }] : [{ url: `${baseUrl}/og-image-default.jpg` }],
     }
   };
 }

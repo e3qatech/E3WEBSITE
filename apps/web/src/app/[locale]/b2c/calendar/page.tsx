@@ -2,6 +2,7 @@ import React from 'react';
 import { db } from '@/lib/db';
 import { CalendarView } from '@/components/calendar/CalendarView';
 import { Metadata } from 'next';
+import { getBaseUrl } from '@/lib/seo-helper';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -19,26 +20,36 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   const cms = (pageData?.content as any) || {};
 
+  const baseUrl = getBaseUrl();
+  const canonicalUrl = `${baseUrl}/${locale}/b2c/calendar`;
+
   const title = isAr
-    ? (cms.seo?.metaTitleAr || cms.hero?.titleAr || "جدول الفعاليات والمواعيد — إي ثري قطر")
-    : (cms.seo?.metaTitleEn || cms.hero?.titleEn || "Events Calendar & Experiences — E3 Qatar");
+    ? (cms.seo?.metaTitleAr || cms.hero?.titleAr || "جدول فعاليات وتذاكر عروض قطر الترفيهية | إي ثري")
+    : (cms.seo?.metaTitleEn || cms.hero?.titleEn || "Qatar Events Calendar & Live Show Tickets | E3");
 
   const description = isAr
-    ? (cms.seo?.metaDescriptionAr || cms.hero?.subtitleAr || "استكشف الفعاليات القادمة والتجارب العائلية والمهرجانات الموسمية والأنشطة المميزة في قطر.")
-    : (cms.seo?.metaDescriptionEn || cms.hero?.subtitleEn || "Browse upcoming events, family experiences, seasonal festivals, and exclusive activities across Qatar.");
-
-  const canonicalUrl = `https://e3.qa/${locale}/b2c/calendar`;
+    ? (cms.seo?.metaDescriptionAr || cms.hero?.subtitleAr || "استكشف جدول الفعاليات القادمة، المهرجانات الترفيهية، مواعيد عروض المدن التفاعلية وتذاكر التجارب العائلية في الدوحة وقطر.")
+    : (cms.seo?.metaDescriptionEn || cms.hero?.subtitleEn || "Browse upcoming live events, seasonal festivals, theme park schedules, and ticketed family experiences in Doha, Qatar.");
 
   return {
     title,
     description,
+    keywords: isAr
+      ? ["جدول فعاليات قطر", "فعاليات الدوحة هذا الأسبوع", "تذاكر عروض قطر", "مهرجانات قطر"]
+      : ["qatar events calendar", "doha upcoming events", "qatar live shows tickets", "family activities doha"],
     alternates: {
       canonical: canonicalUrl,
+      languages: {
+        en: `${baseUrl}/en/b2c/calendar`,
+        ar: `${baseUrl}/ar/b2c/calendar`,
+        "x-default": `${baseUrl}/en/b2c/calendar`,
+      },
     },
     openGraph: {
       title,
       description,
       url: canonicalUrl,
+      images: [{ url: `${baseUrl}/og-image-default.jpg` }],
     },
   };
 }

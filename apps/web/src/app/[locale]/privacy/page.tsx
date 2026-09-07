@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { Shield, Lock, FileText, CheckCircle2, ArrowLeft, Mail, MapPin } from 'lucide-react';
+import { getBaseUrl } from '@/lib/seo-helper';
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -13,15 +14,24 @@ export async function generateMetadata(props: {
   const descEn = 'E3 Qatar Privacy Policy. Compliant with State of Qatar Law No. (13) of 2016 concerning Personal Data Privacy Protection.';
   const descAr = 'سياسة خصوصية إي ثري قطر، المتوافقة مع القانون رقم (١٣) لسنة ٢٠١٦ بشأن حماية خصوصية البيانات الشخصية في دولة قطر.';
 
+  const baseUrl = getBaseUrl();
+
   return {
     title: isAr ? titleAr : titleEn,
     description: isAr ? descAr : descEn,
     alternates: {
-      canonical: `/${locale}/privacy`,
+      canonical: `${baseUrl}/${locale}/privacy`,
       languages: {
-        en: '/en/privacy',
-        ar: '/ar/privacy',
+        en: `${baseUrl}/en/privacy`,
+        ar: `${baseUrl}/ar/privacy`,
+        'x-default': `${baseUrl}/en/privacy`,
       },
+    },
+    openGraph: {
+      title: isAr ? titleAr : titleEn,
+      description: isAr ? descAr : descEn,
+      url: `${baseUrl}/${locale}/privacy`,
+      images: [{ url: `${baseUrl}/og-image-default.jpg` }],
     },
   };
 }

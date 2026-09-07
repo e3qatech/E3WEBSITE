@@ -4,6 +4,7 @@ import { AttractionsClient } from '@/app/[locale]/b2c/AttractionsClient'
 import { DEFAULT_OUR_BRANDS } from '@/lib/cms-brands'
 import db from '@/lib/db'
 import { getMergedCMSPageContent } from '@/lib/cms-default-pages'
+import { getBaseUrl } from '@/lib/seo-helper'
 
 const SEED_FALLBACK_ATTRACTIONS = DEFAULT_OUR_BRANDS.map(b => ({
   id: b.id,
@@ -29,26 +30,40 @@ const SEED_FALLBACK_ATTRACTIONS = DEFAULT_OUR_BRANDS.map(b => ({
   }
 }))
 
-const getBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL
-  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
-  return 'http://localhost:3000'
-}
 
 export async function generateMetadata(props: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const params = await props.params
+  const { locale } = params
+  const isAr = locale === 'ar'
   const baseUrl = getBaseUrl()
 
+  const title = isAr
+    ? 'أفضل الوجهات الترفيهية والألعاب العائلية في قطر | تذاكر ومواعيد الفعاليات | إي ثري'
+    : 'Top Attractions & Family Entertainment in Qatar | Tickets & Venues | E3'
+
+  const description = isAr
+    ? 'استكشف واحجز أفضل الوجهات الترفيهية والمدن التفاعلية ومهرجانات الألعاب العائلية مثل إنفلاتارن في قطر والدوحة.'
+    : 'Explore and book world-class entertainment destinations, theme parks, InflataRUN events, and live family experiences in Doha, Qatar.'
+
   return {
-    title: params.locale === 'ar' ? 'دليل التجارب والوجهات الترفيهية | E3 Qatar' : 'Attractions & Experiences Directory | E3 Qatar',
-    description: params.locale === 'ar' ? 'استكشف واحجز أفضل تجارب الترفيه في قطر حسب الفعالية والموقع والتوفر.' : 'Search, filter, and book world-class entertainment attractions across Qatar.',
+    title,
+    description,
+    keywords: isAr
+      ? ['أماكن ترفيهية في قطر', 'وجهات سياحية بالدوحة', 'ألعاب عائلية قطر', 'حجز فعاليات قطر']
+      : ['top attractions qatar', 'family entertainment doha', 'theme parks qatar', 'inflatarun tickets'],
     alternates: {
-      canonical: `${baseUrl}/b2c/attractions`,
+      canonical: `${baseUrl}/${locale}/b2c/attractions`,
       languages: {
         'en': `${baseUrl}/en/b2c/attractions`,
         'ar': `${baseUrl}/ar/b2c/attractions`,
+        'x-default': `${baseUrl}/en/b2c/attractions`,
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/${locale}/b2c/attractions`,
+      images: [{ url: `${baseUrl}/og-image-default.jpg` }],
     },
   }
 }

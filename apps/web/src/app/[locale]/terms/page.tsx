@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { Scale, FileText, AlertCircle, CheckCircle2, ArrowLeft, Mail } from 'lucide-react';
+import { getBaseUrl } from '@/lib/seo-helper';
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -13,15 +14,24 @@ export async function generateMetadata(props: {
   const descEn = 'E3 Qatar Terms of Service and Event Operations Conditions under State of Qatar legal jurisdiction.';
   const descAr = 'الشروط والأحكام العامة وتشغيل الفعاليات لشركة إي ثري قطر الخاضعة للقوانين المعمول بها في دولة قطر.';
 
+  const baseUrl = getBaseUrl();
+
   return {
     title: isAr ? titleAr : titleEn,
     description: isAr ? descAr : descEn,
     alternates: {
-      canonical: `/${locale}/terms`,
+      canonical: `${baseUrl}/${locale}/terms`,
       languages: {
-        en: '/en/terms',
-        ar: '/ar/terms',
+        en: `${baseUrl}/en/terms`,
+        ar: `${baseUrl}/ar/terms`,
+        'x-default': `${baseUrl}/en/terms`,
       },
+    },
+    openGraph: {
+      title: isAr ? titleAr : titleEn,
+      description: isAr ? descAr : descEn,
+      url: `${baseUrl}/${locale}/terms`,
+      images: [{ url: `${baseUrl}/og-image-default.jpg` }],
     },
   };
 }

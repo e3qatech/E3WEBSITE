@@ -6,12 +6,36 @@ import {
   filterPubliclyEligibleJobs,
   formatJobPresentation,
 } from "@/lib/careers/job-eligibility";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export async function generateMetadata(props: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const params = await props.params;
+  const { locale } = params;
+  const isAr = locale === 'ar';
+  const baseUrl = getBaseUrl();
+
+  const title = isAr ? 'الوظائف وفرص العمل | إي ثري قطر' : 'Careers & Job Opportunities | E3 Qatar';
+  const description = isAr 
+    ? 'انضم إلى فريق إي ثري وساهم في ابتكار وهندسة أضخم الفعاليات والوجهات الترفيهية في دولة قطر.' 
+    : 'Join the E3 team and help build the future of mega events, spatial design, and entertainment experiences in Qatar.';
+
   return {
-    title: params.locale === 'ar' ? 'الوظائف | E3 Qatar' : 'Careers | E3 Qatar',
-    description: params.locale === 'ar' ? 'انضم إلى فريق E3 وساهم في بناء مستقبل الفعاليات الترفيهية.' : 'Join the E3 team and help build the future of entertainment experiences.'
+    title,
+    description,
+    alternates: {
+      canonical: `${baseUrl}/${locale}/careers`,
+      languages: {
+        en: `${baseUrl}/en/careers`,
+        ar: `${baseUrl}/ar/careers`,
+        'x-default': `${baseUrl}/en/careers`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/${locale}/careers`,
+      images: [{ url: `${baseUrl}/og-image-default.jpg` }],
+    },
   };
 }
 

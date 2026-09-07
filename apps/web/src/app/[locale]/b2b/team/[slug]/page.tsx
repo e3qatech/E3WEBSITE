@@ -7,6 +7,7 @@ import {
 } from '@/lib/team/team-resolver';
 import { TimelineEntry } from '@/components/b2b/team/ExperienceTimeline';
 import { CinematicTeamProfileClient } from '@/components/b2b/team/profile/CinematicTeamProfileClient';
+import { getBaseUrl } from '@/lib/seo-helper';
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -33,9 +34,27 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     }
 
     const member = resolvePublicTeamMember(rawMember, isAr ? 'ar' : 'en');
+    const baseUrl = getBaseUrl();
+    const canonicalSlug = rawMember.slug || slug;
+    const canonicalUrl = `${baseUrl}/${locale}/b2b/team/${canonicalSlug}`;
+
     return {
       title: `${member.name} - ${member.designation} | E3 Qatar`,
       description: member.aboutSummary || member.tagline || undefined,
+      alternates: {
+        canonical: canonicalUrl,
+        languages: {
+          en: `${baseUrl}/en/b2b/team/${canonicalSlug}`,
+          ar: `${baseUrl}/ar/b2b/team/${canonicalSlug}`,
+          'x-default': `${baseUrl}/en/b2b/team/${canonicalSlug}`,
+        },
+      },
+      openGraph: {
+        title: `${member.name} - ${member.designation} | E3 Qatar`,
+        description: member.aboutSummary || member.tagline || undefined,
+        url: canonicalUrl,
+        type: 'profile',
+      },
     };
   } catch {
     return {

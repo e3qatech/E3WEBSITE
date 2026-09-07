@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getMergedCMSPageContent } from "@/lib/cms-default-pages";
 import { B2BAboutClient } from "@/components/b2b/about/B2BAboutClient";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -34,24 +35,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? seo.metaDescriptionAr || cmsContent?.header?.subtitleAr || "تعرف على إي ثري قطر، مسيرتنا، فريق القيادة، قيمنا ورؤيتنا في هندسة وتطوير كبرى الوجهات الترفيهية."
     : seo.metaDescriptionEn || cmsContent?.header?.subtitleEn || "Learn about E3 Qatar, our story, leadership, core values, and our mission to engineer mega-scale entertainment destinations.";
 
+  const baseUrl = getBaseUrl();
+
   return {
     title,
     description,
     keywords: isAr ? seo.keywordsAr : seo.keywordsEn,
     alternates: {
-      canonical: `/${locale}/b2b/about`,
+      canonical: `${baseUrl}/${locale}/b2b/about`,
       languages: {
-        en: "/en/b2b/about",
-        ar: "/ar/b2b/about",
+        en: `${baseUrl}/en/b2b/about`,
+        ar: `${baseUrl}/ar/b2b/about`,
+        "x-default": `${baseUrl}/en/b2b/about`,
       },
     },
     openGraph: {
       title,
       description,
-      url: `https://e3.qa/${locale}/b2b/about`,
+      url: `${baseUrl}/${locale}/b2b/about`,
       siteName: isAr ? "إي ثري قطر" : "E3 Qatar",
       locale: isAr ? "ar_QA" : "en_US",
       type: "website",
+      images: [{ url: `${baseUrl}/og-image-default.jpg` }],
     },
   };
 }

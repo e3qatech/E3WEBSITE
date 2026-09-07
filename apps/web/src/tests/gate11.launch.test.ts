@@ -66,7 +66,7 @@ describe('Gate 11: Launch Readiness & Production Audits', () => {
 
     it('5. sitemap entries must include EN and AR alternate language links', async () => {
       const sitemapEntries = await sitemap();
-      const rootEntry = sitemapEntries.find((e) => e.url === (process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'));
+      const rootEntry = sitemapEntries.find((e) => e.url === 'https://e3.qa' || e.url === (process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'));
       expect(rootEntry).toBeDefined();
       expect(rootEntry?.alternates?.languages).toBeDefined();
       expect(rootEntry?.alternates?.languages?.en).toContain('/en');

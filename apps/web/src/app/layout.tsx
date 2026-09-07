@@ -11,6 +11,7 @@ import { auth } from "@/lib/auth"
 import db from "@/lib/db"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { memoryCache } from "@/lib/cache/memory-cache"
+import { buildLocalBusinessSchema, getBaseUrl } from "@/lib/seo-helper"
 import "./globals.css"
 
 const manrope = Manrope({
@@ -41,13 +42,29 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Error fetching favicon metadata:", error);
   }
 
+  const baseUrl = getBaseUrl();
+
   return {
     title: {
-      template: "%s | E3 - Event Engineering Experts",
-      default: "E3 - We Build Experiences | Event Engineering Experts",
+      template: "%s | E3 Qatar",
+      default: "E3 Qatar | Event Management Company, Corporate Production & Live Entertainment",
     },
-    description: "Qatar's premier event engineering and entertainment agency. We specialize in transforming spaces into unforgettable experiences for both B2B and B2C clients.",
-    metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'),
+    description: "Qatar's premier event management company, turnkey corporate event organizer, and live entertainment destination operator in Doha. Specializing in festival staging, exhibition booth fabrication, AV production, and landmark attractions.",
+    keywords: [
+      "event management company qatar",
+      "corporate events doha",
+      "event production qatar",
+      "exhibition stand fabrication doha",
+      "stage lighting av rental qatar",
+      "family entertainment qatar",
+      "theme parks doha",
+      "inflatarun qatar",
+      "شركة تنظيم فعاليات في قطر",
+      "تنظيم معارض ومؤتمرات بالدوحة",
+      "تجهيز مسارح واستاندات قطر",
+      "فعاليات قطر",
+    ],
+    metadataBase: new URL(baseUrl),
     icons: {
       icon: [
         { url: faviconUrl || '/favicon.ico', sizes: 'any' },
@@ -63,32 +80,34 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     manifest: '/site.webmanifest',
     openGraph: {
-      title: "E3 - We Build Experiences",
-      description: "End-to-end event engineering, entertainment solutions, and immersive installations in Qatar and the MENA region.",
-      url: "/",
-      siteName: "E3 Qatar",
-      locale: "en_QA",
+      title: "E3 Qatar | Event Management, Corporate Production & Attractions",
+      description: "Premier event management, corporate conference organization, turnkey AV staging, and landmark entertainment attractions in Qatar.",
+      url: baseUrl,
+      siteName: "E3 Qatar | إي ثري قطر",
+      locale: "en_US",
+      alternateLocale: ["ar_QA"],
       type: "website",
       images: [
         {
           url: "/og-image-default.jpg", 
           width: 1200,
           height: 630,
-          alt: "E3 Event Engineering Experts",
+          alt: "E3 Qatar - Events & Entertainment Enterprises",
         }
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: "E3 - We Build Experiences",
-      description: "Qatar's premier event engineering agency.",
+      title: "E3 Qatar | Event Management & Entertainment",
+      description: "Qatar's premier event management, production, and live entertainment agency.",
       images: ["/og-image-default.jpg"],
     },
     alternates: {
-      canonical: "/",
+      canonical: baseUrl,
       languages: {
-        "en": "/en/",
-        "ar": "/ar/"
+        "en": `${baseUrl}/en`,
+        "ar": `${baseUrl}/ar`,
+        "x-default": `${baseUrl}/en`,
       }
     }
   };
@@ -136,24 +155,38 @@ export default async function RootLayout({
             <Suspense fallback={null}>
               <NavigationProgressBar />
             </Suspense>
-            {/* Global Organization JSON-LD Schema */}
+            {/* Global Organization & LocalBusiness JSON-LD Schema */}
             <SEO 
               type="Organization" 
               data={{
-                name: "Event Engineering Experts (E3)",
+                name: "E3 Qatar - Events & Entertainment Enterprises",
+                alternateName: ["E3", "Events & Entertainment Enterprises", "إي ثري قطر", "إي ثري للفعاليات والترفيه"],
                 url: "https://e3.qa",
                 logo: "https://e3.qa/logo.png",
+                image: "https://e3.qa/og-image-default.jpg",
+                description: "Qatar's premier event management company, corporate event organizer, stage engineering expert, and live entertainment destination operator in Doha.",
                 contactPoint: {
                   "@type": "ContactPoint",
-                  telephone: "+974-4400-0000",
+                  telephone: "+974 4400 0000",
                   contactType: "customer service",
                   availableLanguage: ["English", "Arabic"]
                 },
+                address: {
+                  "@type": "PostalAddress",
+                  streetAddress: "Doha",
+                  addressLocality: "Doha",
+                  addressCountry: "QA"
+                },
                 sameAs: [
                   "https://www.linkedin.com/company/e3qatar",
-                  "https://twitter.com/e3qatar"
+                  "https://www.instagram.com/e3qatar",
+                  "https://x.com/e3qatar"
                 ]
               }} 
+            />
+            <SEO
+              type="LocalBusiness"
+              data={buildLocalBusinessSchema()}
             />
             
             {children}

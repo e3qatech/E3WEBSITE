@@ -5,6 +5,7 @@ import { LocaleProvider } from "@/components/layout/LocaleProvider";
 import { MotionCapabilityProvider } from "@/lib/motion/capability-context";
 import db from "@/lib/db";
 import { GatewayCustomizationPayload, DEFAULT_GATEWAY_CMS_PAYLOAD } from "@/types/gateway-cms";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ function mergeGatewayPayload(raw: any): GatewayCustomizationPayload {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
+  const baseUrl = getBaseUrl();
   
   let cmsData = DEFAULT_GATEWAY_CMS_PAYLOAD;
   try {
@@ -40,18 +41,29 @@ export async function generateMetadata(): Promise<Metadata> {
     // Fallback to default payload
   }
 
-  const title = cmsData.seoAccess?.seoTitleEn || "E3 - We Build Experiences | Event Engineering Experts";
-  const description = cmsData.seoAccess?.seoDescEn || "Qatar's premier event engineering and entertainment agency.";
+  const title = cmsData.seoAccess?.seoTitleEn || "E3 Qatar | Event Management Company, Corporate Production & Live Entertainment";
+  const description = cmsData.seoAccess?.seoDescEn || "Qatar's premier event management company, turnkey corporate event organizer, and live entertainment destination operator in Doha. Specializing in festival staging, exhibition booth fabrication, AV production, and landmark attractions.";
   const ogImage = cmsData.seoAccess?.ogImage || `${baseUrl}/og-image-default.jpg`;
 
   return {
     title,
     description,
+    keywords: [
+      "event management company qatar",
+      "corporate events doha",
+      "event production qatar",
+      "exhibition stand fabrication doha",
+      "stage lighting av rental qatar",
+      "family entertainment qatar",
+      "theme parks doha",
+      "inflatarun qatar",
+    ],
     alternates: {
       canonical: baseUrl,
       languages: {
         'en': `${baseUrl}/en`,
         'ar': `${baseUrl}/ar`,
+        'x-default': `${baseUrl}/en`,
       },
     },
     openGraph: {
@@ -82,7 +94,7 @@ async function loadGatewayCmsData(): Promise<GatewayCustomizationPayload> {
 }
 
 export default async function Home() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
+  const baseUrl = getBaseUrl();
   const cmsData = await loadGatewayCmsData();
 
   return (

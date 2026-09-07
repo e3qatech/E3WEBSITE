@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import db from "@/lib/db";
 import { InsightsClient } from "@/components/b2c/InsightsClient";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,8 @@ export async function generateMetadata(props: {
     ? "اكتشف أحدث المقالات والبيانات الصحفية وتقارير الفعاليات الترفيهية والتجارب الحية في قطر."
     : "Explore the latest articles, press releases, event recaps, and immersive entertainment insights across Qatar.";
 
+  const baseUrl = getBaseUrl();
+
   return {
     title,
     description,
@@ -22,13 +25,16 @@ export async function generateMetadata(props: {
       title,
       description,
       type: "website",
+      url: `${baseUrl}/${locale}/b2c/insights`,
       locale: isAr ? "ar_QA" : "en_US",
+      images: [{ url: `${baseUrl}/og-image-default.jpg` }],
     },
     alternates: {
-      canonical: `/${locale}/b2c/insights`,
+      canonical: `${baseUrl}/${locale}/b2c/insights`,
       languages: {
-        en: "/en/b2c/insights",
-        ar: "/ar/b2c/insights",
+        en: `${baseUrl}/en/b2c/insights`,
+        ar: `${baseUrl}/ar/b2c/insights`,
+        "x-default": `${baseUrl}/en/b2c/insights`,
       },
     },
   };

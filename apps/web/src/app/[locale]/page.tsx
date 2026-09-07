@@ -5,6 +5,7 @@ import db from "@/lib/db";
 import { GatewayCustomizationPayload, DEFAULT_GATEWAY_CMS_PAYLOAD } from "@/types/gateway-cms";
 
 import { memoryCache } from "@/lib/cache/memory-cache";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export const revalidate = 300;
 
@@ -44,20 +45,25 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const { locale } = await props.params;
   const isAr = locale === "ar";
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
+  const baseUrl = getBaseUrl();
   
   const cmsData = await getCachedGatewayPayload();
   const en = cmsData.english;
   const ar = cmsData.arabic;
   const seo = cmsData.seoAccess;
 
+  const defaultTitleEn = "E3 Qatar | Event Management Company, Corporate Production & Live Entertainment";
+  const defaultTitleAr = "إي ثري قطر | لتنظيم وإدارة الفعاليات والمؤتمرات وتطوير الوجهات الترفيهية";
+  const defaultDescEn = "Qatar's premier event management company, turnkey corporate event organizer, and live entertainment destination operator in Doha. Specializing in festival staging, exhibition booth fabrication, AV production, and landmark attractions.";
+  const defaultDescAr = "الشركة الرائدة في قطر لتنظيم وإدارة الفعاليات الكبرى والمؤتمرات والمعارض بالدوحة. خدمات الإنتاج الفني وتجهيز المسارح والصوتيات وتطوير أضخم الوجهات والفعاليات الترفيهية.";
+
   const title = isAr
-    ? (seo.seoTitleAr || ar.headlineAr || "إي ثري - نصنع التجارب والفعاليات في قطر")
-    : (seo.seoTitleEn || en.headlineEn || "E3 - We Build Experiences | Event Engineering Experts");
+    ? (seo.seoTitleAr || defaultTitleAr)
+    : (seo.seoTitleEn || defaultTitleEn);
 
   const description = isAr
-    ? (seo.seoDescAr || ar.b2cDescAr || "الوجهة الرائدة في قطر لهندسة الفعاليات الاستثنائية والترفيه.")
-    : (seo.seoDescEn || en.b2cDescEn || "Qatar's premier event engineering and entertainment agency.");
+    ? (seo.seoDescAr || defaultDescAr)
+    : (seo.seoDescEn || defaultDescEn);
 
   const ogImage = seo.ogImage || `${baseUrl}/og-image-default.jpg`;
   const canonicalUrl = `${baseUrl}/${locale}`;
@@ -65,11 +71,30 @@ export async function generateMetadata(props: {
   return {
     title,
     description,
+    keywords: isAr
+      ? [
+          "شركة تنظيم فعاليات قطر",
+          "تنظيم مؤتمرات ومعارض الدوحة",
+          "تجهيز مسارح قطر",
+          "شركات تنظيم حفلات الدوحة",
+          "أماكن ترفيهية في قطر",
+          "فعاليات قطر اليوم",
+        ]
+      : [
+          "event management company qatar",
+          "corporate events doha",
+          "event production qatar",
+          "exhibition stand fabrication doha",
+          "family entertainment qatar",
+          "theme parks doha",
+          "inflatarun qatar",
+        ],
     alternates: {
       canonical: canonicalUrl,
       languages: {
         'en': `${baseUrl}/en`,
         'ar': `${baseUrl}/ar`,
+        'x-default': `${baseUrl}/en`,
       },
     },
     openGraph: {
@@ -94,7 +119,7 @@ export default async function GatewayLocalePage(props: {
 }) {
   const { locale } = await props.params;
   const isAr = locale === "ar";
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa';
+  const baseUrl = getBaseUrl();
 
   const cmsData = await getCachedGatewayPayload();
 

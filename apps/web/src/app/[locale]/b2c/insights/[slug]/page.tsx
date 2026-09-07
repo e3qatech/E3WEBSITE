@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Calendar, ArrowLeft, Clock, Sparkles, User, ArrowRight, Share2, Tag } from "lucide-react";
 import { localizeHref } from "@/lib/url-helper";
 import { SocialShareButtons } from "@/components/b2c/SocialShareButtons";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,10 @@ export async function generateMetadata(props: {
   const description = isAr ? (insight.excerptAr || insight.excerptEn || "") : (insight.excerptEn || "");
   const ogImg = insight.featuredMediaUrl || insight.featuredMediaId || undefined;
 
+  const baseUrl = getBaseUrl();
+  const canonicalSlug = insight.slugEn || slug;
+  const canonicalUrl = `${baseUrl}/${locale}/b2c/insights/${canonicalSlug}`;
+
   return {
     title: `${title} | E3 Insights & Press`,
     description,
@@ -37,14 +42,16 @@ export async function generateMetadata(props: {
       title,
       description,
       type: "article",
+      url: canonicalUrl,
       publishedTime: insight.publishedAt ? new Date(insight.publishedAt).toISOString() : undefined,
-      images: ogImg ? [ogImg] : undefined,
+      images: ogImg ? [{ url: ogImg }] : [{ url: `${baseUrl}/og-image-default.jpg` }],
     },
     alternates: {
-      canonical: `/${locale}/b2c/insights/${insight.slugEn || slug}`,
+      canonical: canonicalUrl,
       languages: {
-        en: `/en/b2c/insights/${insight.slugEn || slug}`,
-        ar: `/ar/b2c/insights/${insight.slugAr || insight.slugEn || slug}`,
+        en: `${baseUrl}/en/b2c/insights/${insight.slugEn || slug}`,
+        ar: `${baseUrl}/ar/b2c/insights/${insight.slugAr || insight.slugEn || slug}`,
+        "x-default": `${baseUrl}/en/b2c/insights/${insight.slugEn || slug}`,
       },
     },
   };
