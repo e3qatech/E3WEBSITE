@@ -20,7 +20,13 @@ import {
   Share2,
   Send,
   Globe,
+  Briefcase,
+  Sparkles,
+  ArrowRight,
+  AlertCircle,
+  ExternalLink,
 } from "lucide-react";
+import Link from "next/link";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { useB2CTheme, B2CInput } from "@/components/ui/B2CThemeComponents";
 import { UniversalMediaRenderer } from "@/components/shared/UniversalMediaRenderer";
@@ -93,6 +99,7 @@ function SnapchatIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
 
 export function ContactClient({
   locale = "en",
+  defaultTab = "support",
   attractions = [],
   attractionFaqs = [],
   generalFaqs = [],
@@ -101,6 +108,7 @@ export function ContactClient({
   siteSettings,
 }: {
   locale?: string;
+  defaultTab?: string;
   attractions: any[];
   attractionFaqs: any[];
   generalFaqs: any[];
@@ -109,7 +117,7 @@ export function ContactClient({
   siteSettings?: PublicSiteSettings | Record<string, any>;
 }) {
   const isAr = locale === "ar";
-  const [activeTab, setActiveTab] = useState("support");
+  const [activeTab, setActiveTab] = useState(defaultTab);
   const [activeFaq, setActiveFaq] = useState<string | null>(null);
   const [faqSearch, setFaqSearch] = useState("");
   const [faqFilter, setFaqFilter] = useState("general");
@@ -267,9 +275,10 @@ export function ContactClient({
             {/* MAIN FORM/TAB AREA */}
             <div className="lg:col-span-8">
               <Tabs defaultValue="support" value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid grid-cols-3 bg-[var(--bg-level-1)] p-1.5 rounded-2xl mb-8 border border-[var(--border-level-2)]">
+                <TabsList className="grid grid-cols-2 sm:grid-cols-4 bg-[var(--bg-level-1)] p-1.5 rounded-2xl mb-8 border border-[var(--border-level-2)]">
                   <TabsTrigger
                     value="support"
+                    data-testid="contact-tab-support"
                     className="rounded-xl font-bold text-sm py-3 data-[state=active]:bg-[var(--surface-default)] data-[state=active]:text-[var(--e3-royal-blue)] data-[state=active]:shadow-lg cursor-pointer transition-colors flex items-center justify-center gap-2"
                   >
                     <HeadphonesIcon className="w-4 h-4" />
@@ -277,6 +286,7 @@ export function ContactClient({
                   </TabsTrigger>
                   <TabsTrigger
                     value="feedback"
+                    data-testid="contact-tab-feedback"
                     className="rounded-xl font-bold text-sm py-3 data-[state=active]:bg-[var(--surface-default)] data-[state=active]:text-[var(--e3-magenta)] data-[state=active]:shadow-lg cursor-pointer transition-colors flex items-center justify-center gap-2"
                   >
                     <MessageSquare className="w-4 h-4" />
@@ -284,10 +294,19 @@ export function ContactClient({
                   </TabsTrigger>
                   <TabsTrigger
                     value="faq"
+                    data-testid="contact-tab-faq"
                     className="rounded-xl font-bold text-sm py-3 data-[state=active]:bg-[var(--surface-default)] data-[state=active]:text-[var(--e3-purple-accent)] data-[state=active]:shadow-lg cursor-pointer transition-colors flex items-center justify-center gap-2"
                   >
                     <HelpCircle className="w-4 h-4" />
                     <span>{isAr ? "الأسئلة الشائعة" : "FAQ"}</span>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="careers"
+                    data-testid="contact-tab-careers"
+                    className="rounded-xl font-bold text-sm py-3 data-[state=active]:bg-[var(--surface-default)] data-[state=active]:text-cyan-400 data-[state=active]:shadow-lg cursor-pointer transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Briefcase className="w-4 h-4" />
+                    <span>{isAr ? "الوظائف والمهن" : "Careers"}</span>
                   </TabsTrigger>
                 </TabsList>
 
@@ -311,6 +330,9 @@ export function ContactClient({
                       switchToSupport={() => setActiveTab("support")}
                       isAr={isAr}
                     />
+                  </TabsContent>
+                  <TabsContent value="careers">
+                    <CareersContactSection locale={locale} isAr={isAr} />
                   </TabsContent>
                 </div>
               </Tabs>
@@ -1083,6 +1105,314 @@ function FaqSection({
           {isAr ? "تواصل مع فريق الدعم" : "Contact Support Team"}
         </button>
       </div>
+    </div>
+  );
+}
+
+export function CareersContactSection({ locale, isAr }: { locale: string; isAr: boolean }) {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    enquiryType: "General Careers Inquiry",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const enquiryOptions = [
+    {
+      value: "General Careers Inquiry",
+      labelEn: "General Careers & Talent Inquiry",
+      labelAr: "استفسار وظيفي عام واستقطاب كفاءات",
+    },
+    {
+      value: "Technical Production & Stage Automation",
+      labelEn: "Technical Production & Stage Automation",
+      labelAr: "الإنتاج الفني وهندسة المسارح",
+    },
+    {
+      value: "Spatial Architecture & Experiential Design",
+      labelEn: "Spatial Architecture & Experiential Design",
+      labelAr: "التصميم المكاني والتجارب التفاعلية",
+    },
+    {
+      value: "Event Operations & Venue Management",
+      labelEn: "Event Operations & Venue Management",
+      labelAr: "إدارة العمليات وتشغيل الوجهات",
+    },
+    {
+      value: "Academic Internship & Student Co-op",
+      labelEn: "Academic Internship & Student Co-op",
+      labelAr: "التدريب الأكاديمي والتعاوني للطلاب",
+    },
+  ];
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      setErrorMessage(
+        isAr
+          ? "يرجى تعبئة جميع الحقول المطلوبة (الاسم، البريد الإلكتروني، والرسالة)."
+          : "Please complete all required fields (Name, Email, and Message)."
+      );
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/contact/b2b", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          actionType: "CAREER_ENQUIRY",
+          name: formData.name.trim(),
+          email: formData.email.trim().toLowerCase(),
+          phone: formData.phone.trim() || undefined,
+          enquiryType: formData.enquiryType,
+          message: formData.message.trim(),
+        }),
+      });
+
+      const resData = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        setErrorMessage(
+          resData.error ||
+            (isAr
+              ? "فشل إرسال الاستفسار الوظيفي. يرجى المحاولة مرة أخرى."
+              : "Failed to submit career enquiry. Please try again.")
+        );
+      }
+    } catch (err) {
+      console.error("[CAREERS_CONTACT_ERROR]", err);
+      setErrorMessage(
+        isAr
+          ? "خطأ في الاتصال. يرجى المحاولة لاحقاً."
+          : "Network connection error. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div
+        data-testid="careers-tab-success"
+        className="text-center py-12 flex flex-col items-center justify-center space-y-4"
+      >
+        <div className="w-16 h-16 bg-cyan-500/10 text-cyan-400 rounded-2xl flex items-center justify-center mb-2 border border-cyan-500/20">
+          <CheckCircle2 className="w-8 h-8" />
+        </div>
+        <h3 className="text-2xl font-bold text-[var(--text-primary)] font-display uppercase">
+          {isAr ? "تم إرسال استفسارك بنجاح!" : "Career Enquiry Submitted!"}
+        </h3>
+        <p className="text-sm text-[var(--text-secondary)] font-medium max-w-md leading-relaxed">
+          {isAr
+            ? "شكراً لاهتمامك بالانضمام إلى إي ثري قطر. سيقوم فريق الموارد البشرية واستقطاب الكفاءات بمراجعة رسالتك والتواصل معك قريباً."
+            : "Thank you for your interest in joining E3 Qatar. Our Talent Acquisition team will review your message and reach out shortly."}
+        </p>
+
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
+          <Link
+            href={`/${locale}/b2b/careers`}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs transition-all shadow-md active:scale-95"
+          >
+            <Briefcase className="w-4 h-4" />
+            <span>{isAr ? "استعراض الشواغر الحالية" : "Explore Open Roles"}</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              setSubmitted(false);
+              setFormData({
+                name: "",
+                email: "",
+                phone: "",
+                enquiryType: "General Careers Inquiry",
+                message: "",
+              });
+            }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-primary)] font-bold text-xs hover:bg-[var(--surface-hover)]/80 transition-colors"
+          >
+            <span>{isAr ? "إرسال استفسار آخر" : "Send Another Enquiry"}</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div data-testid="careers-tab-content" className="space-y-8 text-start">
+      {/* Careers Banner with quick links to official Careers Portal */}
+      <div className="p-6 rounded-2xl bg-gradient-to-br from-cyan-500/10 via-[var(--surface-hover)] to-[var(--bg-level-1)] border border-cyan-500/20 relative overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-[11px] font-bold uppercase tracking-wider border border-cyan-500/20">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{isAr ? "استقطاب الكفاءات والوظائف" : "TALENT & CAREERS PORTAL"}</span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] font-display tracking-tight">
+              {isAr ? "انضم إلى صناع التجارب الحية في قطر" : "Join E3 Qatar's Visionary Team"}
+            </h3>
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium leading-relaxed">
+              {isAr
+                ? "نحن نبحث دوماً عن كفاءات استثنائية في هندسة الفعاليات، التصميم المكاني، وتشغيل الوجهات الترفيهية الكبرى."
+                : "We are always seeking exceptional talent in live production engineering, kinetic architectures, and immersive entertainment."}
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0">
+            <Link
+              href={`/${locale}/b2b/careers`}
+              data-testid="careers-tab-explore-jobs-btn"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs transition-all shadow-md hover:scale-[1.02] active:scale-95 text-center"
+            >
+              <Briefcase className="w-3.5 h-3.5" />
+              <span>{isAr ? "تصفح الشواغر المتاحة" : "Explore Open Vacancies"}</span>
+              <ArrowRight className={cn("w-3.5 h-3.5", isAr && "rotate-180")} />
+            </Link>
+            <Link
+              href={`/${locale}/apply`}
+              data-testid="careers-tab-apply-btn"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--surface-default)] hover:bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-[var(--text-primary)] font-bold text-xs transition-all text-center"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+              <span>{isAr ? "تقديم طلب عام / السيرة الذاتية" : "General CV Submission"}</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Direct Career Enquiry Form */}
+      <form onSubmit={handleSubmit} data-testid="careers-tab-form" className="space-y-6">
+        <div className="border-b border-[var(--border-level-2)] pb-3">
+          <h4 className="text-base font-bold text-[var(--text-primary)]">
+            {isAr ? "إرسال استفسار مباشر لفريق التوظيف" : "Send a Direct Recruitment Enquiry"}
+          </h4>
+          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+            {isAr
+              ? "هل لديك استفسار محدد حول الشواغر، التدريب التعاوني، أو العمل الحر؟ أرسل لنا وسنرد عليك مباشرة."
+              : "Have a specific question about open roles, internships, or freelance crew opportunities? Reach out directly."}
+          </p>
+        </div>
+
+        {errorMessage && (
+          <div
+            data-testid="careers-tab-error"
+            className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200 text-xs sm:text-sm flex items-center gap-2.5"
+          >
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <B2CInput
+            name="name"
+            required
+            label={isAr ? "الاسم الكامل *" : "Full Name *"}
+            placeholder={isAr ? "أحمد محمد" : "Alex Rivera"}
+            value={formData.name}
+            onChange={(e: any) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+          />
+          <B2CInput
+            name="email"
+            type="email"
+            required
+            label={isAr ? "البريد الإلكتروني *" : "Email Address *"}
+            placeholder="talent@example.com"
+            value={formData.email}
+            onChange={(e: any) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <B2CInput
+            name="phone"
+            type="tel"
+            label={isAr ? "رقم الهاتف" : "Phone Number"}
+            placeholder="+974 5555 5555"
+            value={formData.phone}
+            onChange={(e: any) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+          />
+
+          <div className="flex flex-col gap-2 w-full">
+            <label className="text-xs font-bold tracking-wider uppercase text-[var(--text-secondary)]">
+              {isAr ? "مجال الاهتمام / نوع الاستفسار" : "Interest Area / Category"}
+            </label>
+            <div className="relative flex items-center">
+              <select
+                name="enquiryType"
+                value={formData.enquiryType}
+                onChange={(e) => setFormData((prev) => ({ ...prev, enquiryType: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl border text-sm transition-colors outline-none bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-primary)] focus:border-cyan-400 appearance-none cursor-pointer"
+              >
+                {enquiryOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {isAr ? opt.labelAr : opt.labelEn}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)] absolute end-4 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-bold tracking-wider uppercase text-[var(--text-secondary)]">
+            {isAr ? "رسالتك أو استفسارك *" : "Your Message or Question *"}
+          </label>
+          <textarea
+            name="message"
+            required
+            rows={4}
+            value={formData.message}
+            onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
+            placeholder={
+              isAr
+                ? "اذكر استفسارك، تخصصك المهني، أو المسمى الوظيفي الذي ترغب بالاستفسار عنه..."
+                : "Detail your background, role of interest, or question for our recruitment team..."
+            }
+            className="w-full px-4 py-3 rounded-xl border text-sm transition-colors outline-none bg-[var(--surface-default)] border-[var(--border-level-2)] text-[var(--text-primary)] focus:border-cyan-400 resize-y"
+          />
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+          <div className="text-xs text-[var(--text-tertiary)] flex items-center gap-1.5">
+            <Mail className="w-3.5 h-3.5 text-cyan-400" />
+            <span>
+              {isAr
+                ? "يمكنك أيضاً مراسلتنا مباشرة: info@eeeqa.com"
+                : "Direct recruitment inquiries: info@eeeqa.com"}
+            </span>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            data-testid="careers-tab-submit-btn"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-black font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span>
+              {isSubmitting
+                ? isAr
+                  ? "جاري الإرسال..."
+                  : "Sending..."
+                : isAr
+                  ? "إرسال الاستفسار"
+                  : "Submit Enquiry"}
+            </span>
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

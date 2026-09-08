@@ -8,6 +8,7 @@ import {
   isJobPubliclyEligible,
   formatJobPresentation,
 } from "@/lib/careers/job-eligibility";
+import { ShareJobModal } from "@/components/b2b/careers/ShareJobModal";
 
 export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const params = await props.params;
@@ -70,6 +71,15 @@ export default async function JobDetailsPage(props: { params: Promise<{ locale: 
               <Clock className="w-5 h-5 text-[var(--color-primary)]" />
               {formatted.type}
             </div>
+            <ShareJobModal
+              jobId={job.id}
+              jobTitle={formatted.title}
+              department={formatted.department}
+              location={formatted.location}
+              type={formatted.type}
+              locale={locale}
+              variant="detail"
+            />
           </div>
         </div>
 
@@ -162,6 +172,19 @@ export default async function JobDetailsPage(props: { params: Promise<{ locale: 
                   </Link>
                 </div>
               )}
+
+              <div className="mt-6 pt-6 border-t border-[var(--border-default)]">
+                <ShareJobModal
+                  jobId={job.id}
+                  jobTitle={formatted.title}
+                  department={formatted.department}
+                  location={formatted.location}
+                  type={formatted.type}
+                  locale={locale}
+                  variant="detail"
+                  className="w-full"
+                />
+              </div>
             </div>
           </div>
 

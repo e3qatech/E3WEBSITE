@@ -151,11 +151,15 @@ async function getContactData() {
 
 export default async function ContactPage({
   params,
+  searchParams,
 }: {
   params?: Promise<{ locale: string }>;
+  searchParams?: Promise<{ tab?: string }>;
 } = {}) {
   const resolvedParams = params ? await params : { locale: "en" };
+  const resolvedSearchParams = searchParams ? await searchParams : {};
   const locale = resolvedParams?.locale || "en";
+  const defaultTab = resolvedSearchParams?.tab || "support";
   const {
     attractions,
     attractionFaqs,
@@ -169,6 +173,7 @@ export default async function ContactPage({
     <div className="min-h-screen bg-[var(--surface-default)]">
       <ContactClient
         locale={locale}
+        defaultTab={defaultTab}
         attractions={attractions}
         attractionFaqs={attractionFaqs}
         generalFaqs={generalFaqs}

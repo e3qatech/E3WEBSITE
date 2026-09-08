@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FormattedPublicJob, toTitleCase } from "@/lib/careers/job-eligibility";
+import { ShareJobModal } from "./ShareJobModal";
 
 interface ActiveJobsSectionProps {
   jobs: FormattedPublicJob[];
@@ -101,8 +102,13 @@ export function ActiveJobsSection({
           </p>
         </div>
 
-        {/* Vacancy Counter */}
+        {/* Vacancy Counter & Share Careers Portal */}
         <div className="flex items-center gap-2">
+          <ShareJobModal
+            locale={locale}
+            variant="header"
+            isPageShare={true}
+          />
           <span
             data-testid="vacancy-count-badge"
             className="px-4 py-2 rounded-xl bg-[var(--surface-default)] border border-[var(--border-level-1)] text-xs font-bold text-[var(--text-primary)] shadow-sm"
@@ -270,14 +276,26 @@ export function ActiveJobsSection({
                   </div>
 
                   <div className="flex items-center justify-between gap-2">
-                    <Link
-                      href={detailUrl}
-                      data-testid={`view-job-role-${job.id}`}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[var(--text-primary)] hover:text-cyan-400 transition-colors"
-                    >
-                      <span>{isAr ? "تفاصيل الوظيفة" : "View Role"}</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={detailUrl}
+                        data-testid={`view-job-role-${job.id}`}
+                        className="inline-flex items-center gap-1 text-xs font-bold text-[var(--text-primary)] hover:text-cyan-400 transition-colors"
+                      >
+                        <span>{isAr ? "تفاصيل الوظيفة" : "View Role"}</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </Link>
+
+                      <ShareJobModal
+                        jobId={job.id}
+                        jobTitle={displayTitle}
+                        department={job.department}
+                        location={job.location}
+                        type={job.type}
+                        locale={locale}
+                        variant="card"
+                      />
+                    </div>
 
                     <Link
                       href={applyUrl}
