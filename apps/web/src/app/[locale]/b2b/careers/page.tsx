@@ -86,25 +86,33 @@ export default async function B2BCareersPage({
   let sessionUser: any = null;
 
   try {
-    const [pageResult, jobsResult, sessionResult] = await Promise.all([
-      db.pages.findUnique({
+    pageData = await db.pages
+      .findUnique({
         where: { slug: "b2b-careers" },
-      }),
-      db.job.findMany({
-        where: { isPublished: true },
-        orderBy: { createdAt: "desc" },
-      }),
-      auth(),
-    ]);
+      })
+      .catch(() => null);
+  } catch (_e) {}
 
-    pageData = pageResult;
-    rawDbJobs = jobsResult;
+  try {
+    rawDbJobs = await db.job.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (jobsErr) {
+    console.warn("[B2B Careers Server Loader] findMany error, attempting fallback:", jobsErr);
+    try {
+      rawDbJobs = (await db.$queryRaw`SELECT * FROM "Job" WHERE "isPublished" = true ORDER BY "createdAt" DESC`) as any[];
+    } catch (_fallbackErr) {
+      console.error("[B2B Careers Server Loader] Fallback query failed:", _fallbackErr);
+    }
+  }
+
+  try {
+    const sessionResult = await auth().catch(() => null);
     if (sessionResult?.user) {
       sessionUser = sessionResult.user;
     }
-  } catch (error) {
-    console.error("[B2B Careers Server Loader] Error querying data:", error);
-  }
+  } catch (_e) {}
 
   const content = getMergedCMSPageContent("b2b-careers", pageData?.content);
 

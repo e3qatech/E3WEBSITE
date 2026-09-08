@@ -114,6 +114,14 @@ try {
   }
 
   try {
+    console.log("[BUILD] Ensuring careers schema (Job deadline column)...");
+    execSync("node scripts/ensure-careers-schema.mjs", { stdio: 'inherit', env: migrationEnv });
+    console.log("[BUILD] Careers schema verified successfully.");
+  } catch (careersErr) {
+    console.log("[BUILD] Careers schema step note (non-blocking):", careersErr.message || careersErr);
+  }
+
+  try {
     console.log("[BUILD] Synchronizing essential authentication seed accounts...");
     execSync("node scripts/seed-auth-accounts.mjs", { stdio: 'inherit', env: migrationEnv });
     console.log("[BUILD] Authentication seed accounts synchronized successfully.");

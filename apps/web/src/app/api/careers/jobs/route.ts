@@ -51,10 +51,19 @@ export async function GET(req: NextRequest) {
     }
 
     // Public view: only publicly eligible jobs with safe presentation fields
-    const rawJobs = await db.job.findMany({
-      where: { isPublished: true },
-      orderBy: { createdAt: 'desc' },
-    });
+    let rawJobs: any[] = [];
+    try {
+      rawJobs = await db.job.findMany({
+        where: { isPublished: true },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (_jobsErr) {
+      try {
+        rawJobs = (await db.$queryRaw`SELECT * FROM "Job" WHERE "isPublished" = true ORDER BY "createdAt" DESC`) as any[];
+      } catch (rawErr) {
+        console.error('[GET /api/careers/jobs] fallback failed:', rawErr);
+      }
+    }
 
     const eligible = filterPubliclyEligibleJobs(rawJobs);
     const safeJobs = eligible.map((j: any) => formatJobPresentation(j, locale));
