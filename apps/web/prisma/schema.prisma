@@ -519,16 +519,17 @@ model Talent {
 }
 
 model Job {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   title        String
   department   String?
   location     String?
-  type         String   @default("FULL_TIME")
+  type         String    @default("FULL_TIME")
   description  String
   requirements String?
-  isPublished  Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  isPublished  Boolean   @default(false)
+  deadline     DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   applications Talent[]
 }
 

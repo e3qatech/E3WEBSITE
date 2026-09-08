@@ -1,7 +1,19 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Save, Briefcase, Users, AlertTriangle, Trash2, Share2, Lock, Unlock } from "lucide-react";
+import {
+  Save,
+  Briefcase,
+  Users,
+  AlertTriangle,
+  Trash2,
+  Share2,
+  Lock,
+  Unlock,
+  Clock,
+  Calendar,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
 import { Tabs, TabsContent } from "@/components/dashboard/ui/Tabs";
@@ -16,7 +28,11 @@ import {
 import {
   analyzeJobDataQuality,
   toTitleCase,
+  calculateDeadlineFromDays,
+  getRemainingDays,
+  formatQatarDeadline,
 } from "@/lib/careers/job-eligibility";
+import { cn } from "@/lib/utils";
 import { JobShareModal } from "@/components/dashboard/careers/JobShareModal";
 
 export default function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -33,12 +49,18 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
   const [applicants, setApplicants] = useState<any[]>([]);
   const [isShareOpen, setIsShareOpen] = useState(false);
 
+  // Listing duration preset mode (default 30 days for new listings, ongoing/custom for existing)
+  const [durationMode, setDurationMode] = useState<
+    "7d" | "14d" | "30d" | "60d" | "90d" | "custom" | "ongoing"
+  >(isEdit ? "ongoing" : "30d");
+
   const [formData, setFormData] = useState({
     title: "",
     department: "Operations",
     location: "Doha (On-site)",
     type: "FULL_TIME",
     isPublished: false,
+    deadline: isEdit ? (null as string | null) : calculateDeadlineFromDays(30),
     description: "",
     requirements: "",
   });
@@ -56,15 +78,24 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
         const json = await res.json();
         if (json.success && json.job) {
           const j = json.job;
+          const initialDeadline = j.deadline
+            ? (typeof j.deadline === "string" ? j.deadline.split("T")[0] : new Date(j.deadline).toISOString().split("T")[0])
+            : null;
           setFormData({
             title: j.title || "",
             department: j.department || "Operations",
             location: j.location || "Doha (On-site)",
             type: j.type || "FULL_TIME",
             isPublished: Boolean(j.isPublished),
+            deadline: initialDeadline,
             description: j.description || "",
             requirements: j.requirements || "",
           });
+          if (initialDeadline) {
+            setDurationMode("custom");
+          } else {
+            setDurationMode("ongoing");
+          }
           setApplicants(j.applications || []);
         } else {
           toast(json.error || "Failed to load job details", "error");
@@ -94,10 +125,15 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
       const url = isEdit ? `/api/careers/jobs/${id}` : "/api/careers/jobs";
       const method = isEdit ? "PUT" : "POST";
 
+      const payload = {
+        ...formData,
+        deadline: durationMode === "ongoing" ? null : formData.deadline,
+      };
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const json = await res.json();
@@ -386,6 +422,131 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
                     </span>
                   </label>
                 </div>
+              </div>
+
+              {/* Job Listing Duration & Validity Period */}
+              <div className="space-y-4 md:col-span-2 p-5 rounded-2xl bg-cyan-500/[0.03] border border-cyan-500/20">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <label className="block text-sm font-bold text-white flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-cyan-400" />
+                      <span>
+                        {isAr ? "مدة إتاحة الشاغر الوظيفي (فترة الصلاحية)" : "Job Listing Duration & Expiry"}
+                      </span>
+                    </label>
+                    <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+                      {isAr
+                        ? "حدد المدة الزمنية لبقاء هذه الوظيفة منشورة للعامة. يُغلق التقديم تلقائياً بنهاية اليوم بتوقيت دولة قطر (Asia/Qatar UTC+3)."
+                        : "Define how long this job should remain actively open. The listing automatically expires at 23:59 Qatar Time (Asia/Qatar UTC+3)."}
+                    </p>
+                  </div>
+                  {formData.deadline && (
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 shrink-0">
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>
+                        {formatQatarDeadline(formData.deadline, isAr ? "ar" : "en")}
+                      </span>
+                      {(() => {
+                        const remaining = getRemainingDays(formData.deadline);
+                        if (remaining === null) return null;
+                        if (remaining === 0)
+                          return (
+                            <span className="text-amber-400 font-bold">
+                              ({isAr ? "ينتهي اليوم" : "Expires today"})
+                            </span>
+                          );
+                        return (
+                          <span className="text-emerald-400 font-bold">
+                            ({remaining} {isAr ? "يوم متبقي" : "days left"})
+                          </span>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+
+                {/* Duration Presets */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+                  {[
+                    { id: "7d", labelEn: "7 Days", labelAr: "٧ أيام", days: 7 },
+                    { id: "14d", labelEn: "14 Days", labelAr: "١٤ يوماً", days: 14 },
+                    {
+                      id: "30d",
+                      labelEn: "30 Days",
+                      labelAr: "٣٠ يوماً",
+                      days: 30,
+                      recommended: true,
+                    },
+                    { id: "60d", labelEn: "60 Days", labelAr: "٦٠ يوماً", days: 60 },
+                    { id: "90d", labelEn: "90 Days", labelAr: "٩٠ يوماً", days: 90 },
+                    { id: "custom", labelEn: "Custom Date", labelAr: "تاريخ مخصص" },
+                    { id: "ongoing", labelEn: "Ongoing", labelAr: "دون انتهاء" },
+                  ].map((preset) => {
+                    const isSelected = durationMode === preset.id;
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => {
+                          setDurationMode(preset.id as any);
+                          if (preset.days) {
+                            setFormData((prev) => ({
+                              ...prev,
+                              deadline: calculateDeadlineFromDays(preset.days!),
+                            }));
+                          } else if (preset.id === "ongoing") {
+                            setFormData((prev) => ({
+                              ...prev,
+                              deadline: null,
+                            }));
+                          }
+                        }}
+                        className={cn(
+                          "relative px-3 py-2.5 rounded-xl text-xs font-bold border transition-all text-center flex flex-col items-center justify-center gap-1",
+                          isSelected
+                            ? "bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-sm"
+                            : "bg-[var(--surface-hover)] border-[var(--border-default)] text-[var(--text-secondary)] hover:text-white hover:border-[var(--border-level-2)]"
+                        )}
+                      >
+                        {preset.recommended && (
+                          <span className="absolute -top-2 px-1.5 py-0.2 rounded text-[8px] font-black uppercase bg-cyan-500 text-black tracking-wider">
+                            {isAr ? "موصى به" : "Recommended"}
+                          </span>
+                        )}
+                        <span>{isAr ? preset.labelAr : preset.labelEn}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Custom Date Input or Ongoing Info Banner */}
+                {durationMode === "custom" && (
+                  <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <label className="text-xs font-semibold text-[var(--text-secondary)] shrink-0">
+                      {isAr ? "حدد تاريخ انتهاء التقديم المحدد:" : "Select Specific Expiry Date:"}
+                    </label>
+                    <input
+                      type="date"
+                      min={new Date().toISOString().split("T")[0]}
+                      value={formData.deadline || ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, deadline: e.target.value || null }))
+                      }
+                      className="bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono"
+                    />
+                  </div>
+                )}
+
+                {durationMode === "ongoing" && (
+                  <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span>
+                      {isAr
+                        ? "الوظيفة مستمرة دون موعد انتهاء محدد: ستبقى متاحة للتقديم حتى يتم إغلاقها يدوياً من لوحة التحكم."
+                        : "Open Indefinitely: This job will remain actively open until an administrator manually marks it as closed."}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 

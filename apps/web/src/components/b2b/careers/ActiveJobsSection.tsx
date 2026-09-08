@@ -11,7 +11,12 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FormattedPublicJob, toTitleCase } from "@/lib/careers/job-eligibility";
+import {
+  FormattedPublicJob,
+  toTitleCase,
+  getRemainingDays,
+  formatQatarDeadline,
+} from "@/lib/careers/job-eligibility";
 import { ShareJobModal } from "./ShareJobModal";
 
 interface ActiveJobsSectionProps {
@@ -270,9 +275,26 @@ export function ActiveJobsSection({
 
                 {/* Bottom Metadata & Actions */}
                 <div className="pt-4 border-t border-[var(--border-level-1)] mt-4">
-                  <div className="flex items-center text-[var(--text-tertiary)] text-xs mb-4">
-                    <MapPin className="w-3.5 h-3.5 me-1 text-cyan-400 shrink-0" />
-                    <span>{displayLocation}</span>
+                  <div className="flex items-center justify-between text-[var(--text-tertiary)] text-xs mb-4">
+                    <div className="flex items-center">
+                      <MapPin className="w-3.5 h-3.5 me-1 text-cyan-400 shrink-0" />
+                      <span>{displayLocation}</span>
+                    </div>
+                    {job.deadline && (
+                      <span
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-400/90"
+                        title={`${isAr ? "موعد انتهاء التقديم:" : "Deadline:"} ${formatQatarDeadline(job.deadline, isAr ? "ar" : "en")}`}
+                      >
+                        <Clock className="w-3 h-3 text-cyan-400" />
+                        {(() => {
+                          const remaining = getRemainingDays(job.deadline);
+                          if (remaining === null) return null;
+                          if (remaining <= 0) return <span>{isAr ? "ينتهي اليوم" : "Ends today"}</span>;
+                          if (remaining === 1) return <span>{isAr ? "متبقي يوم" : "1d left"}</span>;
+                          return <span>{isAr ? `متبقي ${remaining} يوماً` : `${remaining}d left`}</span>;
+                        })()}
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-between gap-2">

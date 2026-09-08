@@ -17,6 +17,7 @@ const createJobSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   requirements: z.string().optional().nullable(),
   isPublished: z.boolean().default(false),
+  deadline: z.string().or(z.date()).optional().nullable(),
 });
 
 export async function GET(req: NextRequest) {
@@ -84,6 +85,12 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validated = createJobSchema.parse(body);
 
+    const parsedDeadline = validated.deadline
+      ? new Date(validated.deadline)
+      : null;
+    const safeDeadline =
+      parsedDeadline && !isNaN(parsedDeadline.getTime()) ? parsedDeadline : null;
+
     const job = await db.job.create({
       data: {
         title: validated.title.trim(),
@@ -93,6 +100,7 @@ export async function POST(req: NextRequest) {
         description: validated.description.trim(),
         requirements: validated.requirements?.trim() || null,
         isPublished: validated.isPublished,
+        deadline: safeDeadline,
       },
     });
 

@@ -17,6 +17,7 @@ const updateJobSchema = z.object({
   description: z.string().min(1, 'Description is required').optional(),
   requirements: z.string().optional().nullable(),
   isPublished: z.boolean().optional(),
+  deadline: z.string().or(z.date()).optional().nullable(),
 });
 
 export async function GET(
@@ -124,6 +125,13 @@ export async function PUT(
         ...(validated.description ? { description: validated.description.trim() } : {}),
         ...(validated.requirements !== undefined ? { requirements: validated.requirements?.trim() || null } : {}),
         ...(validated.isPublished !== undefined ? { isPublished: validated.isPublished } : {}),
+        ...(validated.deadline !== undefined
+          ? {
+              deadline: validated.deadline
+                ? new Date(validated.deadline)
+                : null,
+            }
+          : {}),
       },
     });
 

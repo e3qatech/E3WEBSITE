@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import prisma from "@/lib/db";
-import { MapPin, Clock, ArrowLeft, AlertCircle } from "lucide-react";
+import { MapPin, Clock, ArrowLeft, AlertCircle, Calendar } from "lucide-react";
 import Link from "next/link";
 import { ApplicationForm } from "@/components/b2c/careers/ApplicationForm";
 import {
   isJobPubliclyEligible,
   formatJobPresentation,
+  formatQatarDeadline,
 } from "@/lib/careers/job-eligibility";
 import { ShareJobModal } from "@/components/b2b/careers/ShareJobModal";
 
@@ -71,6 +72,15 @@ export default async function JobDetailsPage(props: { params: Promise<{ locale: 
               <Clock className="w-5 h-5 text-[var(--color-primary)]" />
               {formatted.type}
             </div>
+            {formatted.deadline && (
+              <div className="flex items-center gap-2 text-cyan-400 font-medium">
+                <Calendar className="w-5 h-5" />
+                <span>
+                  {locale === 'ar' ? 'آخر موعد للتقديم:' : 'Deadline:'}{' '}
+                  {formatQatarDeadline(formatted.deadline, locale as 'en' | 'ar')}
+                </span>
+              </div>
+            )}
             <ShareJobModal
               jobId={job.id}
               jobTitle={formatted.title}

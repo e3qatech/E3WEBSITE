@@ -161,6 +161,56 @@ export function isDeadlineExpired(deadlineInput?: string | Date | null, referenc
 }
 
 /**
+ * Calculates a future deadline date string (YYYY-MM-DD) based on a duration in days.
+ */
+export function calculateDeadlineFromDays(days: number, fromDate?: Date): string {
+  const base = fromDate || new Date();
+  const future = new Date(base.getTime() + days * 24 * 60 * 60 * 1000);
+  const year = future.getUTCFullYear();
+  const month = String(future.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(future.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Calculates remaining days until deadline.
+ * Returns null if no deadline. Returns 0 if expires today or already expired.
+ */
+export function getRemainingDays(deadlineInput?: string | Date | null, referenceNow?: Date): number | null {
+  const deadlineUtc = parseQatarDeadline(deadlineInput);
+  if (!deadlineUtc) return null;
+
+  const now = referenceNow || new Date();
+  const diffMs = deadlineUtc.getTime() - now.getTime();
+  if (diffMs <= 0) return 0;
+
+  return Math.ceil(diffMs / (24 * 60 * 60 * 1000));
+}
+
+/**
+ * Localized date formatter for Qatar deadlines.
+ */
+export function formatQatarDeadline(
+  deadlineInput?: string | Date | null,
+  locale: 'en' | 'ar' = 'en'
+): string | null {
+  const parsed = parseQatarDeadline(deadlineInput);
+  if (!parsed) return null;
+
+  try {
+    return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-QA' : 'en-QA', {
+      timeZone: QATAR_TIMEZONE,
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(parsed);
+  } catch {
+    return parsed.toLocaleDateString();
+  }
+}
+
+/**
  * Evaluates the public eligibility of a job.
  * A job is eligible ONLY if:
  * 1. isPublished === true (or status === 'ACTIVE' | 'PUBLISHED')

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useId } from "react";
+import { createPortal } from "react-dom";
 import {
   Share2,
   Copy,
@@ -68,6 +69,27 @@ export function ShareJobModal({
       setHasNativeShare(true);
     }
   }, []);
+
+  // Lock body scroll and listen for Escape key when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   // Compute canonical share URL
   const getShareUrl = useCallback(() => {
@@ -250,206 +272,223 @@ export function ShareJobModal({
     );
   };
 
+  const renderDialog = () => {
+    if (!isOpen) return null;
+
+    const dialogContent = (
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`share-modal-title-${dialogId}`}
+        data-testid="share-job-dialog"
+        className="fixed inset-0 z-[9999] pointer-events-auto flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 select-none"
+        dir={isAr ? "rtl" : "ltr"}
+        onPointerDown={(e) => {
+          if (e.target === e.currentTarget) setIsOpen(false);
+        }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setIsOpen(false);
+        }}
+      >
+        <div
+          className="w-full max-w-md bg-[#0c101b] border border-cyan-500/20 rounded-3xl shadow-2xl overflow-hidden text-[var(--text-primary)] animate-in zoom-in-95 duration-200 select-text pointer-events-auto"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Modal Header */}
+          <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between gap-3 bg-white/[0.02]">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shrink-0 mt-0.5">
+                <Share2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3
+                  id={`share-modal-title-${dialogId}`}
+                  data-testid="share-dialog-title"
+                  className="font-bold text-base sm:text-lg text-white leading-tight"
+                >
+                  {isPageShare
+                    ? isAr
+                      ? "مشاركة بوابة الشواغر الوظيفية"
+                      : "Share Careers Opportunities"
+                    : isAr
+                      ? "مشاركة الفرصة الوظيفية"
+                      : "Share Job Opportunity"}
+                </h3>
+                <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-300 mt-1 font-medium">
+                  <span className="text-cyan-300 line-clamp-1">{jobTitle}</span>
+                  {department && (
+                    <>
+                      <span className="text-slate-500">•</span>
+                      <span className="text-slate-400">{department}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              data-testid="share-close-btn"
+              aria-label={isAr ? "إغلاق النافذة" : "Close share modal"}
+              className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Modal Body */}
+          <div className="p-5 sm:p-6 space-y-6">
+            {/* Quick Share Buttons */}
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">
+                {isAr ? "المشاركة المباشرة" : "Share Directly"}
+              </label>
+
+              <div className="grid grid-cols-4 gap-2.5">
+                {/* WhatsApp */}
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="share-whatsapp-btn"
+                  className="flex flex-col items-center justify-center p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/20 text-emerald-400 transition-all text-center group"
+                >
+                  <MessageCircle className="w-5 h-5 mb-1.5 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-bold text-white">WhatsApp</span>
+                  <span className="text-[10px] text-emerald-400/80 mt-0.5 flex items-center gap-0.5">
+                    {isAr ? "إرسال" : "Send"} <ExternalLink className="w-2.5 h-2.5" />
+                  </span>
+                </a>
+
+                {/* LinkedIn */}
+                <a
+                  href={linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="share-linkedin-btn"
+                  className="flex flex-col items-center justify-center p-3 rounded-2xl bg-sky-500/10 border border-sky-500/20 hover:border-sky-500/50 hover:bg-sky-500/20 text-sky-400 transition-all text-center group"
+                >
+                  <LinkedinIcon className="w-5 h-5 mb-1.5 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-bold text-white">LinkedIn</span>
+                  <span className="text-[10px] text-sky-400/80 mt-0.5 flex items-center gap-0.5">
+                    {isAr ? "مشاركة" : "Share"} <ExternalLink className="w-2.5 h-2.5" />
+                  </span>
+                </a>
+
+                {/* X / Twitter */}
+                <a
+                  href={twitterUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="share-twitter-btn"
+                  className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 text-white transition-all text-center group"
+                >
+                  <TwitterIcon className="w-5 h-5 mb-1.5 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-bold text-white">X</span>
+                  <span className="text-[10px] text-slate-400 mt-0.5 flex items-center gap-0.5">
+                    {isAr ? "نشر" : "Post"} <ExternalLink className="w-2.5 h-2.5" />
+                  </span>
+                </a>
+
+                {/* Email */}
+                <a
+                  href={mailtoUrl}
+                  data-testid="share-email-btn"
+                  className="flex flex-col items-center justify-center p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/50 hover:bg-amber-500/20 text-amber-400 transition-all text-center group"
+                >
+                  <Mail className="w-5 h-5 mb-1.5 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-bold text-white">Email</span>
+                  <span className="text-[10px] text-amber-400/80 mt-0.5 flex items-center gap-0.5">
+                    {isAr ? "بريد" : "Mail"} <ExternalLink className="w-2.5 h-2.5" />
+                  </span>
+                </a>
+              </div>
+            </div>
+
+            {/* Native OS Share Sheet (Mobile / Supported Desktop) */}
+            {hasNativeShare && (
+              <button
+                type="button"
+                onClick={handleNativeShare}
+                data-testid="share-native-sheet-btn"
+                className="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 text-xs font-bold transition-all active:scale-98"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>{isAr ? "المشاركة عبر تطبيقات هاتفك..." : "Share via Device Apps..."}</span>
+              </button>
+            )}
+
+            {/* Copy Direct Link */}
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                {isAr ? "أو انسخ الرابط المباشر للوظيفة" : "Or Copy Direct Link"}
+              </label>
+              <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-black/40 border border-white/10 focus-within:border-cyan-500/50 transition-colors">
+                <input
+                  type="text"
+                  readOnly
+                  value={shareUrl}
+                  data-testid="share-copy-input"
+                  aria-label={isAr ? "رابط المشاركة" : "Share URL"}
+                  className="flex-1 bg-transparent px-3 py-1.5 text-xs text-slate-200 font-mono focus:outline-none select-all truncate"
+                />
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  data-testid="share-copy-link-btn"
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95",
+                    copied
+                      ? "bg-emerald-500 text-black font-extrabold"
+                      : "bg-cyan-500 hover:bg-cyan-400 text-black"
+                  )}
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  <span>
+                    {copied
+                      ? isAr
+                        ? "تم النسخ!"
+                        : "Copied!"
+                      : isAr
+                        ? "نسخ الرابط"
+                        : "Copy Link"}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Modal Footer */}
+          <div className="p-4 border-t border-white/10 bg-white/[0.02] flex items-center justify-between text-xs text-slate-400">
+            <span className="flex items-center gap-1.5 text-cyan-400/80 font-medium">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{isAr ? "إي ثري قطر للفعاليات والترفيه" : "E3 Qatar Live Experiences"}</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="px-4 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white font-semibold transition-colors"
+            >
+              {isAr ? "إغلاق" : "Done"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+
+    if (typeof document !== "undefined" && document.body) {
+      return createPortal(dialogContent, document.body);
+    }
+
+    return dialogContent;
+  };
+
   return (
     <>
       {renderTrigger()}
-
-      {/* Share Modal Dialog */}
-      {isOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={`share-modal-title-${dialogId}`}
-          data-testid="share-job-dialog"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
-          dir={isAr ? "rtl" : "ltr"}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsOpen(false);
-          }}
-        >
-          <div
-            className="w-full max-w-md bg-[#0c101b] border border-cyan-500/20 rounded-3xl shadow-2xl overflow-hidden text-[var(--text-primary)] animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between gap-3 bg-white/[0.02]">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shrink-0 mt-0.5">
-                  <Share2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3
-                    id={`share-modal-title-${dialogId}`}
-                    data-testid="share-dialog-title"
-                    className="font-bold text-base sm:text-lg text-white leading-tight"
-                  >
-                    {isPageShare
-                      ? isAr
-                        ? "مشاركة بوابة الشواغر الوظيفية"
-                        : "Share Careers Opportunities"
-                      : isAr
-                        ? "مشاركة الفرصة الوظيفية"
-                        : "Share Job Opportunity"}
-                  </h3>
-                  <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-300 mt-1 font-medium">
-                    <span className="text-cyan-300 line-clamp-1">{jobTitle}</span>
-                    {department && (
-                      <>
-                        <span className="text-slate-500">•</span>
-                        <span className="text-slate-400">{department}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                data-testid="share-close-btn"
-                aria-label={isAr ? "إغلاق النافذة" : "Close Share Dialog"}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-5 sm:p-6 space-y-6">
-              {/* 1-Click Social Sharing Channels */}
-              <div className="space-y-2.5">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  {isAr ? "مشاركة سريعة عبر المنصات" : "Share Directly"}
-                </label>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  {/* WhatsApp */}
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-testid="share-whatsapp-btn"
-                    className="flex flex-col items-center justify-center p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 hover:border-emerald-500/40 hover:bg-emerald-500/20 text-emerald-400 transition-all group"
-                  >
-                    <MessageCircle className="w-5 h-5 mb-1.5 group-hover:scale-110 transition-transform" />
-                    <span className="text-xs font-bold text-white">WhatsApp</span>
-                    <span className="text-[10px] text-emerald-300/80 mt-0.5 flex items-center gap-0.5">
-                      {isAr ? "إرسال" : "Send"} <ExternalLink className="w-2.5 h-2.5" />
-                    </span>
-                  </a>
-
-                  {/* LinkedIn */}
-                  <a
-                    href={linkedinUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-testid="share-linkedin-btn"
-                    className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#0A66C2]/10 border border-[#0A66C2]/25 hover:border-[#0A66C2]/50 hover:bg-[#0A66C2]/20 text-[#388bfd] transition-all group"
-                  >
-                    <LinkedinIcon className="w-5 h-5 mb-1.5 group-hover:scale-110 transition-transform" />
-                    <span className="text-xs font-bold text-white">LinkedIn</span>
-                    <span className="text-[10px] text-blue-300/80 mt-0.5 flex items-center gap-0.5">
-                      {isAr ? "نشر" : "Share"} <ExternalLink className="w-2.5 h-2.5" />
-                    </span>
-                  </a>
-
-                  {/* X / Twitter */}
-                  <a
-                    href={twitterUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-testid="share-twitter-btn"
-                    className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 text-white transition-all group"
-                  >
-                    <TwitterIcon className="w-5 h-5 mb-1.5 group-hover:scale-110 transition-transform text-slate-200" />
-                    <span className="text-xs font-bold text-white">X</span>
-                    <span className="text-[10px] text-slate-400 mt-0.5 flex items-center gap-0.5">
-                      {isAr ? "مشاركة" : "Post"} <ExternalLink className="w-2.5 h-2.5" />
-                    </span>
-                  </a>
-
-                  {/* Email */}
-                  <a
-                    href={mailtoUrl}
-                    data-testid="share-email-btn"
-                    className="flex flex-col items-center justify-center p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/40 hover:bg-amber-500/20 text-amber-400 transition-all group"
-                  >
-                    <Mail className="w-5 h-5 mb-1.5 group-hover:scale-110 transition-transform" />
-                    <span className="text-xs font-bold text-white">Email</span>
-                    <span className="text-[10px] text-amber-300/80 mt-0.5 flex items-center gap-0.5">
-                      {isAr ? "إيميل" : "Mail"} <ExternalLink className="w-2.5 h-2.5" />
-                    </span>
-                  </a>
-                </div>
-              </div>
-
-              {/* Native Mobile / System Share Action (if supported) */}
-              {hasNativeShare && (
-                <div>
-                  <button
-                    type="button"
-                    onClick={handleNativeShare}
-                    data-testid="share-device-btn"
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-colors"
-                  >
-                    <Smartphone className="w-4 h-4" />
-                    <span>{isAr ? "مشاركة عبر تطبيقات الجهاز..." : "Share via Device Apps..."}</span>
-                  </button>
-                </div>
-              )}
-
-              {/* Copy Direct Job Link */}
-              <div className="space-y-2">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  {isAr ? "أو انسخ الرابط المباشر للوظيفة" : "Or Copy Direct Link"}
-                </label>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-mono text-slate-300 truncate select-all">
-                    {shareUrl}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleCopyLink}
-                    data-testid="share-copy-link-btn"
-                    className={cn(
-                      "px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shrink-0 transition-all shadow-md active:scale-95",
-                      copied
-                        ? "bg-emerald-500 text-black"
-                        : "bg-cyan-500 hover:bg-cyan-400 text-black"
-                    )}
-                  >
-                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                    <span>
-                      {copied
-                        ? isAr
-                          ? "تم النسخ!"
-                          : "Copied!"
-                        : isAr
-                          ? "نسخ الرابط"
-                          : "Copy Link"}
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-4 border-t border-white/10 bg-white/[0.02] flex items-center justify-between text-xs text-slate-400">
-              <span className="flex items-center gap-1.5 text-cyan-400/80 font-medium">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{isAr ? "إي ثري قطر للفعاليات والترفيه" : "E3 Qatar Live Experiences"}</span>
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="px-4 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white font-semibold transition-colors"
-              >
-                {isAr ? "إغلاق" : "Done"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {renderDialog()}
     </>
   );
 }

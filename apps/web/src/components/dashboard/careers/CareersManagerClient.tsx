@@ -17,11 +17,16 @@ import {
   Filter,
   ArrowRight,
   ExternalLink,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
 import { JobShareModal } from "./JobShareModal";
-import { analyzeJobDataQuality, toTitleCase } from "@/lib/careers/job-eligibility";
+import {
+  analyzeJobDataQuality,
+  toTitleCase,
+  formatQatarDeadline,
+} from "@/lib/careers/job-eligibility";
 
 interface CareersManagerClientProps {
   initialJobs: any[];
@@ -299,7 +304,17 @@ export function CareersManagerClient({
                       </button>
                     </td>
                     <td className="p-4 text-[var(--text-tertiary)] text-xs">
-                      {format(new Date(job.createdAt), "MMM d, yyyy")}
+                      <div>{format(new Date(job.createdAt), "MMM d, yyyy")}</div>
+                      {job.deadline ? (
+                        <div className="text-[10px] text-cyan-400 font-medium flex items-center gap-1 mt-0.5" title={isAr ? "موعد انتهاء التقديم" : "Application Deadline"}>
+                          <Clock className="w-2.5 h-2.5 shrink-0" />
+                          <span>{formatQatarDeadline(job.deadline, isAr ? "ar" : "en")}</span>
+                        </div>
+                      ) : (
+                        <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                          <span>{isAr ? "دون انتهاء" : "Ongoing"}</span>
+                        </div>
+                      )}
                     </td>
                     <td className="p-4 text-end">
                       <div className="inline-flex items-center gap-2">
