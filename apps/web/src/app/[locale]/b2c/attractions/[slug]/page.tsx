@@ -3,6 +3,7 @@ import { Metadata } from "next"
 import Link from "next/link"
 import { localizeHref } from "@/lib/url-helper"
 import { repairUrbanArenaCanonicalSlug } from "@/lib/canonical-urban-arena-repair"
+import { getBaseUrl } from "@/lib/seo-helper"
 
 // Component Imports
 import { HeroViewer } from "@/components/attractions/detail/HeroViewer"
@@ -407,8 +408,9 @@ export async function generateMetadata(props: { params: Promise<{ slug: string, 
   const displayName = locale === "ar" ? (attraction.nameAr || attraction.nameEn) : (attraction.nameEn || attraction.nameAr)
   const displayDesc = locale === "ar" ? (attraction.descriptionAr || attraction.descriptionEn) : (attraction.descriptionEn || attraction.descriptionAr)
 
-  const enCanonical = `https://e3.qa/en/b2c/attractions/${trueSlug}`
-  const arCanonical = `https://e3.qa/ar/b2c/attractions/${trueSlug}`
+  const baseUrl = getBaseUrl()
+  const enCanonical = `${baseUrl}/en/b2c/attractions/${trueSlug}`
+  const arCanonical = `${baseUrl}/ar/b2c/attractions/${trueSlug}`
   const currentCanonical = locale === "ar" ? arCanonical : enCanonical
 
   return {

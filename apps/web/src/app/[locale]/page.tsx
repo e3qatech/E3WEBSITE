@@ -52,8 +52,8 @@ export async function generateMetadata(props: {
   const ar = cmsData.arabic;
   const seo = cmsData.seoAccess;
 
-  const defaultTitleEn = "E3 Qatar | Event Management Company, Corporate Production & Live Entertainment";
-  const defaultTitleAr = "إي ثري قطر | لتنظيم وإدارة الفعاليات والمؤتمرات وتطوير الوجهات الترفيهية";
+  const defaultTitleEn = "Events & Entertainment Enterprises (E3 Qatar) | Premier Live Events, Corporate Production & Attractions";
+  const defaultTitleAr = "إيفنتس آند إنترتينمنت إنتربرايزس (إي ثري قطر) | لتنظيم وإدارة الفعاليات والمؤتمرات وتطوير الوجهات الترفيهية";
   const defaultDescEn = "Qatar's premier event management company, turnkey corporate event organizer, and live entertainment destination operator in Doha. Specializing in festival staging, exhibition booth fabrication, AV production, and landmark attractions.";
   const defaultDescAr = "الشركة الرائدة في قطر لتنظيم وإدارة الفعاليات الكبرى والمؤتمرات والمعارض بالدوحة. خدمات الإنتاج الفني وتجهيز المسارح والصوتيات وتطوير أضخم الوجهات والفعاليات الترفيهية.";
 
@@ -73,6 +73,8 @@ export async function generateMetadata(props: {
     description,
     keywords: isAr
       ? [
+          "إيفنتس آند إنترتينمنت إنتربرايزس",
+          "شركة إيفنتس آند إنترتينمنت إنتربرايزس",
           "شركة تنظيم فعاليات قطر",
           "تنظيم مؤتمرات ومعارض الدوحة",
           "تجهيز مسارح قطر",
@@ -81,6 +83,8 @@ export async function generateMetadata(props: {
           "فعاليات قطر اليوم",
         ]
       : [
+          "events & entertainment enterprises",
+          "events and entertainment enterprises qatar",
           "event management company qatar",
           "corporate events doha",
           "event production qatar",

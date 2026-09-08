@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export async function GET() {
-  let content = `# E3 Qatar - Event Engineering & Immersive Attractions
+  const baseUrl = getBaseUrl();
+  let content = `# Events & Entertainment Enterprises (E3 Qatar)
 > Qatar's premier event engineering, spatial production, and kinetic entertainment worlds.
 
 ## Public Portals & Pages
-- B2C Entertainment Worlds: https://e3.qa/en/b2c
-- Attractions & Theme Parks: https://e3.qa/en/b2c/attractions
-- Birthday & Corporate Packages: https://e3.qa/en/b2c/packages
-- Event Calendar & Live Schedule: https://e3.qa/en/b2c/calendar
-- B2B Technical Production: https://e3.qa/en/business
+- B2C Entertainment Worlds: ${baseUrl}/en/b2c
+- Attractions & Theme Parks: ${baseUrl}/en/b2c/attractions
+- Birthday & Corporate Packages: ${baseUrl}/en/b2c/packages
+- Event Calendar & Live Schedule: ${baseUrl}/en/b2c/calendar
+- B2B Technical Production: ${baseUrl}/en/business
 `;
 
   try {

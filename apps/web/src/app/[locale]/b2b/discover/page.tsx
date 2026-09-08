@@ -4,6 +4,7 @@ import db from "@/lib/db";
 import { getMergedCMSPageContent } from "@/lib/cms-default-pages";
 import { isGuinnessPublicationAllowed } from "@/lib/guinness-gate";
 import { getPublicCaseStudies } from "@/lib/case-studies";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,7 @@ export async function generateMetadata(props: {
     ? (seo.metaDescriptionAr || "تعرف على قصة إي ثري قطر، قيادتها، رقم غينيس القياسي، وتكنولوجيا بوكينج كيوب والفعاليات.")
     : (seo.metaDescriptionEn || "Discover the E3 story, leadership, record-breaking InflataRUN achievement, BookingQube tech, and group packages in Qatar.");
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://e3.qa";
+  const baseUrl = getBaseUrl();
   const canonicalUrl = `${baseUrl}/${locale}/b2b/discover`;
 
   return {
@@ -149,7 +150,7 @@ export default async function B2BDiscoverPage(props: {
   const guinnessGate = isGuinnessPublicationAllowed(content.recordBreaking);
   const guinnessAllowed = guinnessGate.allowed;
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://e3.qa";
+  const baseUrl = getBaseUrl();
 
   // Build JSON-LD Structured Data
   const jsonLdData: any[] = [

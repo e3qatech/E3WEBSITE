@@ -46,11 +46,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      template: "%s | E3 Qatar",
-      default: "E3 Qatar | Event Management Company, Corporate Production & Live Entertainment",
+      template: "%s | Events & Entertainment Enterprises (E3 Qatar)",
+      default: "Events & Entertainment Enterprises (E3 Qatar) | Premier Live Events, Production & Attractions",
     },
     description: "Qatar's premier event management company, turnkey corporate event organizer, and live entertainment destination operator in Doha. Specializing in festival staging, exhibition booth fabrication, AV production, and landmark attractions.",
     keywords: [
+      "events & entertainment enterprises",
+      "events and entertainment enterprises qatar",
       "event management company qatar",
       "corporate events doha",
       "event production qatar",
@@ -80,10 +82,10 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     manifest: '/site.webmanifest',
     openGraph: {
-      title: "E3 Qatar | Event Management, Corporate Production & Attractions",
+      title: "Events & Entertainment Enterprises (E3 Qatar) | Premier Live Events, Production & Attractions",
       description: "Premier event management, corporate conference organization, turnkey AV staging, and landmark entertainment attractions in Qatar.",
       url: baseUrl,
-      siteName: "E3 Qatar | إي ثري قطر",
+      siteName: "Events & Entertainment Enterprises (E3 Qatar)",
       locale: "en_US",
       alternateLocale: ["ar_QA"],
       type: "website",
@@ -92,13 +94,13 @@ export async function generateMetadata(): Promise<Metadata> {
           url: "/og-image-default.jpg", 
           width: 1200,
           height: 630,
-          alt: "E3 Qatar - Events & Entertainment Enterprises",
+          alt: "Events & Entertainment Enterprises (E3 Qatar)",
         }
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: "E3 Qatar | Event Management & Entertainment",
+      title: "Events & Entertainment Enterprises (E3 Qatar) | Live Events & Attractions",
       description: "Qatar's premier event management, production, and live entertainment agency.",
       images: ["/og-image-default.jpg"],
     },
@@ -119,6 +121,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const session = await auth();
+  const baseUrl = getBaseUrl();
 
   return (
     <html lang="en" data-theme="dark" className={`${manrope.variable} ${ibmPlexSansArabic.variable}`} suppressHydrationWarning>
@@ -159,28 +162,38 @@ export default async function RootLayout({
             <SEO 
               type="Organization" 
               data={{
-                name: "E3 Qatar - Events & Entertainment Enterprises",
-                alternateName: ["E3", "Events & Entertainment Enterprises", "إي ثري قطر", "إي ثري للفعاليات والترفيه"],
-                url: "https://e3.qa",
-                logo: "https://e3.qa/logo.png",
-                image: "https://e3.qa/og-image-default.jpg",
+                name: "Events & Entertainment Enterprises (E3 Qatar)",
+                alternateName: [
+                  "Events & Entertainment Enterprises",
+                  "E3 Qatar",
+                  "E3",
+                  "إيفنتس آند إنترتينمنت إنتربرايزس",
+                  "إي ثري قطر",
+                  "إي ثري للفعاليات والترفيه"
+                ],
+                url: baseUrl,
+                logo: `${baseUrl}/logo.png`,
+                image: `${baseUrl}/og-image-default.jpg`,
                 description: "Qatar's premier event management company, corporate event organizer, stage engineering expert, and live entertainment destination operator in Doha.",
                 contactPoint: {
                   "@type": "ContactPoint",
-                  telephone: "+974 4400 0000",
+                  telephone: "+974 3048 9955",
                   contactType: "customer service",
                   availableLanguage: ["English", "Arabic"]
                 },
                 address: {
                   "@type": "PostalAddress",
-                  streetAddress: "Doha",
+                  streetAddress: "Palm Tower B, 36th Floor, Office 3602, West Bay",
                   addressLocality: "Doha",
+                  addressRegion: "Doha",
                   addressCountry: "QA"
                 },
                 sameAs: [
                   "https://www.linkedin.com/company/e3qatar",
                   "https://www.instagram.com/e3qatar",
-                  "https://x.com/e3qatar"
+                  "https://www.facebook.com/e3qatar",
+                  "https://x.com/e3qatar",
+                  "https://www.youtube.com/@e3qatar"
                 ]
               }} 
             />

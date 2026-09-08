@@ -58,7 +58,7 @@ export default async function BusinessDashboardPage({
     company: 'E3 Enterprise Administration',
     type: 'B2B',
     industry: 'Entertainment Engineering',
-    website: 'https://e3.qa',
+    website: 'https://eeeqa.com',
   };
 
   // Fetch organization members

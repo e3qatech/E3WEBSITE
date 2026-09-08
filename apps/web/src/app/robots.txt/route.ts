@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export async function GET() {
-  let content = "User-agent: *\nAllow: /\nDisallow: /dashboard/\nDisallow: /api/\nSitemap: https://e3.qa/sitemap.xml\nSitemap: https://e3.qa/api/sitemap/generate";
+  const baseUrl = getBaseUrl();
+  let content = `User-agent: *\nAllow: /\nDisallow: /dashboard/\nDisallow: /api/\nSitemap: ${baseUrl}/sitemap.xml\nSitemap: ${baseUrl}/api/sitemap/generate`;
 
   try {
     const setting = await db.setting.findFirst({

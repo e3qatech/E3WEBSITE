@@ -60,7 +60,7 @@ export default async function BusinessCompanyPage({
     company: 'Enterprise Organization',
     type: 'B2B',
     industry: 'Corporate Experience',
-    website: 'https://e3.qa',
+    website: 'https://eeeqa.com',
   };
 
   const canEdit =

@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export async function GET() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://e3.qa";
+    const baseUrl = getBaseUrl();
 
     // 1. Core Static Routes
     const staticRoutes = [

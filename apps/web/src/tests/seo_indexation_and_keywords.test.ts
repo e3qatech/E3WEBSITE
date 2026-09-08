@@ -89,24 +89,24 @@ describe('Comprehensive SEO, Indexation & Keyword Quality Suite', () => {
   });
 
   describe('1. SEO Helper & Canonical Engine', () => {
-    it('getBaseUrl returns https://e3.qa without trailing slashes', () => {
+    it('getBaseUrl returns https://eeeqa.com without trailing slashes', () => {
       const base = getBaseUrl();
-      expect(base).toBe('https://e3.qa');
+      expect(base).toBe('https://eeeqa.com');
       expect(base.endsWith('/')).toBe(false);
     });
 
     it('getCanonicalUrl builds absolute URLs for EN and AR', () => {
-      expect(getCanonicalUrl('en', '/b2b')).toBe('https://e3.qa/en/b2b');
-      expect(getCanonicalUrl('ar', '/b2b')).toBe('https://e3.qa/ar/b2b');
-      expect(getCanonicalUrl('en', 'b2c/attractions')).toBe('https://e3.qa/en/b2c/attractions');
+      expect(getCanonicalUrl('en', '/b2b')).toBe('https://eeeqa.com/en/b2b');
+      expect(getCanonicalUrl('ar', '/b2b')).toBe('https://eeeqa.com/ar/b2b');
+      expect(getCanonicalUrl('en', 'b2c/attractions')).toBe('https://eeeqa.com/en/b2c/attractions');
     });
 
     it('getSeoAlternates generates absolute canonical and complete language links', () => {
       const alternates = getSeoAlternates('/b2b/services', 'en');
-      expect(alternates.canonical).toBe('https://e3.qa/en/b2b/services');
-      expect(alternates.languages.en).toBe('https://e3.qa/en/b2b/services');
-      expect(alternates.languages.ar).toBe('https://e3.qa/ar/b2b/services');
-      expect(alternates.languages['x-default']).toBe('https://e3.qa/en/b2b/services');
+      expect(alternates.canonical).toBe('https://eeeqa.com/en/b2b/services');
+      expect(alternates.languages.en).toBe('https://eeeqa.com/en/b2b/services');
+      expect(alternates.languages.ar).toBe('https://eeeqa.com/ar/b2b/services');
+      expect(alternates.languages['x-default']).toBe('https://eeeqa.com/en/b2b/services');
     });
 
     it('buildLocalBusinessSchema outputs Google-compliant EntertainmentBusiness & LocalBusiness schema', () => {
@@ -114,12 +114,15 @@ describe('Comprehensive SEO, Indexation & Keyword Quality Suite', () => {
       expect(schema['@context']).toBe('https://schema.org');
       expect(schema['@type']).toContain('EntertainmentBusiness');
       expect(schema['@type']).toContain('LocalBusiness');
-      expect(schema.name).toContain('E3 Qatar');
+      expect(schema.name).toContain('Events & Entertainment Enterprises');
+      expect(schema.telephone).toBe('+974 3048 9955');
+      expect(schema.address.streetAddress).toContain('Palm Tower B');
       expect(schema.address.addressLocality).toBe('Doha');
       expect(schema.address.addressCountry).toBe('QA');
-      expect(schema.geo.latitude).toBe(25.2854);
+      expect(schema.geo.latitude).toBe(25.3217);
       expect(schema.geo.longitude).toBe(51.5310);
       expect(schema.areaServed.some((a) => a.name === 'Qatar')).toBe(true);
+      expect(schema.sameAs).toContain('https://www.facebook.com/e3qatar');
     });
   });
 
@@ -127,7 +130,7 @@ describe('Comprehensive SEO, Indexation & Keyword Quality Suite', () => {
     it('serves Sitemap pointing to standard sitemap.xml', async () => {
       const res = await getRobotsTxt();
       const text = await res.text();
-      expect(text).toContain('Sitemap: https://e3.qa/sitemap.xml');
+      expect(text).toContain('Sitemap: https://eeeqa.com/sitemap.xml');
       expect(text).toContain('Allow: /');
       expect(text).toContain('Disallow: /dashboard/');
     });
@@ -138,9 +141,9 @@ describe('Comprehensive SEO, Indexation & Keyword Quality Suite', () => {
       const entries = await sitemap();
       const urls = entries.map((e) => e.url);
 
-      // Verify NO bare URLs like https://e3.qa/b2b, https://e3.qa/b2c, https://e3.qa/b2b/services
+      // Verify NO bare URLs like https://eeeqa.com/b2b, https://eeeqa.com/b2c, https://eeeqa.com/b2b/services
       const bareRedirectingUrls = urls.filter((u) => {
-        if (u === 'https://e3.qa') return false; // root is valid
+        if (u === 'https://eeeqa.com') return false; // root is valid
         return !u.includes('/en') && !u.includes('/ar');
       });
       expect(bareRedirectingUrls).toEqual([]);
@@ -156,45 +159,45 @@ describe('Comprehensive SEO, Indexation & Keyword Quality Suite', () => {
       const entries = await sitemap();
       const urls = entries.map((e) => e.url);
 
-      expect(urls).toContain('https://e3.qa/en/b2b');
-      expect(urls).toContain('https://e3.qa/ar/b2b');
-      expect(urls).toContain('https://e3.qa/en/b2c');
-      expect(urls).toContain('https://e3.qa/ar/b2c');
-      expect(urls).toContain('https://e3.qa/en/b2b/services');
-      expect(urls).toContain('https://e3.qa/ar/b2b/services');
-      expect(urls).toContain('https://e3.qa/en/b2c/attractions');
-      expect(urls).toContain('https://e3.qa/ar/b2c/attractions');
-      expect(urls).toContain('https://e3.qa/en/b2c/packages');
-      expect(urls).toContain('https://e3.qa/ar/b2c/packages');
-      expect(urls).toContain('https://e3.qa/en/creators');
-      expect(urls).toContain('https://e3.qa/ar/creators');
-      expect(urls).toContain('https://e3.qa/en/privacy');
-      expect(urls).toContain('https://e3.qa/ar/privacy');
-      expect(urls).toContain('https://e3.qa/en/terms');
-      expect(urls).toContain('https://e3.qa/ar/terms');
+      expect(urls).toContain('https://eeeqa.com/en/b2b');
+      expect(urls).toContain('https://eeeqa.com/ar/b2b');
+      expect(urls).toContain('https://eeeqa.com/en/b2c');
+      expect(urls).toContain('https://eeeqa.com/ar/b2c');
+      expect(urls).toContain('https://eeeqa.com/en/b2b/services');
+      expect(urls).toContain('https://eeeqa.com/ar/b2b/services');
+      expect(urls).toContain('https://eeeqa.com/en/b2c/attractions');
+      expect(urls).toContain('https://eeeqa.com/ar/b2c/attractions');
+      expect(urls).toContain('https://eeeqa.com/en/b2c/packages');
+      expect(urls).toContain('https://eeeqa.com/ar/b2c/packages');
+      expect(urls).toContain('https://eeeqa.com/en/creators');
+      expect(urls).toContain('https://eeeqa.com/ar/creators');
+      expect(urls).toContain('https://eeeqa.com/en/privacy');
+      expect(urls).toContain('https://eeeqa.com/ar/privacy');
+      expect(urls).toContain('https://eeeqa.com/en/terms');
+      expect(urls).toContain('https://eeeqa.com/ar/terms');
     });
 
     it('sitemap outputs both EN and AR entries for dynamic routes', async () => {
       const entries = await sitemap();
       const urls = entries.map((e) => e.url);
 
-      expect(urls).toContain('https://e3.qa/en/b2c/attractions/inflata-park-city-center');
-      expect(urls).toContain('https://e3.qa/ar/b2c/attractions/inflata-park-city-center');
+      expect(urls).toContain('https://eeeqa.com/en/b2c/attractions/inflata-park-city-center');
+      expect(urls).toContain('https://eeeqa.com/ar/b2c/attractions/inflata-park-city-center');
       // Urban Arena canonical slug repair
-      expect(urls).toContain('https://e3.qa/en/b2c/attractions/urban-arena');
-      expect(urls).toContain('https://e3.qa/ar/b2c/attractions/urban-arena');
+      expect(urls).toContain('https://eeeqa.com/en/b2c/attractions/urban-arena');
+      expect(urls).toContain('https://eeeqa.com/ar/b2c/attractions/urban-arena');
 
-      expect(urls).toContain('https://e3.qa/en/b2b/services/spatial-design');
-      expect(urls).toContain('https://e3.qa/ar/b2b/services/spatial-design');
+      expect(urls).toContain('https://eeeqa.com/en/b2b/services/spatial-design');
+      expect(urls).toContain('https://eeeqa.com/ar/b2b/services/spatial-design');
 
-      expect(urls).toContain('https://e3.qa/en/b2b/case-studies/doha-balloon-parade-2022');
-      expect(urls).toContain('https://e3.qa/ar/b2b/case-studies/doha-balloon-parade-2022');
+      expect(urls).toContain('https://eeeqa.com/en/b2b/case-studies/doha-balloon-parade-2022');
+      expect(urls).toContain('https://eeeqa.com/ar/b2b/case-studies/doha-balloon-parade-2022');
 
-      expect(urls).toContain('https://e3.qa/en/b2c/packages/vip-birthday');
-      expect(urls).toContain('https://e3.qa/ar/b2c/packages/vip-birthday');
+      expect(urls).toContain('https://eeeqa.com/en/b2c/packages/vip-birthday');
+      expect(urls).toContain('https://eeeqa.com/ar/b2c/packages/vip-birthday');
 
-      expect(urls).toContain('https://e3.qa/en/b2b/team/john-doe');
-      expect(urls).toContain('https://e3.qa/ar/b2b/team/john-doe');
+      expect(urls).toContain('https://eeeqa.com/en/b2b/team/john-doe');
+      expect(urls).toContain('https://eeeqa.com/ar/b2b/team/john-doe');
     });
 
     it('every sitemap entry includes bidirectional hreflang alternates with x-default', async () => {
@@ -204,8 +207,8 @@ describe('Comprehensive SEO, Indexation & Keyword Quality Suite', () => {
         expect(entry.alternates?.languages?.en).toBeDefined();
         expect(entry.alternates?.languages?.ar).toBeDefined();
         expect(entry.alternates?.languages?.['x-default']).toBeDefined();
-        expect(entry.alternates?.languages?.en).toContain('https://e3.qa/en');
-        expect(entry.alternates?.languages?.ar).toContain('https://e3.qa/ar');
+        expect(entry.alternates?.languages?.en).toContain('https://eeeqa.com/en');
+        expect(entry.alternates?.languages?.ar).toContain('https://eeeqa.com/ar');
       }
     });
   });
@@ -214,12 +217,11 @@ describe('Comprehensive SEO, Indexation & Keyword Quality Suite', () => {
     it('root layout metadata contains commercial keywords and absolute canonical', async () => {
       const meta = await generateLayoutMetadata();
       const defaultTitle = typeof meta.title === 'object' && meta.title && 'default' in meta.title ? meta.title.default : '';
-      expect(defaultTitle).toContain('Event Management Company');
-      expect(defaultTitle).toContain('E3 Qatar');
+      expect(defaultTitle).toContain('Events & Entertainment Enterprises (E3 Qatar)');
       expect(meta.description).toContain('event management company');
       expect(meta.description).toContain('Doha');
-      expect(meta.alternates?.canonical).toBe('https://e3.qa');
-      expect((meta.alternates?.languages as any)?.['x-default']).toBe('https://e3.qa/en');
+      expect(meta.alternates?.canonical).toBe('https://eeeqa.com');
+      expect((meta.alternates?.languages as any)?.['x-default']).toBe('https://eeeqa.com/en');
     });
 
     it('B2B page metadata contains targeted commercial terms and NO "Destination Atelier"', async () => {
@@ -231,13 +233,13 @@ describe('Comprehensive SEO, Indexation & Keyword Quality Suite', () => {
       expect(metaEn.title).not.toContain('Destination Atelier');
       expect(metaEn.description).toContain('event management');
       expect(metaEn.description).toContain('Doha, Qatar');
-      expect(metaEn.alternates?.canonical).toBe('https://e3.qa/en/b2b');
-      expect((metaEn.alternates?.languages as any)?.['x-default']).toBe('https://e3.qa/en/b2b');
+      expect(metaEn.alternates?.canonical).toBe('https://eeeqa.com/en/b2b');
+      expect((metaEn.alternates?.languages as any)?.['x-default']).toBe('https://eeeqa.com/en/b2b');
 
       // Arabic
       expect(metaAr.title).toContain('شركة تنظيم فعاليات ومؤتمرات في قطر');
       expect(metaAr.description).toContain('تنظيم وإدارة الفعاليات');
-      expect(metaAr.alternates?.canonical).toBe('https://e3.qa/ar/b2b');
+      expect(metaAr.alternates?.canonical).toBe('https://eeeqa.com/ar/b2b');
     });
 
     it('B2C page metadata contains attractions keywords and NO generic "Experiences"', async () => {
@@ -248,38 +250,37 @@ describe('Comprehensive SEO, Indexation & Keyword Quality Suite', () => {
       expect(metaEn.title).toContain('Attractions, Theme Parks & Family Entertainment in Qatar');
       expect(metaEn.description).toContain('live attractions');
       expect(metaEn.description).toContain('InflataRUN');
-      expect(metaEn.alternates?.canonical).toBe('https://e3.qa/en/b2c');
+      expect(metaEn.alternates?.canonical).toBe('https://eeeqa.com/en/b2c');
 
       // Arabic
       const arTitle = typeof metaAr.title === 'object' && metaAr.title && 'absolute' in metaAr.title ? metaAr.title.absolute : '';
       expect(arTitle).toContain('وجهات ترفيهية وفعاليات عائلية في قطر');
       expect(metaAr.description).toContain('أفضل الأماكن والوجهات الترفيهية في قطر');
-      expect(metaAr.alternates?.canonical).toBe('https://e3.qa/ar/b2c');
+      expect(metaAr.alternates?.canonical).toBe('https://eeeqa.com/ar/b2c');
     });
 
-    it('B2B services page metadata has absolute canonical and no eeeqa.com domain fallback', async () => {
+    it('B2B services page metadata has absolute canonical and eeeqa.com domain', async () => {
       const meta = await generateServicesMetadata({ params: Promise.resolve({ locale: 'en' }) });
       expect(meta.title).toContain('Event Production & Management Services in Qatar');
-      expect(meta.alternates?.canonical).toBe('https://e3.qa/en/b2b/services');
-      expect(meta.alternates?.canonical).not.toContain('eeeqa.com');
+      expect(meta.alternates?.canonical).toBe('https://eeeqa.com/en/b2b/services');
     });
 
     it('B2C attractions page metadata has absolute localized canonical', async () => {
       const meta = await generateAttractionsMetadata({ params: Promise.resolve({ locale: 'en' }) });
       expect(meta.title).toContain('Top Attractions & Family Entertainment in Qatar');
-      expect(meta.alternates?.canonical).toBe('https://e3.qa/en/b2c/attractions');
+      expect(meta.alternates?.canonical).toBe('https://eeeqa.com/en/b2c/attractions');
     });
 
     it('B2C packages page metadata has absolute localized canonical and commercial keywords', async () => {
       const meta = await generatePackagesMetadata({ params: Promise.resolve({ locale: 'en' }) });
       expect(meta.title).toContain('Group Entertainment Packages');
-      expect(meta.alternates?.canonical).toBe('https://e3.qa/en/b2c/packages');
+      expect(meta.alternates?.canonical).toBe('https://eeeqa.com/en/b2c/packages');
     });
 
     it('Creators page metadata exports high-intent creator network keywords and absolute canonical', async () => {
       const meta = await generateCreatorsMetadata({ params: Promise.resolve({ locale: 'en' }) });
       expect(meta.title).toContain('Creator Collective & Influencer Network in Qatar');
-      expect(meta.alternates?.canonical).toBe('https://e3.qa/en/creators');
+      expect(meta.alternates?.canonical).toBe('https://eeeqa.com/en/creators');
     });
   });
 });

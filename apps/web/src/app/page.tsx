@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
     // Fallback to default payload
   }
 
-  const title = cmsData.seoAccess?.seoTitleEn || "E3 Qatar | Event Management Company, Corporate Production & Live Entertainment";
+  const title = cmsData.seoAccess?.seoTitleEn || "Events & Entertainment Enterprises (E3 Qatar) | Premier Live Events, Production & Attractions";
   const description = cmsData.seoAccess?.seoDescEn || "Qatar's premier event management company, turnkey corporate event organizer, and live entertainment destination operator in Doha. Specializing in festival staging, exhibition booth fabrication, AV production, and landmark attractions.";
   const ogImage = cmsData.seoAccess?.ogImage || `${baseUrl}/og-image-default.jpg`;
 
@@ -49,6 +49,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     keywords: [
+      "events & entertainment enterprises",
+      "events and entertainment enterprises qatar",
       "event management company qatar",
       "corporate events doha",
       "event production qatar",
@@ -75,7 +77,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: "E3 Event Engineering",
+          alt: "Events & Entertainment Enterprises (E3 Qatar)",
         },
       ],
     },
@@ -103,7 +105,7 @@ export default async function Home() {
         <SEO 
           type="WebSite"
           data={{
-            name: "E3 - Event Engineering Experts",
+            name: "Events & Entertainment Enterprises (E3 Qatar)",
             url: baseUrl,
             potentialAction: {
               "@type": "SearchAction",

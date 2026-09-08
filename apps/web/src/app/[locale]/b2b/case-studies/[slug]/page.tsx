@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import { getPublicCaseStudyBySlug, getNextPublicCaseStudy } from "@/lib/case-studies";
 import { adaptDbCaseStudyToPresentation } from "@/lib/case-studies/case-adapters";
 import { CaseDetailClient } from "@/components/b2b/cases/CaseDetailClient";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug, locale } = await params;
   const isAr = locale === "ar";
+  const baseUrl = getBaseUrl();
 
   if (slug === "doha-balloon-parade") {
     permanentRedirect(`/${locale}/b2b/case-studies/doha-balloon-parade-2022`);
@@ -35,9 +37,9 @@ export async function generateMetadata({
     ? seo.metaDescriptionAr || project.challengeAr || project.solutionAr || project.resultAr || ""
     : seo.metaDescriptionEn || project.challengeEn || project.solutionEn || project.resultEn || "";
 
-  const canonicalUrl = `https://e3.qa/${locale}/b2b/case-studies/${slug}`;
-  const alternateEn = `https://e3.qa/en/b2b/case-studies/${slug}`;
-  const alternateAr = `https://e3.qa/ar/b2b/case-studies/${slug}`;
+  const canonicalUrl = `${baseUrl}/${locale}/b2b/case-studies/${slug}`;
+  const alternateEn = `${baseUrl}/en/b2b/case-studies/${slug}`;
+  const alternateAr = `${baseUrl}/ar/b2b/case-studies/${slug}`;
 
   const previewImage = project.heroImageUrl || project.thumbnailUrl || "";
 

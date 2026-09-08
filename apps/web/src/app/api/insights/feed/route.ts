@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
+import { getBaseUrl } from "@/lib/seo-helper";
 
 export async function GET(_req: NextRequest) {
   try {
@@ -9,7 +10,7 @@ export async function GET(_req: NextRequest) {
       take: 20
     });
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://e3.qa";
+    const baseUrl = getBaseUrl();
 
     const itemsXml = insights.map((item: any) => `
       <item>
