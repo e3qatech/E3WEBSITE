@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import type { Metadata } from "next"
 import { Manrope, IBM_Plex_Sans_Arabic } from "next/font/google"
 import Script from "next/script"
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { SEO } from "@/components/shared/SEO"
 import { ThemeProvider } from "@/components/layout/ThemeProvider"
 import { AuthProvider } from "@/components/layout/AuthProvider"
@@ -206,6 +207,7 @@ export default async function RootLayout({
             <SpeedInsights />
           </ThemeProvider>
         </AuthProvider>
+        <SpeedInsights />
       </body>
     </html>
   )
