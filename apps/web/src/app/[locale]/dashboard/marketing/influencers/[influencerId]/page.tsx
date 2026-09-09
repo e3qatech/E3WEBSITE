@@ -1,8 +1,9 @@
 import React from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { requirePermission, requireCurrentUser } from "@/lib/server-auth";
+import { notFound, redirect } from "next/navigation";
+import { requirePermission, requireCurrentUser, AppAuthError } from "@/lib/server-auth";
 import { hasPermission } from "@/lib/permissions";
+import { DashboardAccessDenied } from "@/components/dashboard/ui/DashboardAccessDenied";
 import { getInfluencerById } from "@/lib/influencer/influencer-service";
 import InfluencerDetailTabs from "./InfluencerDetailTabs";
 import {
@@ -26,20 +27,45 @@ export default async function InfluencerDetailPage({
   const { locale, influencerId } = await params;
   const isAr = locale === "ar";
 
-  await requirePermission("influencer.read");
-  const user = await requireCurrentUser();
+  let user: any = null;
+  try {
+    await requirePermission("influencer.read");
+    user = await requireCurrentUser();
+  } catch (authErr: any) {
+    if (authErr instanceof AppAuthError && authErr.statusCode === 401) {
+      redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard/marketing/influencers/${influencerId}`);
+    }
+    return (
+      <DashboardAccessDenied
+        title={isAr ? "غير مصرح بالدخول" : "Access Restricted"}
+        message={
+          isAr
+            ? "حسابك لا يمتلك صلاحية استعراض ملف هذا المؤثر (influencer.read)."
+            : "Your account does not have permission to view this influencer profile."
+        }
+        requiredPermission="influencer.read"
+      />
+    );
+  }
 
   const canViewSensitive = hasPermission(user.role, "influencer.viewSensitive");
   const canViewCommercial = hasPermission(user.role, "influencer.viewCommercial");
 
-  const creator = await getInfluencerById(influencerId, {
-    includeSensitive: canViewSensitive,
-    includeCommercial: canViewCommercial,
-  });
+  let creator: any = null;
+  try {
+    creator = await getInfluencerById(influencerId, {
+      includeSensitive: canViewSensitive,
+      includeCommercial: canViewCommercial,
+    });
+  } catch (dbErr) {
+    console.error("[INFLUENCER GET ERROR]", dbErr);
+    notFound();
+  }
 
   if (!creator) {
     notFound();
   }
+
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">

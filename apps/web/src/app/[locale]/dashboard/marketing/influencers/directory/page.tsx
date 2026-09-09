@@ -1,6 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import { requirePermission } from "@/lib/server-auth";
+import { redirect } from "next/navigation";
+import { requirePermission, AppAuthError } from "@/lib/server-auth";
+import { DashboardAccessDenied } from "@/components/dashboard/ui/DashboardAccessDenied";
 import { listInfluencers } from "@/lib/influencer/influencer-service";
 import {
   Search,
@@ -27,7 +29,24 @@ export default async function InfluencerDirectoryPage({
   const sParams = await searchParams;
   const isAr = locale === "ar";
 
-  await requirePermission("influencer.read");
+  try {
+    await requirePermission("influencer.read");
+  } catch (authErr: any) {
+    if (authErr instanceof AppAuthError && authErr.statusCode === 401) {
+      redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard/marketing/influencers/directory`);
+    }
+    return (
+      <DashboardAccessDenied
+        title={isAr ? "غير مصرح بالدخول" : "Access Restricted"}
+        message={
+          isAr
+            ? "حسابك لا يمتلك صلاحية استعراض دليل المؤثرين (influencer.read)."
+            : "Your account does not have permission to view the Influencer Directory."
+        }
+        requiredPermission="influencer.read"
+      />
+    );
+  }
 
   const search = typeof sParams.search === "string" ? sParams.search : undefined;
   const status = typeof sParams.status === "string" ? (sParams.status as any) : undefined;
@@ -35,14 +54,26 @@ export default async function InfluencerDirectoryPage({
   const isQatarBased = sParams.qatar === "true" ? true : sParams.qatar === "false" ? false : undefined;
   const page = typeof sParams.page === "string" ? parseInt(sParams.page, 10) : 1;
 
-  const { items: creators, total, totalPages } = await listInfluencers({
-    search,
-    status,
-    creatorTier,
-    isQatarBased,
-    page,
-    pageSize: 20,
-  });
+  let creators: any[] = [];
+  let total = 0;
+  let totalPages = 1;
+
+  try {
+    const listResult = await listInfluencers({
+      search,
+      status,
+      creatorTier,
+      isQatarBased,
+      page,
+      pageSize: 20,
+    });
+    creators = listResult.items || [];
+    total = listResult.total || 0;
+    totalPages = listResult.totalPages || 1;
+  } catch (dbErr) {
+    console.error("[INFLUENCER DIRECTORY FETCH ERROR]", dbErr);
+  }
+
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">

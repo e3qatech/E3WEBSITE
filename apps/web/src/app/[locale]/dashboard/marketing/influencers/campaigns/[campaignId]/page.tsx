@@ -1,8 +1,9 @@
 import React from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { requirePermission, requireCurrentUser } from "@/lib/server-auth";
+import { notFound, redirect } from "next/navigation";
+import { requirePermission, requireCurrentUser, AppAuthError } from "@/lib/server-auth";
 import { hasPermission } from "@/lib/permissions";
+import { DashboardAccessDenied } from "@/components/dashboard/ui/DashboardAccessDenied";
 import { getCampaignById } from "@/lib/influencer/campaign-service";
 import CampaignWorkspaceTabs from "./CampaignWorkspaceTabs";
 import {
@@ -27,17 +28,43 @@ export default async function CampaignWorkspacePage({
   const { locale, campaignId } = await params;
   const isAr = locale === "ar";
 
-  await requirePermission("influencerCampaign.read");
-  const user = await requireCurrentUser();
+  let user: any = null;
+  try {
+    await requirePermission("influencerCampaign.read");
+    user = await requireCurrentUser();
+  } catch (authErr: any) {
+    if (authErr instanceof AppAuthError && authErr.statusCode === 401) {
+      redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard/marketing/influencers/campaigns/${campaignId}`);
+    }
+    return (
+      <DashboardAccessDenied
+        title={isAr ? "غير مصرح بالدخول" : "Access Restricted"}
+        message={
+          isAr
+            ? "حسابك لا يمتلك صلاحية استعراض مساحة عمل هذه الحملة (influencerCampaign.read)."
+            : "Your account does not have permission to view this campaign workspace."
+        }
+        requiredPermission="influencerCampaign.read"
+      />
+    );
+  }
 
   const canApprove = hasPermission(user.role, "influencerCampaign.approve");
   const canManageAttendance = hasPermission(user.role, "influencerCampaign.manageAttendance");
   const canViewFinance = hasPermission(user.role, "influencerFinance.read");
 
-  const campaign = await getCampaignById(campaignId);
+  let campaign: any = null;
+  try {
+    campaign = await getCampaignById(campaignId);
+  } catch (dbErr) {
+    console.error("[CAMPAIGN GET ERROR]", dbErr);
+    notFound();
+  }
+
   if (!campaign) {
     notFound();
   }
+
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">

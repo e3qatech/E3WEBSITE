@@ -1,7 +1,9 @@
 import React from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import db from "@/lib/db";
-import { requirePermission } from "@/lib/server-auth";
+import { requirePermission, AppAuthError } from "@/lib/server-auth";
+import { DashboardAccessDenied } from "@/components/dashboard/ui/DashboardAccessDenied";
 import {
   Users,
   Inbox,
@@ -24,61 +26,94 @@ export default async function InfluencerOverviewPage({
   const { locale } = await params;
   const isAr = locale === "ar";
 
-  // Enforce server authorization
-  await requirePermission("influencer.read");
+  // Enforce server authorization with graceful redirect / access denied
+  try {
+    await requirePermission("influencer.read");
+  } catch (authErr: any) {
+    if (authErr instanceof AppAuthError && authErr.statusCode === 401) {
+      redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard/marketing/influencers`);
+    }
+    return (
+      <DashboardAccessDenied
+        title={isAr ? "غير مصرح بالدخول" : "Access Restricted"}
+        message={
+          isAr
+            ? "حسابك لا يمتلك صلاحية عرض وحدة المؤثرين وصناع المحتوى (influencer.read)."
+            : "Your account does not have permission to view the Influencer & Creator Management module."
+        }
+        requiredPermission="influencer.read"
+      />
+    );
+  }
 
-  // Fetch live stats in parallel
-  const [
-    activeCreatorsCount,
-    pendingAppsCount,
-    activeCampaignsCount,
-    invitationsAwaitingCount,
-    contentAwaitingReviewCount,
-    pendingVerificationCount,
-    conversions,
-    pendingApps,
-    pendingReviews,
-    expiringInvitations,
-  ] = await Promise.all([
-    (db as any).influencer.count({ where: { status: "ACTIVE" } }),
-    (db as any).influencerApplication.count({ where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } } }),
-    (db as any).influencerCampaign.count({ where: { status: "ACTIVE" } }),
-    (db as any).campaignCreator.count({ where: { status: "INVITED" } }),
-    (db as any).campaignDeliverable.count({ where: { status: "SUBMITTED" } }),
-    (db as any).campaignDeliverable.count({ where: { status: "PUBLISHED" } }),
-    (db as any).influencerConversion.findMany({
-      select: { ticketCount: true, grossRevenue: true, netRevenue: true },
-    }),
-    (db as any).influencerApplication.findMany({
-      where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
-      include: { influencer: true },
-      orderBy: { submittedAt: "desc" },
-      take: 5,
-    }),
-    (db as any).campaignDeliverable.findMany({
-      where: { status: "SUBMITTED" },
-      include: {
-        campaignCreator: {
-          include: { influencer: true, campaign: true },
+  // Fetch live stats in parallel with resilient fallbacks
+  let activeCreatorsCount = 0;
+  let pendingAppsCount = 0;
+  let activeCampaignsCount = 0;
+  let invitationsAwaitingCount = 0;
+  let contentAwaitingReviewCount = 0;
+  let pendingVerificationCount = 0;
+  let conversions: any[] = [];
+  let pendingApps: any[] = [];
+  let pendingReviews: any[] = [];
+  let expiringInvitations: any[] = [];
+
+  try {
+    const results = await Promise.all([
+      (db as any).influencer?.count({ where: { status: "ACTIVE" } }).catch(() => 0) ?? 0,
+      (db as any).influencerApplication?.count({ where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } } }).catch(() => 0) ?? 0,
+      (db as any).influencerCampaign?.count({ where: { status: "ACTIVE" } }).catch(() => 0) ?? 0,
+      (db as any).campaignCreator?.count({ where: { status: "INVITED" } }).catch(() => 0) ?? 0,
+      (db as any).campaignDeliverable?.count({ where: { status: "SUBMITTED" } }).catch(() => 0) ?? 0,
+      (db as any).campaignDeliverable?.count({ where: { status: "PUBLISHED" } }).catch(() => 0) ?? 0,
+      (db as any).influencerConversion?.findMany({
+        select: { ticketCount: true, grossRevenue: true, netRevenue: true },
+      }).catch(() => []) ?? [],
+      (db as any).influencerApplication?.findMany({
+        where: { status: { in: ["SUBMITTED", "UNDER_REVIEW"] } },
+        include: { influencer: true },
+        orderBy: { submittedAt: "desc" },
+        take: 5,
+      }).catch(() => []) ?? [],
+      (db as any).campaignDeliverable?.findMany({
+        where: { status: "SUBMITTED" },
+        include: {
+          campaignCreator: {
+            include: { influencer: true, campaign: true },
+          },
         },
-      },
-      orderBy: { updatedAt: "desc" },
-      take: 5,
-    }),
-    (db as any).campaignCreator.findMany({
-      where: { status: "INVITED" },
-      include: { influencer: true, campaign: true },
-      orderBy: { invitationExpiresAt: "asc" },
-      take: 5,
-    }),
-  ]);
+        orderBy: { updatedAt: "desc" },
+        take: 5,
+      }).catch(() => []) ?? [],
+      (db as any).campaignCreator?.findMany({
+        where: { status: "INVITED" },
+        include: { influencer: true, campaign: true },
+        orderBy: { invitationExpiresAt: "asc" },
+        take: 5,
+      }).catch(() => []) ?? [],
+    ]);
+
+    activeCreatorsCount = results[0] || 0;
+    pendingAppsCount = results[1] || 0;
+    activeCampaignsCount = results[2] || 0;
+    invitationsAwaitingCount = results[3] || 0;
+    contentAwaitingReviewCount = results[4] || 0;
+    pendingVerificationCount = results[5] || 0;
+    conversions = Array.isArray(results[6]) ? results[6] : [];
+    pendingApps = Array.isArray(results[7]) ? results[7] : [];
+    pendingReviews = Array.isArray(results[8]) ? results[8] : [];
+    expiringInvitations = Array.isArray(results[9]) ? results[9] : [];
+  } catch (dbErr) {
+    console.error("[INFLUENCER OVERVIEW FETCH ERROR]", dbErr);
+  }
 
   let totalTicketsSold = 0;
   let totalAttributedRevenue = 0;
   for (const c of conversions) {
-    totalTicketsSold += c.ticketCount || 0;
-    totalAttributedRevenue += Number(c.netRevenue) || 0;
+    totalTicketsSold += c?.ticketCount || 0;
+    totalAttributedRevenue += Number(c?.netRevenue) || 0;
   }
+
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">

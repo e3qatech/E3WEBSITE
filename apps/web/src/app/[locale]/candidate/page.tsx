@@ -1,5 +1,6 @@
 import React from 'react';
-import { requirePortalAccess, requireCandidateProfile } from '@/lib/server-auth';
+import { redirect } from 'next/navigation';
+import { requirePortalAccess, requireCandidateProfile, AppAuthError } from '@/lib/server-auth';
 import db from '@/lib/db';
 import { CandidateHubClient } from '@/components/candidate/CandidateHubClient';
 
@@ -11,8 +12,16 @@ export default async function CandidateDashboardPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { user } = await requireCandidateProfile();
-  await requirePortalAccess('careers');
+
+  let user: any = null;
+  try {
+    const profile = await requireCandidateProfile();
+    user = profile.user;
+    await requirePortalAccess('careers');
+  } catch (authErr: any) {
+    redirect(`/${locale}/login/candidate?callbackUrl=/${locale}/candidate`);
+  }
+
 
   // Fetch submitted applications owned by this candidate
   let applications: any[] = [];

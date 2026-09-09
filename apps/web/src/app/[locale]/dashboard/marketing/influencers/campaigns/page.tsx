@@ -1,6 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import { requirePermission } from "@/lib/server-auth";
+import { redirect } from "next/navigation";
+import { requirePermission, AppAuthError } from "@/lib/server-auth";
+import { DashboardAccessDenied } from "@/components/dashboard/ui/DashboardAccessDenied";
 import { listCampaigns } from "@/lib/influencer/campaign-service";
 import {
   Briefcase,
@@ -27,16 +29,45 @@ export default async function CampaignsListPage({
   const sParams = await searchParams;
   const isAr = locale === "ar";
 
-  await requirePermission("influencerCampaign.read");
+  try {
+    await requirePermission("influencerCampaign.read");
+  } catch (authErr: any) {
+    if (authErr instanceof AppAuthError && authErr.statusCode === 401) {
+      redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard/marketing/influencers/campaigns`);
+    }
+    return (
+      <DashboardAccessDenied
+        title={isAr ? "غير مصرح بالدخول" : "Access Restricted"}
+        message={
+          isAr
+            ? "حسابك لا يمتلك صلاحية استعراض حملات المؤثرين (influencerCampaign.read)."
+            : "Your account does not have permission to view influencer campaigns."
+        }
+        requiredPermission="influencerCampaign.read"
+      />
+    );
+  }
 
   const status = typeof sParams.status === "string" ? (sParams.status as any) : undefined;
   const page = typeof sParams.page === "string" ? parseInt(sParams.page, 10) : 1;
 
-  const { items: campaigns, total, totalPages } = await listCampaigns({
-    status,
-    page,
-    pageSize: 20,
-  });
+  let campaigns: any[] = [];
+  let total = 0;
+  let totalPages = 1;
+
+  try {
+    const listResult = await listCampaigns({
+      status,
+      page,
+      pageSize: 20,
+    });
+    campaigns = listResult.items || [];
+    total = listResult.total || 0;
+    totalPages = listResult.totalPages || 1;
+  } catch (dbErr) {
+    console.error("[CAMPAIGNS LIST FETCH ERROR]", dbErr);
+  }
+
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">

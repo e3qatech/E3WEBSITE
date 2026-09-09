@@ -1,6 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import { requirePermission } from "@/lib/server-auth";
+import { redirect } from "next/navigation";
+import { requirePermission, AppAuthError } from "@/lib/server-auth";
+import { DashboardAccessDenied } from "@/components/dashboard/ui/DashboardAccessDenied";
 import db from "@/lib/db";
 import {
   Calendar as CalendarIcon,
@@ -20,38 +22,67 @@ export default async function InfluencerCalendarPage({
   const { locale } = await params;
   const isAr = locale === "ar";
 
-  await requirePermission("influencerCampaign.read");
+  try {
+    await requirePermission("influencerCampaign.read");
+  } catch (authErr: any) {
+    if (authErr instanceof AppAuthError && authErr.statusCode === 401) {
+      redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard/marketing/influencers/calendar`);
+    }
+    return (
+      <DashboardAccessDenied
+        title={isAr ? "غير مصرح بالدخول" : "Access Restricted"}
+        message={
+          isAr
+            ? "حسابك لا يمتلك صلاحية استعراض روزنامة الحملات والمحتوى (influencerCampaign.read)."
+            : "Your account does not have permission to view the influencer content and event calendar."
+        }
+        requiredPermission="influencerCampaign.read"
+      />
+    );
+  }
 
-  // Fetch upcoming deliverables and attendance items
-  const deliverables = await (db as any).campaignDeliverable.findMany({
-    where: {
-      OR: [
-        { draftDueAt: { not: null } },
-        { publishDueAt: { not: null } },
-      ],
-    },
-    include: {
-      campaignCreator: {
-        include: {
-          influencer: true,
-          campaign: true,
-        },
-      },
-    },
-    take: 50,
-  });
+  // Fetch upcoming deliverables and attendance items safely
+  let deliverables: any[] = [];
+  let attendances: any[] = [];
 
-  const attendances = await (db as any).influencerAttendance.findMany({
-    include: {
-      campaignCreator: {
-        include: {
-          influencer: true,
-          campaign: true,
+  try {
+    const [delivs, atts] = await Promise.all([
+      (db as any).campaignDeliverable.findMany({
+        where: {
+          OR: [
+            { draftDueAt: { not: null } },
+            { publishDueAt: { not: null } },
+          ],
         },
-      },
-    },
-    take: 50,
-  });
+        include: {
+          campaignCreator: {
+            include: {
+              influencer: true,
+              campaign: true,
+            },
+          },
+        },
+        take: 50,
+      }).catch(() => []),
+      (db as any).influencerAttendance.findMany({
+        include: {
+          campaignCreator: {
+            include: {
+              influencer: true,
+              campaign: true,
+            },
+          },
+        },
+        take: 50,
+      }).catch(() => []),
+    ]);
+
+    deliverables = delivs || [];
+    attendances = atts || [];
+  } catch (dbErr) {
+    console.error("[INFLUENCER CALENDAR FETCH ERROR]", dbErr);
+  }
+
 
   // Merge items into chronological timeline
   const timelineItems: any[] = [];

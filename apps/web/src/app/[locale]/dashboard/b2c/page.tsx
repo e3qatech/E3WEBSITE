@@ -1,6 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   Star,
   Sparkles,
@@ -18,7 +19,7 @@ import {
   Compass,
 } from "lucide-react";
 import db from "@/lib/db";
-import { requireCurrentUser } from "@/lib/server-auth";
+import { requireCurrentUser, AppAuthError } from "@/lib/server-auth";
 import { hasPermission } from "@/lib/permissions";
 import {
   DashboardPageShell,
@@ -43,7 +44,13 @@ export default async function B2CCommandCenterPage({
   const locale = resolvedParams.locale || "en";
   const isAr = locale === "ar";
 
-  const currentUser = await requireCurrentUser();
+  let currentUser: any = null;
+  try {
+    currentUser = await requireCurrentUser();
+  } catch (authErr: any) {
+    redirect(`/${locale}/login/admin?callbackUrl=/${locale}/dashboard/b2c`);
+  }
+
   const userRole = String(currentUser?.role || currentUser?.rawRole || "B2C_ADMIN").trim().toUpperCase();
   const isSuperAdmin = userRole === "SUPER_ADMIN" || userRole === "ADMIN";
 
