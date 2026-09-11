@@ -439,7 +439,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                 required
                 type="email"
                 name="email"
-                placeholder="user@e3.qa"
+                placeholder="user@eeeqa.com"
                 className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-mono"
               />
             </div>
@@ -533,7 +533,7 @@ export function UsersList({ initialUsers }: { initialUsers: UserItem[] }) {
                 type="email"
                 name="email"
                 defaultValue={editingUser.email}
-                placeholder="user@e3.qa"
+                placeholder="user@eeeqa.com"
                 className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-lg text-sm font-mono"
               />
             </div>

@@ -100,7 +100,7 @@ export async function createTrackingLink({
   try {
     const url = new URL(destinationUrl);
     const host = url.hostname.toLowerCase();
-    const isE3Domain = host.endsWith('e3.qa') || host.endsWith('localhost') || host.includes('bookingqube');
+    const isE3Domain = host.endsWith('eeeqa.com') || host.endsWith('localhost') || host.includes('bookingqube');
     if (!isE3Domain) {
       console.warn(`[Tracking Link Warning] Destination ${host} is external to E3 domain`);
     }
@@ -169,7 +169,7 @@ export async function resolveTrackingLinkRedirect(
     targetUrl = new URL(link.destinationUrl);
   } catch (_e) {
     // Default to E3 production base if relative
-    targetUrl = new URL(link.destinationUrl, 'https://e3.qa');
+    targetUrl = new URL(link.destinationUrl, 'https://eeeqa.com');
   }
 
   // Preserve and enrich UTM query parameters

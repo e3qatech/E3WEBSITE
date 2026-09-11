@@ -77,7 +77,7 @@ describe('Admin Migrate Route RBAC & Authentication Enforcement', () => {
     vi.mocked(requireCurrentUser).mockResolvedValueOnce({
       id: 'admin_123',
       name: 'Super Admin',
-      email: 'admin@e3.qa',
+      email: 'admin@eeeqa.com',
       role: 'SUPER_ADMIN' as any,
       rawRole: 'SUPER_ADMIN',
       sessionVersion: 1,

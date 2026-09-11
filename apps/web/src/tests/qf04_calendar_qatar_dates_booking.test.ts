@@ -154,8 +154,8 @@ describe("QF-04 — Qatar Calendar Date, Event-Occurrence & Booking Logic Verifi
         "/events",
         "/en/b2c/calendar",
         "/ar/b2c/calendar",
-        "https://e3.qa/b2c/calendar",
-        "https://e3.qa/en/b2c/calendar",
+        "https://eeeqa.com/b2c/calendar",
+        "https://eeeqa.com/en/b2c/calendar",
       ];
 
       for (const link of selfLinks) {

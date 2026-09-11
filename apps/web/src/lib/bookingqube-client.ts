@@ -4,7 +4,7 @@
  * Zero database, zero Redis, zero secret-loaders, zero server-environment dependencies.
  */
 
-const BOOKINGQUBE_BASE_URL = process.env.NEXT_PUBLIC_BOOKINGQUBE_URL || 'https://booking.e3.qa';
+const BOOKINGQUBE_BASE_URL = process.env.NEXT_PUBLIC_BOOKINGQUBE_URL || 'https://booking.eeeqa.com';
 
 export interface TimeSlot {
   timeSlot: string;

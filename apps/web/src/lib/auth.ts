@@ -38,7 +38,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const isOfficialAdminSeed =
           cleanEmail === 'hr@eeeqa.com' ||
           cleanEmail === 'superadmin@eeeqa.com' ||
-          cleanEmail === 'admin@e3.qa' ||
+          cleanEmail === 'admin@eeeqa.com' ||
           cleanEmail === 'admin@e3qatar.com' ||
           cleanEmail === 'amaan@eeeqa.com';
 

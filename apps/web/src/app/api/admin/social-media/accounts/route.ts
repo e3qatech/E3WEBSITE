@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
         internalName: internalName || `${providerConfig.name}: @${username || 'e3qatar'}`,
         username: username || 'e3qatar',
         displayName: displayName || 'E3 Qatar Official',
-        profileUrl: profileUrl || `https://social.e3.qa/${username}`,
+        profileUrl: profileUrl || `https://social.eeeqa.com/${username}`,
         profileImageUrl: profileImageUrl || undefined,
         brandId: brandId || undefined,
         attractionId: attractionId || undefined,

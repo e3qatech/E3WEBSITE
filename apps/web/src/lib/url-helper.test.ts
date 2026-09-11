@@ -47,7 +47,7 @@ describe('url-helper unit tests', () => {
     it('identifies standard external schemes', () => {
       expect(isExternalUrl('https://example.com')).toBe(true);
       expect(isExternalUrl('http://example.com')).toBe(true);
-      expect(isExternalUrl('mailto:info@e3.qa')).toBe(true);
+      expect(isExternalUrl('mailto:info@eeeqa.com')).toBe(true);
       expect(isExternalUrl('tel:+97444000000')).toBe(true);
       expect(isExternalUrl('sms:+97444000000')).toBe(true);
     });
@@ -80,7 +80,7 @@ describe('url-helper unit tests', () => {
     });
 
     it('keeps mailto:, tel:, sms: intact', () => {
-      expect(normalizeExternalUrl('mailto:contact@e3.qa')).toBe('mailto:contact@e3.qa');
+      expect(normalizeExternalUrl('mailto:contact@eeeqa.com')).toBe('mailto:contact@eeeqa.com');
       expect(normalizeExternalUrl('tel:+97444000000')).toBe('tel:+97444000000');
     });
   });
@@ -122,8 +122,8 @@ describe('url-helper unit tests', () => {
     });
 
     it('does not add target="_blank" for mailto or tel', () => {
-      const props = getSafeAnchorProps('mailto:info@e3.qa', 'en');
-      expect(props.href).toBe('mailto:info@e3.qa');
+      const props = getSafeAnchorProps('mailto:info@eeeqa.com', 'en');
+      expect(props.href).toBe('mailto:info@eeeqa.com');
       expect(props.target).toBeUndefined();
       expect(props.rel).toBeUndefined();
     });

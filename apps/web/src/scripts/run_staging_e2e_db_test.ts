@@ -320,7 +320,7 @@ async function runE2EWorkflow() {
         campaignId: campaign.id,
         campaignCreatorId: assignment.id,
         shortCode: 'FATIMA26',
-        destinationUrl: 'https://e3.qa/en/b2c/tickets',
+        destinationUrl: 'https://eeeqa.com/en/b2c/tickets',
         utmCampaign: 'WWQ-2026',
         utmSource: 'instagram',
         utmMedium: 'influencer',

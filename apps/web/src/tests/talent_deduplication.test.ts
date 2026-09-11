@@ -66,7 +66,7 @@ describe("Talent Acquisition & CRM Candidate Deduplication", () => {
       {
         id: "tal_4",
         name: "Adil E3",
-        email: "admin@e3.qa",
+        email: "admin@eeeqa.com",
         position: "designer",
         status: "REJECTED",
         appliedDate: new Date("2026-09-04T12:00:00Z"),
@@ -137,7 +137,7 @@ describe("Talent Acquisition & CRM Candidate Deduplication", () => {
     expect(amaan[0].status).toBe("HIRED");
 
     // Verify Adil E3 is preserved
-    const adil = unified.filter((c) => c.email === "admin@e3.qa");
+    const adil = unified.filter((c) => c.email === "admin@eeeqa.com");
     expect(adil.length).toBe(1);
     expect(adil[0].status).toBe("REJECTED");
   });

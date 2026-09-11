@@ -262,7 +262,7 @@ describe('QF-07: Business/Client Login & Organization-Scoped Portal RBAC', () =>
   it('9. B2B/CRM admin access preservation: SUPER_ADMIN and SALES_ADMIN maintain full CRM access', async () => {
     const adminUser = {
       id: 'admin-super',
-      email: 'admin@e3.qa',
+      email: 'admin@eeeqa.com',
       role: 'SUPER_ADMIN',
       isActive: true,
       sessionVersion: 1,

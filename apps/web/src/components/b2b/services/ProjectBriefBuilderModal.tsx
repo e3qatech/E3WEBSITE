@@ -815,7 +815,7 @@ export function ProjectBriefBuilderModal({
             <strong>Events & Entertainment Enterprises (E3)</strong> • Doha, State of Qatar • <span className="font-mono">https://eeeqa.com</span>
           </div>
           <div className="font-mono">
-            enterprise@e3.qa • Confidential & Proprietary
+            enterprise@eeeqa.com • Confidential & Proprietary
           </div>
         </div>
       </div>

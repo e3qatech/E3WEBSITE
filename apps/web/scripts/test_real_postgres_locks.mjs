@@ -150,7 +150,7 @@ async function runRealPostgresLockTest() {
       originalUrl: 'https://instagram.com/p/1001',
       authorName: 'E3 Qatar',
       authorUsername: 'e3qatar',
-      mediaUrl: 'https://cdn.e3.qa/post1001.jpg',
+      mediaUrl: 'https://cdn.eeeqa.com/post1001.jpg',
       publishedAt: new Date(),
     };
 

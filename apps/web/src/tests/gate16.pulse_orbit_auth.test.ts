@@ -18,7 +18,7 @@ describe('Gate 16: Pulse Orbit Destination & Authentication Audits', () => {
             href: '/b2c/attractions',
             descEn: 'Updated description',
             descAr: 'وصف محدث',
-            mediaUrl: 'https://cdn.e3.qa/uploads/custom_hero_snow.webp',
+            mediaUrl: 'https://cdn.eeeqa.com/uploads/custom_hero_snow.webp',
             enabled: true,
           },
         ],
@@ -27,7 +27,7 @@ describe('Gate 16: Pulse Orbit Destination & Authentication Audits', () => {
       const merged = getMergedCMSPageContent('pulse-orbit', customPayload);
       expect(merged.titleEn).toBe('CUSTOM ORBIT TITLE');
       expect(merged.destinations.length).toBeGreaterThan(0);
-      expect(merged.destinations[0].mediaUrl).toBe('https://cdn.e3.qa/uploads/custom_hero_snow.webp');
+      expect(merged.destinations[0].mediaUrl).toBe('https://cdn.eeeqa.com/uploads/custom_hero_snow.webp');
       expect(merged.destinations[0].labelEn).toBe('Custom Snow Park');
     });
 

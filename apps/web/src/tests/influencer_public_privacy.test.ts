@@ -8,7 +8,7 @@ describe("Influencer Public Data Projections & Qatar PDPL Privacy Rules", () => 
     email: "dana.private@example.com",
     phone: "+974 5500 1122",
     whatsapp: "+974 5500 1122",
-    profileImage: "https://media.e3.qa/creators/dana.jpg",
+    profileImage: "https://media.eeeqa.com/creators/dana.jpg",
     bioEn: "Lifestyle and family content creator based in Doha.",
     bioAr: "صانعة محتوى أسلوب حياة وعائلة في الدوحة.",
     location: "Doha, Qatar",
@@ -70,7 +70,7 @@ describe("Influencer Public Data Projections & Qatar PDPL Privacy Rules", () => 
 
     // Verify allowed fields
     expect(publicData?.displayName).toBe("Dana Al-Ali");
-    expect(publicData?.profileImage).toBe("https://media.e3.qa/creators/dana.jpg");
+    expect(publicData?.profileImage).toBe("https://media.eeeqa.com/creators/dana.jpg");
     expect(publicData?.categories).toEqual(["LIFESTYLE", "FAMILY"]);
 
     // STRICT CHECKS: Sensitive fields MUST be undefined

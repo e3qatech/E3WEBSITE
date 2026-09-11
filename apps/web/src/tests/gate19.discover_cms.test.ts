@@ -205,7 +205,7 @@ describe("validateCmsUrl", () => {
   });
 
   it("internal-route: rejects https:// URL", () => {
-    expect(validateCmsUrl("https://e3.qa/en/b2c", "internal-route").valid).toBe(false);
+    expect(validateCmsUrl("https://eeeqa.com/en/b2c", "internal-route").valid).toBe(false);
   });
 
   it("internal-route: rejects route without locale prefix", () => {
@@ -213,12 +213,12 @@ describe("validateCmsUrl", () => {
   });
 
   // external-url
-  it("external-url: accepts https://e3.qa", () => {
-    expect(validateCmsUrl("https://e3.qa", "external-url").valid).toBe(true);
+  it("external-url: accepts https://eeeqa.com", () => {
+    expect(validateCmsUrl("https://eeeqa.com", "external-url").valid).toBe(true);
   });
 
   it("external-url: rejects http:// URL", () => {
-    const r = validateCmsUrl("http://e3.qa", "external-url");
+    const r = validateCmsUrl("http://eeeqa.com", "external-url");
     expect(r.valid).toBe(false);
     expect(r.reason).toMatch(/https:\/\//);
   });
@@ -239,7 +239,7 @@ describe("validateCmsUrl", () => {
   });
 
   it("media-id: rejects https:// URL", () => {
-    expect(validateCmsUrl("https://cdn.e3.qa/media/image.jpg", "media-id").valid).toBe(false);
+    expect(validateCmsUrl("https://cdn.eeeqa.com/media/image.jpg", "media-id").valid).toBe(false);
   });
 
   // iframe-url
@@ -278,7 +278,7 @@ describe("validateCmsUrl", () => {
   });
 
   it("any-url: accepts https:// URL", () => {
-    expect(validateCmsUrl("https://e3.qa", "any-url").valid).toBe(true);
+    expect(validateCmsUrl("https://eeeqa.com", "any-url").valid).toBe(true);
   });
 
   it("any-url: accepts anchor", () => {
@@ -299,7 +299,7 @@ describe("validateCmsUrlMap", () => {
   it("returns empty array when all fields are valid", () => {
     const errors = validateCmsUrlMap([
       { path: "hero.primaryCtaUrl", value: "/en/b2c/discover", type: "internal-route" },
-      { path: "hero.mediaUrl", value: "https://cdn.e3.qa/hero.mp4", type: "external-url" },
+      { path: "hero.mediaUrl", value: "https://cdn.eeeqa.com/hero.mp4", type: "external-url" },
     ]);
     expect(errors).toHaveLength(0);
   });

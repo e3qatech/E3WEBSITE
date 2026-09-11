@@ -539,7 +539,7 @@ export function DiscoverPageManager({ initialData }: { initialData: any }) {
                         updateSectionField("about", "companyProfileUrl", e.target.value)
                         updateSectionField("about", "companyProfileFileUrl", e.target.value)
                       }}
-                      placeholder="https://e3.qa/downloads/E3_Corporate_Profile_2024.pdf"
+                      placeholder="https://eeeqa.com/downloads/E3_Corporate_Profile_2024.pdf"
                       className="w-full bg-surface-hover border border-border-default rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none font-mono"
                     />
                   </div>

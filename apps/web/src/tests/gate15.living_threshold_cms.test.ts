@@ -13,9 +13,9 @@ const ALLOWED_IFRAME_DOMAINS = [
   'spline.design',
   'prod.spline.design',
   'my.spline.design',
-  'booking.e3.qa',
-  'cdn.e3.qa',
-  'e3.qa',
+  'booking.eeeqa.com',
+  'cdn.eeeqa.com',
+  'eeeqa.com',
   'images.unsplash.com',
   'public.blob.vercel-storage.com',
 ];

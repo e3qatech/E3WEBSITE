@@ -35,7 +35,7 @@ describe("UX-05C — Case Study Detail Page Enhancement Suite", () => {
         roleEn: "VP of Creative & Experience",
         roleAr: "نائب الرئيس للتجارب الإبداعية",
         avatarUrl: "/avatars/tariq.webp",
-        email: "tariq.secret@e3.qa", // Must never be rendered
+        email: "tariq.secret@eeeqa.com", // Must never be rendered
       },
     },
   ];
@@ -203,7 +203,7 @@ describe("UX-05C — Case Study Detail Page Enhancement Suite", () => {
     expect(html).toContain("Lead Experience Architect");
 
     // CRITICAL SECURITY: Ensure email is never rendered in output HTML
-    expect(html).not.toContain("tariq.secret@e3.qa");
+    expect(html).not.toContain("tariq.secret@eeeqa.com");
 
     // Verify empty state hiding
     const emptyHtml = renderToStaticMarkup(<ProjectTeamSection locale="en" teamMembers={[]} />);

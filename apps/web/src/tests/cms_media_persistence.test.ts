@@ -7,9 +7,9 @@ describe('E3 CMS Media Upload & Safe Update Semantics Tests', () => {
   it('1. deepMergeCMSContent should preserve existing media when field is omitted (undefined)', () => {
     const existing = {
       heroMedia: {
-        mediaUrl: 'https://cdn.e3.qa/hero-video.mp4',
+        mediaUrl: 'https://cdn.eeeqa.com/hero-video.mp4',
         mediaType: 'VIDEO',
-        posterUrl: 'https://cdn.e3.qa/hero-poster.jpg',
+        posterUrl: 'https://cdn.eeeqa.com/hero-poster.jpg',
       },
     };
 
@@ -21,16 +21,16 @@ describe('E3 CMS Media Upload & Safe Update Semantics Tests', () => {
 
     const merged = deepMergeCMSContent(existing, partialUpdate);
 
-    expect(merged.heroMedia.mediaUrl).toBe('https://cdn.e3.qa/hero-video.mp4');
-    expect(merged.heroMedia.posterUrl).toBe('https://cdn.e3.qa/hero-poster.jpg');
+    expect(merged.heroMedia.mediaUrl).toBe('https://cdn.eeeqa.com/hero-video.mp4');
+    expect(merged.heroMedia.posterUrl).toBe('https://cdn.eeeqa.com/hero-poster.jpg');
     expect(merged.act2.headlineEn).toBe('Updated Act 2 Headline Only');
   });
 
   it('2. deepMergeCMSContent should PRESERVE existing media when empty string ("") is produced by incomplete form hydration', () => {
     const existing = {
       heroMedia: {
-        mediaUrl: 'https://cdn.e3.qa/hero-video.mp4',
-        posterUrl: 'https://cdn.e3.qa/hero-poster.jpg',
+        mediaUrl: 'https://cdn.eeeqa.com/hero-video.mp4',
+        posterUrl: 'https://cdn.eeeqa.com/hero-poster.jpg',
       },
     };
 
@@ -38,22 +38,22 @@ describe('E3 CMS Media Upload & Safe Update Semantics Tests', () => {
     const incompleteFormSubmission = {
       heroMedia: {
         mediaUrl: '', // empty string from unhydrated state
-        posterUrl: 'https://cdn.e3.qa/hero-poster.jpg',
+        posterUrl: 'https://cdn.eeeqa.com/hero-poster.jpg',
       },
     };
 
     const merged = deepMergeCMSContent(existing, incompleteFormSubmission);
 
     // Existing mediaUrl must NOT be deleted by empty string
-    expect(merged.heroMedia.mediaUrl).toBe('https://cdn.e3.qa/hero-video.mp4');
-    expect(merged.heroMedia.posterUrl).toBe('https://cdn.e3.qa/hero-poster.jpg');
+    expect(merged.heroMedia.mediaUrl).toBe('https://cdn.eeeqa.com/hero-video.mp4');
+    expect(merged.heroMedia.posterUrl).toBe('https://cdn.eeeqa.com/hero-poster.jpg');
   });
 
   it('3. deepMergeCMSContent should execute removal ONLY when explicit removal operation is provided', () => {
     const existing = {
-      logoUrl: 'https://cdn.e3.qa/logo.png',
-      heroMediaUrl: 'https://cdn.e3.qa/hero.png',
-      posterUrl: 'https://cdn.e3.qa/poster.jpg',
+      logoUrl: 'https://cdn.eeeqa.com/logo.png',
+      heroMediaUrl: 'https://cdn.eeeqa.com/hero.png',
+      posterUrl: 'https://cdn.eeeqa.com/poster.jpg',
     };
 
     const explicitRemovePayload = {
@@ -71,7 +71,7 @@ describe('E3 CMS Media Upload & Safe Update Semantics Tests', () => {
 
   it('4. deepMergeCMSContent should reject temporary blob:, file:, or localhost URLs', () => {
     const existing = {
-      heroMediaUrl: 'https://cdn.e3.qa/hero.png',
+      heroMediaUrl: 'https://cdn.eeeqa.com/hero.png',
     };
 
     const tempUrlPayload = {
@@ -83,26 +83,26 @@ describe('E3 CMS Media Upload & Safe Update Semantics Tests', () => {
 
   it('5. Array/Repeater Update Semantics: partial item update, reordering, adding, and removing items', () => {
     const existingGallery = [
-      { id: 'item-1', title: 'Item 1', mediaUrl: 'https://cdn.e3.qa/img1.jpg' },
-      { id: 'item-2', title: 'Item 2', mediaUrl: 'https://cdn.e3.qa/img2.jpg' },
-      { id: 'item-3', title: 'Item 3', mediaUrl: 'https://cdn.e3.qa/img3.jpg' },
+      { id: 'item-1', title: 'Item 1', mediaUrl: 'https://cdn.eeeqa.com/img1.jpg' },
+      { id: 'item-2', title: 'Item 2', mediaUrl: 'https://cdn.eeeqa.com/img2.jpg' },
+      { id: 'item-3', title: 'Item 3', mediaUrl: 'https://cdn.eeeqa.com/img3.jpg' },
     ];
 
     // Case A: Partial item update (edit title of item-1 only, omitting mediaUrl)
     const partialItemUpdate = [
       { id: 'item-1', title: 'Renamed Item 1' }, // mediaUrl omitted
-      { id: 'item-2', title: 'Item 2', mediaUrl: 'https://cdn.e3.qa/img2.jpg' },
-      { id: 'item-3', title: 'Item 3', mediaUrl: 'https://cdn.e3.qa/img3.jpg' },
+      { id: 'item-2', title: 'Item 2', mediaUrl: 'https://cdn.eeeqa.com/img2.jpg' },
+      { id: 'item-3', title: 'Item 3', mediaUrl: 'https://cdn.eeeqa.com/img3.jpg' },
     ];
     const mergedA = deepMergeCMSContent(existingGallery, partialItemUpdate);
     expect(mergedA[0].title).toBe('Renamed Item 1');
-    expect(mergedA[0].mediaUrl).toBe('https://cdn.e3.qa/img1.jpg'); // Preserved!
+    expect(mergedA[0].mediaUrl).toBe('https://cdn.eeeqa.com/img1.jpg'); // Preserved!
 
     // Case B: Reorder items (item-3 first, then item-1)
     const reordered = [
-      { id: 'item-3', title: 'Item 3', mediaUrl: 'https://cdn.e3.qa/img3.jpg' },
-      { id: 'item-1', title: 'Item 1', mediaUrl: 'https://cdn.e3.qa/img1.jpg' },
-      { id: 'item-2', title: 'Item 2', mediaUrl: 'https://cdn.e3.qa/img2.jpg' },
+      { id: 'item-3', title: 'Item 3', mediaUrl: 'https://cdn.eeeqa.com/img3.jpg' },
+      { id: 'item-1', title: 'Item 1', mediaUrl: 'https://cdn.eeeqa.com/img1.jpg' },
+      { id: 'item-2', title: 'Item 2', mediaUrl: 'https://cdn.eeeqa.com/img2.jpg' },
     ];
     const mergedB = deepMergeCMSContent(existingGallery, reordered);
     expect(mergedB[0].id).toBe('item-3');
@@ -111,7 +111,7 @@ describe('E3 CMS Media Upload & Safe Update Semantics Tests', () => {
     // Case C: Add new item
     const withNewItem = [
       ...existingGallery,
-      { id: 'item-4', title: 'Item 4', mediaUrl: 'https://cdn.e3.qa/img4.jpg' },
+      { id: 'item-4', title: 'Item 4', mediaUrl: 'https://cdn.eeeqa.com/img4.jpg' },
     ];
     const mergedC = deepMergeCMSContent(existingGallery, withNewItem);
     expect(mergedC.length).toBe(4);
@@ -119,8 +119,8 @@ describe('E3 CMS Media Upload & Safe Update Semantics Tests', () => {
 
     // Case D: Intentionally remove item-2
     const itemRemoved = [
-      { id: 'item-1', title: 'Item 1', mediaUrl: 'https://cdn.e3.qa/img1.jpg' },
-      { id: 'item-3', title: 'Item 3', mediaUrl: 'https://cdn.e3.qa/img3.jpg' },
+      { id: 'item-1', title: 'Item 1', mediaUrl: 'https://cdn.eeeqa.com/img1.jpg' },
+      { id: 'item-3', title: 'Item 3', mediaUrl: 'https://cdn.eeeqa.com/img3.jpg' },
     ];
     const mergedD = deepMergeCMSContent(existingGallery, itemRemoved);
     expect(mergedD.length).toBe(2);

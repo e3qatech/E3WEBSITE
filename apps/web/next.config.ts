@@ -13,8 +13,8 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2592000,
     remotePatterns: [
-      { protocol: 'https', hostname: 'booking.e3.qa' },
-      { protocol: 'https', hostname: 'cdn.e3.qa' },
+      { protocol: 'https', hostname: 'booking.eeeqa.com' },
+      { protocol: 'https', hostname: 'cdn.eeeqa.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
     ],
@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
           { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://prod.spline.design https://my.spline.design https://*.spline.design https://vercel.live https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://booking.e3.qa https://cdn.e3.qa https://images.unsplash.com https://*.public.blob.vercel-storage.com https://i.ytimg.com https://*.ytimg.com https://my.spline.design https://prod.spline.design https://*.spline.design; font-src 'self' data:; connect-src 'self' https: wss: https://vercel.live https://*.vercel.live https://my.spline.design https://prod.spline.design https://*.spline.design; frame-src 'self' https://vercel.live https://*.vercel.live https://booking.e3.qa https://my.spline.design https://prod.spline.design https://*.spline.design https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com https://youtube-nocookie.com https://*.youtube.com https://*.youtube-nocookie.com https://player.vimeo.com https://vimeo.com https://*.vimeo.com; media-src 'self' data: blob: https://assets.mixkit.co https://*.public.blob.vercel-storage.com https://cdn.e3.qa https://booking.e3.qa https://my.spline.design https://prod.spline.design https://*.spline.design; object-src 'none'; base-uri 'self';",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://prod.spline.design https://my.spline.design https://*.spline.design https://vercel.live https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://booking.eeeqa.com https://cdn.eeeqa.com https://images.unsplash.com https://*.public.blob.vercel-storage.com https://i.ytimg.com https://*.ytimg.com https://my.spline.design https://prod.spline.design https://*.spline.design; font-src 'self' data:; connect-src 'self' https: wss: https://vercel.live https://*.vercel.live https://my.spline.design https://prod.spline.design https://*.spline.design; frame-src 'self' https://vercel.live https://*.vercel.live https://booking.eeeqa.com https://my.spline.design https://prod.spline.design https://*.spline.design https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com https://youtube-nocookie.com https://*.youtube.com https://*.youtube-nocookie.com https://player.vimeo.com https://vimeo.com https://*.vimeo.com; media-src 'self' data: blob: https://assets.mixkit.co https://*.public.blob.vercel-storage.com https://cdn.eeeqa.com https://booking.eeeqa.com https://my.spline.design https://prod.spline.design https://*.spline.design; object-src 'none'; base-uri 'self';",
           },
         ],
       },

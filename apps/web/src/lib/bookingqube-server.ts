@@ -9,7 +9,7 @@ import type { TimeSlot } from './bookingqube-client';
 
 export type { TimeSlot };
 
-const BOOKINGQUBE_BASE_URL = process.env.NEXT_PUBLIC_BOOKINGQUBE_URL || 'https://booking.e3.qa';
+const BOOKINGQUBE_BASE_URL = process.env.NEXT_PUBLIC_BOOKINGQUBE_URL || 'https://booking.eeeqa.com';
 
 /**
  * Canonical BookingQube API Key resolution with deterministic read-only fallback to legacy aliases.

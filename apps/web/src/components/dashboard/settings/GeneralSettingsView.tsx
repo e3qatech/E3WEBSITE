@@ -544,7 +544,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
                 type="text"
                 value={data.bookTicketsUrl}
                 onChange={(e) => handleChange("bookTicketsUrl", e.target.value)}
-                placeholder="e.g. /b2c/tickets or https://tickets.e3.qa"
+                placeholder="e.g. /b2c/tickets or https://tickets.eeeqa.com"
                 className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
               />
             </div>

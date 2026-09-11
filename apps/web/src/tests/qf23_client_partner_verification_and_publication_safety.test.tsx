@@ -134,7 +134,7 @@ describe('QF-23 & QF-23-B — Client/Partner Verification, Editorial Redaction &
         name: 'Visit Qatar',
         category: 'GOVERNMENT',
         description: 'National tourism council.',
-        logoUrl: 'https://cdn.e3.qa/logo.png',
+        logoUrl: 'https://cdn.eeeqa.com/logo.png',
         website: 'https://visitqatar.com',
         isVisible: true,
         orderIndex: 0,
@@ -289,8 +289,8 @@ describe('QF-23 & QF-23-B — Client/Partner Verification, Editorial Redaction &
   // =========================================================================
   describe('4. Strict Public Logo Validation (QF-23-B Requirement 3)', () => {
     it('permits valid HTTPS and relative image paths', () => {
-      expect(sanitizePublicLogo('https://cdn.e3.qa/partners/qatar-airways.png')).toBe(
-        'https://cdn.e3.qa/partners/qatar-airways.png'
+      expect(sanitizePublicLogo('https://cdn.eeeqa.com/partners/qatar-airways.png')).toBe(
+        'https://cdn.eeeqa.com/partners/qatar-airways.png'
       );
       expect(sanitizePublicLogo('/assets/logos/partner.png')).toBe('/assets/logos/partner.png');
     });
@@ -307,7 +307,7 @@ describe('QF-23 & QF-23-B — Client/Partner Verification, Editorial Redaction &
     });
 
     it('rejects SVG images (by extension or data URL protocol)', () => {
-      expect(sanitizePublicLogo('https://cdn.e3.qa/logo.svg')).toBeNull();
+      expect(sanitizePublicLogo('https://cdn.eeeqa.com/logo.svg')).toBeNull();
       expect(sanitizePublicLogo('/assets/logo.svg')).toBeNull();
       expect(sanitizePublicLogo('data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=')).toBeNull();
     });
@@ -315,7 +315,7 @@ describe('QF-23 & QF-23-B — Client/Partner Verification, Editorial Redaction &
     it('rejects HTML/script-bearing, malformed Base64, and HTTP logo URLs', () => {
       expect(sanitizePublicLogo('data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==')).toBeNull();
       expect(sanitizePublicLogo('data:image/png;base64,malformed!!!')).toBeNull();
-      expect(sanitizePublicLogo('http://cdn.e3.qa/logo.png')).toBeNull();
+      expect(sanitizePublicLogo('http://cdn.eeeqa.com/logo.png')).toBeNull();
       expect(sanitizePublicLogo('javascript:alert(1)')).toBeNull();
     });
 
@@ -434,7 +434,7 @@ describe('QF-23 & QF-23-B — Client/Partner Verification, Editorial Redaction &
             website: 'https://900park.qa',
             description:
               'A premier outdoor food & entertainment destination in Lusail. Test the URL before publishing because its availability may vary.',
-            logoUrl: 'https://cdn.e3.qa/logos/900park.png',
+            logoUrl: 'https://cdn.eeeqa.com/logos/900park.png',
             isVisible: true,
             orderIndex: 0,
           };
@@ -448,7 +448,7 @@ describe('QF-23 & QF-23-B — Client/Partner Verification, Editorial Redaction &
             website: 'https://imadxb.com',
             description:
               'A freight-forwarding company. Confirm that this is the exact entity and logo before publishing.',
-            logoUrl: 'https://cdn.e3.qa/logos/ima.png',
+            logoUrl: 'https://cdn.eeeqa.com/logos/ima.png',
             isVisible: true,
             orderIndex: 1,
           };
@@ -462,7 +462,7 @@ describe('QF-23 & QF-23-B — Client/Partner Verification, Editorial Redaction &
             website: 'https://safetyfirst.qa',
             description:
               'We test all equipment to international safety standards. Over 500 positive reviews from clients across Qatar.',
-            logoUrl: 'https://cdn.e3.qa/logos/safety.png',
+            logoUrl: 'https://cdn.eeeqa.com/logos/safety.png',
             isVisible: true,
             orderIndex: 2,
           };
@@ -484,7 +484,7 @@ describe('QF-23 & QF-23-B — Client/Partner Verification, Editorial Redaction &
           category: 'CORPORATE',
           website: `https://partner${i + 1}.qa`,
           description: `Leading provider of solutions in Qatar. Specializing in event experience ${i + 1}.`,
-          logoUrl: `https://cdn.e3.qa/logos/p${i + 1}.png`,
+          logoUrl: `https://cdn.eeeqa.com/logos/p${i + 1}.png`,
           isVisible: i < 20, // 20 visible, 4 hidden
           orderIndex: i,
         };
@@ -618,7 +618,7 @@ describe('QF-23 & QF-23-B — Client/Partner Verification, Editorial Redaction &
     });
 
     it('validates helper functions sanitizeUrl, normalizeDomain, and normalizePartnerName', () => {
-      expect(sanitizeUrl('https://e3.qa')).toBe('https://e3.qa/');
+      expect(sanitizeUrl('https://eeeqa.com')).toBe('https://eeeqa.com/');
       expect(sanitizeUrl('javascript:void(0)')).toBeNull();
 
       expect(normalizeDomain('https://www.visitqatar.com/en')).toBe('visitqatar.com');

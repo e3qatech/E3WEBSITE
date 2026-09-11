@@ -11,7 +11,7 @@ import React from "react";
 // Mock auth session as SUPER_ADMIN
 vi.mock("@/lib/auth", () => ({
   auth: vi.fn().mockResolvedValue({
-    user: { id: "admin-1", email: "admin@e3.qa", role: "SUPER_ADMIN" },
+    user: { id: "admin-1", email: "admin@eeeqa.com", role: "SUPER_ADMIN" },
   }),
 }));
 

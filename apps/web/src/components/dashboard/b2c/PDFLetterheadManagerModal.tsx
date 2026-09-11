@@ -77,8 +77,8 @@ export const DEFAULT_PDF_CONFIG: PDFLetterheadConfig = {
   addressEn: "Doha, State of Qatar • Lusail Marina Tower, Floor 14",
   addressAr: "الدوحة، دولة قطر • برج لوسيل مارينا، الطابق ١٤",
   phone: "+974 4400 1234",
-  email: "events@e3.qa",
-  website: "www.e3.qa",
+  email: "events@eeeqa.com",
+  website: "www.eeeqa.com",
   headerBannerColor: "#002B49",
   showLetterheadBar: true,
 

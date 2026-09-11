@@ -189,7 +189,7 @@ export function ForgotPasswordForm({ locale }: ForgotPasswordFormProps) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={isSubmitting}
-                    placeholder={isAr ? 'name@e3.qa' : 'name@e3.qa'}
+                    placeholder={isAr ? 'name@eeeqa.com' : 'name@eeeqa.com'}
                     data-testid="forgot-password-email-input"
                     className="w-full bg-zinc-950 border border-white/15 rounded-xl ps-10 pe-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition-all font-sans disabled:opacity-50"
                   />

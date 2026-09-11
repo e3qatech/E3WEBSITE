@@ -86,7 +86,7 @@ describe('QF-11: B2B Clients/Partners vs CRM Clients Ownership & Boundary Separa
       id: 'partner-1',
       name: 'Qatar Tourism',
       category: 'GOVERNMENT',
-      logoUrl: 'https://cdn.e3.qa/qt-logo.png',
+      logoUrl: 'https://cdn.eeeqa.com/qt-logo.png',
       isVisible: true,
       orderIndex: 1,
     });
@@ -96,7 +96,7 @@ describe('QF-11: B2B Clients/Partners vs CRM Clients Ownership & Boundary Separa
       body: JSON.stringify({
         name: 'Qatar Tourism',
         category: 'GOVERNMENT',
-        logoUrl: 'https://cdn.e3.qa/qt-logo.png',
+        logoUrl: 'https://cdn.eeeqa.com/qt-logo.png',
       }),
     });
 
@@ -106,7 +106,7 @@ describe('QF-11: B2B Clients/Partners vs CRM Clients Ownership & Boundary Separa
       data: expect.objectContaining({
         name: 'Qatar Tourism',
         category: 'GOVERNMENT',
-        logoUrl: 'https://cdn.e3.qa/qt-logo.png',
+        logoUrl: 'https://cdn.eeeqa.com/qt-logo.png',
       }),
     });
     expect(mocks.db.client.create).not.toHaveBeenCalled();

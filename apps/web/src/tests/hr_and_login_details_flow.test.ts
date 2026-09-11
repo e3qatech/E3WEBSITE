@@ -140,7 +140,7 @@ describe("HR Authentication, Command Center & Login Details Test Suite", () => {
       const officialSeedEmails = [
         "hr@eeeqa.com",
         "superadmin@eeeqa.com",
-        "admin@e3.qa",
+        "admin@eeeqa.com",
         "admin@e3qatar.com",
         "amaan@eeeqa.com"
       ];

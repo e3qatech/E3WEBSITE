@@ -75,7 +75,7 @@ describe('Social Media Manager — Real Route Authorization Audit', () => {
               user: {
                 id: `usr_${role.toLowerCase()}`,
                 name: `User ${role}`,
-                email: `${role.toLowerCase()}@e3.qa`,
+                email: `${role.toLowerCase()}@eeeqa.com`,
                 role,
               },
             };

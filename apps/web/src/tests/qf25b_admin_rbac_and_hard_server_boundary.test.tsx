@@ -112,7 +112,7 @@ const SENSITIVE_FIXTURES = {
   BOOKINGQUBE_KEY: 'bq_live_sec_99998888777766665555',
   LEGACY_ALIAS_KEY: 'bq_legacy_secret_1111222233334444',
   MAPS_KEY: 'AIzaSySecretMapsKey999888',
-  CUSTOM_DSN: 'postgres://admin:super_secret_pw@db.e3.qa:5432/prod',
+  CUSTOM_DSN: 'postgres://admin:super_secret_pw@db.eeeqa.com:5432/prod',
   SIGNING_SECRET: 'jwt_signing_secret_xyz123',
   CERT_KEY: '-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...',
 };
@@ -124,7 +124,7 @@ describe('QF-25-B — ADMIN RBAC & HARD SERVER-ONLY INTEGRATION BOUNDARY', () =>
     const defaultSettings = [
       { key: 'siteNameEn', value: 'E3 Qatar' },
       { key: 'siteNameAr', value: 'إي ثري قطر' },
-      { key: 'contactEmail', value: 'contact@e3.qa' },
+      { key: 'contactEmail', value: 'contact@eeeqa.com' },
     ];
     (mocks.db.setting.findMany as any).mockResolvedValue(defaultSettings);
     (mocks.db.siteSettings.findMany as any).mockResolvedValue(defaultSettings);
@@ -430,7 +430,7 @@ describe('QF-25-B — ADMIN RBAC & HARD SERVER-ONLY INTEGRATION BOUNDARY', () =>
     it('B2B Contact (EN & AR) and Feedback (EN & AR) pages contain zero secret names or values', async () => {
       const records = [
         { key: 'bookingQubeApiKey', value: SENSITIVE_FIXTURES.BOOKINGQUBE_KEY },
-        { key: 'contactEmail', value: 'contact@e3.qa' },
+        { key: 'contactEmail', value: 'contact@eeeqa.com' },
       ];
       (mocks.db.setting.findMany as any).mockResolvedValue(records);
       (mocks.db.siteSettings.findMany as any).mockResolvedValue(records);

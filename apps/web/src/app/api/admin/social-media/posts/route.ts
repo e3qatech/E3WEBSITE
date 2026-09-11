@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
       data: {
         provider: provider as SocialProviderKey,
         providerPostId,
-        originalUrl: originalUrl || `https://e3.qa/posts/${providerPostId}`,
+        originalUrl: originalUrl || `https://eeeqa.com/posts/${providerPostId}`,
         authorName,
         authorUsername,
         authorAvatarUrl: authorAvatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop',

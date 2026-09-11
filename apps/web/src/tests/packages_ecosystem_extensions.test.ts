@@ -68,15 +68,15 @@ describe('Packages Ecosystem Extensions Suite', () => {
     })
 
     it('formats valid shareable links and payment links', () => {
-      const baseUrl = 'https://e3.qa'
+      const baseUrl = 'https://eeeqa.com'
       const quoteNumber = 'QT-E3-2026-9482'
       const quoteId = 'cm3abcdef0001xyz'
 
       const publicQuoteUrl = `${baseUrl}/en/b2c/packages/quote/${quoteNumber}`
       const directPaymentUrl = `${baseUrl}/en/b2c/packages/quote/${quoteNumber}?pay=true`
 
-      expect(publicQuoteUrl).toBe('https://e3.qa/en/b2c/packages/quote/QT-E3-2026-9482')
-      expect(directPaymentUrl).toBe('https://e3.qa/en/b2c/packages/quote/QT-E3-2026-9482?pay=true')
+      expect(publicQuoteUrl).toBe('https://eeeqa.com/en/b2c/packages/quote/QT-E3-2026-9482')
+      expect(directPaymentUrl).toBe('https://eeeqa.com/en/b2c/packages/quote/QT-E3-2026-9482?pay=true')
     })
   })
 
@@ -411,8 +411,8 @@ describe('Packages Ecosystem Extensions Suite', () => {
         nameAr: 'باونس أرينا',
         slug: 'bounce-freestyle',
         gallery: [
-          'https://e3.qa/images/attractions/bounce-1.jpg',
-          'https://e3.qa/images/attractions/bounce-2.jpg'
+          'https://eeeqa.com/images/attractions/bounce-1.jpg',
+          'https://eeeqa.com/images/attractions/bounce-2.jpg'
         ]
       }
 

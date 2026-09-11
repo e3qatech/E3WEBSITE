@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     } catch (_logErr) {}
 
     // 6. Dispatch Verification Email
-    const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'e3.qa';
+    const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'eeeqa.com';
     const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
     const origin = `${protocol}://${host}`;
     const verificationUrl = `${origin}/api/subscribe?token=${encodeURIComponent(token)}`;

@@ -178,9 +178,9 @@ export const CURATED_ATTRACTIONS_DATA: Record<string, CuratedAttractionData> = {
       }
     ],
     socialLinks: [
-      { platform: 'INSTAGRAM', url: 'https://instagram.com/e3.qatar', handle: '@e3.qatar' },
-      { platform: 'TIKTOK', url: 'https://tiktok.com/@e3.qatar', handle: '@e3.qatar' },
-      { platform: 'WEBSITE', url: 'https://e3.qa/en/b2c/attractions/crayons-and-bricks-place-vendome' }
+      { platform: 'INSTAGRAM', url: 'https://instagram.com/eeeqa.comtar', handle: '@eeeqa.comtar' },
+      { platform: 'TIKTOK', url: 'https://tiktok.com/@eeeqa.comtar', handle: '@eeeqa.comtar' },
+      { platform: 'WEBSITE', url: 'https://eeeqa.com/en/b2c/attractions/crayons-and-bricks-place-vendome' }
     ]
   },
 
@@ -295,8 +295,8 @@ export const CURATED_ATTRACTIONS_DATA: Record<string, CuratedAttractionData> = {
       }
     ],
     socialLinks: [
-      { platform: 'INSTAGRAM', url: 'https://instagram.com/e3.qatar', handle: '@e3.qatar' },
-      { platform: 'TIKTOK', url: 'https://tiktok.com/@e3.qatar', handle: '@e3.qatar' },
+      { platform: 'INSTAGRAM', url: 'https://instagram.com/eeeqa.comtar', handle: '@eeeqa.comtar' },
+      { platform: 'TIKTOK', url: 'https://tiktok.com/@eeeqa.comtar', handle: '@eeeqa.comtar' },
       { platform: 'YOUTUBE', url: 'https://youtube.com/@e3qatar', handle: 'E3 Qatar' }
     ]
   },
@@ -412,8 +412,8 @@ export const CURATED_ATTRACTIONS_DATA: Record<string, CuratedAttractionData> = {
       }
     ],
     socialLinks: [
-      { platform: 'INSTAGRAM', url: 'https://instagram.com/e3.qatar', handle: '@e3.qatar' },
-      { platform: 'TIKTOK', url: 'https://tiktok.com/@e3.qatar', handle: '@e3.qatar' },
+      { platform: 'INSTAGRAM', url: 'https://instagram.com/eeeqa.comtar', handle: '@eeeqa.comtar' },
+      { platform: 'TIKTOK', url: 'https://tiktok.com/@eeeqa.comtar', handle: '@eeeqa.comtar' },
       { platform: 'YOUTUBE', url: 'https://youtube.com/@e3qatar', handle: 'E3 Qatar' }
     ]
   },
@@ -520,8 +520,8 @@ export const CURATED_ATTRACTIONS_DATA: Record<string, CuratedAttractionData> = {
       }
     ],
     socialLinks: [
-      { platform: 'INSTAGRAM', url: 'https://instagram.com/e3.qatar', handle: '@e3.qatar' },
-      { platform: 'TIKTOK', url: 'https://tiktok.com/@e3.qatar', handle: '@e3.qatar' },
+      { platform: 'INSTAGRAM', url: 'https://instagram.com/eeeqa.comtar', handle: '@eeeqa.comtar' },
+      { platform: 'TIKTOK', url: 'https://tiktok.com/@eeeqa.comtar', handle: '@eeeqa.comtar' },
       { platform: 'FACEBOOK', url: 'https://facebook.com/e3qatar', handle: 'E3 Qatar' }
     ]
   }

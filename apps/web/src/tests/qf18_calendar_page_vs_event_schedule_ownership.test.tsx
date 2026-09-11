@@ -393,14 +393,14 @@ describe('QF-18 — Calendar Page vs Event-Schedule Ownership Regression Suite',
       });
       expect(metaEn.title).toBe('Events & Experiences — E3 Qatar');
       expect(metaEn.description).toBe('Explore upcoming experiences in Qatar.');
-      expect(metaEn.alternates?.canonical).toBe('https://e3.qa/en/b2c/calendar');
+      expect(metaEn.alternates?.canonical).toBe('https://eeeqa.com/en/b2c/calendar');
 
       const metaAr = await generateCalendarMetadata({
         params: Promise.resolve({ locale: 'ar' }),
       });
       expect(metaAr.title).toBe('الفعاليات والتجارب — إي ثري قطر');
       expect(metaAr.description).toBe('استكشف التجارب القادمة في قطر.');
-      expect(metaAr.alternates?.canonical).toBe('https://e3.qa/ar/b2c/calendar');
+      expect(metaAr.alternates?.canonical).toBe('https://eeeqa.com/ar/b2c/calendar');
     });
   });
 });

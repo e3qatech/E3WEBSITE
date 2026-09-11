@@ -65,7 +65,7 @@ describe('Tracking Link Redirect & Click Attribution', () => {
       shortCode: 'E3SUMMER26',
       campaignId: 'camp_456',
       campaignCreatorId: 'cc_789',
-      destinationUrl: 'https://e3.qa/en/tickets?eventId=ev_99',
+      destinationUrl: 'https://eeeqa.com/en/tickets?eventId=ev_99',
       utmSource: 'influencer',
       utmMedium: 'creator',
       utmCampaign: 'summer_carnival_2026',
@@ -82,7 +82,7 @@ describe('Tracking Link Redirect & Click Attribution', () => {
     expect(result.redirectUrl).toBeDefined();
 
     const parsed = new URL(result.redirectUrl!);
-    expect(parsed.origin).toBe('https://e3.qa');
+    expect(parsed.origin).toBe('https://eeeqa.com');
     expect(parsed.pathname).toBe('/en/tickets');
     expect(parsed.searchParams.get('eventId')).toBe('ev_99');
     expect(parsed.searchParams.get('utm_source')).toBe('influencer');
@@ -109,17 +109,17 @@ describe('Tracking Link Redirect & Click Attribution', () => {
   });
 
   it('API route returns 307 redirect on valid short link', async () => {
-    const req = new NextRequest('https://e3.qa/api/influencer/t/E3SUMMER26');
+    const req = new NextRequest('https://eeeqa.com/api/influencer/t/E3SUMMER26');
     const response = await getRedirect(req, { params: Promise.resolve({ shortCode: 'E3SUMMER26' }) });
 
     expect(response.status).toBe(307);
     const location = response.headers.get('location');
-    expect(location).toContain('https://e3.qa/en/tickets');
+    expect(location).toContain('https://eeeqa.com/en/tickets');
     expect(location).toContain('utm_campaign=summer_carnival_2026');
   });
 
   it('API route returns 404 on missing short link', async () => {
-    const req = new NextRequest('https://e3.qa/api/influencer/t/NOT_FOUND');
+    const req = new NextRequest('https://eeeqa.com/api/influencer/t/NOT_FOUND');
     const response = await getRedirect(req, { params: Promise.resolve({ shortCode: 'NOT_FOUND' }) });
 
     expect(response.status).toBe(404);

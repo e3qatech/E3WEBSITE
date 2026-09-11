@@ -102,7 +102,7 @@ describe('QF-10: Generic CMS Pages vs Specialized Editors Ownership & Routing', 
       content: {
         hero: { headerEn: 'Original Hero', headerAr: 'العنوان الأصلي' },
         act1: { headlineEn: 'Act 1 Original' },
-        liveFeed: { isLiveNow: true, streamUrl: 'https://stream.e3.qa' },
+        liveFeed: { isLiveNow: true, streamUrl: 'https://stream.eeeqa.com' },
       },
     });
 

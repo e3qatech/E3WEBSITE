@@ -135,12 +135,12 @@ describe('QF-25 — Public Settings Credential Redaction & Server-Only Integrati
   const MOCK_DB_SETTINGS_RECORDS = [
     { key: 'siteNameEn', value: 'E3 Corporate', type: 'GENERAL' },
     { key: 'siteNameAr', value: 'إي ثري للشركات', type: 'GENERAL' },
-    { key: 'contactEmail', value: 'info@e3.qa', type: 'GENERAL' },
+    { key: 'contactEmail', value: 'info@eeeqa.com', type: 'GENERAL' },
     { key: 'contactPhone', value: '+974 4400 0000', type: 'GENERAL' },
     { key: 'bookingqubeWebsite', value: 'https://bookingqube.com', type: 'GENERAL' },
-    { key: 'lightLogoUrl', value: 'https://e3.qa/logo-light.png', type: 'GENERAL' },
-    { key: 'darkLogoUrl', value: 'https://e3.qa/logo-dark.png', type: 'GENERAL' },
-    { key: 'faviconUrl', value: 'https://e3.qa/favicon.ico', type: 'GENERAL' },
+    { key: 'lightLogoUrl', value: 'https://eeeqa.com/logo-light.png', type: 'GENERAL' },
+    { key: 'darkLogoUrl', value: 'https://eeeqa.com/logo-dark.png', type: 'GENERAL' },
+    { key: 'faviconUrl', value: 'https://eeeqa.com/favicon.ico', type: 'GENERAL' },
     { key: 'bookTicketsUrl', value: '/b2c/tickets', type: 'GENERAL' },
     { key: 'bookTicketsLabelEn', value: 'BOOK TICKETS', type: 'GENERAL' },
     { key: 'bookTicketsLabelAr', value: 'احجز التذاكر', type: 'GENERAL' },
@@ -198,7 +198,7 @@ describe('QF-25 — Public Settings Credential Redaction & Server-Only Integrati
       const rawPayload = {
         siteNameEn: 'E3 Custom Name',
         siteNameAr: 'إي ثري',
-        contactEmail: 'contact@e3.qa',
+        contactEmail: 'contact@eeeqa.com',
         bookingqubeWebsite: 'https://bookingqube.com',
         bookingQubeApiKey: SENTINEL_BOOKINGQUBE_KEY,
         mapsApiKey: SENTINEL_MAPS_KEY,
@@ -211,7 +211,7 @@ describe('QF-25 — Public Settings Credential Redaction & Server-Only Integrati
       // Safe fields present
       expect(publicDto.siteNameEn).toBe('E3 Custom Name');
       expect(publicDto.siteNameAr).toBe('إي ثري');
-      expect(publicDto.contactEmail).toBe('contact@e3.qa');
+      expect(publicDto.contactEmail).toBe('contact@eeeqa.com');
       expect(publicDto.bookingqubeWebsite).toBe('https://bookingqube.com');
 
       // Sensitive fields completely absent

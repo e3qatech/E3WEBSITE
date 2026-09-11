@@ -327,7 +327,7 @@ export function ApprovalsView({ initialRules, initialItems }: ApprovalsViewProps
                     <label className="block text-xs font-bold text-text-secondary mb-1.5 uppercase tracking-wider">Notification Dispatch Email</label>
                     <input
                       type="email"
-                      value={rules.notificationEmail || "approvals@e3.qa"}
+                      value={rules.notificationEmail || "approvals@eeeqa.com"}
                       onChange={(e) => setRules({ ...rules, notificationEmail: e.target.value })}
                       className="w-full bg-surface-hover border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:border-emerald-500 focus:outline-none font-mono"
                     />

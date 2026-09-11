@@ -894,7 +894,7 @@ export function EmployeeFormModal({
                       onChange={(e) =>
                         setFormData({ ...formData, contactEmail: e.target.value })
                       }
-                      placeholder="adil@e3.qa"
+                      placeholder="adil@eeeqa.com"
                     />
                   </div>
                 </div>

@@ -71,7 +71,7 @@ describe('QF-20 — Users/RBAC Manager vs CRM Users Ownership Regression Suite',
       vi.spyOn(db.user, 'findUnique').mockResolvedValue({
         id: 'super-1',
         name: 'Super Admin',
-        email: 'admin@e3.qa',
+        email: 'admin@eeeqa.com',
         role: 'SUPER_ADMIN',
         isActive: true,
         sessionVersion: 1,
@@ -81,7 +81,7 @@ describe('QF-20 — Users/RBAC Manager vs CRM Users Ownership Regression Suite',
         {
           id: 'u-1',
           name: 'Jane Doe',
-          email: 'jane@e3.qa',
+          email: 'jane@eeeqa.com',
           role: 'STAFF',
           isActive: true,
           sessionVersion: 1,
@@ -97,7 +97,7 @@ describe('QF-20 — Users/RBAC Manager vs CRM Users Ownership Regression Suite',
       expect(html).toContain('User &amp; Access Control (RBAC)')
       expect(html).toContain('RBAC Security')
       expect(html).toContain('Platform Accounts &amp; Role Assignments')
-      expect(html).toContain('jane@e3.qa')
+      expect(html).toContain('jane@eeeqa.com')
       expect(html).toContain('Change Your Password')
     })
 
@@ -109,7 +109,7 @@ describe('QF-20 — Users/RBAC Manager vs CRM Users Ownership Regression Suite',
       vi.spyOn(db.user, 'findUnique').mockResolvedValue({
         id: 'super-1',
         name: 'Super Admin',
-        email: 'admin@e3.qa',
+        email: 'admin@eeeqa.com',
         role: 'SUPER_ADMIN',
         isActive: true,
         sessionVersion: 1,
@@ -119,7 +119,7 @@ describe('QF-20 — Users/RBAC Manager vs CRM Users Ownership Regression Suite',
         {
           id: 'u-1',
           name: 'محمد علي',
-          email: 'mohamed@e3.qa',
+          email: 'mohamed@eeeqa.com',
           role: 'B2C_ADMIN',
           isActive: true,
           sessionVersion: 1,
@@ -135,7 +135,7 @@ describe('QF-20 — Users/RBAC Manager vs CRM Users Ownership Regression Suite',
       expect(html).toContain('إدارة المستخدمين وصلاحيات الأدوار (RBAC)')
       expect(html).toContain('أمان وصلاحيات')
       expect(html).toContain('حسابات المنصة وتعيين صلاحيات الأدوار')
-      expect(html).toContain('mohamed@e3.qa')
+      expect(html).toContain('mohamed@eeeqa.com')
     })
   })
 
@@ -242,7 +242,7 @@ describe('QF-20 — Users/RBAC Manager vs CRM Users Ownership Regression Suite',
         {
           id: 'u-1',
           name: 'Jane Doe',
-          email: 'jane@e3.qa',
+          email: 'jane@eeeqa.com',
           role: 'STAFF',
           isActive: true,
           sessionVersion: 1,
@@ -257,7 +257,7 @@ describe('QF-20 — Users/RBAC Manager vs CRM Users Ownership Regression Suite',
 
       expect(res.status).toBe(200)
       expect(Array.isArray(json)).toBe(true)
-      expect(json[0].email).toBe('jane@e3.qa')
+      expect(json[0].email).toBe('jane@eeeqa.com')
       expect(json[0].password).toBeUndefined()
       expect(json[0].passwordHash).toBeUndefined()
       expect(json[0].resetToken).toBeUndefined()
@@ -305,7 +305,7 @@ describe('QF-20 — Users/RBAC Manager vs CRM Users Ownership Regression Suite',
       vi.spyOn(db.user, 'create').mockResolvedValue({
         id: 'new-u-1',
         name: 'New Admin',
-        email: 'newadmin@e3.qa',
+        email: 'newadmin@eeeqa.com',
         role: 'B2B_ADMIN',
         isActive: true,
         sessionVersion: 1,
@@ -316,7 +316,7 @@ describe('QF-20 — Users/RBAC Manager vs CRM Users Ownership Regression Suite',
         method: 'POST',
         body: JSON.stringify({
           name: 'New Admin',
-          email: 'newadmin@e3.qa',
+          email: 'newadmin@eeeqa.com',
           password: 'SecurePassword123!',
           role: 'B2B_ADMIN',
         }),
@@ -326,7 +326,7 @@ describe('QF-20 — Users/RBAC Manager vs CRM Users Ownership Regression Suite',
       const json = await res.json()
 
       expect(res.status).toBe(201)
-      expect(json.email).toBe('newadmin@e3.qa')
+      expect(json.email).toBe('newadmin@eeeqa.com')
       expect(json.password).toBeUndefined()
       expect(json.passwordHash).toBeUndefined()
     })
@@ -353,7 +353,7 @@ describe('QF-20 — Users/RBAC Manager vs CRM Users Ownership Regression Suite',
       const userUpdateSpy = vi.spyOn(db.user, 'update').mockResolvedValue({
         id: 'target-u-1',
         name: 'Target User',
-        email: 'target@e3.qa',
+        email: 'target@eeeqa.com',
         role: 'STAFF',
         isActive: false,
         sessionVersion: 3,

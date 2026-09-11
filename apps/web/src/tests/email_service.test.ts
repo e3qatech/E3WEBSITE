@@ -23,8 +23,8 @@ vi.mock('@/lib/db', () => ({
   db: {
     setting: {
       findUnique: vi.fn().mockImplementation(({ where }: any) => {
-        if (where.key === 'supportEmail') return Promise.resolve({ value: 'custom-support@e3.qa' });
-        if (where.key === 'contactEmail') return Promise.resolve({ value: 'custom-contact@e3.qa' });
+        if (where.key === 'supportEmail') return Promise.resolve({ value: 'custom-support@eeeqa.com' });
+        if (where.key === 'contactEmail') return Promise.resolve({ value: 'custom-contact@eeeqa.com' });
         return Promise.resolve(null);
       }),
     },
@@ -102,10 +102,10 @@ describe('Email Notification Service Engine', () => {
   describe('2. Recipient Target Resolution', () => {
     it('should resolve custom database setting emails when present', async () => {
       const supportEmail = await getNotificationTargetEmail('SUPPORT');
-      expect(supportEmail).toBe('custom-support@e3.qa');
+      expect(supportEmail).toBe('custom-support@eeeqa.com');
 
       const contactEmail = await getNotificationTargetEmail('CONTACT');
-      expect(contactEmail).toBe('custom-contact@e3.qa');
+      expect(contactEmail).toBe('custom-contact@eeeqa.com');
     });
 
     it('should default to canonical info@eeeqa.com fallback if no db setting or env var exists', async () => {
@@ -188,17 +188,17 @@ describe('Email Notification Service Engine', () => {
     it('should render Password Reset and Newsletter Verification HTML templates', () => {
       const pwdHtml = renderPasswordResetEmail({
         name: 'Administrator',
-        resetUrl: 'https://e3.qa/auth/reset-password?token=secret123',
+        resetUrl: 'https://eeeqa.com/auth/reset-password?token=secret123',
       });
       expect(pwdHtml).toContain('Password Reset Request');
-      expect(pwdHtml).toContain('https://e3.qa/auth/reset-password?token=secret123');
+      expect(pwdHtml).toContain('https://eeeqa.com/auth/reset-password?token=secret123');
 
       const newsHtml = renderNewsletterVerificationEmail({
         email: 'subscriber@example.com',
-        verificationUrl: 'https://e3.qa/api/subscribe?token=news123',
+        verificationUrl: 'https://eeeqa.com/api/subscribe?token=news123',
       });
       expect(newsHtml).toContain('Confirm Your Newsletter Subscription');
-      expect(newsHtml).toContain('https://e3.qa/api/subscribe?token=news123');
+      expect(newsHtml).toContain('https://eeeqa.com/api/subscribe?token=news123');
     });
 
     it('should render Admin Feedback HTML template with star ratings', () => {
@@ -236,7 +236,7 @@ describe('Email Notification Service Engine', () => {
       delete process.env.RESEND_API_KEY;
 
       const res = await sendEmail({
-        to: 'admin@e3.qa',
+        to: 'admin@eeeqa.com',
         subject: 'Test Email Dispatch',
         html: '<p>Test content</p>',
         category: 'SUPPORT',
@@ -260,7 +260,7 @@ describe('Email Notification Service Engine', () => {
       delete process.env.RESEND_API_KEY;
 
       const res = await sendEmail({
-        to: 'admin@e3.qa',
+        to: 'admin@eeeqa.com',
         subject: 'Test Dev Email',
         html: '<p>Dev content</p>',
         category: 'SUPPORT',

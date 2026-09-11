@@ -91,7 +91,7 @@ function createSignedRequest(body: object, secret: string, modifySig?: (sig: str
     signature = modifySig(signature);
   }
 
-  return new NextRequest('https://e3.qa/api/webhooks/bookingqube', {
+  return new NextRequest('https://eeeqa.com/api/webhooks/bookingqube', {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
@@ -117,7 +117,7 @@ describe('BookingQube Webhook Audit Suite', () => {
     delete process.env.BOOKINGQUBE_WEBHOOK_SECRET;
     (process.env as any).NODE_ENV = 'production';
 
-    const req = new NextRequest('https://e3.qa/api/webhooks/bookingqube', {
+    const req = new NextRequest('https://eeeqa.com/api/webhooks/bookingqube', {
       method: 'POST',
       body: JSON.stringify({ id: 'evt_fail_closed' }),
     });
@@ -129,7 +129,7 @@ describe('BookingQube Webhook Audit Suite', () => {
   });
 
   it('rejects requests with missing signature (401)', async () => {
-    const req = new NextRequest('https://e3.qa/api/webhooks/bookingqube', {
+    const req = new NextRequest('https://eeeqa.com/api/webhooks/bookingqube', {
       method: 'POST',
       body: JSON.stringify({ id: 'evt_no_sig' }),
     });

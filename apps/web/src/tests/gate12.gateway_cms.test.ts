@@ -13,9 +13,9 @@ const ALLOWED_IFRAME_DOMAINS = [
   'spline.design',
   'prod.spline.design',
   'my.spline.design',
-  'booking.e3.qa',
-  'cdn.e3.qa',
-  'e3.qa',
+  'booking.eeeqa.com',
+  'cdn.eeeqa.com',
+  'eeeqa.com',
   'images.unsplash.com',
   'public.blob.vercel-storage.com',
 ];
@@ -78,7 +78,7 @@ describe('Gate 12: Gateway CMS, Localization & Media Architecture Verification',
   it('3. should validate iframe HTTPS protocol and domain allowlist rules', () => {
     expect(isDomainAllowed('https://prod.spline.design/scene-123')).toBe(true);
     expect(isDomainAllowed('https://www.youtube.com/embed/xyz')).toBe(true);
-    expect(isDomainAllowed('https://booking.e3.qa/tickets')).toBe(true);
+    expect(isDomainAllowed('https://booking.eeeqa.com/tickets')).toBe(true);
 
     // Rejections
     expect(isDomainAllowed('http://prod.spline.design/scene-123')).toBe(false); // No HTTP

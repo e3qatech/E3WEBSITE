@@ -72,7 +72,7 @@ describe("QF-03 — Social Media Manager Route & RBAC Access Verification", () =
           user: {
             id: `usr_${role.toLowerCase()}`,
             name: `Test ${role}`,
-            email: `${role.toLowerCase()}@e3.qa`,
+            email: `${role.toLowerCase()}@eeeqa.com`,
             role,
           },
         };
@@ -118,7 +118,7 @@ describe("QF-03 — Social Media Manager Route & RBAC Access Verification", () =
           user: {
             id: `usr_${role.toLowerCase()}`,
             name: `Test ${role}`,
-            email: `${role.toLowerCase()}@e3.qa`,
+            email: `${role.toLowerCase()}@eeeqa.com`,
             role,
           },
         };
@@ -139,7 +139,7 @@ describe("QF-03 — Social Media Manager Route & RBAC Access Verification", () =
           user: {
             id: `usr_${role.toLowerCase()}`,
             name: `Test ${role}`,
-            email: `${role.toLowerCase()}@e3.qa`,
+            email: `${role.toLowerCase()}@eeeqa.com`,
             role,
           },
         };

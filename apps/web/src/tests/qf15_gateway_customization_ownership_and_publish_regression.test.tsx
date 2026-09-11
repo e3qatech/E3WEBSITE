@@ -115,7 +115,7 @@ describe('QF-15 — Gateway Customization Ownership & Publish Regression Suite',
             ...DEFAULT_GATEWAY_CMS_PAYLOAD.english,
             headlineEn: 'LIVE PUBLISHED GATEWAY',
           },
-          updatedBy: 'admin@e3.qa',
+          updatedBy: 'admin@eeeqa.com',
         },
         type: 'UI',
         createdAt: new Date(),
@@ -142,7 +142,7 @@ describe('QF-15 — Gateway Customization Ownership & Publish Regression Suite',
   describe('3. Save Draft, Publish & Isolation', () => {
     it('Save Draft writes only to gateway_customization_draft without mutating published record', async () => {
       (auth as any).mockResolvedValue({
-        user: { email: 'admin@e3.qa', role: 'SUPER_ADMIN' },
+        user: { email: 'admin@eeeqa.com', role: 'SUPER_ADMIN' },
       });
 
       const upsertSpy = vi.spyOn(db.setting, 'upsert').mockResolvedValue({} as any);
@@ -178,7 +178,7 @@ describe('QF-15 — Gateway Customization Ownership & Publish Regression Suite',
 
     it('Publish writes to gateway_customization_published and creates immutable version snapshot', async () => {
       (auth as any).mockResolvedValue({
-        user: { email: 'superadmin@e3.qa', role: 'SUPER_ADMIN' },
+        user: { email: 'superadmin@eeeqa.com', role: 'SUPER_ADMIN' },
       });
 
       vi.spyOn(db.setting, 'findUnique').mockResolvedValue({
@@ -238,7 +238,7 @@ describe('QF-15 — Gateway Customization Ownership & Publish Regression Suite',
   describe('4. Version History & Rollback Integrity', () => {
     it('Rollback restores snapshot data and monotonically increments release version', async () => {
       (auth as any).mockResolvedValue({
-        user: { email: 'superadmin@e3.qa', role: 'SUPER_ADMIN' },
+        user: { email: 'superadmin@eeeqa.com', role: 'SUPER_ADMIN' },
       });
 
       const mockSnapshot: GatewayCustomizationPayload = {
@@ -253,7 +253,7 @@ describe('QF-15 — Gateway Customization Ownership & Publish Regression Suite',
         {
           version: 1,
           publishedAt: '2026-08-01T10:00:00Z',
-          publishedBy: 'admin@e3.qa',
+          publishedBy: 'admin@eeeqa.com',
           releaseNotes: 'Initial release',
           snapshot: mockSnapshot,
         },
@@ -318,7 +318,7 @@ describe('QF-15 — Gateway Customization Ownership & Publish Regression Suite',
 
     it('Publish action requires SUPER_ADMIN role and rejects lower admin roles', async () => {
       (auth as any).mockResolvedValue({
-        user: { email: 'sales@e3.qa', role: 'SALES_ADMIN' },
+        user: { email: 'sales@eeeqa.com', role: 'SALES_ADMIN' },
       });
 
       const req = new NextRequest('http://localhost:3000/api/settings/gateway', {

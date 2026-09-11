@@ -118,7 +118,7 @@ describe("QF-06 — Candidate Returning-User Login & Own Application Status", ()
 
   describe("10. Protected CV Document Access", () => {
     it("validates that candidates only download their own verified CV path", () => {
-      const candidateUser = { id: "usr_100", email: "candidate@e3.qa", role: "CANDIDATE" };
+      const candidateUser = { id: "usr_100", email: "candidate@eeeqa.com", role: "CANDIDATE" };
       const candidateApp = { id: "app_1", userId: "usr_100", cvUrl: "https://blob.vercel/resumes/usr_100_cv.pdf" };
       const targetBlob = "resumes/usr_100_cv.pdf";
 
@@ -133,8 +133,8 @@ describe("QF-06 — Candidate Returning-User Login & Own Application Status", ()
 
   describe("11. Existing-Account Conflict Handling", () => {
     it("identifies account conflict and formats safe response without credential leakage", () => {
-      const existingUser = { id: "usr_existing", email: "applied@e3.qa", role: "CANDIDATE" };
-      const incomingSubmission = { email: "applied@e3.qa", firstName: "Test", lastName: "User" };
+      const existingUser = { id: "usr_existing", email: "applied@eeeqa.com", role: "CANDIDATE" };
+      const incomingSubmission = { email: "applied@eeeqa.com", firstName: "Test", lastName: "User" };
 
       const isConflict = existingUser.email === incomingSubmission.email;
       expect(isConflict).toBe(true);

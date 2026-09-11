@@ -42,8 +42,8 @@ describe('Gate 09: B2C Experience & Ticketing Operations', () => {
 
   it('4. should format BookingQube ticketing redirection URL correctly', () => {
     const getBookingUrl = (baseUrl: string, attractionId: string) => `${baseUrl}/book?attraction=${attractionId}`;
-    const url = getBookingUrl('https://booking.e3.qa', 'attr-123');
-    expect(url).toBe('https://booking.e3.qa/book?attraction=attr-123');
+    const url = getBookingUrl('https://booking.eeeqa.com', 'attr-123');
+    expect(url).toBe('https://booking.eeeqa.com/book?attraction=attr-123');
   });
 
   it('5. should query B2C calendar events filtered by status and date range', async () => {
@@ -132,7 +132,7 @@ describe('Gate 09: B2C Experience & Ticketing Operations', () => {
       '@type': 'LocalBusiness',
       name,
       description: desc,
-      image: image || 'https://e3.qa/default.jpg',
+      image: image || 'https://eeeqa.com/default.jpg',
       address: {
         '@type': 'PostalAddress',
         addressCountry: 'QA',

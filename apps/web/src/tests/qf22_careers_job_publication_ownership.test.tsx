@@ -419,7 +419,7 @@ describe('QF-22 & QF-22-B — Careers Job Publication, HR RBAC & Application Lin
 
       // 200 HR_ADMIN
       mockSession = { user: { id: 'hr-1', role: 'HR_ADMIN' } };
-      (db.jobApplication.findUnique as any).mockResolvedValue({ id: 'app-1', cvUrl: 'https://cdn.e3.qa/cv.pdf' });
+      (db.jobApplication.findUnique as any).mockResolvedValue({ id: 'app-1', cvUrl: 'https://cdn.eeeqa.com/cv.pdf' });
       (db.jobApplication.update as any).mockResolvedValue({ id: 'app-1', status: 'REVIEWING' });
       const hrParse = new Request('http://localhost/api/careers/app-1/parse', { method: 'POST' });
       expect((await ParseCVPOST(hrParse as any, { params: Promise.resolve({ id: 'app-1' }) })).status).toBe(200);
@@ -466,7 +466,7 @@ describe('QF-22 & QF-22-B — Careers Job Publication, HR RBAC & Application Lin
           password: 'Password123!',
           jobId: 'target-job-1',
           jobTitle: 'Lead Audio Engineer',
-          cvUrl: 'https://cdn.e3.qa/cv.pdf',
+          cvUrl: 'https://cdn.eeeqa.com/cv.pdf',
         }),
       });
 
@@ -537,7 +537,7 @@ describe('QF-22 & QF-22-B — Careers Job Publication, HR RBAC & Application Lin
           email: 'open@example.com',
           password: 'Password123!',
           jobTitle: 'General Open Application',
-          cvUrl: 'https://cdn.e3.qa/mariam_cv.pdf',
+          cvUrl: 'https://cdn.eeeqa.com/mariam_cv.pdf',
         }),
       });
 

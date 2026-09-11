@@ -63,9 +63,9 @@ const MOCK_CASE_STUDY = {
   isFeatured: true,
   isPublished: true,
   heroMediaType: "VIDEO",
-  heroImageUrl: "https://e3.qa/media/lusail-hero.mp4",
-  thumbnailUrl: "https://e3.qa/media/lusail-thumb.jpg",
-  clientLogoUrl: "https://e3.qa/media/lusail-logo.png",
+  heroImageUrl: "https://eeeqa.com/media/lusail-hero.mp4",
+  thumbnailUrl: "https://eeeqa.com/media/lusail-thumb.jpg",
+  clientLogoUrl: "https://eeeqa.com/media/lusail-logo.png",
   challengeEn: "Synchronizing 400 kinetic winches across a 2,000 sqm open-air pedestrian plaza under extreme desert thermal conditions.",
   challengeAr: "تزامن 400 رافعة حركية عبر ساحة مشاة مفتوحة بمساحة 2000 متر مربع تحت ظروف مناخية صحراوية قاسية.",
   solutionEn: "Engineered proprietary thermal cooling enclosures and high-speed fiber-optic Art-Net control topology.",
@@ -78,8 +78,8 @@ const MOCK_CASE_STUDY = {
     { valueEn: "100%", valueAr: "100%", labelEn: "Operational Uptime", labelAr: "جاهزية تشغيلية" },
   ],
   gallery: [
-    { url: "https://e3.qa/media/lusail-gal-1.jpg", captionEn: "Canopy overhead array at dusk", captionAr: "المصفوفة الضوئية العلوية وقت الغسق" },
-    { url: "https://e3.qa/media/lusail-gal-2.jpg", captionEn: "Central control rig console", captionAr: "منظومة التحكم المركزية" },
+    { url: "https://eeeqa.com/media/lusail-gal-1.jpg", captionEn: "Canopy overhead array at dusk", captionAr: "المصفوفة الضوئية العلوية وقت الغسق" },
+    { url: "https://eeeqa.com/media/lusail-gal-2.jpg", captionEn: "Central control rig console", captionAr: "منظومة التحكم المركزية" },
   ],
   testimonials: [
     {
@@ -105,7 +105,7 @@ const MOCK_CASE_STUDY = {
     taglineAr: "الوجهة الترفيهية الحركية الرائدة في دولة قطر",
     locationEn: "Lusail, Qatar",
     locationAr: "لوسيل، قطر",
-    heroImageUrl: "https://e3.qa/media/lusail-attr.jpg",
+    heroImageUrl: "https://eeeqa.com/media/lusail-attr.jpg",
   },
   teamMembers: [
     {
@@ -119,7 +119,7 @@ const MOCK_CASE_STUDY = {
         lastName: "Al-Mansoor",
         designation: "VP of Engineering",
         designationAr: "نائب الرئيس للشؤون الهندسية",
-        avatarUrl: "https://e3.qa/media/team/tariq.jpg",
+        avatarUrl: "https://eeeqa.com/media/team/tariq.jpg",
       },
     },
   ],
@@ -176,13 +176,13 @@ describe("UX-05A — Build the Cinematic Case-Study Microsite System Suite", () 
           <CinematicCaseHero
             locale="en"
             title="Minimal Case Title"
-            thumbnailUrl="https://e3.qa/media/thumb.jpg"
+            thumbnailUrl="https://eeeqa.com/media/thumb.jpg"
           />
         </LocaleProvider>
       );
 
       expect(html).toContain("Minimal Case Title");
-      expect(html).toContain("https://e3.qa/media/thumb.jpg");
+      expect(html).toContain("https://eeeqa.com/media/thumb.jpg");
     });
   });
 
@@ -469,7 +469,7 @@ describe("UX-05A — Build the Cinematic Case-Study Microsite System Suite", () 
               slug: "doha-balloon-parade-2022",
               titleEn: "Doha Balloon Festival Parade",
               category: "Live Entertainment",
-              thumbnailUrl: "https://e3.qa/media/balloon-thumb.jpg",
+              thumbnailUrl: "https://eeeqa.com/media/balloon-thumb.jpg",
             }}
           />
         </LocaleProvider>
@@ -507,8 +507,8 @@ describe("UX-05A — Build the Cinematic Case-Study Microsite System Suite", () 
       });
 
       expect(meta.title).toBe("Lusail Kinetic Canopy Case Study — E3 Case Study");
-      expect(meta.alternates?.canonical).toBe("https://e3.qa/en/b2b/case-studies/lusail-kinetic-lights-2024");
-      expect(meta.openGraph?.images).toEqual([{ url: "https://e3.qa/media/lusail-hero.mp4" }]);
+      expect(meta.alternates?.canonical).toBe("https://eeeqa.com/en/b2b/case-studies/lusail-kinetic-lights-2024");
+      expect(meta.openGraph?.images).toEqual([{ url: "https://eeeqa.com/media/lusail-hero.mp4" }]);
     });
 
     it("handles legacy doha-balloon-parade slug via redirect in generateMetadata", async () => {

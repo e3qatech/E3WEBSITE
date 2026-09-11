@@ -265,7 +265,7 @@ describe('SocialSyncLock — Real Integration Scenarios', () => {
       originalUrl: 'https://instagram.com/p/999',
       authorName: 'E3 Qatar',
       authorUsername: 'e3qatar',
-      mediaUrl: 'https://cdn.e3.qa/post999.jpg',
+      mediaUrl: 'https://cdn.eeeqa.com/post999.jpg',
       publishedAt: new Date(),
     };
 

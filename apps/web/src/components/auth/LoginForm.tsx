@@ -148,7 +148,7 @@ export function LoginForm({ config, locale }: LoginFormProps) {
             value={email}
             onChange={(e) => handleEmailChange(e.target.value)}
             disabled={isLoading}
-            placeholder="name@e3.qa"
+            placeholder="name@eeeqa.com"
             className="w-full bg-zinc-950 border border-white/15 rounded-xl ps-10 pe-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition-all font-sans"
           />
         </div>
@@ -273,11 +273,11 @@ export function LoginForm({ config, locale }: LoginFormProps) {
 
                 <button
                   type="button"
-                  onClick={() => applyQuickLogin('admin@e3.qa', 'super')}
+                  onClick={() => applyQuickLogin('admin@eeeqa.com', 'super')}
                   className="p-2 rounded-lg bg-zinc-900 border border-white/10 hover:border-emerald-500 hover:bg-zinc-800 text-start transition-all"
                 >
                   <div className="font-bold text-zinc-300 text-[11px]">Corporate Admin</div>
-                  <div className="text-[10px] text-zinc-400 truncate">admin@e3.qa</div>
+                  <div className="text-[10px] text-zinc-400 truncate">admin@eeeqa.com</div>
                 </button>
               </div>
               <div className="flex items-center justify-between text-[10px] text-zinc-500 pt-1">

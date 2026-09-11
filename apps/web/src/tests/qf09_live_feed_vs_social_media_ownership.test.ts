@@ -100,11 +100,11 @@ describe('QF-09: Live Feed vs Social Media Manager Architectural Ownership', () 
     const updatedLiveFeed = {
       ...landingContent.liveFeed,
       isLiveNow: false,
-      streamUrl: 'https://cdn.e3.qa/stream/stage-a.m3u8',
+      streamUrl: 'https://cdn.eeeqa.com/stream/stage-a.m3u8',
     };
     const updatedContent = { ...landingContent, liveFeed: updatedLiveFeed };
     expect(updatedContent.liveFeed.isLiveNow).toBe(false);
-    expect(updatedContent.liveFeed.streamUrl).toBe('https://cdn.e3.qa/stream/stage-a.m3u8');
+    expect(updatedContent.liveFeed.streamUrl).toBe('https://cdn.eeeqa.com/stream/stage-a.m3u8');
   });
 
   // 2. Legacy Social API reads canonical published social posts
@@ -116,12 +116,12 @@ describe('QF-09: Live Feed vs Social Media Manager Architectural Ownership', () 
         originalUrl: 'https://instagram.com/p/C_abc123',
         authorName: 'E3 Qatar',
         authorUsername: 'e3qatar',
-        authorAvatarUrl: 'https://cdn.e3.qa/avatar.jpg',
+        authorAvatarUrl: 'https://cdn.eeeqa.com/avatar.jpg',
         captionEn: 'Grand opening highlights',
         captionAr: 'أبرز لقطات الافتتاح الكبير',
         mediaType: 'VIDEO',
-        mediaUrl: 'https://cdn.e3.qa/video.mp4',
-        thumbnailUrl: 'https://cdn.e3.qa/thumb.jpg',
+        mediaUrl: 'https://cdn.eeeqa.com/video.mp4',
+        thumbnailUrl: 'https://cdn.eeeqa.com/thumb.jpg',
         publishedAt: new Date('2026-08-01T12:00:00Z'),
         moderationStatus: 'APPROVED',
         status: 'PUBLISHED',
@@ -137,7 +137,7 @@ describe('QF-09: Live Feed vs Social Media Manager Architectural Ownership', () 
         username: 'e3qatar',
         displayName: 'E3 Qatar Official',
         profileUrl: 'https://instagram.com/e3qatar',
-        profileImageUrl: 'https://cdn.e3.qa/inst-profile.jpg',
+        profileImageUrl: 'https://cdn.eeeqa.com/inst-profile.jpg',
       },
     ]);
 
@@ -232,8 +232,8 @@ describe('QF-09: Live Feed vs Social Media Manager Architectural Ownership', () 
         captionEn: 'Live show in Doha',
         captionAr: 'عرض حي في الدوحة',
         mediaType: 'IMAGE',
-        mediaUrl: 'https://cdn.e3.qa/live-show.jpg',
-        thumbnailUrl: 'https://cdn.e3.qa/live-show.jpg',
+        mediaUrl: 'https://cdn.eeeqa.com/live-show.jpg',
+        thumbnailUrl: 'https://cdn.eeeqa.com/live-show.jpg',
         publishedAt: new Date('2026-08-10T15:00:00Z'),
         likeCount: 450,
         status: 'PUBLISHED',

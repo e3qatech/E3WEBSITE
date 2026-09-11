@@ -1106,7 +1106,7 @@ export const DEFAULT_B2C_DISCOVER_CONTENT = {
     approvedBadgeMediaId: "",
     brandingUsageApproved: false,
     sourceLabel: "E3 Official Statement & Verification",
-    sourceUrl: "https://e3.qa/b2c/discover",
+    sourceUrl: "https://eeeqa.com/b2c/discover",
     verificationStatus: "VERIFIED",
     verifiedBy: "Guinness World Records Ltd",
     verifiedAt: "2023-03-15",
@@ -1253,7 +1253,7 @@ export const DEFAULT_B2C_DISCOVER_CONTENT = {
     summaryAr: "منظومة إي ثري لتأجير وتجهيز أحدث معدات الصوت والضوء والمسارح والأصول الترفيهية في قطر.",
     fullDescriptionEn: "Engineered for Qatar's high-stakes landmark activations, E3 Rentals delivers verified structural rigging, synchronized power grids, concert-grade acoustic line arrays, and rapid mobilization fleets.",
     fullDescriptionAr: "صُممت المنظومة خصيصاً للفعاليات الوطنية الكبرى لتقديم أعلى معايير الأمان الإنشائي وتجهيز المسارح والصوتيات والإضاءة بكفاءة عالية.",
-    websiteUrl: "https://e3.qa",
+    websiteUrl: "https://eeeqa.com",
     logoUrl: "",
     featureItems: [
       {
@@ -1723,8 +1723,8 @@ export const DEFAULT_B2B_SERVICES_CONTENT = {
     ogTitleAr: "خدمات تنظيم الفعاليات والمعارض في قطر | تجهيز المسارح والصوتيات",
     ogDescriptionEn: "Turnkey event production, exhibition stand fabrication, kinetic AV staging, spatial design, and landmark attraction operations in Doha, Qatar.",
     ogDescriptionAr: "خدمات إنتاج وتجهيز الفعاليات الكبرى والمعارض في قطر. تجهيز المنصات والمسارح، الصوت والإضاءة، والتصميم والتنفيذ المتكامل بالدوحة.",
-    ogImage: "https://e3.qa/og-image-default.jpg",
-    canonicalUrl: "https://e3.qa/en/b2b/services"
+    ogImage: "https://eeeqa.com/og-image-default.jpg",
+    canonicalUrl: "https://eeeqa.com/en/b2b/services"
   }
 };
 
@@ -1917,7 +1917,7 @@ export const DEFAULT_B2B_CASES_CONTENT = {
     ogDescriptionEn: "Explore our portfolio of mega events, immersive installations, and landmark entertainment destinations delivered across Qatar.",
     ogDescriptionAr: "استكشف قائمة الفعاليات الكبرى والوجهات الترفيهية والتجارب الغامرة المنفذة في قطر.",
     ogImage: "",
-    canonicalUrl: "https://e3.qa/b2b/cases"
+    canonicalUrl: "https://eeeqa.com/b2b/cases"
   }
 };
 

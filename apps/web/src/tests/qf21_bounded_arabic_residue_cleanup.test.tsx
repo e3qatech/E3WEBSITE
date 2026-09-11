@@ -25,7 +25,7 @@ vi.mock('next/navigation', () => ({
 }))
 
 vi.mock('@/lib/upload', () => ({
-  uploadFile: vi.fn().mockResolvedValue({ url: 'https://cdn.e3.qa/media/test.png', fileName: 'test.png' }),
+  uploadFile: vi.fn().mockResolvedValue({ url: 'https://cdn.eeeqa.com/media/test.png', fileName: 'test.png' }),
 }))
 
 describe('QF-21 — Bounded Arabic Residue Cleanup Regression Suite', () => {
@@ -65,7 +65,7 @@ describe('QF-21 — Bounded Arabic Residue Cleanup Regression Suite', () => {
       const htmlAr = renderToStaticMarkup(
         <LocaleProvider defaultLocale="ar">
           <AdminMediaPicker
-            value="https://cdn.e3.qa/banner.jpg"
+            value="https://cdn.eeeqa.com/banner.jpg"
             onChange={() => {}}
             accept="image/*"
           />
@@ -86,7 +86,7 @@ describe('QF-21 — Bounded Arabic Residue Cleanup Regression Suite', () => {
       const htmlEn = renderToStaticMarkup(
         <LocaleProvider defaultLocale="en">
           <AdminMediaPicker
-            value="https://cdn.e3.qa/banner.jpg"
+            value="https://cdn.eeeqa.com/banner.jpg"
             onChange={() => {}}
             accept="image/*"
           />

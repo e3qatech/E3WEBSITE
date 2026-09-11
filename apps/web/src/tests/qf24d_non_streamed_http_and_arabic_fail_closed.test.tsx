@@ -300,45 +300,45 @@ describe('QF-24-D — Non-Streamed HTTP Canonicalization & Arabic Fail-Closed Pr
     const ARSLAN_CUID = 'cmsbu61zz0000q5psvlhv7y0g';
 
     it('EN B2B legacy CUID returns real permanent redirect (HTTP 308) with Location to canonical EN B2B slug', () => {
-      const req = createMockNextRequest(`https://e3.qa/en/b2b/team/${ARSLAN_CUID}`);
+      const req = createMockNextRequest(`https://eeeqa.com/en/b2b/team/${ARSLAN_CUID}`);
       const res = proxy(req);
 
       expect(res.status).toBe(308);
-      expect(res.headers.get('location')).toBe('https://e3.qa/en/b2b/team/arslan-arshad');
+      expect(res.headers.get('location')).toBe('https://eeeqa.com/en/b2b/team/arslan-arshad');
     });
 
     it('AR B2B legacy CUID returns real permanent redirect (HTTP 308) with Location to canonical AR B2B slug', () => {
-      const req = createMockNextRequest(`https://e3.qa/ar/b2b/team/${ARSLAN_CUID}`);
+      const req = createMockNextRequest(`https://eeeqa.com/ar/b2b/team/${ARSLAN_CUID}`);
       const res = proxy(req);
 
       expect(res.status).toBe(308);
-      expect(res.headers.get('location')).toBe('https://e3.qa/ar/b2b/team/arslan-arshad');
+      expect(res.headers.get('location')).toBe('https://eeeqa.com/ar/b2b/team/arslan-arshad');
     });
 
     it('EN B2C legacy CUID returns real permanent redirect (HTTP 308) with Location to canonical EN B2C slug', () => {
-      const req = createMockNextRequest(`https://e3.qa/en/b2c/team/${ARSLAN_CUID}`);
+      const req = createMockNextRequest(`https://eeeqa.com/en/b2c/team/${ARSLAN_CUID}`);
       const res = proxy(req);
 
       expect(res.status).toBe(308);
-      expect(res.headers.get('location')).toBe('https://e3.qa/en/b2c/team/arslan-arshad');
+      expect(res.headers.get('location')).toBe('https://eeeqa.com/en/b2c/team/arslan-arshad');
     });
 
     it('AR B2C legacy CUID returns real permanent redirect (HTTP 308) with Location to canonical AR B2C slug', () => {
-      const req = createMockNextRequest(`https://e3.qa/ar/b2c/team/${ARSLAN_CUID}`);
+      const req = createMockNextRequest(`https://eeeqa.com/ar/b2c/team/${ARSLAN_CUID}`);
       const res = proxy(req);
 
       expect(res.status).toBe(308);
-      expect(res.headers.get('location')).toBe('https://e3.qa/ar/b2c/team/arslan-arshad');
+      expect(res.headers.get('location')).toBe('https://eeeqa.com/ar/b2c/team/arslan-arshad');
     });
 
     it('Unknown, inactive, or malformed identifiers return actual HTTP 404 across EN/AR B2B/B2C', () => {
       const unknownRoutes = [
-        'https://e3.qa/en/b2b/team/unknown-slug-xyz',
-        'https://e3.qa/ar/b2b/team/unknown-slug-xyz',
-        'https://e3.qa/en/b2c/team/unknown-slug-xyz',
-        'https://e3.qa/ar/b2c/team/unknown-slug-xyz',
-        'https://e3.qa/en/b2b/team/draft-intern-999',
-        'https://e3.qa/ar/b2c/team/malformed!slug',
+        'https://eeeqa.com/en/b2b/team/unknown-slug-xyz',
+        'https://eeeqa.com/ar/b2b/team/unknown-slug-xyz',
+        'https://eeeqa.com/en/b2c/team/unknown-slug-xyz',
+        'https://eeeqa.com/ar/b2c/team/unknown-slug-xyz',
+        'https://eeeqa.com/en/b2b/team/draft-intern-999',
+        'https://eeeqa.com/ar/b2c/team/malformed!slug',
       ];
 
       for (const url of unknownRoutes) {
@@ -350,10 +350,10 @@ describe('QF-24-D — Non-Streamed HTTP Canonicalization & Arabic Fail-Closed Pr
 
     it('Canonical eligible slugs pass through for server rendering (HTTP 200)', () => {
       const canonicalRoutes = [
-        'https://e3.qa/en/b2b/team/arslan-arshad',
-        'https://e3.qa/ar/b2b/team/arslan-arshad',
-        'https://e3.qa/en/b2c/team/sarah-haddad',
-        'https://e3.qa/ar/b2c/team/sarah-haddad',
+        'https://eeeqa.com/en/b2b/team/arslan-arshad',
+        'https://eeeqa.com/ar/b2b/team/arslan-arshad',
+        'https://eeeqa.com/en/b2c/team/sarah-haddad',
+        'https://eeeqa.com/ar/b2c/team/sarah-haddad',
       ];
 
       for (const url of canonicalRoutes) {

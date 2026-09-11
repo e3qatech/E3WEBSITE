@@ -60,8 +60,8 @@ describe("QF-25 — B2C Landing Section Sequence, Visibility, and Media Uploads"
       const payload = {
         heroMedia: {
           mediaType: "VIDEO",
-          mediaUrl: "https://e3.qa/videos/b2c-hero-4k.mp4",
-          posterUrl: "https://e3.qa/images/b2c-hero-poster.webp",
+          mediaUrl: "https://eeeqa.com/videos/b2c-hero-4k.mp4",
+          posterUrl: "https://eeeqa.com/images/b2c-hero-poster.webp",
           badgeEn: "E3 QATAR FESTIVALS 2026",
           badgeAr: "مهرجانات إي ثري قطر ٢٠٢٦",
         },
@@ -70,8 +70,8 @@ describe("QF-25 — B2C Landing Section Sequence, Visibility, and Media Uploads"
       const merged = getMergedCMSPageContent("b2c-landing", payload);
 
       expect(merged.heroMedia.mediaType).toBe("VIDEO");
-      expect(merged.heroMedia.mediaUrl).toBe("https://e3.qa/videos/b2c-hero-4k.mp4");
-      expect(merged.heroMedia.posterUrl).toBe("https://e3.qa/images/b2c-hero-poster.webp");
+      expect(merged.heroMedia.mediaUrl).toBe("https://eeeqa.com/videos/b2c-hero-4k.mp4");
+      expect(merged.heroMedia.posterUrl).toBe("https://eeeqa.com/images/b2c-hero-poster.webp");
       expect(merged.heroMedia.badgeEn).toBe("E3 QATAR FESTIVALS 2026");
       expect(merged.heroMedia.badgeAr).toBe("مهرجانات إي ثري قطر ٢٠٢٦");
     });
@@ -86,14 +86,14 @@ describe("QF-25 — B2C Landing Section Sequence, Visibility, and Media Uploads"
           buttonLabelEn: "GET YOUR VIP PASS",
           buttonLabelAr: "احصل على تذكرتك الخاصة",
           buttonUrl: "/en/b2c/tickets",
-          backgroundImage: "https://e3.qa/images/b2c-footer-banner.webp",
+          backgroundImage: "https://eeeqa.com/images/b2c-footer-banner.webp",
         },
       };
 
       const merged = getMergedCMSPageContent("b2c-landing", payload);
 
       expect(merged.cta.titleEn).toBe("Step into the stories of Qatar");
-      expect(merged.cta.backgroundImage).toBe("https://e3.qa/images/b2c-footer-banner.webp");
+      expect(merged.cta.backgroundImage).toBe("https://eeeqa.com/images/b2c-footer-banner.webp");
     });
   });
 });

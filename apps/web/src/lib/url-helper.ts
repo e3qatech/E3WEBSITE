@@ -47,9 +47,9 @@ const SCHEMELESS_EXTERNAL_DOMAINS = [
   'spline.design',
   'my.spline.design',
   'prod.spline.design',
-  'e3.qa',
-  'booking.e3.qa',
-  'cdn.e3.qa',
+  'eeeqa.com',
+  'booking.eeeqa.com',
+  'cdn.eeeqa.com',
 ];
 
 /**

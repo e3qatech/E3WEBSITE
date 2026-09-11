@@ -249,7 +249,7 @@ describe("UX-04A — Connect and Redesign the E3 Careers Experience Suite", () =
         <LocaleProvider defaultLocale="en">
           <CandidatePortalBanner
             locale="en"
-            user={{ name: "Tariq Al-Mansoor", email: "tariq@e3.qa", role: "CANDIDATE" }}
+            user={{ name: "Tariq Al-Mansoor", email: "tariq@eeeqa.com", role: "CANDIDATE" }}
           />
         </LocaleProvider>
       );

@@ -380,7 +380,7 @@ export function B2BContactEditor({ initialData }: { initialData: any }) {
                   type="email"
                   value={data.inquiries.press}
                   onChange={(e) => handleChange("inquiries", "press", e.target.value)}
-                  placeholder="press@e3.qa"
+                  placeholder="press@eeeqa.com"
                   className="w-full h-10 px-3.5 bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-emerald-500"
                 />
               </div>

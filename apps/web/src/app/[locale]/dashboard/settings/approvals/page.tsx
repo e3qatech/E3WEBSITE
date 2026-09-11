@@ -45,7 +45,7 @@ export default async function ApprovalsPage() {
       autoApproveStaffUnderQar: 500,
       approverRoles: ["SUPER_ADMIN", "SALES_ADMIN"],
       notifyOnSubmission: true,
-      notificationEmail: "approvals@e3.qa"
+      notificationEmail: "approvals@eeeqa.com"
     };
   }
 

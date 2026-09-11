@@ -25,7 +25,7 @@ describe("B2B Contact CMS & Hardcoded Content Audit Suite", () => {
         titleEn: "Custom RFP Portal 2026",
       },
       inquiries: {
-        business: "rfp-vip@e3.qa",
+        business: "rfp-vip@eeeqa.com",
         whatsapp: "+974 5555 1234",
       },
       formConfig: {
@@ -42,7 +42,7 @@ describe("B2B Contact CMS & Hardcoded Content Audit Suite", () => {
 
     // Overridden fields
     expect(merged.header.titleEn).toBe("Custom RFP Portal 2026");
-    expect(merged.inquiries.business).toBe("rfp-vip@e3.qa");
+    expect(merged.inquiries.business).toBe("rfp-vip@eeeqa.com");
     expect(merged.inquiries.whatsapp).toBe("+974 5555 1234");
     expect(merged.formConfig.inquiryTypes).toHaveLength(1);
     expect(merged.formConfig.inquiryTypes[0].value).toBe("Turnkey Arena");
@@ -64,7 +64,7 @@ describe("B2B Contact CMS & Hardcoded Content Audit Suite", () => {
         eyebrowEn: "ENTERPRISE RFP GATEWAY",
       },
       inquiries: {
-        business: "corporate@e3.qa",
+        business: "corporate@eeeqa.com",
         phone: "+974 4400 9999",
       },
       formConfig: {
@@ -97,7 +97,7 @@ describe("B2B Contact CMS & Hardcoded Content Audit Suite", () => {
     expect(html).toContain("ENTERPRISE RFP GATEWAY");
 
     // Inquiries
-    expect(html).toContain("corporate@e3.qa");
+    expect(html).toContain("corporate@eeeqa.com");
     expect(html).toContain("+974 4400 9999");
 
     // Form options & custom button label

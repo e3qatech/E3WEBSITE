@@ -100,7 +100,7 @@ describe("UI-02-C Arabic Dashboard Localization & Controls", () => {
     });
 
     it("leaves external preview links untouched", () => {
-      expect(localizeHref("https://booking.e3.qa", "ar")).toBe("https://booking.e3.qa");
+      expect(localizeHref("https://booking.eeeqa.com", "ar")).toBe("https://booking.eeeqa.com");
       expect(localizeHref("https://instagram.com/e3qatar", "ar")).toBe("https://instagram.com/e3qatar");
     });
   });

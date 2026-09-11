@@ -591,7 +591,7 @@ describe('QF-24 & QF-24-B — Complete 22-Person Roster, Arabic Parity & HTTP Ca
       expect(enTeamUrls.length).toBe(22);
       expect(arTeamUrls.length).toBe(22);
 
-      // Zero bare URLs (e.g. no https://e3.qa/b2b/team/slug without locale)
+      // Zero bare URLs (e.g. no https://eeeqa.com/b2b/team/slug without locale)
       const bareTeamUrls = teamUrls.filter((e) => !e.url.includes('/en/') && !e.url.includes('/ar/'));
       expect(bareTeamUrls.length).toBe(0);
 

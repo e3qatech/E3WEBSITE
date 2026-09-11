@@ -35,7 +35,7 @@ export function AttractionTicketCard({ attraction, locale }: AttractionTicketCar
   const [isExpanded, setIsExpanded] = useState(false)
 
   
-  const bookingBaseUrl = process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.e3.qa'
+  const bookingBaseUrl = process.env.NEXT_PUBLIC_BOOKING_QUBE_URL || 'https://booking.eeeqa.com'
   const displayName = attraction.name[locale] || attraction.name.en
   const displayTagline = attraction.tagline?.[locale] || attraction.tagline?.en
   

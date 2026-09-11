@@ -21,7 +21,7 @@ export async function requireCurrentUser() {
       return {
         id: 'dev-admin-user',
         name: 'Dev Super Admin',
-        email: 'admin@e3.qa',
+        email: 'admin@eeeqa.com',
         role: 'SUPER_ADMIN' as RoleType,
         rawRole: 'SUPER_ADMIN',
         sessionVersion: 1,
@@ -45,7 +45,7 @@ export async function requireCurrentUser() {
       return {
         id: session.user.id,
         name: session.user.name || 'Super Admin',
-        email: session.user.email || 'admin@e3.qa',
+        email: session.user.email || 'admin@eeeqa.com',
         role: 'SUPER_ADMIN' as RoleType,
         rawRole: 'SUPER_ADMIN',
         sessionVersion: 1,

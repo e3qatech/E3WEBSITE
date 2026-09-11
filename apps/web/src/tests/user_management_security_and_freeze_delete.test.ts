@@ -224,7 +224,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       {
         id: 'user-super-1',
         name: 'Master Admin',
-        email: 'admin@e3.qa',
+        email: 'admin@eeeqa.com',
         role: 'SUPER_ADMIN',
         password: await bcrypt.hash('MasterAdmin123!', 10),
         isActive: true,
@@ -233,7 +233,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       {
         id: 'user-events-1',
         name: 'Events Lead',
-        email: 'events@e3.qa',
+        email: 'events@eeeqa.com',
         role: 'EVENTS_ADMIN',
         password: await bcrypt.hash('EventsLead123!', 10),
         isActive: true,
@@ -242,7 +242,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       {
         id: 'user-staff-1',
         name: 'Staff Operator',
-        email: 'staff@e3.qa',
+        email: 'staff@eeeqa.com',
         role: 'STAFF',
         password: await bcrypt.hash('StaffPass123!', 10),
         isActive: true,
@@ -264,7 +264,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
     mockCurrentUser = {
       id: 'user-super-1',
       name: 'Master Admin',
-      email: 'admin@e3.qa',
+      email: 'admin@eeeqa.com',
       role: 'SUPER_ADMIN',
       rawRole: 'SUPER_ADMIN',
       sessionVersion: 1,
@@ -285,7 +285,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       mockCurrentUser = {
         id: 'user-staff-1',
         name: 'Staff Operator',
-        email: 'staff@e3.qa',
+        email: 'staff@eeeqa.com',
         role: 'STAFF',
         rawRole: 'STAFF',
         sessionVersion: 1,
@@ -314,7 +314,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       mockCurrentUser = {
         id: 'user-events-1',
         name: 'Events Lead',
-        email: 'events@e3.qa',
+        email: 'events@eeeqa.com',
         role: 'SUPPORT_ADMIN',
         rawRole: 'SUPPORT_ADMIN',
         sessionVersion: 1,
@@ -334,7 +334,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       usersStore.push({
         id: 'user-super-2',
         name: 'Secondary Admin',
-        email: 'admin2@e3.qa',
+        email: 'admin2@eeeqa.com',
         role: 'SUPER_ADMIN',
         isActive: true,
         sessionVersion: 1,
@@ -343,7 +343,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       mockCurrentUser = {
         id: 'user-super-2',
         name: 'Secondary Admin',
-        email: 'admin2@e3.qa',
+        email: 'admin2@eeeqa.com',
         role: 'SUPER_ADMIN',
         rawRole: 'SUPER_ADMIN',
         sessionVersion: 1,
@@ -466,7 +466,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       mockCurrentUser = {
         id: 'user-events-1',
         name: 'Events Lead',
-        email: 'events@e3.qa',
+        email: 'events@eeeqa.com',
         role: 'SUPPORT_ADMIN',
         rawRole: 'SUPPORT_ADMIN',
         sessionVersion: 1,
@@ -532,7 +532,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Package Specialist',
-          email: 'packages@e3.qa',
+          email: 'packages@eeeqa.com',
           role: 'EVENTS_ADMIN',
           password: 'Password123!',
         }),
@@ -542,12 +542,12 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       expect(res.status).toBe(201);
       const data = await res.json();
 
-      expect(data.email).toBe('packages@e3.qa');
+      expect(data.email).toBe('packages@eeeqa.com');
       expect(data.isActive).toBe(true);
       expect(data.sessionVersion).toBe(1);
 
       // Verify in store
-      const inStore = usersStore.find((u) => u.email === 'packages@e3.qa');
+      const inStore = usersStore.find((u) => u.email === 'packages@eeeqa.com');
       expect(inStore).toBeDefined();
       expect(inStore?.name).toBe('Package Specialist');
 
@@ -565,7 +565,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Duplicate Admin',
-          email: 'admin@e3.qa',
+          email: 'admin@eeeqa.com',
           role: 'STAFF',
         }),
       });
@@ -597,7 +597,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       mockCurrentUser = {
         id: 'user-events-1',
         name: 'Events Lead',
-        email: 'events@e3.qa',
+        email: 'events@eeeqa.com',
         role: 'SUPPORT_ADMIN',
         rawRole: 'SUPPORT_ADMIN',
         sessionVersion: 1,
@@ -609,7 +609,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: 'Rogue Admin',
-          email: 'rogue@e3.qa',
+          email: 'rogue@eeeqa.com',
           role: 'SUPER_ADMIN',
         }),
       });
@@ -631,7 +631,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'request',
-          email: 'events@e3.qa',
+          email: 'events@eeeqa.com',
           portal: 'events',
           locale: 'en',
         }),
@@ -658,7 +658,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'request',
-          email: 'events@e3.qa',
+          email: 'events@eeeqa.com',
           portal: 'events',
           locale: 'ar',
         }),
@@ -676,7 +676,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       expect(verificationTokensStore).toHaveLength(1);
       const record = verificationTokensStore[0];
       expect(record.token).toBe(expectedHash);
-      expect(record.identifier).toBe('pwd_reset:events@e3.qa:events:ar');
+      expect(record.identifier).toBe('pwd_reset:events@eeeqa.com:events:ar');
 
       (process.env as any).NODE_ENV = originalEnv;
       process.env.VITEST = originalVitest;
@@ -687,7 +687,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
       verificationTokensStore.push({
         token: tokenHash,
-        identifier: 'pwd_reset:events@e3.qa:events:en',
+        identifier: 'pwd_reset:events@eeeqa.com:events:en',
         expires: new Date(Date.now() + 60 * 60 * 1000),
       });
 
@@ -715,7 +715,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
       verificationTokensStore.push({
         token: tokenHash,
-        identifier: 'pwd_reset:events@e3.qa:events:ar',
+        identifier: 'pwd_reset:events@eeeqa.com:events:ar',
         expires: new Date(Date.now() + 60 * 60 * 1000),
       });
 
@@ -772,7 +772,7 @@ describe('User Management: Hardened Freeze, Delete, RBAC Escalation & Password R
       usersStore.push({
         id: 'user-pending-1',
         name: 'Pending Admin Candidate',
-        email: 'pending@e3.qa',
+        email: 'pending@eeeqa.com',
         role: 'STAFF',
         isActive: false,
         sessionVersion: 1,

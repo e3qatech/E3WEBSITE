@@ -8,7 +8,7 @@ import { calculateCampaignMetrics } from '@/lib/influencer/reports-service';
 // Mock auth and db
 vi.mock('@/lib/auth', () => ({
   auth: vi.fn(async () => ({
-    user: { id: 'usr_admin', email: 'admin@e3.qa', role: 'SUPER_ADMIN' },
+    user: { id: 'usr_admin', email: 'admin@eeeqa.com', role: 'SUPER_ADMIN' },
   })),
 }));
 
@@ -138,7 +138,7 @@ describe('Influencer Module End-to-End Smoke Tests', () => {
   });
 
   it('reports route exports CSV securely with proper headers', async () => {
-    const req = new NextRequest('https://e3.qa/api/influencer/campaigns/camp_smoke_1/reports?export=csv');
+    const req = new NextRequest('https://eeeqa.com/api/influencer/campaigns/camp_smoke_1/reports?export=csv');
     const response = await getReports(req, { params: Promise.resolve({ id: 'camp_smoke_1' }) });
 
     expect(response.status).toBe(200);
@@ -150,7 +150,7 @@ describe('Influencer Module End-to-End Smoke Tests', () => {
   });
 
   it('protected document download enforces capability and returns attachment headers', async () => {
-    const req = new NextRequest('https://e3.qa/api/influencer/documents/doc_secret_agreement/download');
+    const req = new NextRequest('https://eeeqa.com/api/influencer/documents/doc_secret_agreement/download');
     const response = await getCreatorDocDownload(req, { params: Promise.resolve({ id: 'doc_secret_agreement' }) });
 
     expect(response.status).toBe(200);

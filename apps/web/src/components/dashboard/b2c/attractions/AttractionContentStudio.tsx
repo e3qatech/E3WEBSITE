@@ -739,7 +739,7 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
       <EditorHeader
         title={nameEn || "New Attraction / Event"}
         titleAr={nameAr}
-        subtitle={slug ? `e3.qa/b2c/attractions/${slug}` : "Configure multi-purpose experience"}
+        subtitle={slug ? `eeeqa.com/b2c/attractions/${slug}` : "Configure multi-purpose experience"}
         statusBadge={{
           label: isPublished ? "Published" : "Draft",
           labelAr: isPublished ? "منشور Live" : "مسودة",
@@ -1265,7 +1265,7 @@ export function AttractionContentStudio({ initialData }: { initialData?: any }) 
                     </label>
                     <div className="flex items-center">
                       <span className="h-10 px-3 rounded-l-xl bg-[var(--surface-subtle)] border border-r-0 border-[var(--border-level-2)] text-xs text-[var(--text-tertiary)] flex items-center font-mono">
-                        e3.qa/b2c/attractions/
+                        eeeqa.com/b2c/attractions/
                       </span>
                       <input
                         type="text"

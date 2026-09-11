@@ -68,8 +68,8 @@ export const DEFAULT_SOCIAL_CHANNELS: SocialChannelRecord[] = [
     id: "social-tiktok-main",
     platform: "TIKTOK",
     channelName: "E3 Qatar TikTok Channel",
-    handle: "@e3.qatar",
-    profileUrl: "https://tiktok.com/@e3.qatar",
+    handle: "@eeeqa.comtar",
+    profileUrl: "https://tiktok.com/@eeeqa.comtar",
     feedMode: "CURATED_CMS",
     syncEnabled: true,
     isVisible: true,
@@ -85,7 +85,7 @@ export const DEFAULT_SOCIAL_POSTS: SocialPostRecord[] = [
   {
     id: "post-ig-01",
     platform: "INSTAGRAM",
-    postUrl: "https://instagram.com/e3.qatar",
+    postUrl: "https://instagram.com/eeeqa.comtar",
     mediaType: "VIDEO",
     mediaUrl: "https://assets.mixkit.co/videos/preview/mixkit-bright-lights-of-a-ferris-wheel-at-night-41544-large.mp4",
     posterUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/uploads/762b7271-c81f-42a7-a190-3be8b3000f71.jpg",
@@ -101,7 +101,7 @@ export const DEFAULT_SOCIAL_POSTS: SocialPostRecord[] = [
   {
     id: "post-ig-02",
     platform: "INSTAGRAM",
-    postUrl: "https://instagram.com/e3.qatar",
+    postUrl: "https://instagram.com/eeeqa.comtar",
     mediaType: "IMAGE",
     mediaUrl: "https://zc8pi8kjx2yhjhir.public.blob.vercel-storage.com/DSC_6565.jpg",
     captionEn: "Pure joy bouncing at InflataPark! Over 5,000 sqm of continuous obstacle courses.",

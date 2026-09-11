@@ -28,8 +28,8 @@ describe('Gate 11: Launch Readiness & Production Audits', () => {
       const patterns = config.images?.remotePatterns || [];
       const hostnames = patterns.map((p: any) => p.hostname);
 
-      expect(hostnames).toContain('booking.e3.qa');
-      expect(hostnames).toContain('cdn.e3.qa');
+      expect(hostnames).toContain('booking.eeeqa.com');
+      expect(hostnames).toContain('cdn.eeeqa.com');
       expect(hostnames).toContain('images.unsplash.com');
       expect(hostnames).toContain('*.public.blob.vercel-storage.com');
     });
@@ -66,7 +66,7 @@ describe('Gate 11: Launch Readiness & Production Audits', () => {
 
     it('5. sitemap entries must include EN and AR alternate language links', async () => {
       const sitemapEntries = await sitemap();
-      const rootEntry = sitemapEntries.find((e) => e.url === 'https://eeeqa.com' || e.url === 'https://e3.qa' || e.url === (process.env.NEXT_PUBLIC_BASE_URL || 'https://eeeqa.com'));
+      const rootEntry = sitemapEntries.find((e) => e.url === 'https://eeeqa.com' || e.url === 'https://eeeqa.com' || e.url === (process.env.NEXT_PUBLIC_BASE_URL || 'https://eeeqa.com'));
       expect(rootEntry).toBeDefined();
       expect(rootEntry?.alternates?.languages).toBeDefined();
       expect(rootEntry?.alternates?.languages?.en).toContain('/en');
@@ -82,7 +82,7 @@ describe('Gate 11: Launch Readiness & Production Audits', () => {
           default: 'E3 - We Build Experiences | Event Engineering Experts',
         },
         description: "Qatar's premier event engineering and entertainment agency.",
-        metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://e3.qa'),
+        metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://eeeqa.com'),
         alternates: {
           canonical: '/',
           languages: {

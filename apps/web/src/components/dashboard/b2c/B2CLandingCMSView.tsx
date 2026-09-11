@@ -2628,7 +2628,7 @@ export function B2CLandingCMSView({ initialData }: B2CLandingCMSViewProps) {
                     </span>
                     <p className="text-[11px] text-[var(--text-secondary)]">
                       Doha, State of Qatar<br />
-                      contact@e3.qa • +974 4400 0000
+                      contact@eeeqa.com • +974 4400 0000
                     </p>
                   </div>
 

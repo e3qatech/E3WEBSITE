@@ -387,14 +387,14 @@ describe('QF-02-C: Semantic CTA Wiring & Destination Verification', () => {
       expect(PUBLIC_SETTINGS_KEYS.has('b2bProfileExternal')).toBe(true);
 
       const resolved = resolvePublicSiteSettings({
-        b2bProfileUrl: 'https://cdn.e3.qa/documents/e3-profile-2026.pdf',
+        b2bProfileUrl: 'https://cdn.eeeqa.com/documents/e3-profile-2026.pdf',
         b2bProfileLabelEn: 'DOWNLOAD CORPORATE PROFILE',
         b2bProfileLabelAr: 'تحميل ملف الشركة',
         b2bProfileEnabled: 'true',
         b2bProfileExternal: 'true'
       });
 
-      expect(resolved.b2bProfileUrl).toBe('https://cdn.e3.qa/documents/e3-profile-2026.pdf');
+      expect(resolved.b2bProfileUrl).toBe('https://cdn.eeeqa.com/documents/e3-profile-2026.pdf');
       expect(resolved.b2bProfileLabelEn).toBe('DOWNLOAD CORPORATE PROFILE');
       expect(resolved.b2bProfileLabelAr).toBe('تحميل ملف الشركة');
       expect(resolved.b2bProfileEnabled).toBe('true');

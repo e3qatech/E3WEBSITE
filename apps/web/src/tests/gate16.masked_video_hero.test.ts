@@ -16,20 +16,20 @@ describe('Gate 16: E3 Pulse Masked Worlds Video Hero & CMS Verification', () => 
   it('2. should resolve Customer desktop video from CMS configuration without hardcoding', () => {
     const cmsData = {
       maskedVideo: {
-        customerDesktopVideo: 'https://cdn.e3.qa/video/b2c-customer.mp4',
+        customerDesktopVideo: 'https://cdn.eeeqa.com/video/b2c-customer.mp4',
       },
     };
-    expect(cmsData.maskedVideo.customerDesktopVideo).toBe('https://cdn.e3.qa/video/b2c-customer.mp4');
+    expect(cmsData.maskedVideo.customerDesktopVideo).toBe('https://cdn.eeeqa.com/video/b2c-customer.mp4');
     expect(cmsData.maskedVideo.customerDesktopVideo).not.toContain('hardcoded_fixed');
   });
 
   it('3. should resolve Organizer desktop video from CMS configuration without hardcoding', () => {
     const cmsData = {
       maskedVideo: {
-        organizerDesktopVideo: 'https://cdn.e3.qa/video/b2b-organizer.mp4',
+        organizerDesktopVideo: 'https://cdn.eeeqa.com/video/b2b-organizer.mp4',
       },
     };
-    expect(cmsData.maskedVideo.organizerDesktopVideo).toBe('https://cdn.e3.qa/video/b2b-organizer.mp4');
+    expect(cmsData.maskedVideo.organizerDesktopVideo).toBe('https://cdn.eeeqa.com/video/b2b-organizer.mp4');
   });
 
   it('4. should verify no hardcoded video URLs in mask engine props resolver', () => {
@@ -91,7 +91,7 @@ describe('Gate 16: E3 Pulse Masked Worlds Video Hero & CMS Verification', () => 
   });
 
   it('14. should fallback to poster image when video is loading or unready', () => {
-    const poster = 'https://cdn.e3.qa/poster.jpg';
+    const poster = 'https://cdn.eeeqa.com/poster.jpg';
     expect(poster).toBeDefined();
   });
 

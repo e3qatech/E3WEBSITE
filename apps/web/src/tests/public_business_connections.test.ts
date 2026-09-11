@@ -141,10 +141,10 @@ vi.mock('@/lib/db', () => ({
     },
     user: {
       findUnique: vi.fn().mockImplementation(({ where }: any) => {
-        if (where.email === 'registered@e3.qa' || where.id === 'usr_reg_01') {
+        if (where.email === 'registered@eeeqa.com' || where.id === 'usr_reg_01') {
           return Promise.resolve({
             id: 'usr_reg_01',
-            email: 'registered@e3.qa',
+            email: 'registered@eeeqa.com',
             name: 'Registered User',
             isActive: true,
             sessionVersion: 1,
@@ -169,7 +169,7 @@ vi.mock('@/lib/db', () => ({
           return Promise.resolve({
             id: 'prt_1',
             token: validHash,
-            email: 'registered@e3.qa',
+            email: 'registered@eeeqa.com',
             portal: 'admin',
             expiresAt: new Date(Date.now() + 3600000),
             usedAt: null,
@@ -291,7 +291,7 @@ vi.mock('@/lib/db', () => ({
               return Promise.resolve({
                 id: 'prt_1',
                 token: validHash,
-                email: 'registered@e3.qa',
+                email: 'registered@eeeqa.com',
                 portal: 'admin',
                 expiresAt: new Date(Date.now() + 3600000),
                 usedAt: null,
@@ -303,7 +303,7 @@ vi.mock('@/lib/db', () => ({
         user: {
           findUnique: vi.fn().mockResolvedValue({
             id: 'usr_reg_01',
-            email: 'registered@e3.qa',
+            email: 'registered@eeeqa.com',
             name: 'Registered User',
             isActive: true,
             sessionVersion: 1,
@@ -336,7 +336,7 @@ vi.mock('@/lib/db', () => ({
     user: {
       findUnique: vi.fn().mockResolvedValue({
         id: 'usr_reg_01',
-        email: 'registered@e3.qa',
+        email: 'registered@eeeqa.com',
         name: 'Registered User',
         isActive: true,
         sessionVersion: 1,
@@ -353,7 +353,7 @@ vi.mock('@/lib/db', () => ({
           return Promise.resolve({
             id: 'prt_1',
             token: validHash,
-            email: 'registered@e3.qa',
+            email: 'registered@eeeqa.com',
             portal: 'admin',
             expiresAt: new Date(Date.now() + 3600000),
             usedAt: null,
@@ -448,7 +448,7 @@ vi.mock('@/lib/db', () => ({
               return Promise.resolve({
                 id: 'prt_1',
                 token: validHash,
-                email: 'registered@e3.qa',
+                email: 'registered@eeeqa.com',
                 portal: 'admin',
                 expiresAt: new Date(Date.now() + 3600000),
                 usedAt: null,
@@ -460,7 +460,7 @@ vi.mock('@/lib/db', () => ({
         user: {
           findUnique: vi.fn().mockResolvedValue({
             id: 'usr_reg_01',
-            email: 'registered@e3.qa',
+            email: 'registered@eeeqa.com',
             name: 'Registered User',
             isActive: true,
             sessionVersion: 1,
@@ -1055,7 +1055,7 @@ describe('Public Business Connections & Security Hardening Final Regression Suit
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
             action: 'request',
-            email: 'registered@e3.qa',
+            email: 'registered@eeeqa.com',
           }),
         });
 

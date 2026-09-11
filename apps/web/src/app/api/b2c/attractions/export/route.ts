@@ -100,7 +100,7 @@ export async function GET(request: Request) {
         latitude: 25.233187,
         longitude: 51.506754,
         isPrimary: true,
-        bookingUrlOverride: "https://booking.e3.qa"
+        bookingUrlOverride: "https://booking.eeeqa.com"
       })
     }
     const wsLocations = XLSX.utils.json_to_sheet(locationsData)

@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: '/terms', priority: 0.5, changeFrequency: 'monthly' as const },
   ];
 
-  // Root entry (e3.qa) + explicit localized root entries (/en, /ar)
+  // Root entry (eeeqa.com) + explicit localized root entries (/en, /ar)
   const now = new Date();
   const rootRoutes: MetadataRoute.Sitemap = [
     {

@@ -88,7 +88,7 @@ export async function sendInfluencerNotification(
             ${
               actionUrl
                 ? `<div style="margin: 28px 0;">
-                    <a href="${actionUrl.startsWith('http') ? actionUrl : `https://e3.qa${actionUrl}`}" 
+                    <a href="${actionUrl.startsWith('http') ? actionUrl : `https://eeeqa.com${actionUrl}`}" 
                        style="background: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 14px; display: inline-block;">
                       Open Creator Portal
                     </a>
@@ -97,7 +97,7 @@ export async function sendInfluencerNotification(
             }
             <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 24px 0;" />
             <p style="font-size: 12px; color: #64748b; margin: 0;">
-              This is an automated notification from E3 Qatar. For inquiries, contact marketing@e3.qa.
+              This is an automated notification from E3 Qatar. For inquiries, contact marketing@eeeqa.com.
             </p>
           </div>
         </div>

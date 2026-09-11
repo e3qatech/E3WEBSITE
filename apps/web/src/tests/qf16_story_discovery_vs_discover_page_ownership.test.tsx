@@ -100,7 +100,7 @@ describe('QF-16 — Story Discovery vs Discover Page Ownership Regression Suite'
   describe('2. Save Isolation & API Boundaries', () => {
     it('Discover Settings POST updates b2c-discover page content and mirror setting', async () => {
       (auth as any).mockResolvedValue({
-        user: { email: 'admin@e3.qa', role: 'SUPER_ADMIN' },
+        user: { email: 'admin@eeeqa.com', role: 'SUPER_ADMIN' },
       });
 
       const upsertPageSpy = vi.spyOn(db.pages, 'upsert').mockResolvedValue({ id: 'p1' } as any);
@@ -141,7 +141,7 @@ describe('QF-16 — Story Discovery vs Discover Page Ownership Regression Suite'
 
     it('Story Types POST handles batch sync/upsert of story classification tracks without mutating discover pages', async () => {
       (auth as any).mockResolvedValue({
-        user: { email: 'admin@e3.qa', role: 'SUPER_ADMIN' },
+        user: { email: 'admin@eeeqa.com', role: 'SUPER_ADMIN' },
       });
 
       vi.spyOn(db, '$transaction').mockImplementation(async (promises: any) =>

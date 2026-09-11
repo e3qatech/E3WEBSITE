@@ -418,7 +418,7 @@ describe('QF-25-C — Final Server Poisoning & Non-Duplicating Secret Storage', 
       const rawSettings = [
         { key: 'siteNameEn', value: 'E3 Platform' },
         { key: 'siteNameAr', value: 'منصة إي ثري' },
-        { key: 'contactEmail', value: 'info@e3.qa' },
+        { key: 'contactEmail', value: 'info@eeeqa.com' },
         { key: 'contactPhone', value: '+974 4400 0000' },
         { key: 'contactWhatsapp', value: '+974 5500 0000' },
         { key: 'addressEn', value: 'Doha, Qatar' },
@@ -430,10 +430,10 @@ describe('QF-25-C — Final Server Poisoning & Non-Duplicating Secret Storage', 
         { key: 'socialYoutube', value: 'https://youtube.com/e3' },
         { key: 'socialSnapchat', value: 'https://snapchat.com/add/e3' },
         { key: 'socialFacebook', value: 'https://facebook.com/e3' },
-        { key: 'bookingqubeWebsite', value: 'https://booking.e3.qa' },
-        { key: 'lightLogoUrl', value: 'https://e3.qa/logo-light.svg' },
-        { key: 'darkLogoUrl', value: 'https://e3.qa/logo-dark.svg' },
-        { key: 'faviconUrl', value: 'https://e3.qa/favicon.ico' },
+        { key: 'bookingqubeWebsite', value: 'https://booking.eeeqa.com' },
+        { key: 'lightLogoUrl', value: 'https://eeeqa.com/logo-light.svg' },
+        { key: 'darkLogoUrl', value: 'https://eeeqa.com/logo-dark.svg' },
+        { key: 'faviconUrl', value: 'https://eeeqa.com/favicon.ico' },
         { key: 'bookTicketsUrl', value: '/b2c/tickets' },
         { key: 'bookTicketsLabelEn', value: 'BOOK TICKETS' },
         { key: 'bookTicketsLabelAr', value: 'احجز التذاكر' },
@@ -447,7 +447,7 @@ describe('QF-25-C — Final Server Poisoning & Non-Duplicating Secret Storage', 
 
       expect(dto.siteNameEn).toBe('E3 Platform');
       expect(dto.siteNameAr).toBe('منصة إي ثري');
-      expect(dto.contactEmail).toBe('info@e3.qa');
+      expect(dto.contactEmail).toBe('info@eeeqa.com');
       expect(dto.contactPhone).toBe('+974 4400 0000');
       expect(dto.bookTicketsUrl).toBe('/b2c/tickets');
 

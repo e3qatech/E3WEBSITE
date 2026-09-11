@@ -6,7 +6,7 @@
 
 export function getBaseUrl(): string {
   const raw = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL;
-  if (!raw || raw.includes('localhost') || raw.includes('127.0.0.1') || raw.includes('e3.qa')) {
+  if (!raw || raw.includes('localhost') || raw.includes('127.0.0.1')) {
     return 'https://eeeqa.com';
   }
   return raw.replace(/\/+$/, '');

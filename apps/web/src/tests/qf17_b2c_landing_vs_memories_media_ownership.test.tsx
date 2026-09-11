@@ -131,7 +131,7 @@ describe('QF-17 — B2C Landing vs Memories & Media Ownership Test Suite', () =>
       const existingPage = {
         sequence: [{ id: 'hero', isVisible: true }, { id: 'memories', isVisible: true }],
         act1Hero: { titleEn: 'Existing Hero Title', titleAr: 'عنوان هيرو موجود' },
-        heroMedia: { mediaType: 'VIDEO', mediaUrl: 'https://cdn.e3.qa/hero.mp4' },
+        heroMedia: { mediaType: 'VIDEO', mediaUrl: 'https://cdn.eeeqa.com/hero.mp4' },
         act2Curtain: { headingEn: 'Existing Manifesto' },
         coreTeam: { headlineEn: 'Our Team', selectedMemberIds: ['team-1', 'team-2'] },
         guestMemories: {
@@ -146,8 +146,8 @@ describe('QF-17 — B2C Landing vs Memories & Media Ownership Test Suite', () =>
           headlineEn: 'Brand New Moments Headline',
           headlineAr: 'عنوان جديد للحظات',
           moments: [
-            { id: 'm-1', titleEn: 'Updated Moment 1', mediaUrl: 'https://cdn.e3.qa/m1.jpg' },
-            { id: 'm-2', titleEn: 'New Moment 2', mediaUrl: 'https://cdn.e3.qa/m2.jpg' },
+            { id: 'm-1', titleEn: 'Updated Moment 1', mediaUrl: 'https://cdn.eeeqa.com/m1.jpg' },
+            { id: 'm-2', titleEn: 'New Moment 2', mediaUrl: 'https://cdn.eeeqa.com/m2.jpg' },
           ],
         },
       };
@@ -163,7 +163,7 @@ describe('QF-17 — B2C Landing vs Memories & Media Ownership Test Suite', () =>
 
       // Sibling fields are completely preserved
       expect(merged.act1Hero.titleEn).toBe('Existing Hero Title');
-      expect(merged.heroMedia.mediaUrl).toBe('https://cdn.e3.qa/hero.mp4');
+      expect(merged.heroMedia.mediaUrl).toBe('https://cdn.eeeqa.com/hero.mp4');
       expect(merged.act2Curtain.headingEn).toBe('Existing Manifesto');
       expect(merged.coreTeam.selectedMemberIds).toEqual(['team-1', 'team-2']);
       expect(merged.sequence.length).toBe(2);
@@ -171,7 +171,7 @@ describe('QF-17 — B2C Landing vs Memories & Media Ownership Test Suite', () =>
 
     it('Saving Landing Editor slice never overwrites or wipes guestMemories or heroMedia', () => {
       const existingPage = {
-        heroMedia: { mediaType: 'VIDEO', mediaUrl: 'https://cdn.e3.qa/curtain.mp4' },
+        heroMedia: { mediaType: 'VIDEO', mediaUrl: 'https://cdn.eeeqa.com/curtain.mp4' },
         maskedVideo: { enabled: true, preset: 'ORGANIC_WINDOW', scale: 1.2 },
         guestMemories: {
           headlineEn: 'Preserved Guest Memories',
@@ -193,7 +193,7 @@ describe('QF-17 — B2C Landing vs Memories & Media Ownership Test Suite', () =>
       expect(merged.cta.buttonUrl).toBe('/en/b2c/passes');
 
       // Specialized slices preserved
-      expect(merged.heroMedia.mediaUrl).toBe('https://cdn.e3.qa/curtain.mp4');
+      expect(merged.heroMedia.mediaUrl).toBe('https://cdn.eeeqa.com/curtain.mp4');
       expect(merged.maskedVideo.scale).toBe(1.2);
       expect(merged.guestMemories.headlineEn).toBe('Preserved Guest Memories');
       expect(merged.guestMemories.moments[0].id).toBe('m-special');
@@ -207,13 +207,13 @@ describe('QF-17 — B2C Landing vs Memories & Media Ownership Test Suite', () =>
       };
 
       const incomingMediaUpdate = {
-        heroMedia: { mediaType: 'IMAGE', mediaUrl: 'https://cdn.e3.qa/new-cover.jpg' },
+        heroMedia: { mediaType: 'IMAGE', mediaUrl: 'https://cdn.eeeqa.com/new-cover.jpg' },
         maskedVideo: { enabled: false, preset: 'PILL_CAPSULE' },
       };
 
       const merged = deepMergeCMSContent(existingPage, incomingMediaUpdate);
 
-      expect(merged.heroMedia.mediaUrl).toBe('https://cdn.e3.qa/new-cover.jpg');
+      expect(merged.heroMedia.mediaUrl).toBe('https://cdn.eeeqa.com/new-cover.jpg');
       expect(merged.maskedVideo.preset).toBe('PILL_CAPSULE');
       expect(merged.guestMemories.headlineEn).toBe('Intact Memories');
       expect(merged.coreTeam.selectedMemberIds).toEqual(['emp-1']);
@@ -272,7 +272,7 @@ describe('QF-17 — B2C Landing vs Memories & Media Ownership Test Suite', () =>
 
       // 3. Media Manager updates heroMedia
       pageState = deepMergeCMSContent(pageState, {
-        heroMedia: { mediaType: 'VIDEO', mediaUrl: 'https://cdn.e3.qa/promo-2026.mp4' },
+        heroMedia: { mediaType: 'VIDEO', mediaUrl: 'https://cdn.eeeqa.com/promo-2026.mp4' },
       });
 
       // Verify all 3 slices coexist without any data clobbering
@@ -280,7 +280,7 @@ describe('QF-17 — B2C Landing vs Memories & Media Ownership Test Suite', () =>
       expect(pageState.guestMemories.moments[0].titleEn).toBe('Test Moment');
       expect(pageState.act1Hero.titleEn).toBe('New Hero Experience 2026');
       expect(pageState.sequence[1].isVisible).toBe(false);
-      expect(pageState.heroMedia.mediaUrl).toBe('https://cdn.e3.qa/promo-2026.mp4');
+      expect(pageState.heroMedia.mediaUrl).toBe('https://cdn.eeeqa.com/promo-2026.mp4');
     });
 
     it('Renders loading skeleton state when initialData is missing and data is loading', () => {

@@ -43,7 +43,7 @@ async function main() {
 
   const seedUsersData = [
     {
-      email: 'admin@e3.qa',
+      email: 'admin@eeeqa.com',
       role: 'SUPER_ADMIN',
       firstName: 'System',
       lastName: 'SuperAdmin',
@@ -222,8 +222,8 @@ async function main() {
           subtitleAr: 'سواء كان لديك طلب تقديم عروض صياغة كاملة أو مجرد مفهوم أولي، فإن فريقنا مستعد لهندسة حل.'
         },
         inquiries: {
-          business: 'business@e3.qa',
-          careers: 'careers@e3.qa',
+          business: 'business@eeeqa.com',
+          careers: 'careers@eeeqa.com',
           phone: '+974 4444 4444'
         },
         headquarters: {

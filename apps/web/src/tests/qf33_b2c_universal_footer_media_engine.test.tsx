@@ -85,7 +85,7 @@ describe('QF-33: B2C Universal Footer Multi-Media Engine & Landing Editor Integr
     it('auto-detects video format when raw mp4 URL is provided without explicit mediaType', () => {
       const settings = {
         siteNameEn: 'E3 Qatar',
-        footerMediaUrl: 'https://cdn.e3.qa/assets/laser-night.mp4',
+        footerMediaUrl: 'https://cdn.eeeqa.com/assets/laser-night.mp4',
       };
 
       const html = renderToStaticMarkup(
@@ -97,7 +97,7 @@ describe('QF-33: B2C Universal Footer Multi-Media Engine & Landing Editor Integr
       );
 
       expect(html).toContain('<video');
-      expect(html).toContain('src="https://cdn.e3.qa/assets/laser-night.mp4"');
+      expect(html).toContain('src="https://cdn.eeeqa.com/assets/laser-night.mp4"');
     });
 
     it('never passes a Spline iframe URL to an <img> and renders iframe or poster backdrop', () => {
@@ -171,17 +171,17 @@ describe('QF-33: B2C Universal Footer Multi-Media Engine & Landing Editor Integr
   describe('3. Public Settings DTO Serialization', () => {
     it('maps all universal footer media and description attributes cleanly', () => {
       const rawMap = {
-        footerMediaUrl: 'https://cdn.e3.qa/media/footer-glow.mp4',
+        footerMediaUrl: 'https://cdn.eeeqa.com/media/footer-glow.mp4',
         footerMediaType: 'VIDEO',
-        footerPosterUrl: 'https://cdn.e3.qa/media/footer-poster.webp',
+        footerPosterUrl: 'https://cdn.eeeqa.com/media/footer-poster.webp',
         footerDescriptionEn: 'Pioneering entertainment.',
         footerDescriptionAr: 'ريادة الترفيه في قطر.',
       };
 
       const resolved = resolvePublicSiteSettings(rawMap);
-      expect(resolved.footerMediaUrl).toBe('https://cdn.e3.qa/media/footer-glow.mp4');
+      expect(resolved.footerMediaUrl).toBe('https://cdn.eeeqa.com/media/footer-glow.mp4');
       expect(resolved.footerMediaType).toBe('VIDEO');
-      expect(resolved.footerPosterUrl).toBe('https://cdn.e3.qa/media/footer-poster.webp');
+      expect(resolved.footerPosterUrl).toBe('https://cdn.eeeqa.com/media/footer-poster.webp');
       expect(resolved.footerDescriptionEn).toBe('Pioneering entertainment.');
       expect(resolved.footerDescriptionAr).toBe('ريادة الترفيه في قطر.');
     });

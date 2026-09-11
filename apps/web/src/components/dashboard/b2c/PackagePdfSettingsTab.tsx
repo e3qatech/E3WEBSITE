@@ -283,7 +283,7 @@ export function PackagePdfSettingsTab({ locale = "en" }: PackagePdfSettingsTabPr
                       type="email"
                       value={config.email}
                       onChange={(e) => updateField("email", e.target.value)}
-                      placeholder="events@e3.qa"
+                      placeholder="events@eeeqa.com"
                       className="w-full px-3 py-2 rounded-xl bg-[var(--surface-hover)] border border-[var(--border-level-2)] text-xs text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-purple-500 transition-colors"
                     />
                   </div>

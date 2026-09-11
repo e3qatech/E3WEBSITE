@@ -859,7 +859,7 @@ export function PulseOrbitCMSView({
                 type="text"
                 value={b2cTicketsUrl}
                 onChange={(e) => setB2CTicketsUrl(e.target.value)}
-                placeholder="e.g. /b2c/tickets or https://tickets.e3.qa"
+                placeholder="e.g. /b2c/tickets or https://tickets.eeeqa.com"
                 className="w-full bg-[var(--bg-level-1)] border border-[var(--border-level-1)] rounded-xl px-4 py-2 text-sm text-[var(--text-primary)] font-mono focus:outline-none focus:border-[var(--color-primary)] placeholder:text-[var(--text-tertiary)]"
               />
             </div>

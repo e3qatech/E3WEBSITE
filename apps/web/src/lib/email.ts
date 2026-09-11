@@ -405,7 +405,7 @@ function getBaseEmailLayout(title: string, contentHtml: string): string {
     </div>
     <div class="footer">
       <p style="margin: 0 0 8px;">&copy; ${new Date().getFullYear()} E3 Qatar Entertainment & Events. All rights reserved.</p>
-      <p style="margin: 0 0 12px;"><a href="https://e3.qa">www.e3.qa</a> &bull; Doha, State of Qatar &bull; Tel: +974 3048 9955</p>
+      <p style="margin: 0 0 12px;"><a href="https://eeeqa.com">www.eeeqa.com</a> &bull; Doha, State of Qatar &bull; Tel: +974 3048 9955</p>
       <p style="margin: 0; font-size: 11px; color: #475569;">Qatar PDPL Compliant: Law No. (13) of 2016 concerning Personal Data Privacy Protection.</p>
     </div>
   </div>

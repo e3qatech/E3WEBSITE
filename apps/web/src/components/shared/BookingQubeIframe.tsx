@@ -21,8 +21,8 @@ export function BookingQubeIframe({ attractionId, ticketTypeId, className = "" }
     // so it can dynamically resize based on the checkout steps
     const handleMessage = (event: MessageEvent) => {
       // Security check: exact trusted-origin equality
-      const BOOKINGQUBE_URL = process.env.NEXT_PUBLIC_BOOKINGQUBE_URL || 'https://booking.e3.qa'
-      let trustedOrigin = 'https://booking.e3.qa'
+      const BOOKINGQUBE_URL = process.env.NEXT_PUBLIC_BOOKINGQUBE_URL || 'https://booking.eeeqa.com'
+      let trustedOrigin = 'https://booking.eeeqa.com'
       try {
         trustedOrigin = new URL(BOOKINGQUBE_URL).origin
       } catch (_e) {

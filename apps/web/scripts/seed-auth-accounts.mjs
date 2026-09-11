@@ -28,7 +28,7 @@ async function main() {
       customRole: 'SUPER_ADMIN',
     },
     {
-      email: 'admin@e3.qa',
+      email: 'admin@eeeqa.com',
       name: 'Super Admin',
       role: 'SUPER_ADMIN',
       customRole: 'SUPER_ADMIN',

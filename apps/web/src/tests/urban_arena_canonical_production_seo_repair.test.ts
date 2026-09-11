@@ -106,8 +106,8 @@ describe('Urban Arena Production Data & SEO Canonical Correction Suite', () => {
   describe('2. SEO Canonical URLs & Alternate Hreflang Validation', () => {
     it('generates exact English and Arabic canonical URLs with x-default fallback', () => {
       const trueSlug = 'urban-arena'
-      const enCanonical = `https://e3.qa/en/b2c/attractions/${trueSlug}`
-      const arCanonical = `https://e3.qa/ar/b2c/attractions/${trueSlug}`
+      const enCanonical = `https://eeeqa.com/en/b2c/attractions/${trueSlug}`
+      const arCanonical = `https://eeeqa.com/ar/b2c/attractions/${trueSlug}`
 
       const alternates = {
         canonicalEn: enCanonical,
@@ -119,9 +119,9 @@ describe('Urban Arena Production Data & SEO Canonical Correction Suite', () => {
         }
       }
 
-      expect(alternates.canonicalEn).toBe('https://e3.qa/en/b2c/attractions/urban-arena')
-      expect(alternates.canonicalAr).toBe('https://e3.qa/ar/b2c/attractions/urban-arena')
-      expect(alternates.languages['x-default']).toBe('https://e3.qa/en/b2c/attractions/urban-arena')
+      expect(alternates.canonicalEn).toBe('https://eeeqa.com/en/b2c/attractions/urban-arena')
+      expect(alternates.canonicalAr).toBe('https://eeeqa.com/ar/b2c/attractions/urban-arena')
+      expect(alternates.languages['x-default']).toBe('https://eeeqa.com/en/b2c/attractions/urban-arena')
       expect(alternates.canonicalEn).not.toContain('urban-arena-doha-mall')
     })
   })

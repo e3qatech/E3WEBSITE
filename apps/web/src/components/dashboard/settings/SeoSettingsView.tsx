@@ -38,14 +38,14 @@ export function SeoSettingsView({ initialSettings }: { initialSettings: Record<s
     metaDescriptionAr: initialSettings.metaDescriptionAr || "تجارب ترفيهية غامرة، هندسة فعاليات، ومدن ألعاب فضائية في قطر.",
     googleAnalyticsId: initialSettings.googleAnalyticsId || "G-E3QATAR2026",
     tagManagerId: initialSettings.tagManagerId || "GTM-E3QATAR",
-    robotsTxt: initialSettings.robotsTxt || "User-agent: *\nAllow: /\nDisallow: /dashboard/\nDisallow: /api/\nSitemap: https://e3.qa/api/sitemap/generate",
-    llmsTxt: initialSettings.llmsTxt || "# E3 Qatar Documentation\n> Qatar's premier event engineering, spatial production, and kinetic entertainment worlds.\n\n## Public Portals\n- B2C Entertainment Worlds: https://e3.qa/en/b2c\n- Attractions & Theme Parks: https://e3.qa/en/b2c/attractions",
+    robotsTxt: initialSettings.robotsTxt || "User-agent: *\nAllow: /\nDisallow: /dashboard/\nDisallow: /api/\nSitemap: https://eeeqa.com/api/sitemap/generate",
+    llmsTxt: initialSettings.llmsTxt || "# E3 Qatar Documentation\n> Qatar's premier event engineering, spatial production, and kinetic entertainment worlds.\n\n## Public Portals\n- B2C Entertainment Worlds: https://eeeqa.com/en/b2c\n- Attractions & Theme Parks: https://eeeqa.com/en/b2c/attractions",
     jsonLdOrganization: initialSettings.jsonLdOrganization || JSON.stringify({
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "E3 Qatar",
-      "url": "https://e3.qa",
-      "logo": "https://e3.qa/logo.png",
+      "url": "https://eeeqa.com",
+      "logo": "https://eeeqa.com/logo.png",
       "sameAs": ["https://instagram.com/e3qatar", "https://linkedin.com/company/e3qatar"]
     }, null, 2)
   });

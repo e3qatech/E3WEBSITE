@@ -57,7 +57,7 @@ const MOCK_CASE_STUDIES = [
           designation: "Head of Kinetic Engineering",
           department: "Engineering",
           profileImage: "https://example.com/ahmad.jpg",
-          email: "ahmad.faraz.private@e3.qa", // MUST NOT BE RENDERED
+          email: "ahmad.faraz.private@eeeqa.com", // MUST NOT BE RENDERED
         },
       },
     ],
@@ -319,7 +319,7 @@ describe("UX-05B — Case Studies Landing Page Correction & Enhancement", () => 
     expect(html).toContain("/en/b2b/case-studies/lusail-kinetic-lights");
 
     // STRICT PRIVACY CHECK: Personal email must NEVER be in markup
-    expect(html).not.toContain("ahmad.faraz.private@e3.qa");
+    expect(html).not.toContain("ahmad.faraz.private@eeeqa.com");
     expect(html).not.toContain("mailto:");
   });
 

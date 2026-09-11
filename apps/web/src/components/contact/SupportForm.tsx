@@ -91,7 +91,7 @@ export function SupportForm({ locale, attractions }: SupportFormProps) {
         body: JSON.stringify({
           actionType: 'SUPPORT_TICKET',
           name: subject || 'Guest',
-          email: 'support@e3.qa',
+          email: 'support@eeeqa.com',
           category,
           attractionId: attractionId || undefined,
           subject,
