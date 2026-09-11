@@ -92,6 +92,12 @@ const prismaClientSingleton = () => {
       if (!parsedUrl.searchParams.has('pool_timeout')) {
         parsedUrl.searchParams.set('pool_timeout', '20');
       }
+      // In serverless environments (Vercel), enforce connection_limit=1 to prevent connection pool exhaustion and Neon compute overages
+      if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+        if (!parsedUrl.searchParams.has('connection_limit')) {
+          parsedUrl.searchParams.set('connection_limit', '1');
+        }
+      }
       parsedUrl.searchParams.delete('channel_binding');
       finalUrl = parsedUrl.toString();
     }

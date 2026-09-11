@@ -1032,11 +1032,11 @@ describe('Public Business Connections & Security Hardening Final Regression Suit
 
       const socialSyncCron = content.crons.find((c: any) => c.path === '/api/cron/social-sync');
       expect(socialSyncCron).toBeDefined();
-      expect(socialSyncCron.schedule).toBe('*/30 * * * *');
+      expect(socialSyncCron.schedule).toBe('0 */6 * * *');
 
       const cleanupCron = content.crons.find((c: any) => c.path === '/api/cron/cleanup');
       expect(cleanupCron).toBeDefined();
-      expect(cleanupCron.schedule).toBe('0 * * * *');
+      expect(cleanupCron.schedule).toBe('0 3 * * *');
     });
   });
 

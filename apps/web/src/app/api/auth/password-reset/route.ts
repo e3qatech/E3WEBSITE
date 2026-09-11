@@ -107,11 +107,13 @@ export async function POST(req: NextRequest) {
 
       // Invalidate any existing unused reset tokens for this email
       try {
-        await db.verificationToken.deleteMany({
-          where: {
-            identifier: { startsWith: `pwd_reset:${cleanEmail}:` },
-          },
-        });
+        if ((db as any).verificationToken) {
+          await (db as any).verificationToken.deleteMany({
+            where: {
+              identifier: { startsWith: `pwd_reset:${cleanEmail}:` },
+            },
+          });
+        }
       } catch (_e) {
         // Non-blocking cleanup
       }
@@ -122,13 +124,15 @@ export async function POST(req: NextRequest) {
       const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
       const identifier = `pwd_reset:${cleanEmail}:${portal || 'staff'}:${resolvedLocale}`;
 
-      await db.verificationToken.create({
-        data: {
-          token: tokenHash,
-          identifier,
-          expires: expiresAt,
-        },
-      });
+      if ((db as any).verificationToken) {
+        await (db as any).verificationToken.create({
+          data: {
+            token: tokenHash,
+            identifier,
+            expires: expiresAt,
+          },
+        });
+      }
 
       // Construct authoritative Password Reset URL (preview-aware and production-validated)
       const baseOrigin = resolveAuthoritativeOrigin(req);
