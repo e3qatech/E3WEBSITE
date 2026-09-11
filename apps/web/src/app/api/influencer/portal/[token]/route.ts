@@ -141,71 +141,110 @@ export async function POST(
   try {
     const body = await req.json();
     const action = body.action;
+    const payload = body.payload && typeof body.payload === 'object' ? body.payload : body;
 
-    if (action === 'ACCEPT_INVITATION') {
+    if (
+      action === 'RESPOND_INVITATION' ||
+      action === 'ACCEPT_INVITATION' ||
+      action === 'DECLINE_INVITATION'
+    ) {
       if (!campaignCreator) throw new Error('No campaign assignment associated with this token');
-      if (campaignCreator.status !== 'INVITED') {
-        throw new Error(`Cannot accept invitation in '${campaignCreator.status}' state`);
+
+      const decision = payload.decision || (action === 'ACCEPT_INVITATION' ? 'ACCEPT' : 'DECLINE');
+
+      if (decision === 'ACCEPT') {
+        if (!['INVITED', 'NEGOTIATING'].includes(campaignCreator.status)) {
+          throw new Error(`Cannot accept invitation in '${campaignCreator.status}' state`);
+        }
+
+        const updated = await (db as any).campaignCreator.update({
+          where: { id: campaignCreator.id },
+          data: {
+            status: 'ACCEPTED',
+            acceptedAt: new Date(),
+            respondedAt: new Date(),
+          },
+        });
+
+        await logInfluencerAuditEvent({
+          action: 'CREATOR_ACCEPTED_INVITATION',
+          entity: 'CampaignCreator',
+          entityId: campaignCreator.id,
+          metadata: { creatorName: influencer.displayName },
+        });
+
+        await sendInfluencerNotification({
+          type: 'INVITATION_ACCEPTED',
+          title: 'Creator Accepted Invitation',
+          message: `${influencer.displayName} accepted the invitation for "${campaignCreator.campaign.titleEn}".`,
+          actionUrl: `/en/dashboard/marketing/influencers/campaigns/${campaignCreator.campaignId}`,
+        });
+
+        return NextResponse.json(updated);
       }
 
-      const updated = await (db as any).campaignCreator.update({
-        where: { id: campaignCreator.id },
-        data: {
-          status: 'ACCEPTED',
-          acceptedAt: new Date(),
-          respondedAt: new Date(),
-        },
-      });
+      if (decision === 'DECLINE') {
+        const declineReason = payload.declineReason || payload.reason || null;
+        const updated = await (db as any).campaignCreator.update({
+          where: { id: campaignCreator.id },
+          data: {
+            status: 'DECLINED',
+            declinedAt: new Date(),
+            respondedAt: new Date(),
+            declineReason,
+          },
+        });
 
-      await logInfluencerAuditEvent({
-        action: 'CREATOR_ACCEPTED_INVITATION',
-        entity: 'CampaignCreator',
-        entityId: campaignCreator.id,
-        metadata: { creatorName: influencer.displayName },
-      });
+        await logInfluencerAuditEvent({
+          action: 'CREATOR_DECLINED_INVITATION',
+          entity: 'CampaignCreator',
+          entityId: campaignCreator.id,
+          metadata: { declineReason },
+        });
 
-      await sendInfluencerNotification({
-        type: 'INVITATION_ACCEPTED',
-        title: 'Creator Accepted Invitation',
-        message: `${influencer.displayName} accepted the invitation for "${campaignCreator.campaign.titleEn}".`,
-        actionUrl: `/en/dashboard/marketing/influencers/campaigns/${campaignCreator.campaignId}`,
-      });
+        await sendInfluencerNotification({
+          type: 'INVITATION_DECLINED',
+          title: 'Creator Declined Invitation',
+          message: `${influencer.displayName} declined the invitation for "${campaignCreator.campaign.titleEn}".`,
+          actionUrl: `/en/dashboard/marketing/influencers/campaigns/${campaignCreator.campaignId}`,
+        });
 
-      return NextResponse.json(updated);
-    }
+        return NextResponse.json(updated);
+      }
 
-    if (action === 'DECLINE_INVITATION') {
-      if (!campaignCreator) throw new Error('No campaign assignment associated with this token');
+      if (decision === 'COUNTER') {
+        const counterRate = payload.counterRate !== undefined && payload.counterRate !== null ? Number(payload.counterRate) : null;
+        const updated = await (db as any).campaignCreator.update({
+          where: { id: campaignCreator.id },
+          data: {
+            status: 'NEGOTIATING',
+            counterRate,
+            respondedAt: new Date(),
+          },
+        });
 
-      const updated = await (db as any).campaignCreator.update({
-        where: { id: campaignCreator.id },
-        data: {
-          status: 'DECLINED',
-          declinedAt: new Date(),
-          respondedAt: new Date(),
-          declineReason: body.declineReason || null,
-        },
-      });
+        await logInfluencerAuditEvent({
+          action: 'CREATOR_COUNTER_OFFER',
+          entity: 'CampaignCreator',
+          entityId: campaignCreator.id,
+          metadata: { counterRate, creatorName: influencer.displayName },
+        });
 
-      await logInfluencerAuditEvent({
-        action: 'CREATOR_DECLINED_INVITATION',
-        entity: 'CampaignCreator',
-        entityId: campaignCreator.id,
-        metadata: { declineReason: body.declineReason },
-      });
+        await sendInfluencerNotification({
+          type: 'INVITATION_COUNTERED',
+          title: 'Creator Proposed Counter Offer',
+          message: `${influencer.displayName} proposed a counter rate of ${counterRate ?? 'N/A'} for "${campaignCreator.campaign.titleEn}".`,
+          actionUrl: `/en/dashboard/marketing/influencers/campaigns/${campaignCreator.campaignId}`,
+        });
 
-      await sendInfluencerNotification({
-        type: 'INVITATION_DECLINED',
-        title: 'Creator Declined Invitation',
-        message: `${influencer.displayName} declined the invitation for "${campaignCreator.campaign.titleEn}".`,
-        actionUrl: `/en/dashboard/marketing/influencers/campaigns/${campaignCreator.campaignId}`,
-      });
+        return NextResponse.json(updated);
+      }
 
-      return NextResponse.json(updated);
+      throw new Error(`Unknown invitation decision '${decision}'`);
     }
 
     if (action === 'SUBMIT_CONTENT') {
-      const { deliverableId, captionEn, captionAr, submissionNotes, assetIds, externalPreviewUrl } = body;
+      const { deliverableId, captionEn, captionAr, submissionNotes, assetIds, externalPreviewUrl } = payload;
 
       // Ensure deliverable belongs to this scoped campaign creator
       const deliverable = await (db as any).campaignDeliverable.findFirst({
@@ -230,8 +269,8 @@ export async function POST(
       return NextResponse.json(submission, { status: 201 });
     }
 
-    if (action === 'SUBMIT_LIVE_URL') {
-      const { deliverableId, publishedUrl } = body;
+    if (action === 'SUBMIT_LIVE_URL' || action === 'SUBMIT_PUBLISHED_URL') {
+      const { deliverableId, publishedUrl } = payload;
       const deliverable = await (db as any).campaignDeliverable.findFirst({
         where: { id: deliverableId, campaignCreatorId: campaignCreator?.id },
       });
@@ -258,7 +297,7 @@ export async function POST(
     }
 
     if (action === 'UPDATE_PROFILE') {
-      const { bioEn, bioAr, location, nationality, website } = body;
+      const { bioEn, bioAr, location, nationality, website } = payload;
       const updated = await (db as any).influencer.update({
         where: { id: influencer.id },
         data: {
@@ -275,7 +314,7 @@ export async function POST(
 
     if (action === 'SIGN_AGREEMENT') {
       if (!campaignCreator) throw new Error('No campaign assignment associated with this token');
-      const { agreementId } = body;
+      const { agreementId } = payload;
 
       const agreement = await (db as any).influencerAgreement.findFirst({
         where: { id: agreementId, campaignCreatorId: campaignCreator.id },
@@ -300,7 +339,7 @@ export async function POST(
 
     if (action === 'SUBMIT_INVOICE') {
       if (!campaignCreator) throw new Error('No campaign assignment associated with this token');
-      const { invoiceNumber, invoiceAssetId, amount } = body;
+      const { invoiceNumber, invoiceAssetId, amount } = payload;
 
       if (!invoiceNumber) throw new Error('Invoice number is required');
 
