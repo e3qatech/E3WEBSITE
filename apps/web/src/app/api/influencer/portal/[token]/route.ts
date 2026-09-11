@@ -42,8 +42,9 @@ export async function GET(
         followerCount: p.followerCount,
       })),
     },
-    campaign: campaignCreator
+    campaignCreator: campaignCreator
       ? {
+          id: campaignCreator.id,
           assignmentId: campaignCreator.id,
           status: campaignCreator.status,
           collaborationType: campaignCreator.collaborationType,
@@ -52,75 +53,89 @@ export async function GET(
           currency: campaignCreator.currency,
           invitedAt: campaignCreator.invitedAt,
           invitationExpiresAt: campaignCreator.invitationExpiresAt,
-          campaign: {
-            id: campaignCreator.campaign.id,
-            titleEn: campaignCreator.campaign.titleEn,
-            titleAr: campaignCreator.campaign.titleAr,
-            descriptionEn: campaignCreator.campaign.descriptionEn,
-            descriptionAr: campaignCreator.campaign.descriptionAr,
-            campaignType: campaignCreator.campaign.campaignType,
-            startDate: campaignCreator.campaign.startDate,
-            endDate: campaignCreator.campaign.endDate,
-            defaultUsageRights: campaignCreator.campaign.defaultUsageRights,
-          },
-          deliverables: campaignCreator.deliverables.map((d: any) => ({
-            id: d.id,
-            platform: d.platform,
-            contentType: d.contentType,
-            title: d.title,
-            descriptionEn: d.descriptionEn,
-            descriptionAr: d.descriptionAr,
-            draftDueAt: d.draftDueAt,
-            publishDueAt: d.publishDueAt,
-            mandatoryMessageEn: d.mandatoryMessageEn,
-            mandatoryMessageAr: d.mandatoryMessageAr,
-            hashtags: d.hashtags,
-            mentions: d.mentions,
-            status: d.status,
-            publishedUrl: d.publishedUrl,
-            submissions: d.submissions.map((s: any) => ({
-              id: s.id,
-              version: s.version,
-              captionEn: s.captionEn,
-              captionAr: s.captionAr,
-              assetIds: s.assetIds,
-              externalPreviewUrl: s.externalPreviewUrl,
-              submittedAt: s.submittedAt,
-              reviews: s.reviews
-                .filter((r: any) => !r.isClientReview) // Client internal feedback hidden
-                .map((r: any) => ({
-                  decision: r.decision,
-                  feedbackEn: r.feedbackEn,
-                  feedbackAr: r.feedbackAr,
-                  createdAt: r.createdAt,
-                })),
-            })),
-          })),
-          attendance: campaignCreator.attendanceRecords.map((a: any) => ({
-            id: a.id,
-            eventDate: a.eventDate,
-            arrivalWindowStart: a.arrivalWindowStart,
-            arrivalWindowEnd: a.arrivalWindowEnd,
-            guestCount: a.guestCount,
-            accreditationReference: a.accreditationReference,
-            qrReference: a.qrReference,
-            parkingInstructions: a.parkingInstructions,
-            specialRequirements: a.specialRequirements,
-            status: a.status,
-          })),
-          promoCodes: campaignCreator.promoCodes.map((pc: any) => ({
-            code: pc.code,
-            discountType: pc.discountType,
-            discountValue: Number(pc.discountValue),
-            currency: pc.currency,
-            validFrom: pc.validFrom,
-            validUntil: pc.validUntil,
-          })),
+          briefAcknowledgedAt: campaignCreator.briefAcknowledgedAt,
+          acceptedAt: campaignCreator.acceptedAt,
         }
       : null,
+    campaign: campaignCreator?.campaign
+      ? {
+          id: campaignCreator.campaign.id,
+          titleEn: campaignCreator.campaign.titleEn,
+          titleAr: campaignCreator.campaign.titleAr,
+          descriptionEn: campaignCreator.campaign.descriptionEn,
+          descriptionAr: campaignCreator.campaign.descriptionAr,
+          campaignType: campaignCreator.campaign.campaignType,
+          startDate: campaignCreator.campaign.startDate,
+          endDate: campaignCreator.campaign.endDate,
+          defaultUsageRights: campaignCreator.campaign.defaultUsageRights,
+        }
+      : null,
+    deliverables: campaignCreator
+      ? campaignCreator.deliverables.map((d: any) => ({
+          id: d.id,
+          platform: d.platform,
+          contentType: d.contentType,
+          title: d.title,
+          descriptionEn: d.descriptionEn,
+          descriptionAr: d.descriptionAr,
+          draftDueAt: d.draftDueAt,
+          publishDueAt: d.publishDueAt,
+          mandatoryMessageEn: d.mandatoryMessageEn,
+          mandatoryMessageAr: d.mandatoryMessageAr,
+          hashtags: d.hashtags,
+          mentions: d.mentions,
+          status: d.status,
+          publishedUrl: d.publishedUrl,
+          submissions: d.submissions.map((s: any) => ({
+            id: s.id,
+            version: s.version,
+            captionEn: s.captionEn,
+            captionAr: s.captionAr,
+            assetIds: s.assetIds,
+            externalPreviewUrl: s.externalPreviewUrl,
+            submittedAt: s.submittedAt,
+            reviews: s.reviews
+              .filter((r: any) => !r.isClientReview)
+              .map((r: any) => ({
+                decision: r.decision,
+                feedbackEn: r.feedbackEn,
+                feedbackAr: r.feedbackAr,
+                createdAt: r.createdAt,
+              })),
+          })),
+        }))
+      : [],
+    attendance: campaignCreator
+      ? campaignCreator.attendanceRecords.map((a: any) => ({
+          id: a.id,
+          eventDate: a.eventDate,
+          arrivalWindowStart: a.arrivalWindowStart,
+          arrivalWindowEnd: a.arrivalWindowEnd,
+          guestCount: a.guestCount,
+          accreditationReference: a.accreditationReference,
+          qrReference: a.qrReference,
+          parkingInstructions: a.parkingInstructions,
+          specialRequirements: a.specialRequirements,
+          status: a.status,
+        }))
+      : [],
+    promoCodes: campaignCreator
+      ? campaignCreator.promoCodes.map((pc: any) => ({
+          code: pc.code,
+          discountType: pc.discountType,
+          discountValue: Number(pc.discountValue),
+          currency: pc.currency,
+          validFrom: pc.validFrom,
+          validUntil: pc.validUntil,
+        }))
+      : [],
   };
 
-  return NextResponse.json(scopedData);
+  return NextResponse.json({
+    success: true,
+    data: scopedData,
+    ...scopedData,
+  });
 }
 
 export async function POST(

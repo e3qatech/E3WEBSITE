@@ -50,6 +50,8 @@ export async function generateMetadata(props: {
   };
 }
 
+import { PublicCreatorDirectory } from "@/components/influencer/PublicCreatorDirectory";
+
 export default async function PublicCreatorsDirectoryPage({
   params,
 }: {
@@ -64,121 +66,59 @@ export default async function PublicCreatorsDirectoryPage({
     <div className="min-h-screen bg-[var(--bg-level-1)] py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto space-y-12">
         {/* Hero Section */}
-        <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{isAr ? "مجتمع صناع المحتوى في E3" : "E3 Creator Collective"}</span>
+        <div className="text-center space-y-5 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] text-xs font-bold uppercase tracking-wider border border-[var(--color-accent)]/20 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+            <span>{isAr ? "شبكة صناع المحتوى المعتمدة في قطر" : "Official Qatar Creator Collective"}</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-[var(--text-primary)] tracking-tight">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[var(--text-primary)] tracking-tight leading-[1.1]">
             {isAr ? "نبتكر تجارب ترفيهية استثنائية معاً" : "Crafting Extraordinary Experiences Together"}
           </h1>
 
-          <p className="text-sm sm:text-base text-[var(--text-muted)] leading-relaxed">
+          <p className="text-sm sm:text-base text-[var(--text-muted)] leading-relaxed max-w-2xl mx-auto">
             {isAr
-              ? "نلهم الجماهير ونروي أروع قصص الفعاليات والوجهات الترفيهية في قطر بالتعاون مع نخبة من صناع المحتوى والمؤثرين."
-              : "Discover the visionary storytellers, vloggers, and creative ambassadors driving culture and entertainment across Qatar."}
+              ? "نلهم الجماهير ونروي أروع قصص الفعاليات والوجهات الترفيهية في قطر بالتعاون مع نخبة من صناع المحتوى والمؤثرين المعتمدين."
+              : "Discover the visionary storytellers, vloggers, and creative ambassadors driving culture, tourism, and entertainment across Qatar."}
           </p>
 
-          <div className="pt-2 flex items-center justify-center gap-4">
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
             <Link
               href={`/${locale}/creators/apply`}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--color-accent)] text-white text-xs font-bold hover:opacity-90 transition shadow-lg shadow-[var(--color-accent)]/20"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-[var(--color-accent)] text-white text-xs font-bold hover:opacity-95 transition shadow-xl shadow-[var(--color-accent)]/25 hover:scale-[1.02]"
             >
               <span>{isAr ? "انضم إلينا كصانع محتوى" : "Join the Creator Collective"}</span>
               {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
             </Link>
           </div>
-        </div>
 
-        {/* Featured Creators Grid */}
-        {creators.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {creators.map((c: any) => (
-              <div
-                key={c.id}
-                className="p-6 rounded-2xl bg-[var(--bg-level-2)] border border-[var(--border-level-1)] flex flex-col justify-between space-y-4 hover:border-[var(--color-accent)]/40 transition group shadow-sm"
-              >
-                <div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--color-accent)]/20 to-[var(--bg-level-3)] border border-[var(--border-level-2)] flex items-center justify-center text-lg font-bold text-[var(--color-accent)] overflow-hidden shrink-0 shadow-inner">
-                      {c.profileImage ? (
-                        <img src={c.profileImage} alt={c.displayName} className="w-full h-full object-cover" />
-                      ) : (
-                        c.displayName.substring(0, 2).toUpperCase()
-                      )}
-                    </div>
+          {/* Value Stats Strip */}
+          <div className="pt-6 grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-xs">
+            <div className="p-4 rounded-2xl bg-[var(--bg-level-2)]/80 backdrop-blur-md border border-[var(--border-level-1)] text-center">
+              <span className="text-xl sm:text-2xl font-black text-[var(--text-primary)] block">100%</span>
+              <span className="text-[11px] text-[var(--text-muted)] mt-0.5 block">
+                {isAr ? "معايير سلامة العلامة" : "Brand-Safe Verified"}
+              </span>
+            </div>
 
-                    <div>
-                      <h3 className="text-base font-bold text-[var(--text-primary)] group-hover:text-[var(--color-accent)] transition">
-                        {c.displayName}
-                      </h3>
-                      <div className="flex items-center gap-1 text-[11px] text-[var(--text-muted)] mt-0.5">
-                        <span>{c.location || "Qatar"}</span>
-                        {c.isQatarBased && <span>🇶🇦</span>}
-                      </div>
-                    </div>
-                  </div>
+            <div className="p-4 rounded-2xl bg-[var(--bg-level-2)]/80 backdrop-blur-md border border-[var(--border-level-1)] text-center">
+              <span className="text-xl sm:text-2xl font-black text-[var(--color-accent)] block">120+</span>
+              <span className="text-[11px] text-[var(--text-muted)] mt-0.5 block">
+                {isAr ? "فعالية ووجهة ترفيهية" : "Qatar Campaigns"}
+              </span>
+            </div>
 
-                  {/* Bio */}
-                  <p className="text-xs text-[var(--text-secondary)] mt-4 line-clamp-3 leading-relaxed">
-                    {isAr ? c.bioAr || c.bioEn : c.bioEn || "E3 Brand Creator & Storyteller"}
-                  </p>
-                </div>
-
-                {/* Categories & Socials */}
-                <div className="space-y-3 pt-3 border-t border-[var(--border-level-1)]">
-                  <div className="flex flex-wrap gap-1.5">
-                    {c.categories?.slice(0, 3).map((cat: string) => (
-                      <span
-                        key={cat}
-                        className="px-2 py-0.5 rounded-md bg-[var(--bg-level-1)] border border-[var(--border-level-2)] text-[10px] font-semibold text-[var(--text-muted)]"
-                      >
-                        {cat.replace(/_/g, " ")}
-                      </span>
-                    ))}
-                  </div>
-
-                  {c.platforms?.length > 0 && (
-                    <div className="flex items-center gap-2 pt-1">
-                      {c.platforms.map((p: any) => (
-                        <a
-                          key={p.platform}
-                          href={p.profileUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-xs text-[var(--color-accent)] hover:underline flex items-center gap-1 font-medium"
-                        >
-                          <span>@{p.handle}</span>
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-16 text-center rounded-3xl bg-[var(--bg-level-2)] border border-[var(--border-level-1)] max-w-xl mx-auto space-y-4">
-            <Sparkles className="w-10 h-10 text-[var(--color-accent)] mx-auto opacity-70" />
-            <h3 className="text-lg font-bold text-[var(--text-primary)]">
-              {isAr ? "قائمة صناع المحتوى قيد التحديث" : "Creator Showcase Updating"}
-            </h3>
-            <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-              {isAr
-                ? "نحن بصدد إطلاق فعاليات جديدة. هل تود أن تكون أحد صناع المحتوى المميزين معنا في E3؟"
-                : "We are preparing for upcoming event launches. Would you like to be featured as an official E3 creator?"}
-            </p>
-            <div className="pt-2">
-              <Link
-                href={`/${locale}/creators/apply`}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--color-accent)] text-white text-xs font-bold hover:opacity-90 transition"
-              >
-                <span>{isAr ? "قدم طلبك الآن" : "Apply to Collaborate"}</span>
-              </Link>
+            <div className="col-span-2 sm:col-span-1 p-4 rounded-2xl bg-[var(--bg-level-2)]/80 backdrop-blur-md border border-[var(--border-level-1)] text-center">
+              <span className="text-xl sm:text-2xl font-black text-[var(--text-primary)] block">🇶🇦 Doha</span>
+              <span className="text-[11px] text-[var(--text-muted)] mt-0.5 block">
+                {isAr ? "حضور محلي وخليجي" : "Local & GCC Impact"}
+              </span>
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Interactive Client Directory Component */}
+        <PublicCreatorDirectory creators={creators as any} locale={locale} />
       </div>
     </div>
   );
