@@ -79,8 +79,7 @@ export function proxy(req: NextRequest) {
     normalizedPath === '/login/admin' ||
     normalizedPath === '/login/business' ||
     normalizedPath === '/login/careers' ||
-    normalizedPath === '/login/events' ||
-    normalizedPath === '/login/details'
+    normalizedPath === '/login/events'
   ) {
     return NextResponse.redirect(new URL(`/${targetLocale}${normalizedPath}`, nextUrl));
   }
