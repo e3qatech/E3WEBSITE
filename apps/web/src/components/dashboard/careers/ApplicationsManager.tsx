@@ -39,7 +39,7 @@ import {
 } from "lucide-react";
 import { safeFetchJson } from "@/lib/utils";
 import { useLocale } from "@/components/layout/LocaleProvider";
-import { isLegacySimulatedMock, computeCategoryFitAndRank } from "@/lib/careers/ai-cv-parser";
+import { isLegacySimulatedMock, computeCategoryFitAndRank } from "@/lib/careers/talent-ranking";
 import { CvPreviewModal } from "./CvPreviewModal";
 
 export function ApplicationsManager({ initialApplications }: { initialApplications: any[] }) {

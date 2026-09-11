@@ -49,7 +49,7 @@ import {
 import { SlideOver } from "@/components/dashboard/ui/SlideOver";
 import { TalentDetail, type Talent } from "./TalentDetail";
 import { useToast } from "@/components/dashboard/ui/ToastProvider";
-import { computeCategoryFitAndRank } from "@/lib/careers/ai-cv-parser";
+import { computeCategoryFitAndRank } from "@/lib/careers/talent-ranking";
 import { CvPreviewModal } from "@/components/dashboard/careers/CvPreviewModal";
 
 interface TalentListProps {

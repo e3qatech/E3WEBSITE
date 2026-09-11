@@ -244,7 +244,7 @@ export async function getPublicFeaturedCreators(): Promise<PublicCreatorProfile[
       status: 'ACTIVE',
       publicFeatureEnabled: true,
       publicConsentAt: { not: null },
-      brandSafetyStatus: 'PASSED',
+      brandSafetyStatus: { in: ['PASSED', 'VERIFIED_SAFE'] },
       archivedAt: null,
     },
     orderBy: [
