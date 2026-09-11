@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
       parsedPayload = {
         ...domainData,
         parsedAt: new Date().toISOString(),
-        aiEngine: 'e3-domain-engine',
+        aiEngine: 'e3-talent-ai',
       };
     }
 

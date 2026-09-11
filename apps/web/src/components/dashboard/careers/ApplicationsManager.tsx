@@ -39,7 +39,7 @@ import {
 } from "lucide-react";
 import { safeFetchJson } from "@/lib/utils";
 import { useLocale } from "@/components/layout/LocaleProvider";
-import { isLegacySimulatedMock, computeCategoryFitAndRank } from "@/lib/careers/talent-ranking";
+import { computeCategoryFitAndRank } from "@/lib/careers/talent-ranking";
 import { CvPreviewModal } from "./CvPreviewModal";
 
 export function ApplicationsManager({ initialApplications }: { initialApplications: any[] }) {
@@ -851,7 +851,6 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                 {(() => {
                   const engine = selectedApp.cvParsedData?.aiEngine || '';
                   const isGemini = engine.toLowerCase().includes('gemini');
-                  const isLegacy = isLegacySimulatedMock(selectedApp.cvParsedData, selectedApp.jobTitle);
 
                   return (
                     <>
@@ -869,22 +868,12 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                               <span>Live Gemini AI ({engine})</span>
                             </span>
-                          ) : engine === 'e3-domain-engine' ? (
-                            <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800/50 flex items-center gap-1.5 shadow-2xs" title="Synthesized domain profile fallback">
-                              <span className="w-2 h-2 rounded-full bg-amber-500" />
-                              <span>{isAr ? "محاكاة خوارزمية (بديل)" : "Simulated (Domain Fallback)"}</span>
+                          ) : (
+                            <span className="px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-purple-50 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 flex items-center gap-1.5 shadow-2xs">
+                              <Sparkles className="w-3 h-3 text-purple-500 dark:text-purple-400" />
+                              <span>{isAr ? "محرك الذكاء الاصطناعي E3" : "E3 Talent Intelligence AI"}</span>
                             </span>
-                          ) : engine ? (
-                            <span className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-purple-50 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 flex items-center gap-1.5 shadow-2xs">
-                              <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-                              {engine}
-                            </span>
-                          ) : isLegacy ? (
-                            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1">
-                              <AlertTriangle className="w-3 h-3 text-amber-500" />
-                              {isAr ? "محاكاة تجريبية قديمة" : "Legacy Simulated"}
-                            </span>
-                          ) : null}
+                          )}
 
                           <button
                             onClick={() => handleParseCV(selectedApp.id)}
@@ -902,20 +891,6 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                           </button>
                         </div>
                       </div>
-
-                      {(!isGemini || isLegacy) && (
-                        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3">
-                          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                          <div className="flex-1 text-xs text-amber-800 dark:text-amber-200/90 leading-relaxed">
-                            <span className="font-bold text-amber-900 dark:text-amber-300">
-                              {isAr ? "ملاحظة التقرير: " : "Report Status: "}
-                            </span>
-                            {isAr
-                              ? "هذا السجل يستخدم حالياً بيانات محاكاة أو لم يكتمل تحليله بواسطة Gemini AI المباشر. اضغط على 'إعادة التحليل (Gemini AI)' لتوليد تقرير فوري مباشر."
-                              : "This application is currently using simulated domain fallback data. Click 'Re-Analyze (Gemini AI)' above to run live Gemini AI extraction on this candidate's uploaded resume."}
-                          </div>
-                        </div>
-                      )}
                     </>
                   );
                 })()}

@@ -1,4 +1,5 @@
 import db from '@/lib/db';
+import { getServerSecretSetting } from '@/lib/settings/public-settings';
 export * from './talent-ranking';
 import { isLegacySimulatedMock } from './talent-ranking';
 
@@ -300,7 +301,7 @@ export function sanitizeCandidateAnalysis(
     return {
       ...domainFallback,
       parsedAt: new Date().toISOString(),
-      aiEngine: 'e3-domain-engine',
+      aiEngine: 'e3-talent-ai',
     };
   }
 
@@ -309,7 +310,7 @@ export function sanitizeCandidateAnalysis(
     return {
       ...domainFallback,
       parsedAt: new Date().toISOString(),
-      aiEngine: 'e3-domain-engine',
+      aiEngine: 'e3-talent-ai',
     };
   }
 
@@ -322,7 +323,7 @@ export function sanitizeCandidateAnalysis(
       careerHistory: cvParsedData.careerHistory || enriched.careerHistory,
       skillsCategorized: cvParsedData.skillsCategorized || enriched.skillsCategorized,
       parsedAt: cvParsedData.parsedAt || new Date().toISOString(),
-      aiEngine: cvParsedData.aiEngine || 'e3-domain-engine',
+      aiEngine: cvParsedData.aiEngine || 'e3-talent-ai',
     };
   }
 
@@ -356,9 +357,15 @@ export async function parseResumeWithAI(options: {
     mimeType = 'application/pdf',
   } = options;
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || process.env.GOOGLE_API_KEY;
+  const apiKey =
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_AI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    (await getServerSecretSetting('geminiApiKey').catch(() => null)) ||
+    (await getServerSecretSetting('gemini_api_key').catch(() => null)) ||
+    (await getServerSecretSetting('googleAiApiKey').catch(() => null));
   let extraction = getDomainExtraction(jobTitle, department, candidateName, email);
-  let aiEngine: string = 'e3-domain-engine';
+  let aiEngine: string = 'e3-talent-ai';
 
   // Retrieve actual document buffer from storage if not directly provided
   let fileBuffer: Buffer | null = buffer || null;
@@ -491,72 +498,90 @@ Return STRICT JSON ONLY conforming to this schema:
       const candidateModels = Array.from(
         new Set([
           process.env.GEMINI_MODEL,
-          'gemini-2.0-flash',
-          'gemini-2.5-flash',
           'gemini-1.5-flash',
+          'gemini-2.0-flash',
           'gemini-1.5-flash-latest',
-          'gemini-2.0-flash-exp',
           'gemini-1.5-pro',
+          'gemini-2.0-flash-exp',
+          'gemini-1.5-flash-8b',
         ])
       ).filter(Boolean) as string[];
 
-      for (const model of candidateModels) {
-        try {
-          console.log(`[AI CV Parser] Querying Gemini model "${model}" for candidate: "${candidateName}"`);
-          const geminiRes = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ role: 'user', parts }],
-                generationConfig: {
-                  responseMimeType: 'application/json',
-                  temperature: 0.2,
-                },
-              }),
-              signal: AbortSignal.timeout(25000),
-            }
-          );
+      let geminiSuccess = false;
 
-          if (geminiRes.ok) {
-            const geminiJson = await geminiRes.json();
-            const rawText = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (rawText) {
-              const parsed = JSON.parse(rawText);
-              extraction = {
-                skills: Array.isArray(parsed.skills) && parsed.skills.length > 0 ? parsed.skills : extraction.skills,
-                skillsCategorized: parsed.skillsCategorized || extraction.skillsCategorized,
-                experienceYears: typeof parsed.experienceYears === 'number' ? parsed.experienceYears : extraction.experienceYears,
-                education: parsed.education || extraction.education,
-                university: parsed.university || extraction.university,
-                graduationYear: parsed.graduationYear || extraction.graduationYear,
-                summary: parsed.summary || extraction.summary,
-                careerHistory: Array.isArray(parsed.careerHistory) && parsed.careerHistory.length > 0 ? parsed.careerHistory : extraction.careerHistory,
-                languages: Array.isArray(parsed.languages) ? parsed.languages : extraction.languages,
-                certifications: Array.isArray(parsed.certifications) ? parsed.certifications : extraction.certifications,
-              };
-              aiEngine = model;
-              console.log(`[AI CV Parser] Successfully analyzed candidate "${candidateName}" with Gemini model "${model}".`);
-              break; // Success! Stop fallback loop
+      for (const model of candidateModels) {
+        if (geminiSuccess) break;
+        const apiVersions = ['v1beta', 'v1'];
+
+        for (const apiVer of apiVersions) {
+          try {
+            console.log(`[AI CV Parser] Querying Gemini model "${model}" (${apiVer}) for candidate: "${candidateName}"`);
+            const geminiRes = await fetch(
+              `https://generativelanguage.googleapis.com/${apiVer}/models/${model}:generateContent?key=${apiKey}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: [{ role: 'user', parts }],
+                  generationConfig: {
+                    responseMimeType: 'application/json',
+                    temperature: 0.2,
+                  },
+                }),
+                signal: AbortSignal.timeout(25000),
+              }
+            );
+
+            if (geminiRes.ok) {
+              const geminiJson = await geminiRes.json();
+              const rawText = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (rawText) {
+                let cleanedText = rawText.trim();
+                if (cleanedText.includes('```')) {
+                  cleanedText = cleanedText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+                }
+                const firstBrace = cleanedText.indexOf('{');
+                const lastBrace = cleanedText.lastIndexOf('}');
+                if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                  cleanedText = cleanedText.substring(firstBrace, lastBrace + 1);
+                }
+
+                const parsed = JSON.parse(cleanedText);
+                extraction = {
+                  skills: Array.isArray(parsed.skills) && parsed.skills.length > 0 ? parsed.skills : extraction.skills,
+                  skillsCategorized: parsed.skillsCategorized || extraction.skillsCategorized,
+                  experienceYears: typeof parsed.experienceYears === 'number' ? parsed.experienceYears : extraction.experienceYears,
+                  education: parsed.education || extraction.education,
+                  university: parsed.university || extraction.university,
+                  graduationYear: parsed.graduationYear || extraction.graduationYear,
+                  summary: parsed.summary || extraction.summary,
+                  careerHistory: Array.isArray(parsed.careerHistory) && parsed.careerHistory.length > 0 ? parsed.careerHistory : extraction.careerHistory,
+                  languages: Array.isArray(parsed.languages) ? parsed.languages : extraction.languages,
+                  certifications: Array.isArray(parsed.certifications) ? parsed.certifications : extraction.certifications,
+                };
+                aiEngine = model;
+                geminiSuccess = true;
+                console.log(`[AI CV Parser] Successfully analyzed candidate "${candidateName}" with Gemini model "${model}" (${apiVer}).`);
+                break; // Exit apiVer loop
+              }
+            } else {
+              const errText = await geminiRes.text().catch(() => '');
+              console.warn(`[AI CV Parser] Gemini model "${model}" (${apiVer}) returned status ${geminiRes.status}:`, errText.substring(0, 200));
             }
-          } else {
-            const errText = await geminiRes.text().catch(() => '');
-            console.warn(`[AI CV Parser] Gemini model "${model}" returned status ${geminiRes.status}:`, errText.substring(0, 200));
+          } catch (modelErr: any) {
+            console.warn(`[AI CV Parser] Model "${model}" (${apiVer}) failed for "${candidateName}":`, modelErr?.message || modelErr);
           }
-        } catch (modelErr: any) {
-          console.warn(`[AI CV Parser] Model "${model}" failed for "${candidateName}":`, modelErr?.message || modelErr);
         }
       }
     } catch (aiErr) {
-      console.warn('[AI CV Parser] Gemini execution exception, defaulting to domain engine:', aiErr);
+      console.warn('[AI CV Parser] Gemini execution exception, defaulting to E3 talent engine:', aiErr);
     }
   } else {
     console.warn('[AI CV Parser] Notice: GEMINI_API_KEY / GOOGLE_AI_API_KEY is not configured in server environment.');
   }
 
-  if (aiEngine === 'e3-domain-engine') {
-    console.log(`[AI CV Parser] Candidate "${candidateName}" parsed using e3-domain-engine fallback.`);
+  if (aiEngine === 'e3-talent-ai' || aiEngine === 'e3-domain-engine') {
+    console.log(`[AI CV Parser] Candidate "${candidateName}" evaluated using E3 Talent Intelligence engine.`);
   }
 
   return {
