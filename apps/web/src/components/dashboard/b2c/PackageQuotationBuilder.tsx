@@ -23,6 +23,7 @@ import {
   Settings2
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
+import { calculatePackageStartingPrice } from "@/lib/package-pricing-engine"
 import { cn } from "@/lib/utils"
 import { 
   PDFLetterheadManagerModal, 
@@ -115,7 +116,7 @@ export function PackageQuotationBuilder({
     const pkg = packages.find(p => p.id === pkgId)
     if (!pkg) return
 
-    const basePrice = pkg.startingPrice || 1500
+    const basePrice = calculatePackageStartingPrice(pkg) || 1500
     setQuoteForm(prev => ({
       ...prev,
       packageId: pkg.id,
@@ -154,7 +155,7 @@ export function PackageQuotationBuilder({
           titleEn: `${selectedPackageObj?.titleEn || "Package"} - ${tier.nameEn || "Tier"}`,
           titleAr: `${selectedPackageObj?.titleAr || selectedPackageObj?.titleEn || "الباقة"} - ${tier.nameAr || tier.nameEn}`,
           itemType: "PACKAGE_TIER",
-          unitPrice: tier.price || selectedPackageObj?.startingPrice || 1500,
+          unitPrice: tier.price || calculatePackageStartingPrice(selectedPackageObj) || 1500,
           quantity: 1
         },
         ...prev.items.filter(it => it.itemType !== "PACKAGE_TIER")
@@ -403,7 +404,7 @@ export function PackageQuotationBuilder({
                 <option value="">{isAr ? "باقة مخصصة (دون أساس ثابت)" : "Custom Proposal (No fixed package)"}</option>
                 {packages.map(p => (
                   <option key={p.id} value={p.id}>
-                    {p.titleEn} ({p.startingPrice} QAR)
+                    {p.titleEn} ({calculatePackageStartingPrice(p)} QAR)
                   </option>
                 ))}
               </select>

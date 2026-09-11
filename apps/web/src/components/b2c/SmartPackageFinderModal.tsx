@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import Link from "next/link"
+import { calculatePackageStartingPrice } from "@/lib/package-pricing-engine"
 
 interface SmartPackageFinderModalProps {
   isOpen: boolean
@@ -95,9 +96,10 @@ export function SmartPackageFinderModal({
       if (answers.guests === "50_PLUS" && pkg.maxGuests >= 50) score += 15
 
       // Match budget
-      if (answers.budget === "LOW" && pkg.startingPrice < 1500) score += 15
-      if (answers.budget === "MEDIUM" && pkg.startingPrice >= 1200 && pkg.startingPrice <= 4000) score += 15
-      if (answers.budget === "HIGH" && pkg.startingPrice > 3000) score += 15
+      const effectivePrice = calculatePackageStartingPrice(pkg)
+      if (answers.budget === "LOW" && effectivePrice < 1500) score += 15
+      if (answers.budget === "MEDIUM" && effectivePrice >= 1200 && effectivePrice <= 4000) score += 15
+      if (answers.budget === "HIGH" && effectivePrice > 3000) score += 15
 
       // Featured / Popular boosts
       if (pkg.isFeatured) score += 5
@@ -371,7 +373,12 @@ export function SmartPackageFinderModal({
                         {isAr ? (pkg.shortDescriptionAr || pkg.shortDescriptionEn) : pkg.shortDescriptionEn}
                       </p>
                       <div className="mt-3 text-xs font-mono font-bold text-[var(--text-primary)]">
-                        {isAr ? `يبدأ من ${pkg.startingPrice} ر.ق` : `From QAR ${pkg.startingPrice}`}
+                        {(() => {
+                          const price = calculatePackageStartingPrice(pkg)
+                          return price > 0
+                            ? (isAr ? `يبدأ من ${price.toLocaleString()} ر.ق` : `From QAR ${price.toLocaleString()}`)
+                            : (isAr ? "حسب المتطلبات" : "Custom Quote")
+                        })()}
                       </div>
                     </div>
 

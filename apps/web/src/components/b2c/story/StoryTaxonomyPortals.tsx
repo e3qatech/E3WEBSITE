@@ -301,24 +301,25 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
       .filter((st: any) => st && st.isActive !== false)
       .sort((a: any, b: any) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
       .map(st => {
-        const publishedFeatures = (st.features || []).filter((f: any) => !f.attraction || (f.attraction.isPublished !== false && isAttractionActiveByDate(f.attraction)))
+        const publishedFeatures = (st.features || []).filter((f: any) => !f.attraction || (f.attraction.isPublished !== false && f.attraction.isHidden !== true && isAttractionActiveByDate(f.attraction)))
         const jsonActivations = st.activations || st.activities || []
         
-        const explicitActivities = [
-          ...jsonActivations,
-          ...publishedFeatures.map((f: any) => ({
-            id: f.id,
-            titleEn: f.titleEn || f.nameEn,
-            titleAr: f.titleAr || f.nameAr,
-            descriptionEn: f.descriptionEn,
-            descriptionAr: f.descriptionAr,
-            highlightType: f.highlightType || "Activity",
-            imageUrl: f.imageUrl || f.attraction?.heroThumbnailUrl || f.attraction?.heroMediaUrl,
-            attractionSlug: f.attraction?.slug,
-            attractionNameEn: f.attraction?.nameEn,
-            attractionNameAr: f.attraction?.nameAr
-          }))
-        ]
+        // Combine activities without duplicating if st.activations already contained relational features
+        const rawExplicitActivities = jsonActivations.length > 0
+          ? jsonActivations
+          : publishedFeatures.map((f: any) => ({
+              id: f.id,
+              titleEn: f.titleEn || f.nameEn,
+              titleAr: f.titleAr || f.nameAr,
+              descriptionEn: f.descriptionEn,
+              descriptionAr: f.descriptionAr,
+              highlightType: f.highlightType || "Activity",
+              imageUrl: f.imageUrl || f.attraction?.heroThumbnailUrl || f.attraction?.heroMediaUrl,
+              attractionSlug: f.attraction?.slug,
+              attractionNameEn: f.attraction?.nameEn,
+              attractionNameAr: f.attraction?.nameAr,
+              attraction: f.attraction
+            }));
 
         const uniqueAttractionsMap = new Map()
         publishedFeatures.forEach((f: any) => {
@@ -353,11 +354,15 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
           'winter-activation-place-vendome',
           'festival-inflatapark-dfc',
           'rush-action-park',
-          'inflatacity-city-center'
+          'inflatacity-city-center',
+          'lagoona-racing',
+          'inflatasplash-doha-sands',
+          'spongebob-squarepants-paw-patrol-activation-meryal',
+          'formula-1-roaming-entertainment'
         ]);
 
-        const rawActivities = explicitActivities.length > 0
-          ? explicitActivities
+        const candidateActivities = rawExplicitActivities.length > 0
+          ? rawExplicitActivities
           : attractions.length > 0
           ? attractions.map((attr: any) => ({
               id: attr.slug,
@@ -369,18 +374,39 @@ export function StoryTaxonomyPortals({ content, locale, onSelectCategory }: Stor
               imageUrl: attr.heroThumbnailUrl || attr.heroMediaUrl,
               attractionSlug: attr.slug,
               attractionNameEn: attr.nameEn,
-              attractionNameAr: attr.nameAr
+              attractionNameAr: attr.nameAr,
+              attraction: attr
             }))
           : canonicalFallbackActivities;
 
-        const displayActivities = rawActivities.filter((act: any) => {
+        // Filter out any past or inactive attractions, explicit inactive slugs, or expired year markers
+        const seenKeys = new Set<string>();
+        const displayActivities = candidateActivities.filter((act: any) => {
           if (!act) return false;
+          
           const slug = (act.attractionSlug || '').toLowerCase().trim();
           if (slug && INACTIVE_ATTRACTION_SLUGS.has(slug)) return false;
+          if (slug.includes('spongebob') || slug.includes('lagoona') || slug.includes('inflatasplash')) return false;
+
+          // If linked attraction is explicitly published: false or inactive
+          if (act.attraction) {
+            if (act.attraction.isPublished === false || act.attraction.isHidden === true) return false;
+            if (!isAttractionActiveByDate(act.attraction)) return false;
+          }
+
           const nameEn = (act.attractionNameEn || '').toLowerCase();
           const titleEn = (act.titleEn || '').toLowerCase();
+          if (nameEn.includes('summer splash') || titleEn.includes('summer splash')) return false;
+          if (nameEn.includes('lagoona') || titleEn.includes('lagoona')) return false;
+          if (nameEn.includes('inflatasplash') || titleEn.includes('inflatasplash')) return false;
           if (nameEn.includes('2024') || nameEn.includes('2025') || nameEn.includes('2023') || nameEn.includes('2022')) return false;
           if (titleEn.includes('2024') || titleEn.includes('2025') || titleEn.includes('2023') || titleEn.includes('2022')) return false;
+
+          // Deduplicate identical activity titles within the same track
+          const compositeKey = `${slug}:::${titleEn}`;
+          if (seenKeys.has(compositeKey)) return false;
+          seenKeys.add(compositeKey);
+
           return true;
         });
 

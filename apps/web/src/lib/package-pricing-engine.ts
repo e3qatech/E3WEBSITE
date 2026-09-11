@@ -288,3 +288,36 @@ export function calculatePackagePrice(input: PriceCalculationInput): PriceCalcul
     warnings
   }
 }
+
+/**
+ * Resolves the effective starting price for a package.
+ * If the package has pricing tiers defined with valid positive prices,
+ * the starting price is dynamically determined as the lowest tier price.
+ * Otherwise, falls back to the package's configured startingPrice.
+ */
+export function calculatePackageStartingPrice(pkg?: {
+  startingPrice?: number | string | null
+  tiers?: Array<{ price?: number | string | null }> | null
+} | null): number {
+  if (!pkg) return 0
+
+  if (Array.isArray(pkg.tiers) && pkg.tiers.length > 0) {
+    const validPrices = pkg.tiers
+      .map(t => {
+        if (typeof t?.price === 'number') return t.price
+        if (typeof t?.price === 'string') return parseFloat(t.price)
+        return NaN
+      })
+      .filter(p => !isNaN(p) && p > 0)
+
+    if (validPrices.length > 0) {
+      return roundCurrency(Math.min(...validPrices))
+    }
+  }
+
+  const fallback = typeof pkg.startingPrice === 'number'
+    ? pkg.startingPrice
+    : parseFloat(String(pkg.startingPrice ?? '0'))
+
+  return isNaN(fallback) ? 0 : roundCurrency(Math.max(0, fallback))
+}

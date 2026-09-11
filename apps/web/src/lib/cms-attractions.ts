@@ -75,8 +75,17 @@ export function isAttractionActiveByDate(item: any, targetDateInput?: Date | str
   if (item.isPublished === false) return false;
   if (item.isHidden === true) return false;
 
-  const status = String(item.operationalStatus || item.status || item.computedStatus || item.lifecycleStatus || '').toUpperCase().trim();
-  if (['ENDED', 'INACTIVE', 'PAST', 'CLOSED', 'TEMPORARILY_CLOSED', 'DRAFT', 'ARCHIVED'].includes(status)) {
+  // 2. Temporal Status / Override Checks
+  const temporal = item.temporalStatus || item.temporal || {};
+  const status = String(
+    item.operationalStatus || 
+    item.status || 
+    item.computedStatus || 
+    item.lifecycleStatus || 
+    temporal.status || 
+    ''
+  ).toUpperCase().trim();
+  if (['ENDED', 'INACTIVE', 'PAST', 'CLOSED', 'TEMPORARILY_CLOSED', 'DRAFT', 'ARCHIVED', 'OFFLINE', 'UPCOMING'].includes(status)) {
     return false;
   }
 
@@ -85,8 +94,6 @@ export function isAttractionActiveByDate(item: any, targetDateInput?: Date | str
     : new Date();
   const now = isNaN(targetDate.getTime()) ? new Date() : targetDate;
 
-  // 2. Temporal Status / Override Checks
-  const temporal = item.temporalStatus || item.temporal || {};
   if (temporal.statusOverride) {
     if (temporal.statusOverride === 'FORCE_ACTIVE') return true;
     if (temporal.statusOverride === 'FORCE_PAST' || temporal.statusOverride === 'FORCE_INCOMING') return false;

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { X, Check, Send, AlertCircle, Sparkles, Plus, Minus, Download, Share2, Mail, CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
+import { calculatePackageStartingPrice } from "@/lib/package-pricing-engine"
 
 interface PackageEnquiryModalProps {
   isOpen: boolean
@@ -126,7 +127,8 @@ export function PackageEnquiryModal({
   const isAboveMax = expectedGuests > packageMaxGuests
 
   // Real-time Pricing Calculations
-  const tierPrice = activeTier ? (activeTier.price || 0) : (selectedPackage?.startingPrice || 0)
+  const fallbackBasePrice = calculatePackageStartingPrice(selectedPackage)
+  const tierPrice = activeTier ? (activeTier.price || 0) : fallbackBasePrice
   const includedGuestsInTier = Math.max(packageMinGuests, activeTier?.includedGuests || activeTier?.guestCount || packageMinGuests)
   const extraPricePerGuest = activeTier?.extraGuestPrice ?? selectedPackage?.extraGuestPrice ?? 0
 

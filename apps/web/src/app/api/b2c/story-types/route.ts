@@ -131,7 +131,7 @@ export async function GET(request: Request) {
     const activeOnly = !isManager || requestedActive === "true";
     const cacheKey = `api_story_types_public_${activeOnly}`;
 
-    if (!isManager) {
+    if (!isManager && process.env.NODE_ENV !== 'test') {
       const cached = memoryCache.get(cacheKey);
       if (cached) {
         return NextResponse.json(cached, {
@@ -170,11 +170,17 @@ export async function GET(request: Request) {
                 heroThumbnailUrl: true,
                 heroMediaUrl: true,
                 isPublished: true,
+                isHidden: true,
                 slug: true,
                 nameEn: true,
                 nameAr: true,
                 taglineEn: true,
                 taglineAr: true,
+                temporalStatus: true,
+                operations: true,
+                eventDetails: true,
+                durationModel: true,
+                entityType: true,
               }
             }
           }
@@ -187,7 +193,7 @@ export async function GET(request: Request) {
 
     // Fetch published attractions to extract JSON features activations for currently active destinations
     const publishedAttractions = await db.attraction.findMany({
-      where: { isPublished: true },
+      where: { isPublished: true, isHidden: false },
       select: {
         id: true,
         slug: true,
@@ -198,6 +204,9 @@ export async function GET(request: Request) {
         features: true,
         temporalStatus: true,
         operations: true,
+        eventDetails: true,
+        durationModel: true,
+        entityType: true,
       }
     });
 
@@ -232,8 +241,17 @@ export async function GET(request: Request) {
         });
       });
 
-      // Extract safe features from st.features
-      const relationalActivations = (st.features || []).map((f: any) => ({
+      // Extract safe features from st.features, ensuring inactive/unpublished attractions are excluded for public users
+      const rawFeatures = Array.isArray(st.features) ? st.features : [];
+      const eligibleFeatures = isManager
+        ? rawFeatures
+        : rawFeatures.filter((f: any) => {
+            if (!f.attraction) return true;
+            if (f.attraction.isPublished === false || f.attraction.isHidden === true) return false;
+            return isAttractionActiveByDate(f.attraction);
+          });
+
+      const relationalActivations = eligibleFeatures.map((f: any) => ({
         id: f.id,
         titleEn: f.titleEn,
         titleAr: f.titleAr,
@@ -259,7 +277,17 @@ export async function GET(request: Request) {
         } : null
       }));
 
-      const allActivations = [...relationalActivations, ...jsonActivations];
+      // Deduplicate combined activations to prevent identical activities appearing twice in the cards
+      const seenActivationKeys = new Set<string>();
+      const allActivations: any[] = [];
+      for (const act of [...relationalActivations, ...jsonActivations]) {
+        const titleKey = (act.titleEn || act.titleAr || '').trim().toLowerCase();
+        const slugKey = (act.attractionSlug || '').trim().toLowerCase();
+        const compositeKey = `${slugKey}:::${titleKey}`;
+        if (titleKey && seenActivationKeys.has(compositeKey)) continue;
+        if (titleKey) seenActivationKeys.add(compositeKey);
+        allActivations.push(act);
+      }
 
       // If public user (non-manager), expose only safe fields
       if (!isManager) {
@@ -286,7 +314,7 @@ export async function GET(request: Request) {
       };
     });
     
-    if (!isManager) {
+    if (!isManager && process.env.NODE_ENV !== 'test') {
       memoryCache.set(cacheKey, enrichedStoryTypes, 60_000);
       return NextResponse.json(enrichedStoryTypes, {
         headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
 import { requirePermission, AppAuthError } from "@/lib/server-auth"
+import { calculatePackageStartingPrice } from "@/lib/package-pricing-engine"
 
 async function sanitizePackageData(body: any, isUpdate = false) {
   const {
@@ -94,6 +95,14 @@ async function sanitizePackageData(body: any, isUpdate = false) {
   if (data.minAge !== undefined) data.minAge = data.minAge ? parseInt(data.minAge) : null
   if (data.maxAge !== undefined) data.maxAge = data.maxAge ? parseInt(data.maxAge) : null
   if (data.bookingNoticeHours !== undefined) data.bookingNoticeHours = parseInt(data.bookingNoticeHours) || 24
+
+  // Ensure startingPrice dynamically matches lowest tier price if tiers are defined with prices
+  if (Array.isArray(data.tiers) && data.tiers.length > 0) {
+    const tierCalculatedPrice = calculatePackageStartingPrice(data)
+    if (tierCalculatedPrice > 0) {
+      data.startingPrice = tierCalculatedPrice
+    }
+  }
 
   return data
 }
@@ -249,7 +258,16 @@ export async function GET(req: NextRequest) {
       return safe
     })
 
-    return NextResponse.json({ data: sanitizedPackages, count: sanitizedPackages.length })
+    // Normalize startingPrice based on tiers so stale or out-of-sync startingPrice records dynamically resolve correctly
+    const processedPackages = sanitizedPackages.map((pkg: any) => {
+      const dynamicStartingPrice = calculatePackageStartingPrice(pkg)
+      return {
+        ...pkg,
+        startingPrice: dynamicStartingPrice > 0 ? dynamicStartingPrice : (pkg.startingPrice || 0)
+      }
+    })
+
+    return NextResponse.json({ data: processedPackages, count: processedPackages.length })
   } catch (error: any) {
     console.error("[GET /api/b2c/packages] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to fetch packages" }, { status: 500 })

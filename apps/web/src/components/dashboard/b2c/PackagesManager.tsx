@@ -23,6 +23,7 @@ import { PackageReferralsManager } from "@/components/dashboard/b2c/PackageRefer
 import { PackageQuotationBuilder } from "@/components/dashboard/b2c/PackageQuotationBuilder"
 import { PackageLeadsManager } from "@/components/dashboard/leads/PackageLeadsManager"
 import { PackagePdfSettingsTab } from "@/components/dashboard/b2c/PackagePdfSettingsTab"
+import { calculatePackageStartingPrice } from "@/lib/package-pricing-engine"
 
 export function PackagesManager({ initialData = [] }: { initialData?: any[] }) {
   let locale: 'en' | 'ar' = 'en'
@@ -369,7 +370,7 @@ export function PackagesManager({ initialData = [] }: { initialData?: any[] }) {
                           </span>
                         </td>
                         <td className="p-4 font-mono">
-                          <div className="font-bold text-emerald-600 dark:text-emerald-400">QAR {pkg.startingPrice?.toLocaleString() || 0}</div>
+                          <div className="font-bold text-emerald-600 dark:text-emerald-400">QAR {calculatePackageStartingPrice(pkg).toLocaleString()}</div>
                           <div className="text-[11px] text-[var(--text-secondary)]">{pkg.minGuests}–{pkg.maxGuests} guests</div>
                         </td>
                         <td className="p-4 space-y-1">
@@ -504,7 +505,7 @@ export function PackagesManager({ initialData = [] }: { initialData?: any[] }) {
                       )}
                       <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{tmpl.shortDescriptionEn}</p>
                       <div className="mt-3 text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-                        Base: QAR {tmpl.startingPrice} | {tmpl.minGuests}–{tmpl.maxGuests} guests
+                        Base: QAR {calculatePackageStartingPrice(tmpl).toLocaleString()} | {tmpl.minGuests}–{tmpl.maxGuests} guests
                       </div>
                     </div>
 

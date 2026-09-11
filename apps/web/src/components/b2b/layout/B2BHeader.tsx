@@ -83,12 +83,13 @@ export function B2BHeader({ settings = {}, locale: propLocale }: { settings?: Re
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
         {/* Logo & Portal Switcher */}
         <div className="flex items-center gap-3">
-          <Link href={`/${currentLocale}`} className="flex items-center gap-3 z-50" title={isAr ? "بوابة الدخول الرئيسية" : "Main Gateway"}>
+          <Link href={`/${currentLocale}`} className="flex items-center gap-3 z-50 focus:outline-none transition-transform duration-200 hover:scale-[1.02]" title={isAr ? "بوابة الدخول الرئيسية" : "Main Gateway"}>
             <E3Logo
               isLight={theme === 'light'}
               lightLogoUrl={lightLogoUrl}
               darkLogoUrl={darkLogoUrl}
-              size="md"
+              size="navbar"
+              scrolled={isScrolled}
             />
           </Link>
           <Link

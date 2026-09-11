@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
 import { requirePermission, AppAuthError } from "@/lib/server-auth"
+import { calculatePackageStartingPrice } from "@/lib/package-pricing-engine"
 
 async function sanitizePackageData(body: any, isUpdate = true) {
   const {
@@ -95,6 +96,14 @@ async function sanitizePackageData(body: any, isUpdate = true) {
   if (data.maxAge !== undefined) data.maxAge = data.maxAge ? parseInt(data.maxAge) : null
   if (data.bookingNoticeHours !== undefined) data.bookingNoticeHours = parseInt(data.bookingNoticeHours) || 24
 
+  // Ensure startingPrice dynamically matches lowest tier price if tiers are defined with prices
+  if (Array.isArray(data.tiers) && data.tiers.length > 0) {
+    const tierCalculatedPrice = calculatePackageStartingPrice(data)
+    if (tierCalculatedPrice > 0) {
+      data.startingPrice = tierCalculatedPrice
+    }
+  }
+
   return data
 }
 
@@ -140,12 +149,19 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Package not found" }, { status: 404 })
     }
 
+    // Normalize startingPrice based on tiers so stale or out-of-sync startingPrice records dynamically resolve correctly
+    const dynamicStartingPrice = calculatePackageStartingPrice(item)
+    const normalizedItem = {
+      ...item,
+      startingPrice: dynamicStartingPrice > 0 ? dynamicStartingPrice : (item.startingPrice || 0)
+    }
+
     if (!hasAdminPermission) {
-      const { internalCost: _c, estimatedMargin: _m, internalNotes: _n, ...safe } = item
+      const { internalCost: _c, estimatedMargin: _m, internalNotes: _n, ...safe } = normalizedItem
       return NextResponse.json({ data: safe })
     }
 
-    return NextResponse.json({ data: item })
+    return NextResponse.json({ data: normalizedItem })
   } catch (error: any) {
     console.error("[GET /api/b2c/packages/[id]] Error:", error?.message || error)
     return NextResponse.json({ error: "Failed to load package" }, { status: 500 })

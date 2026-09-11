@@ -28,6 +28,7 @@ import { PackageEnquiryModal } from "@/components/b2c/PackageEnquiryModal"
 import { E3LivingHero } from "@/components/b2c/hero/E3LivingHero"
 import { PackageGalleryShowcase } from "@/components/b2c/packages/PackageGalleryShowcase"
 import { cn } from "@/lib/utils"
+import { calculatePackageStartingPrice } from "@/lib/package-pricing-engine"
 
 export function PackageMicrositeClient({
   locale,
@@ -88,7 +89,8 @@ export function PackageMicrositeClient({
   }, [])
 
   // Dynamic Price Breakdown
-  const tierPrice = selectedTier ? (selectedTier.price || 0) : (pkg.startingPrice || 0)
+  const effectiveStartingPrice = calculatePackageStartingPrice(pkg)
+  const tierPrice = selectedTier ? (selectedTier.price || 0) : effectiveStartingPrice
   const includedGuests = Math.max(minGuests, selectedTier?.includedGuests || selectedTier?.guestCount || minGuests)
   const extraGuestPrice = selectedTier?.extraGuestPrice ?? pkg.extraGuestPrice ?? 0
   const extraGuestsCount = Math.max(0, guestCount - includedGuests)
@@ -256,7 +258,7 @@ export function PackageMicrositeClient({
                   {isAr ? "يبدأ من" : "Starting Price"}
                 </span>
                 <span className="text-[var(--e3-royal-blue)]">
-                  {pkg.startingPrice ? `${pkg.startingPrice} QAR` : (isAr ? "عند الطلب" : "On Request")}
+                  {effectiveStartingPrice > 0 ? `${effectiveStartingPrice} QAR` : (isAr ? "عند الطلب" : "On Request")}
                 </span>
               </div>
             </div>
@@ -415,7 +417,7 @@ export function PackageMicrositeClient({
                           {isAr ? t.nameAr || t.nameEn : t.nameEn}
                         </h3>
 
-                        <div className="mt-3 flex items-baseline gap-1.5">
+                        <div className="mt-3 flex items-baseline gap-1.5" aria-label={`${t.price} QAR`}>
                           <span className={cn(
                             "text-3xl sm:text-4xl font-black font-mono tracking-tight",
                             isSelected

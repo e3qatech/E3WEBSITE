@@ -486,7 +486,7 @@ export function PulseOrbitNav({
             {/* Logo -> Main Gateway (B2B & B2C Selector) */}
             <Link
               href={`/${locale}`}
-              className="flex items-center group cursor-pointer"
+              className="flex items-center group cursor-pointer focus:outline-none transition-transform duration-200 hover:scale-[1.02]"
               onClick={() => setMenuOpen(false)}
               title={isAr ? "بوابة الدخول الرئيسية" : "Main Gateway"}
               aria-label={isAr ? "بوابة الدخول الرئيسية" : "Main Gateway"}
@@ -496,7 +496,8 @@ export function PulseOrbitNav({
                 darkLogoUrl={darkLogoUrl}
                 isLight={isLight}
                 showText={false}
-                size="md"
+                size="navbar"
+                scrolled={scrolled}
               />
             </Link>
           </div>

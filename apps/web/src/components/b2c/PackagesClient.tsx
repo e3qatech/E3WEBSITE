@@ -18,6 +18,7 @@ import { PackageCompareDrawer } from "@/components/b2c/PackageCompareDrawer"
 import { E3LivingHero } from "@/components/b2c/hero/E3LivingHero"
 import { buildWhatsappUrl } from "@/lib/url-helper"
 import { cn } from "@/lib/utils"
+import { calculatePackageStartingPrice } from "@/lib/package-pricing-engine"
 
 export function PackagesClient({
   locale,
@@ -128,8 +129,8 @@ export function PackagesClient({
 
       return matchesCategory && matchesSearch && matchesAudience && matchesVenue && matchesGuests
     }).sort((a, b) => {
-      if (priceSort === "price-asc") return (a.startingPrice || 0) - (b.startingPrice || 0)
-      if (priceSort === "price-desc") return (b.startingPrice || 0) - (a.startingPrice || 0)
+      if (priceSort === "price-asc") return calculatePackageStartingPrice(a) - calculatePackageStartingPrice(b)
+      if (priceSort === "price-desc") return calculatePackageStartingPrice(b) - calculatePackageStartingPrice(a)
       if (priceSort === "newest") return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       if (priceSort === "popularity") return (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0)
       // Recommended: Featured first, then sortOrder
@@ -541,10 +542,12 @@ export function PackagesClient({
                           }
                         </div>
                         <div className="text-base font-black font-mono text-[var(--text-primary)]">
-                          {pkg.startingPrice > 0 
-                            ? (isAr ? `${pkg.startingPrice.toLocaleString()} ر.ق` : `QAR ${pkg.startingPrice.toLocaleString()}`)
-                            : (isAr ? "حسب المتطلبات" : "Custom Quote")
-                          }
+                          {(() => {
+                            const startingPrice = calculatePackageStartingPrice(pkg)
+                            return startingPrice > 0 
+                              ? (isAr ? `${startingPrice.toLocaleString()} ر.ق` : `QAR ${startingPrice.toLocaleString()}`)
+                              : (isAr ? "حسب المتطلبات" : "Custom Quote")
+                          })()}
                         </div>
                       </div>
 

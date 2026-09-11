@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { X, Scale, ArrowRight, Check, Trash2, ShieldCheck, Clock, Users, Building } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import Link from "next/link"
+import { calculatePackageStartingPrice } from "@/lib/package-pricing-engine"
 
 interface PackageCompareDrawerProps {
   comparedPackages: any[]
@@ -143,14 +144,17 @@ export function PackageCompareDrawer({
                       <td className="p-4 font-semibold text-[var(--text-secondary)]">
                         {isAr ? "السعر التقديري" : "Starting Price"}
                       </td>
-                      {comparedPackages.map(pkg => (
-                        <td key={pkg.id} className="p-4 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">
-                          {isAr ? `${pkg.startingPrice} ر.ق` : `QAR ${pkg.startingPrice}`}
-                          <span className="text-[10px] font-normal text-[var(--text-tertiary)] block">
-                            {pkg.priceDisplayMode === "PER_GUEST" ? (isAr ? "لكل ضيف" : "Per guest") : (isAr ? "يبدأ من" : "Starting rate")}
-                          </span>
-                        </td>
-                      ))}
+                      {comparedPackages.map(pkg => {
+                        const price = calculatePackageStartingPrice(pkg)
+                        return (
+                          <td key={pkg.id} className="p-4 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+                            {price > 0 ? (isAr ? `${price.toLocaleString()} ر.ق` : `QAR ${price.toLocaleString()}`) : (isAr ? "حسب المتطلبات" : "Custom")}
+                            <span className="text-[10px] font-normal text-[var(--text-tertiary)] block">
+                              {pkg.priceDisplayMode === "PER_GUEST" ? (isAr ? "لكل ضيف" : "Per guest") : (isAr ? "يبدأ من" : "Starting rate")}
+                            </span>
+                          </td>
+                        )
+                      })}
                     </tr>
 
                     {/* Capacity */}

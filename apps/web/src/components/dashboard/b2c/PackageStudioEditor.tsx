@@ -31,6 +31,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { PackageMediaUploader } from "@/components/dashboard/b2c/PackageMediaUploader";
 import { cn } from "@/lib/utils";
+import { calculatePackageStartingPrice } from "@/lib/package-pricing-engine";
 import { 
   PDFLetterheadManagerModal, 
   DEFAULT_PDF_CONFIG, 
@@ -454,7 +455,10 @@ export function PackageStudioEditor({
         ...formRest
       } = form;
 
-      const startingPriceNum = parseFloat(form.startingPrice as any) || 0;
+      const calculatedStartingPrice = calculatePackageStartingPrice(form);
+      const startingPriceNum = calculatedStartingPrice > 0
+        ? calculatedStartingPrice
+        : (parseFloat(form.startingPrice as any) || 0);
       const internalCostNum = form.internalCost ? parseFloat(form.internalCost as any) : null;
       let calculatedMargin = form.estimatedMargin ? parseFloat(form.estimatedMargin as any) : null;
       if (calculatedMargin === null && internalCostNum !== null && startingPriceNum > 0) {
@@ -1272,6 +1276,29 @@ export function PackageStudioEditor({
                   onChange={(e) => setForm({ ...form, startingPrice: parseFloat(e.target.value) || 0 })}
                   className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 focus:outline-none focus:border-[var(--color-primary)]"
                 />
+                {(() => {
+                  const lowestTier = calculatePackageStartingPrice({ tiers: form.tiers, startingPrice: 0 });
+                  if (lowestTier <= 0) return null;
+                  if (form.startingPrice !== lowestTier) {
+                    return (
+                      <div className="mt-1 flex items-center justify-between gap-1 text-[11px] text-amber-600 dark:text-amber-400">
+                        <span>{isAr ? `أقل سعر للفئات: ${lowestTier} ر.ق` : `Lowest tier: QAR ${lowestTier}`}</span>
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, startingPrice: lowestTier })}
+                          className="font-bold underline hover:text-amber-700 dark:hover:text-amber-300 cursor-pointer"
+                        >
+                          {isAr ? "مطابقة" : "Sync"}
+                        </button>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                      ✓ {isAr ? `مطابق لأقل فئة (${lowestTier} ر.ق)` : `Matches lowest tier (QAR ${lowestTier})`}
+                    </div>
+                  );
+                })()}
               </div>
 
               <div>

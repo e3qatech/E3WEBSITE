@@ -74,12 +74,13 @@ export function Header({ portal, lightLogoUrl, darkLogoUrl }: HeaderProps) {
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
           {/* Logo, Home Button & Portal Badge */}
           <div className="flex items-center gap-3">
-            <Link href="/" className="relative z-50 flex items-center gap-2" title="Main Gateway">
+            <Link href="/" className="relative z-50 flex items-center gap-2 focus:outline-none transition-transform duration-200 hover:scale-[1.02]" title="Main Gateway">
               <E3Logo
                 isLight={theme === "light"}
                 lightLogoUrl={lightLogoUrl}
                 darkLogoUrl={darkLogoUrl}
-                size="md"
+                size="navbar"
+                scrolled={scrolled}
               />
             </Link>
             <Link
