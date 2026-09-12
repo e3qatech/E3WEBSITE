@@ -36,8 +36,9 @@ import {
   UserCheck,
   Mail,
   Phone,
+  Send,
 } from "lucide-react";
-import { safeFetchJson } from "@/lib/utils";
+import { safeFetchJson, cn } from "@/lib/utils";
 import { useLocale } from "@/components/layout/LocaleProvider";
 import { computeCategoryFitAndRank } from "@/lib/careers/talent-ranking";
 import { CvPreviewModal } from "./CvPreviewModal";
@@ -134,6 +135,127 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
   const [scheduleNotes, setScheduleNotes] = useState("");
   const [isScheduling, setIsScheduling] = useState(false);
 
+  // Candidate Email Reply Dialog State
+  const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
+  const [replyPreset, setReplyPreset] = useState("acknowledgment");
+  const [replySubject, setReplySubject] = useState("");
+  const [replyMessage, setReplyMessage] = useState("");
+  const [replyNextSteps, setReplyNextSteps] = useState("");
+  const [replyStatusUpdate, setReplyStatusUpdate] = useState("");
+  const [isSendingReply, setIsSendingReply] = useState(false);
+
+  const applyReplyPreset = (preset: string, app: any) => {
+    setReplyPreset(preset);
+    const jobTitle = app?.jobTitle || "the applied position";
+
+    switch (preset) {
+      case "interview_invite":
+        setReplySubject(`Interview Invitation: ${jobTitle} - E3 Qatar`);
+        setReplyMessage(
+          isAr
+            ? `يسرنا إبلاغك بأنه بعد مراجعة خبراتك ومؤهلاتك المقدمة لشغل وظيفة "${jobTitle}"، نود دعوتك لإجراء مقابلة رسمية مع فريق الموارد البشرية والقيادة التشغيلية.`
+            : `Following review of your qualifications and experience for the "${jobTitle}" opening, we are pleased to invite you for an interview with our talent acquisition and departmental leadership team.`
+        );
+        setReplyNextSteps(
+          isAr
+            ? "يرجى الرد على هذه الرسالة بمواعيدك المفضلة خلال الأيام الثلاثة القادمة، أو تأكيد جاهزيتك لمقابلة عبر الفيديو (Google Meet)."
+            : "Please reply directly to this email with your preferred availability over the next three business days, or confirm if virtual video format works best for you."
+        );
+        setReplyStatusUpdate("INTERVIEW");
+        break;
+
+      case "request_info":
+        setReplySubject(`Additional Information Requested: ${jobTitle} - E3 Qatar Careers`);
+        setReplyMessage(
+          isAr
+            ? `نرحب بك ونشكرك على اهتمامك بالانضمام إلى فريق E3 Qatar. لمساعدة لجنة التقييم على استكمال دراسة ملفك لشغل وظيفة "${jobTitle}"، نرجو التكرم بموافاتنا بنماذج من أعمالك أو تفاصيل إضافية حول مشاريعك السابقة.`
+            : `Thank you for your application for the "${jobTitle}" role at E3 Qatar. To help our review committee finalize the assessment of your profile, we kindly request you to provide additional samples of your portfolio or further details on your recent projects.`
+        );
+        setReplyNextSteps(
+          isAr
+            ? "يمكنك الرد مباشرة على هذا البريد الإلكتروني مع إرفاق الملفات أو روابط الأعمال."
+            : "You can reply directly to this email with your attachments or links to your work."
+        );
+        setReplyStatusUpdate("REVIEWING");
+        break;
+
+      case "acknowledgment":
+        setReplySubject(`Application Status Update: ${jobTitle} - E3 Qatar`);
+        setReplyMessage(
+          isAr
+            ? `نود إحاطتكم علماً بأن طلبكم لوظيفة "${jobTitle}" قيد الدراسة والتقييم حالياً من قبل الفريق المختص في E3 Qatar.`
+            : `We would like to inform you that your application for the "${jobTitle}" position is currently progressing through active operational review by our talent team.`
+        );
+        setReplyNextSteps(
+          isAr
+            ? "سنقوم بالتواصل معكم فور الانتهاء من فرز الطلبات لتحديد الخطوات التالية."
+            : "We will contact you directly once the shortlist is finalized to discuss next steps."
+        );
+        setReplyStatusUpdate("REVIEWING");
+        break;
+
+      case "custom":
+      default:
+        setReplySubject(`Regarding your application at E3 Qatar - ${jobTitle}`);
+        setReplyMessage("");
+        setReplyNextSteps("");
+        setReplyStatusUpdate("");
+        break;
+    }
+  };
+
+  const handleOpenReplyModal = () => {
+    if (!selectedApp) return;
+    applyReplyPreset("acknowledgment", selectedApp);
+    setIsReplyModalOpen(true);
+  };
+
+  const handleReplySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedApp) return;
+
+    if (!replySubject.trim() || !replyMessage.trim()) {
+      toast(isAr ? "يرجى كتابة عنوان الرسالة ونصها" : "Please provide subject and message", "error");
+      return;
+    }
+
+    setIsSendingReply(true);
+    try {
+      const res = await fetch("/api/admin/careers/reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          applicationId: selectedApp.id,
+          recipientEmail: selectedApp.email,
+          subject: replySubject.trim(),
+          message: replyMessage.trim(),
+          nextSteps: replyNextSteps.trim() || undefined,
+          updateStatus: replyStatusUpdate || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send email reply");
+
+      if (replyStatusUpdate && replyStatusUpdate !== selectedApp.status) {
+        setApplications((prev) =>
+          prev.map((app) => (app.id === selectedApp.id ? { ...app, status: replyStatusUpdate } : app))
+        );
+      }
+
+      toast(
+        isAr ? `تم إرسال الرد بنجاح إلى (${selectedApp.email})` : `Reply dispatched successfully to (${selectedApp.email})`,
+        "success"
+      );
+      setIsReplyModalOpen(false);
+    } catch (err: any) {
+      console.error(err);
+      toast(err.message || (isAr ? "فشل إرسال الرد" : "Failed to send reply"), "error");
+    } finally {
+      setIsSendingReply(false);
+    }
+  };
+
   const selectedApp = applications.find((a) => a.id === selectedAppId);
   const selectedAppRank = selectedApp ? rankingsMap.get(selectedApp.id) : null;
 
@@ -145,9 +267,11 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
 
       if (!parsed.ok) throw new Error(parsed.error || (isAr ? "فشل تحليل السيرة الذاتية" : "Failed to parse CV"));
 
+      const appData = parsed.data?.application || parsed.data?.data?.application || parsed.data;
       setApplications((prev) =>
-        prev.map((app) => (app.id === id ? parsed.data.application : app))
+        prev.map((app) => (app.id === id ? { ...app, ...appData } : app))
       );
+      setPreviewModalCandidate((prev: any) => (prev && prev.id === id ? { ...prev, ...appData } : prev));
       toast(isAr ? "تم تحليل السيرة الذاتية بالذكاء الاصطناعي بنجاح." : "CV parsed successfully.", "success");
     } catch (e: any) {
       console.error(e);
@@ -565,6 +689,16 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
 
                   <button
                     type="button"
+                    onClick={handleOpenReplyModal}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+                    title={isAr ? "إرسال رد بالبريد الإلكتروني للمترشح" : "Send Email Reply to Candidate"}
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>{isAr ? "رد عبر البريد" : "Reply Email"}</span>
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={handleOpenScheduleModal}
                     className="flex items-center gap-1.5 px-3 py-2 bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
                   >
@@ -724,13 +858,23 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
                       <div className="text-xs font-semibold text-zinc-900 dark:text-white truncate">{selectedApp.email}</div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(selectedApp.email, "email")}
-                    className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-800 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                  >
-                    {copiedField === "email" ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={handleOpenReplyModal}
+                      className="p-1.5 rounded-lg text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
+                      title={isAr ? "إرسال رد بالبريد الإلكتروني" : "Send Email Reply"}
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(selectedApp.email, "email")}
+                      className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-800 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                    >
+                      {copiedField === "email" ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-zinc-950/80 border border-zinc-200/60 dark:border-white/5 shadow-2xs">
@@ -1159,7 +1303,139 @@ export function ApplicationsManager({ initialApplications }: { initialApplicatio
         </div>
       )}
 
-      {/* In-browser CV Document Preview Modal */}
+      {/* Recruiter Direct Email Reply Modal Dialog */}
+      {isReplyModalOpen && selectedApp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
+                    {isAr ? "إرسال رد رسمي للمترشح" : "Send Official Candidate Email Reply"}
+                  </h3>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                    {selectedApp.firstName} {selectedApp.lastName} • {selectedApp.email}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsReplyModalOpen(false)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-zinc-800 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleReplySubmit} className="space-y-3.5 text-xs">
+              {/* Preset Selector Tabs */}
+              <div className="space-y-1.5">
+                <label className="text-zinc-700 dark:text-zinc-300 font-bold block">
+                  {isAr ? "اختر نموذج الرد السريع:" : "Choose Quick Response Template:"}
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                  {[
+                    { id: "acknowledgment", label: isAr ? "تأكيد واستمرار" : "In Review", labelAr: "تحديث الحالة" },
+                    { id: "interview_invite", label: isAr ? "دعوة مقابلة" : "Interview", labelAr: "دعوة مقابلة" },
+                    { id: "request_info", label: isAr ? "طلب نماذج" : "Request Info", labelAr: "طلب نماذج" },
+                    { id: "custom", label: isAr ? "مخصص" : "Custom", labelAr: "رسالة حرة" },
+                  ].map((preset) => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => applyReplyPreset(preset.id, selectedApp)}
+                      className={cn(
+                        "px-2.5 py-1.5 rounded-lg font-bold text-[11px] border transition-all cursor-pointer truncate",
+                        replyPreset === preset.id
+                          ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
+                          : "bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                      )}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-zinc-700 dark:text-zinc-300 font-bold block">
+                  {isAr ? "عنوان الرسالة (Subject) *" : "Email Subject Line *"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={replySubject}
+                  onChange={(e) => setReplySubject(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-500 font-medium"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-zinc-700 dark:text-zinc-300 font-bold block">
+                  {isAr ? "نص الرسالة الموجهة للمترشح *" : "Message Body Content *"}
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  value={replyMessage}
+                  onChange={(e) => setReplyMessage(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 resize-none leading-relaxed"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-zinc-700 dark:text-zinc-300 font-bold block">
+                  {isAr ? "إرشادات الخطوات التالية (اختياري)" : "Next Steps & Instructions (Optional)"}
+                </label>
+                <input
+                  type="text"
+                  value={replyNextSteps}
+                  onChange={(e) => setReplyNextSteps(e.target.value)}
+                  placeholder="e.g. Please reply with your availability..."
+                  className="w-full px-3.5 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-zinc-700 dark:text-zinc-300 font-bold block">
+                  {isAr ? "تحديث حالة المترشح تلقائياً عند الإرسال" : "Auto-Update Candidate Status"}
+                </label>
+                <select
+                  value={replyStatusUpdate}
+                  onChange={(e) => setReplyStatusUpdate(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500 cursor-pointer"
+                >
+                  <option value="">{isAr ? "-- عدم تغيير الحالة الحالية --" : "-- Keep current status --"}</option>
+                  <option value="REVIEWING">{isAr ? "قيد المراجعة (REVIEWING)" : "Under Review (REVIEWING)"}</option>
+                  <option value="INTERVIEW">{isAr ? "مرحلة المقابلة (INTERVIEW)" : "Interview Stage (INTERVIEW)"}</option>
+                  <option value="HIRED">{isAr ? "تم التعيين (HIRED)" : "Hired (HIRED)"}</option>
+                  <option value="REJECTED">{isAr ? "مرفوض (REJECTED)" : "Rejected (REJECTED)"}</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-zinc-200 dark:border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setIsReplyModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  {isAr ? "إلغاء" : "Cancel"}
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={isSendingReply}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all disabled:opacity-50 cursor-pointer shadow-xs"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{isSendingReply ? (isAr ? "جاري الإرسال..." : "Sending...") : (isAr ? "إرسال الرد بالبريد" : "Dispatch Email Reply")}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       <CvPreviewModal
         isOpen={Boolean(previewModalCandidate)}
         onClose={() => setPreviewModalCandidate(null)}

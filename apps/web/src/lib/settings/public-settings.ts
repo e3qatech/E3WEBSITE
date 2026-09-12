@@ -148,7 +148,9 @@ export async function getServerSecretSetting(key: string): Promise<string | null
     console.error(`[SERVER_SECRET_READ_ERROR] Failed to read secret for key "${key}":`, err);
   }
 
-  // Fallback to environment variables if applicable
+  if (key === 'geminiApiKey' || key === 'googleAiApiKey' || key === 'gemini_api_key') {
+    return process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || process.env.GOOGLE_API_KEY || null;
+  }
   if (key === 'mapsApiKey' || key === 'googleMapsApiKey') {
     return process.env.MAPS_API_KEY || process.env.GOOGLE_MAPS_API_KEY || null;
   }

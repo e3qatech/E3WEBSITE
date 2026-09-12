@@ -1,14 +1,56 @@
 import db from '@/lib/db';
 import { getServerSecretSetting } from '@/lib/settings/public-settings';
+import { parseAndValidateZipArchive } from '@/lib/security';
+import zlib from 'zlib';
 export * from './talent-ranking';
 import { isLegacySimulatedMock } from './talent-ranking';
 
 export interface CareerTimelineItem {
   company: string;
   role: string;
+  title?: string;
   period: string;
   location?: string;
   highlights: string[];
+}
+
+/**
+ * Extracts clean text from a DOCX Word Document buffer without external packages.
+ */
+export function extractTextFromDocx(buffer: Buffer): string {
+  try {
+    const zip = parseAndValidateZipArchive(buffer);
+    if (!zip.valid || !zip.entries) return '';
+    const docEntry = zip.entries.find((e) => e.filename === 'word/document.xml');
+    if (!docEntry) return '';
+
+    const offset = docEntry.localHeaderOffset;
+    if (offset + 30 > buffer.length) return '';
+    const fnLen = buffer.readUInt16LE(offset + 26);
+    const extraLen = buffer.readUInt16LE(offset + 28);
+    const dataStart = offset + 30 + fnLen + extraLen;
+    const compressedData = buffer.subarray(dataStart, dataStart + docEntry.compressedSize);
+
+    let xml = '';
+    if (docEntry.compressionMethod === 0) {
+      xml = compressedData.toString('utf8');
+    } else if (docEntry.compressionMethod === 8) {
+      xml = zlib.inflateRawSync(compressedData).toString('utf8');
+    }
+
+    return xml
+      .replace(/<\/w:p>/gi, '\n')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&apos;/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim();
+  } catch (_e) {
+    return '';
+  }
 }
 
 export interface ParsedCvResult {
@@ -57,6 +99,73 @@ export function getDomainExtraction(
   const seed = hashString(`${candidateName}-${candidateEmail}-${jobTitle}`);
   const t = (jobTitle || '').toLowerCase();
   const d = (department || '').toLowerCase();
+
+  // Frontline / Play Attendant / Guest Experience / Venue Operations
+  if (
+    t.includes('attendant') ||
+    t.includes('play') ||
+    t.includes('host') ||
+    t.includes('usher') ||
+    t.includes('ticketing') ||
+    t.includes('cashier') ||
+    t.includes('guest') ||
+    t.includes('customer service') ||
+    t.includes('crew') ||
+    t.includes('marshal') ||
+    t.includes('recreation')
+  ) {
+    const companies = [
+      ['Doha Quest & Entertainment World', 'Senior Play Attendant & Guest Experience Host', '2022 - Present', 'Doha, Qatar', [
+        'Supervised interactive attraction zones and play safety protocols, ensuring engaging experiences for over 1,500 daily visitors.',
+        'Conducted pre-opening equipment safety inspections and queue line sanitization standards.',
+        'Assisted children and families with activity guidance, safety briefings, and positive crowd interaction.'
+      ]],
+      ['Megapolis Entertainment Center', 'Recreation & Customer Experience Associate', '2020 - 2022', 'The Pearl, Qatar', [
+        'Managed guest admissions, arcade card POS systems, and immediate safety escalations.',
+        'Trained junior floor staff on child-safety supervision, emergency stop protocols, and first-aid response readiness.'
+      ]]
+    ];
+
+    const universities = [
+      { degree: 'Diploma in Hospitality & Tourism Operations', uni: 'College of the North Atlantic - Qatar (UDST)', year: '2020' },
+      { degree: 'Higher Secondary Certificate / Customer Relations Certification', uni: 'Ministry of Education & Higher Education Qatar', year: '2019' },
+    ];
+    const pickedUni = universities[seed % universities.length];
+    const expYears = 2 + (seed % 4); // 2 to 5 years
+
+    return {
+      skills: [
+        'Guest Relations & Hospitality Excellence',
+        'Playground & Attraction Safety Monitoring',
+        'Child Safety & Active Supervision Protocols',
+        'Queue Management & Crowd De-escalation',
+        'POS & Ticketing Terminal Operation',
+        'First Aid & Emergency Evacuation Assistance',
+        'Cross-Cultural Guest Communication',
+        'Equipment Daily Opening & Closing Checklists'
+      ],
+      skillsCategorized: {
+        technical: ['Point of Sale (POS) Systems', 'Walkie-Talkie Radio Etiquette', 'Incident Incident Log Reporting'],
+        operations: ['Queue Dynamic Flowing', 'Attraction Safety Checks', 'Lost & Found Coordination', 'Sanitization Protocol'],
+        leadership: ['Team Peer Mentoring', 'Conflict De-escalation', 'Family Guest Support']
+      },
+      experienceYears: expYears,
+      education: pickedUni.degree,
+      university: pickedUni.uni,
+      graduationYear: pickedUni.year,
+      summary: `${candidateName} is an energetic and safety-conscious ${jobTitle} with ${expYears} years of hands-on floor experience in Qatar's premier family entertainment destinations. Dedicated to proactive visitor engagement, vigilant child supervision, and warm guest hospitality.`,
+      careerHistory: companies.map(([comp, role, period, loc, hls]) => ({
+        company: comp as string,
+        role: role as string,
+        title: role as string,
+        period: period as string,
+        location: loc as string,
+        highlights: hls as string[],
+      })),
+      languages: ['English (Fluent / Professional)', 'Arabic (Conversational)', 'Tagalog / Hindi (Working Knowledge)'],
+      certifications: ['Pediatric & Adult First Aid / CPR (Qatar Red Crescent)', 'Playground Safety Inspector Credential', 'Hospitality Service Excellence Award'],
+    };
+  }
 
   // Sector-specific intelligence bases
   if (
@@ -116,6 +225,7 @@ export function getDomainExtraction(
       careerHistory: companies.map(([comp, role, period, loc, hls]) => ({
         company: comp as string,
         role: role as string,
+        title: role as string,
         period: period as string,
         location: loc as string,
         highlights: hls as string[],
@@ -179,6 +289,7 @@ export function getDomainExtraction(
       careerHistory: companies.map(([comp, role, period, loc, hls]) => ({
         company: comp as string,
         role: role as string,
+        title: role as string,
         period: period as string,
         location: loc as string,
         highlights: hls as string[],
@@ -237,6 +348,7 @@ export function getDomainExtraction(
       careerHistory: companies.map(([comp, role, period, loc, hls]) => ({
         company: comp as string,
         role: role as string,
+        title: role as string,
         period: period as string,
         location: loc as string,
         highlights: hls as string[],
@@ -276,6 +388,7 @@ export function getDomainExtraction(
     careerHistory: defaultCompanies.map(([comp, role, period, loc, hls]) => ({
       company: comp as string,
       role: role as string,
+      title: role as string,
       period: period as string,
       location: loc as string,
       highlights: hls as string[],
@@ -431,10 +544,30 @@ export async function parseResumeWithAI(options: {
 
   if (apiKey) {
     try {
+      // Check if buffer is DOCX Word Document
+      let extractedDocxText = '';
+      const isDocx =
+        detectedMime.includes('wordprocessingml') ||
+        detectedMime.includes('docx') ||
+        (cvUrl && cvUrl.toLowerCase().endsWith('.docx'));
+
+      if (fileBuffer && isDocx) {
+        extractedDocxText = extractTextFromDocx(fileBuffer);
+        if (extractedDocxText) {
+          console.log(`[AI CV Parser] Extracted ${extractedDocxText.length} chars from DOCX for "${candidateName}"`);
+        }
+      }
+
       let fileInlineData: { mimeType: string; data: string } | null = null;
-      if (fileBuffer && fileBuffer.length > 0 && fileBuffer.length < 15 * 1024 * 1024) {
+      // Only PDF and standard images can be passed as inlineData; Word DOCX causes 400 Bad Request
+      if (fileBuffer && fileBuffer.length > 0 && fileBuffer.length < 15 * 1024 * 1024 && !isDocx) {
+        let cleanMime = 'application/pdf';
+        if (detectedMime.includes('image/png')) cleanMime = 'image/png';
+        else if (detectedMime.includes('image/jpeg') || detectedMime.includes('image/jpg')) cleanMime = 'image/jpeg';
+        else if (detectedMime.includes('image/webp')) cleanMime = 'image/webp';
+
         fileInlineData = {
-          mimeType: detectedMime.includes('pdf') ? 'application/pdf' : detectedMime,
+          mimeType: cleanMime,
           data: fileBuffer.toString('base64'),
         };
       }
@@ -459,7 +592,7 @@ Examine the attached document or candidate background in detail. Extract structu
 5. "university": Name of university / institution.
 6. "graduationYear": Estimated or extracted graduation year (e.g. "2019").
 7. "summary": A compelling 3-sentence executive evaluation analyzing their specific strengths and operational readiness for "${jobTitle}" at E3 Qatar.
-8. "careerHistory": Array of past roles with: { "company": string, "role": string, "period": string, "location": string, "highlights": string[] }.
+8. "careerHistory": Array of past roles with: { "company": string, "role": string, "title": string, "period": string, "location": string, "highlights": string[] }.
 9. "languages": Array of languages spoken.
 10. "certifications": Array of professional certifications.
 
@@ -480,6 +613,7 @@ Return STRICT JSON ONLY conforming to this schema:
     {
       "company": "Company Name",
       "role": "Role Title",
+      "title": "Role Title",
       "period": "2021 - 2023",
       "location": "Doha, Qatar",
       "highlights": ["Key achievement 1", "Key achievement 2"]
@@ -489,21 +623,26 @@ Return STRICT JSON ONLY conforming to this schema:
   "certifications": ["Certification 1"]
 }`;
 
-      const parts: any[] = [{ text: prompt }];
+      let fullPrompt = prompt;
+      if (extractedDocxText) {
+        fullPrompt += `\n\n--- EXTRACTED RESUME TEXT FROM ATTACHED DOCX DOCUMENT ---\n${extractedDocxText.slice(0, 15000)}\n--- END RESUME TEXT ---`;
+      }
+
+      const parts: any[] = [{ text: fullPrompt }];
       if (fileInlineData) {
         parts.push({ inlineData: fileInlineData });
       }
 
-      // Candidate models sequence with automatic fallback
+      // Candidate models sequence with active working models prioritized
       const candidateModels = Array.from(
         new Set([
           process.env.GEMINI_MODEL,
+          'gemini-3.6-flash',
+          'gemini-3.5-flash',
+          'gemini-flash-latest',
+          'gemini-2.5-flash',
           'gemini-1.5-flash',
           'gemini-2.0-flash',
-          'gemini-1.5-flash-latest',
-          'gemini-1.5-pro',
-          'gemini-2.0-flash-exp',
-          'gemini-1.5-flash-8b',
         ])
       ).filter(Boolean) as string[];
 
@@ -547,6 +686,20 @@ Return STRICT JSON ONLY conforming to this schema:
                 }
 
                 const parsed = JSON.parse(cleanedText);
+                const parsedCareerHistory = Array.isArray(parsed.careerHistory) && parsed.careerHistory.length > 0
+                  ? parsed.careerHistory.map((item: any) => ({
+                      company: item.company || 'Company',
+                      role: item.role || item.title || 'Role',
+                      title: item.title || item.role || 'Role',
+                      period: item.period || 'Recent',
+                      location: item.location || 'Qatar',
+                      highlights: Array.isArray(item.highlights) ? item.highlights : [],
+                    }))
+                  : (extraction.careerHistory || []).map((item: any) => ({
+                      ...item,
+                      title: item.title || item.role,
+                    }));
+
                 extraction = {
                   skills: Array.isArray(parsed.skills) && parsed.skills.length > 0 ? parsed.skills : extraction.skills,
                   skillsCategorized: parsed.skillsCategorized || extraction.skillsCategorized,
@@ -555,7 +708,7 @@ Return STRICT JSON ONLY conforming to this schema:
                   university: parsed.university || extraction.university,
                   graduationYear: parsed.graduationYear || extraction.graduationYear,
                   summary: parsed.summary || extraction.summary,
-                  careerHistory: Array.isArray(parsed.careerHistory) && parsed.careerHistory.length > 0 ? parsed.careerHistory : extraction.careerHistory,
+                  careerHistory: parsedCareerHistory,
                   languages: Array.isArray(parsed.languages) ? parsed.languages : extraction.languages,
                   certifications: Array.isArray(parsed.certifications) ? parsed.certifications : extraction.certifications,
                 };

@@ -9,6 +9,7 @@ import {
   renderHRApplicationNotificationEmail,
   renderApplicantConfirmationEmail,
 } from "@/lib/email";
+import { getEmailTemplateConfig, replacePlaceholders } from "@/lib/email-templates";
 
 const ingestSchema = z.object({
   website_hp: z.string().optional(),
@@ -86,10 +87,23 @@ export async function POST(req: Request) {
 
     // 7. Dispatch HR Notification & Candidate Auto-Acknowledgment before lambda exit
     const hrEmail = await getNotificationTargetEmail('CAREERS');
+    const emailConfig = await getEmailTemplateConfig();
+    const candidatePosition = validatedData.position || 'Talent Pool Submission';
+    const candidateSubject = replacePlaceholders(emailConfig.applicantConfirmation.subject, {
+      jobTitle: candidatePosition,
+      name: validatedData.name,
+      applicationId: talent.id,
+    });
+    const hrSubject = replacePlaceholders(emailConfig.hrNotification.subject, {
+      jobTitle: candidatePosition,
+      name: validatedData.name,
+      applicationId: talent.id,
+    });
+
     await Promise.allSettled([
       safelySendEmail({
         to: hrEmail,
-        subject: `[E3 Talent Ingest] New Candidate: ${validatedData.name} - ${validatedData.position || 'General'}`,
+        subject: hrSubject || `[E3 Talent Ingest] New Candidate: ${validatedData.name} - ${validatedData.position || 'General'}`,
         html: renderHRApplicationNotificationEmail({
           name: validatedData.name,
           email: validatedData.email,
@@ -98,17 +112,19 @@ export async function POST(req: Request) {
           department: validatedData.department,
           applicationId: talent.id,
           cvUrl: validatedData.resumeUrl,
+          config: emailConfig,
         }),
         category: 'CAREERS',
         replyTo: validatedData.email,
       }),
       safelySendEmail({
         to: validatedData.email,
-        subject: `[E3 Qatar] Application Received: ${validatedData.position || 'Talent Pool'}`,
+        subject: candidateSubject || `[E3 Qatar] Application Received: ${candidatePosition}`,
         html: renderApplicantConfirmationEmail({
           name: validatedData.name,
-          jobTitle: validatedData.position || 'Talent Pool Submission',
+          jobTitle: candidatePosition,
           applicationId: talent.id,
+          config: emailConfig,
         }),
         category: 'CAREERS',
       })

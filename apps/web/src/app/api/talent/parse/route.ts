@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { isHRAuthorized } from '@/lib/careers/job-eligibility';
+import { getServerSecretSetting } from '@/lib/settings/public-settings';
+import { extractTextFromDocx } from '@/lib/careers/ai-cv-parser';
 
 export async function POST(request: Request) {
   try {
@@ -25,7 +27,13 @@ export async function POST(request: Request) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const mimeType = file.type || 'application/pdf';
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    const apiKey =
+      process.env.GEMINI_API_KEY ||
+      process.env.GOOGLE_AI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      (await getServerSecretSetting('geminiApiKey').catch(() => null)) ||
+      (await getServerSecretSetting('gemini_api_key').catch(() => null)) ||
+      (await getServerSecretSetting('googleAiApiKey').catch(() => null));
 
     let extractedData = {
       name: file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " "),
@@ -40,6 +48,16 @@ export async function POST(request: Request) {
 
     if (apiKey) {
       try {
+        const isDocx =
+          mimeType.includes('wordprocessingml') ||
+          mimeType.includes('docx') ||
+          file.name.toLowerCase().endsWith('.docx');
+
+        let extractedDocxText = '';
+        if (isDocx) {
+          extractedDocxText = extractTextFromDocx(buffer);
+        }
+
         const prompt = `You are an expert HR Talent Acquisition parser for E3 Qatar (Event Engineering Experts).
 Analyze the provided CV/Resume file. Extract the following candidate details in strict JSON format:
 {
@@ -54,59 +72,92 @@ Analyze the provided CV/Resume file. Extract the following candidate details in 
 }
 Return ONLY valid JSON matching this schema.`;
 
-        const base64Data = buffer.toString('base64');
-        const geminiRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [
-                {
-                  role: 'user',
-                  parts: [
-                    { text: prompt },
-                    {
-                      inlineData: {
-                        mimeType: mimeType === 'application/pdf' ? 'application/pdf' : 'text/plain',
-                        data: base64Data,
-                      },
-                    },
-                  ],
-                },
-              ],
-              generationConfig: {
-                responseMimeType: 'application/json',
-                temperature: 0.1,
-              },
-            }),
-          }
-        );
+        let fullPrompt = prompt;
+        if (extractedDocxText) {
+          fullPrompt += `\n\n--- EXTRACTED RESUME TEXT ---\n${extractedDocxText.slice(0, 15000)}\n--- END RESUME TEXT ---`;
+        }
 
-        if (geminiRes.ok) {
-          const geminiJson = await geminiRes.json();
-          const rawText = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (rawText) {
-            const parsed = JSON.parse(rawText);
-            extractedData = {
-              name: parsed.name || extractedData.name,
-              email: parsed.email || extractedData.email,
-              phone: parsed.phone || extractedData.phone,
-              position: parsed.position || extractedData.position,
-              department: parsed.department || extractedData.department,
-              experienceLevel: parsed.experienceLevel || extractedData.experienceLevel,
-              skills: Array.isArray(parsed.skills) && parsed.skills.length > 0 ? parsed.skills : extractedData.skills,
-              notes: parsed.notes ? `[Gemini AI] ${parsed.notes}` : extractedData.notes,
-            };
-          }
-        } else {
-          console.warn('[Talent AI Parse] Gemini API returned status:', geminiRes.status);
+        const base64Data = buffer.toString('base64');
+        const parts: any[] = [{ text: fullPrompt }];
+        if (!isDocx && base64Data) {
+          const cleanMime = mimeType.includes('pdf') ? 'application/pdf' : 'image/jpeg';
+          parts.push({
+            inlineData: {
+              mimeType: cleanMime,
+              data: base64Data,
+            },
+          });
+        }
+
+        const candidateModels = Array.from(
+          new Set([
+            process.env.GEMINI_MODEL,
+            'gemini-3.6-flash',
+            'gemini-3.5-flash',
+            'gemini-flash-latest',
+            'gemini-2.5-flash',
+            'gemini-1.5-flash',
+            'gemini-2.0-flash',
+          ])
+        ).filter(Boolean) as string[];
+
+        let modelSuccess = false;
+        for (const model of candidateModels) {
+          if (modelSuccess) break;
+          try {
+            const geminiRes = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: [{ role: 'user', parts }],
+                  generationConfig: {
+                    responseMimeType: 'application/json',
+                    temperature: 0.1,
+                  },
+                }),
+                signal: AbortSignal.timeout(20000),
+              }
+            );
+
+            if (geminiRes.ok) {
+              const geminiJson = await geminiRes.json();
+              const rawText = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (rawText) {
+                let cleanedText = rawText.trim();
+                if (cleanedText.includes('```')) {
+                  cleanedText = cleanedText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+                }
+                const firstBrace = cleanedText.indexOf('{');
+                const lastBrace = cleanedText.lastIndexOf('}');
+                if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                  cleanedText = cleanedText.substring(firstBrace, lastBrace + 1);
+                }
+                const parsed = JSON.parse(cleanedText);
+                extractedData = {
+                  name: parsed.name || extractedData.name,
+                  email: parsed.email || extractedData.email,
+                  phone: parsed.phone || extractedData.phone,
+                  position: parsed.position || extractedData.position,
+                  department: parsed.department || extractedData.department,
+                  experienceLevel: parsed.experienceLevel || extractedData.experienceLevel,
+                  skills: Array.isArray(parsed.skills) && parsed.skills.length > 0 ? parsed.skills : extractedData.skills,
+                  notes: parsed.notes ? `[Gemini AI] ${parsed.notes}` : extractedData.notes,
+                };
+                modelSuccess = true;
+                break;
+              }
+            } else {
+              console.warn(`[Talent AI Parse] Model ${model} returned status:`, geminiRes.status);
+            }
+          } catch (_mErr) {}
         }
       } catch (llmErr) {
         console.error('[Talent AI Parse] Gemini parsing error:', llmErr);
       }
     } else {
-      extractedData.notes += " (Set GEMINI_API_KEY in .env.local to enable full multimodal AI parsing)";
+      extractedData.notes += " (Set GEMINI_API_KEY in .env.local or Admin Settings to enable full multimodal AI parsing)";
     }
 
     const talent = await db.talent.create({

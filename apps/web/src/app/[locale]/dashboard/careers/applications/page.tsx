@@ -31,7 +31,7 @@ export default async function ApplicationsPage(props: { params: Promise<{ locale
     applications.map(async (app: any) => {
       const candidateName = `${app.firstName || ''} ${app.lastName || ''}`.trim() || 'Candidate';
       if (isLegacySimulatedMock(app.cvParsedData, app.jobTitle)) {
-        const sanitized = sanitizeCandidateAnalysis(app.cvParsedData, app.jobTitle, app.department || undefined, candidateName);
+        const sanitized = sanitizeCandidateAnalysis(app.cvParsedData, app.jobTitle, app.department || undefined, candidateName, app.email || '');
         try {
           await db.jobApplication.update({
             where: { id: app.id },

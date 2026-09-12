@@ -285,6 +285,7 @@ const sidebarConfig: NavGroupItem[] = [
     capability: "settings.general.manage",
     subItems: [
       { label: "Global General", labelAr: "الإعدادات العامة للشركة", href: "/dashboard/settings/general", capability: "settings.general.manage" },
+      { label: "Email Reply & Templates", labelAr: "قوالب وردود البريد", href: "/dashboard/settings/emails", capability: "settings.general.manage" },
       { label: "Global Footers (B2B & B2C)", labelAr: "تذييل الصفحات العام", href: "/dashboard/settings/footer", capability: "settings.general.manage" },
       { label: "Gateway Customization", labelAr: "تخصيص بوابة الدخول", href: "/dashboard/settings/gateway", capability: "settings.gateway.manage" },
       { label: "Pulse Orbit Hub", labelAr: "مركز نبض الأنظمة", href: "/dashboard/settings/pulse-orbit", capability: "settings.general.manage" },

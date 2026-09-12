@@ -54,6 +54,8 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
   const [toast, setToast] = useState(false);
   const [isTestingEmail, setIsTestingEmail] = useState(false);
   const [testEmailMsg, setTestEmailMsg] = useState<{ success: boolean; text: string } | null>(null);
+  const [isTestingGemini, setIsTestingGemini] = useState(false);
+  const [testGeminiMsg, setTestGeminiMsg] = useState<{ success: boolean; text: string } | null>(null);
 
   const [data, setData] = useState({
     siteNameEn: initialSettings.siteNameEn || "Events & Entertainment Enterprises",
@@ -80,6 +82,7 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
     bookingqubeWebsite: initialSettings.bookingqubeWebsite || "https://bookingqube.com",
     bookingQubeApiKey: initialSettings.bookingQubeApiKey || "",
     mapsApiKey: initialSettings.mapsApiKey || "",
+    geminiApiKey: initialSettings.geminiApiKey || "",
     emailGatewayKey: initialSettings.emailGatewayKey || "",
     emailSupportGreetingEn: initialSettings.emailSupportGreetingEn || "Thank you for reaching out to E3 Customer Support. Your inquiry has been received.",
     emailSupportGreetingAr: initialSettings.emailSupportGreetingAr || "شكراً لتواصلكم مع خدمة عملاء إي ثري. لقد تم استلام استفساركم بنجاح.",
@@ -160,6 +163,37 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
       });
     } finally {
       setIsTestingEmail(false);
+    }
+  };
+
+  const handleTestGeminiAi = async () => {
+    setIsTestingGemini(true);
+    setTestGeminiMsg(null);
+    try {
+      const res = await fetch("/api/settings/ai/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apiKey: data.geminiApiKey,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to validate Gemini API key.");
+      }
+      setTestGeminiMsg({
+        success: true,
+        text: isAr
+          ? `تم التحقق بنجاح! الاتصال يعمل مع نموذج (${json.model}).`
+          : `Verified successfully! Connected to Google Gemini AI (${json.model}).`,
+      });
+    } catch (err: any) {
+      setTestGeminiMsg({
+        success: false,
+        text: err.message || (isAr ? "فشل الاتصال بـ Gemini AI. يرجى التحقق من المفتاح." : "Failed to connect to Gemini AI. Check API Key."),
+      });
+    } finally {
+      setIsTestingGemini(false);
     }
   };
 
@@ -668,6 +702,40 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
                 </p>
               )}
             </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+                  {isAr ? "مفتاح الربط البرمجي لـ Google Gemini AI (محلل السير الذاتية)" : "Google Gemini AI API Key (CV Parser & Intelligence)"}
+                </label>
+                <button
+                  type="button"
+                  onClick={handleTestGeminiAi}
+                  disabled={isTestingGemini}
+                  className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline disabled:opacity-50 cursor-pointer transition-colors flex items-center gap-1.5"
+                >
+                  {isTestingGemini ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                  <span>{isTestingGemini ? (isAr ? "جارٍ الفحص..." : "Testing...") : (isAr ? "فحص الاتصال بـ Gemini" : "Test Gemini AI")}</span>
+                </button>
+              </div>
+              <input
+                type="password"
+                value={data.geminiApiKey}
+                onChange={(e) => handleChange("geminiApiKey", e.target.value)}
+                placeholder={data.geminiApiKey ? "•••••••••••••••• (Leave unchanged to preserve)" : "AIza... or AQ... (Gemini API Key)"}
+                className="w-full bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary)] font-mono"
+              />
+              <p className="text-[11px] text-[var(--text-tertiary)] mt-1">
+                {isAr
+                  ? "يُستخدم في تحليل السير الذاتية للمتقدمين، استخراج المهارات، تصنيف المواهب، وصياغة الملخصات التنفيذية الذكية."
+                  : "Powers the automatic candidate CV parsing engine, competency extraction, and executive summaries (Gemini 3.6 Flash)."}
+              </p>
+              {testGeminiMsg && (
+                <p className={cn("text-xs mt-2 font-medium", testGeminiMsg.success ? "text-emerald-500" : "text-rose-500")}>
+                  {testGeminiMsg.text}
+                </p>
+              )}
+            </div>
           </div>
         </DashboardSectionCard>
       </div>
@@ -728,6 +796,30 @@ export function GeneralSettingsView({ initialSettings }: { initialSettings: Reco
           icon={<Mail className="w-5 h-5 text-emerald-500" />}
         >
           <div className="space-y-6">
+            {/* Quick Link to Dedicated Email Templates CMS */}
+            <div className="rounded-2xl bg-purple-500/10 border border-purple-500/20 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3.5">
+                <Sparkles className="w-5 h-5 text-purple-500 shrink-0 mt-0.5" />
+                <div className="text-xs space-y-1">
+                  <p className="font-bold text-[var(--text-primary)] text-sm">
+                    {isAr ? "محرر قوالب وردود البريد الإلكتروني المتكامل" : "Dedicated Email Replies & Templates CMS"}
+                  </p>
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
+                    {isAr
+                      ? "يتيح لك المحرر المخصص تعديل كافة رسائل المتقدمين للوظائف، تنبيهات HR، تذاكر الدعم، ومعاينة البريد مباشرة (Live HTML Preview)."
+                      : "Access the full editor with live HTML previews, dynamic variable tags, candidate auto-replies, and test dispatch."}
+                  </p>
+                </div>
+              </div>
+              <Link
+                href={`/${locale}/dashboard/settings/emails`}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shrink-0 transition-all shadow-xs cursor-pointer"
+              >
+                <span>{isAr ? "فتح محرر قوالب البريد" : "Open Email Editor"}</span>
+                <ArrowRight className={cn("w-3.5 h-3.5", isAr && "rotate-180")} />
+              </Link>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1 uppercase tracking-wider">

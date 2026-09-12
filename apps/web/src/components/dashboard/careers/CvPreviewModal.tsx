@@ -28,7 +28,8 @@ import {
 } from "lucide-react";
 
 interface CareerHistoryItem {
-  title: string;
+  title?: string;
+  role?: string;
   company: string;
   period: string;
   location?: string;
@@ -105,7 +106,12 @@ export function CvPreviewModal({
     : ["Event Production", "Live Operations", "Vendor Management", "Stage Coordination"];
 
   const careerHistory: CareerHistoryItem[] = Array.isArray(parsed.careerHistory) && parsed.careerHistory.length > 0
-    ? parsed.careerHistory
+    ? parsed.careerHistory.map((it: any) => ({
+        ...it,
+        title: it.title || it.role || candidate.jobTitle,
+        company: it.company || "Organization",
+        period: it.period || "Recent",
+      }))
     : [
         {
           title: candidate.jobTitle,
@@ -474,7 +480,7 @@ export function CvPreviewModal({
                       <span className="absolute -start-[7px] top-1 w-3 h-3 rounded-full bg-purple-500 ring-4 ring-zinc-950 group-hover:scale-110 transition-transform" />
 
                       <div className="flex flex-wrap items-baseline justify-between gap-2">
-                        <h5 className="text-sm font-bold text-white">{item.title}</h5>
+                        <h5 className="text-sm font-bold text-white">{item.title || item.role || candidate.jobTitle}</h5>
                         <span className="text-xs font-mono font-medium text-purple-300 px-2 py-0.5 rounded bg-purple-950/60 border border-purple-800/40">
                           {item.period}
                         </span>

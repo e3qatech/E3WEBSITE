@@ -12,6 +12,7 @@ import {
   renderHRApplicationNotificationEmail,
   renderApplicantConfirmationEmail,
 } from '@/lib/email';
+import { getEmailTemplateConfig, replacePlaceholders } from '@/lib/email-templates';
 
 const applicationSchema = z.object({
   website_hp: z.string().optional(),
@@ -182,10 +183,22 @@ export async function POST(req: NextRequest) {
 
     // 5. Dispatch HR notification & Candidate auto-acknowledgment before lambda exit
     const hrEmail = await getNotificationTargetEmail('CAREERS');
+    const emailConfig = await getEmailTemplateConfig();
+    const candidateSubject = replacePlaceholders(emailConfig.applicantConfirmation.subject, {
+      jobTitle: verifiedJobTitle,
+      name: candidateFullName,
+      applicationId: application.id,
+    });
+    const hrSubject = replacePlaceholders(emailConfig.hrNotification.subject, {
+      jobTitle: verifiedJobTitle,
+      name: candidateFullName,
+      applicationId: application.id,
+    });
+
     await Promise.allSettled([
       safelySendEmail({
         to: hrEmail,
-        subject: `[E3 Careers] New Application: ${candidateFullName} - ${verifiedJobTitle}`,
+        subject: hrSubject || `[E3 Careers] New Application: ${candidateFullName} - ${verifiedJobTitle}`,
         html: renderHRApplicationNotificationEmail({
           name: candidateFullName,
           email: cleanEmail,
@@ -194,17 +207,19 @@ export async function POST(req: NextRequest) {
           department: verifiedDepartment || undefined,
           applicationId: application.id,
           cvUrl: validatedData.cvUrl,
+          config: emailConfig,
         }),
         category: 'CAREERS',
         replyTo: cleanEmail,
       }),
       safelySendEmail({
         to: cleanEmail,
-        subject: `[E3 Qatar] Application Received: ${verifiedJobTitle}`,
+        subject: candidateSubject || `[E3 Qatar] Application Received: ${verifiedJobTitle}`,
         html: renderApplicantConfirmationEmail({
           name: candidateFullName,
           jobTitle: verifiedJobTitle,
           applicationId: application.id,
+          config: emailConfig,
         }),
         category: 'CAREERS',
       })

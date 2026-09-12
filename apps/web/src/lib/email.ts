@@ -1,4 +1,13 @@
 import { db } from '@/lib/db';
+import {
+  EmailTemplateConfig,
+  DEFAULT_EMAIL_TEMPLATE_CONFIG,
+  replacePlaceholders,
+  getEmailTemplateConfig,
+} from './email-templates';
+
+export { getEmailTemplateConfig, DEFAULT_EMAIL_TEMPLATE_CONFIG };
+export type { EmailTemplateConfig };
 
 export interface SendEmailOptions {
   to: string | string[];
@@ -250,8 +259,15 @@ export function formatReadableTicketId(
  * LUXURY HTML TEMPLATE RENDERERS (All user-controlled values HTML-escaped)
  * ============================================================================ */
 
-function getBaseEmailLayout(title: string, contentHtml: string): string {
+export function getBaseEmailLayout(
+  title: string,
+  contentHtml: string,
+  config?: EmailTemplateConfig
+): string {
   const safeTitle = escapeHtml(title);
+  const branding = config?.branding || DEFAULT_EMAIL_TEMPLATE_CONFIG.branding;
+  const footer = config?.footer || DEFAULT_EMAIL_TEMPLATE_CONFIG.footer;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -397,16 +413,16 @@ function getBaseEmailLayout(title: string, contentHtml: string): string {
 <body>
   <div class="wrapper">
     <div class="brand-header">
-      <div class="brand-logo-text">E3 QATAR</div>
-      <div class="brand-tagline">Event Engineering & Entertainment Landmarks</div>
+      <div class="brand-logo-text">${escapeHtml(branding.headerLogoText)}</div>
+      <div class="brand-tagline">${escapeHtml(branding.headerTagline)}</div>
     </div>
     <div class="body">
       ${contentHtml}
     </div>
     <div class="footer">
-      <p style="margin: 0 0 8px;">&copy; ${new Date().getFullYear()} E3 Qatar Entertainment & Events. All rights reserved.</p>
-      <p style="margin: 0 0 12px;"><a href="https://eeeqa.com">www.eeeqa.com</a> &bull; Doha, State of Qatar &bull; Tel: +974 3048 9955</p>
-      <p style="margin: 0; font-size: 11px; color: #475569;">Qatar PDPL Compliant: Law No. (13) of 2016 concerning Personal Data Privacy Protection.</p>
+      <p style="margin: 0 0 8px;">&copy; ${new Date().getFullYear()} ${escapeHtml(footer.companyName)}. All rights reserved.</p>
+      <p style="margin: 0 0 12px;"><a href="${escapeHtml(footer.websiteUrl)}">${escapeHtml(footer.websiteDisplay)}</a> &bull; ${escapeHtml(footer.location)} &bull; Tel: ${escapeHtml(footer.phone)}</p>
+      <p style="margin: 0; font-size: 11px; color: #475569;">${escapeHtml(footer.complianceNotice)}</p>
     </div>
   </div>
 </body>
@@ -421,6 +437,7 @@ export function renderAdminSupportTicketEmail(data: {
   ticketId?: string;
   category?: string;
   attractionId?: string;
+  config?: EmailTemplateConfig;
 }): string {
   const readableRef = formatReadableTicketId(data.ticketId, 'SUPPORT');
   const content = `
@@ -440,33 +457,50 @@ export function renderAdminSupportTicketEmail(data: {
     ${data.attractionId ? `<div class="field"><div class="label">Related Attraction</div><div class="value">${escapeHtml(data.attractionId)}</div></div>` : ''}
     <div class="field"><div class="label">Message & Issue Details</div><div class="value" style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(data.message)}</div></div>
   `;
-  return getBaseEmailLayout('New Customer Support Ticket', content);
+  return getBaseEmailLayout('New Customer Support Ticket', content, data.config);
 }
 
 export function renderUserSupportTicketConfirmationEmail(data: {
   name: string;
   ticketId?: string;
+  config?: EmailTemplateConfig;
 }): string {
+  const cfg = data.config?.supportConfirmation || DEFAULT_EMAIL_TEMPLATE_CONFIG.supportConfirmation;
   const readableRef = formatReadableTicketId(data.ticketId, 'SUPPORT');
+
+  const vars = {
+    name: escapeHtml(data.name),
+    ticketId: escapeHtml(data.ticketId || ''),
+    referenceCode: escapeHtml(readableRef),
+  };
+
+  const heading = replacePlaceholders(cfg.heading, vars);
+  const greeting = replacePlaceholders(cfg.greeting, vars);
+  const body = replacePlaceholders(cfg.body, vars);
+  const refLabel = replacePlaceholders(cfg.referenceLabel, vars);
+  const refHint = replacePlaceholders(cfg.referenceHint, vars);
+  const badge = replacePlaceholders(cfg.targetWindowBadge, vars);
+  const guidance = replacePlaceholders(cfg.replyGuidance, vars);
+
   const content = `
-    <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 22px; font-weight: 800;">We Received Your Support Request</h2>
-    <p style="color: #cbd5e1; font-size: 15px; margin: 0 0 20px;">Dear ${escapeHtml(data.name)},</p>
+    <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 22px; font-weight: 800;">${heading}</h2>
+    <p style="color: #cbd5e1; font-size: 15px; margin: 0 0 20px;">${greeting}</p>
     <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
-      Thank you for reaching out to E3 Qatar Support. Your inquiry has been securely registered in our operations queue and assigned to our guest relations team.
+      ${body}
     </p>
     
     <div class="reference-box">
-      <div class="reference-label">Your Official Reference Number</div>
+      <div class="reference-label">${refLabel}</div>
       <div class="reference-code">${escapeHtml(readableRef)}</div>
-      <div class="reference-hint">Please share this reference code when calling or checking status. ${data.ticketId ? `(#${escapeHtml(data.ticketId)})` : ''}</div>
+      <div class="reference-hint">${refHint}</div>
     </div>
     
     <div class="info-card">
-      <p style="margin: 0 0 6px; font-weight: 700; color: #10b981;">⏱️ Response Target: Within 24 Business Hours</p>
-      <p style="margin: 0;">Our operations team is actively reviewing your request. If you need to attach screenshots, receipts, or additional notes, simply <strong>reply directly to this email</strong>.</p>
+      <p style="margin: 0 0 6px; font-weight: 700; color: #10b981;">${badge}</p>
+      <p style="margin: 0;">${guidance}</p>
     </div>
   `;
-  return getBaseEmailLayout('Support Request Received - E3 Qatar', content);
+  return getBaseEmailLayout(replacePlaceholders(cfg.subject, vars), content, data.config);
 }
 
 export function renderAdminProjectRequestEmail(data: {
@@ -480,6 +514,7 @@ export function renderAdminProjectRequestEmail(data: {
   rfpUploadId?: string;
   rfpUrl?: string;
   rfpFileName?: string;
+  config?: EmailTemplateConfig;
 }): string {
   const readableRef = formatReadableTicketId(data.leadId, 'PROJECT');
   const servicesList = Array.isArray(data.interestServices) && data.interestServices.length > 0
@@ -510,34 +545,52 @@ export function renderAdminProjectRequestEmail(data: {
       </div>` : ''}
     <div class="field"><div class="label">Project Brief & Requirements</div><div class="value" style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(data.message)}</div></div>
   `;
-  return getBaseEmailLayout('New B2B Project Inquiry', content);
+  return getBaseEmailLayout('New B2B Project Inquiry', content, data.config);
 }
 
 export function renderUserB2BConfirmationEmail(data: {
   name: string;
   company?: string;
   leadId?: string;
+  config?: EmailTemplateConfig;
 }): string {
+  const cfg = data.config?.b2bInquiryConfirmation || DEFAULT_EMAIL_TEMPLATE_CONFIG.b2bInquiryConfirmation;
   const readableRef = formatReadableTicketId(data.leadId, 'PROJECT');
+
+  const vars = {
+    name: escapeHtml(data.name),
+    company: data.company ? ` (${escapeHtml(data.company)})` : '',
+    leadId: escapeHtml(data.leadId || ''),
+    referenceCode: escapeHtml(readableRef),
+  };
+
+  const heading = replacePlaceholders(cfg.heading, vars);
+  const greeting = replacePlaceholders(cfg.greeting, vars);
+  const body = replacePlaceholders(cfg.body, vars);
+  const refLabel = replacePlaceholders(cfg.referenceLabel, vars);
+  const refHint = replacePlaceholders(cfg.referenceHint, vars);
+  const badge = replacePlaceholders(cfg.followUpBadge, vars);
+  const desc = replacePlaceholders(cfg.followUpDescription, vars);
+
   const content = `
-    <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 22px; font-weight: 800;">We Received Your Project Inquiry</h2>
-    <p style="color: #cbd5e1; font-size: 15px; margin: 0 0 20px;">Dear ${escapeHtml(data.name)}${data.company ? ` (${escapeHtml(data.company)})` : ''},</p>
+    <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 22px; font-weight: 800;">${heading}</h2>
+    <p style="color: #cbd5e1; font-size: 15px; margin: 0 0 20px;">${greeting}</p>
     <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
-      Thank you for engaging with E3 Qatar. We have received your project inquiry and our Business Development & Event Engineering leadership is reviewing your specifications.
+      ${body}
     </p>
     
     <div class="reference-box">
-      <div class="reference-label">Your Project Reference Number</div>
+      <div class="reference-label">${refLabel}</div>
       <div class="reference-code" style="color: #10b981; border-color: rgba(16, 185, 129, 0.3);">${escapeHtml(readableRef)}</div>
-      <div class="reference-hint">Keep this code handy for executive communications. ${data.leadId ? `(#${escapeHtml(data.leadId)})` : ''}</div>
+      <div class="reference-hint">${refHint}</div>
     </div>
     
     <div class="info-card">
-      <p style="margin: 0 0 6px; font-weight: 700; color: #10b981;">🤝 Executive Follow-Up: Within 24 Hours</p>
-      <p style="margin: 0;">An engineering lead or client account executive will connect with you to review feasibility, execution timelines, and commercial proposals.</p>
+      <p style="margin: 0 0 6px; font-weight: 700; color: #10b981;">${badge}</p>
+      <p style="margin: 0;">${desc}</p>
     </div>
   `;
-  return getBaseEmailLayout('Project Inquiry Received - E3 Qatar', content);
+  return getBaseEmailLayout(replacePlaceholders(cfg.subject, vars), content, data.config);
 }
 
 export function renderAdminFeedbackEmail(data: {
@@ -546,6 +599,7 @@ export function renderAdminFeedbackEmail(data: {
   rating?: number | string | null;
   attractionId?: string;
   message: string;
+  config?: EmailTemplateConfig;
 }): string {
   const numericRating = Number(data.rating) || 0;
   const ratingDisplay = numericRating > 0
@@ -562,7 +616,7 @@ export function renderAdminFeedbackEmail(data: {
     ${data.attractionId ? `<div class="field"><div class="label">Attraction</div><div class="value">${escapeHtml(data.attractionId)}</div></div>` : ''}
     <div class="field"><div class="label">Feedback Message</div><div class="value" style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(data.message)}</div></div>
   `;
-  return getBaseEmailLayout('New Customer Feedback Received', content);
+  return getBaseEmailLayout('New Customer Feedback Received', content, data.config);
 }
 
 export function renderHRApplicationNotificationEmail(data: {
@@ -573,14 +627,31 @@ export function renderHRApplicationNotificationEmail(data: {
   department?: string;
   applicationId: string;
   cvUrl?: string;
+  config?: EmailTemplateConfig;
 }): string {
+  const cfg = data.config?.hrNotification || DEFAULT_EMAIL_TEMPLATE_CONFIG.hrNotification;
   const readableRef = formatReadableTicketId(data.applicationId, 'CAREERS');
+  
+  const vars = {
+    name: escapeHtml(data.name),
+    email: escapeHtml(data.email),
+    phone: escapeHtml(data.phone || ''),
+    jobTitle: escapeHtml(data.jobTitle),
+    department: escapeHtml(data.department || ''),
+    applicationId: escapeHtml(data.applicationId),
+    referenceCode: escapeHtml(readableRef),
+  };
+
+  const heading = replacePlaceholders(cfg.heading, vars);
+  const subtitle = replacePlaceholders(cfg.subtitle, vars);
+  const refLabel = replacePlaceholders(cfg.referenceLabel, vars);
+
   const content = `
-    <h2 style="color: #a855f7; margin: 0 0 8px; font-size: 20px; font-weight: 800;">New Career Application Submitted</h2>
-    <p style="color: #94a3b8; margin: 0 0 20px; font-size: 14px;">A new candidate application has been submitted for talent review.</p>
+    <h2 style="color: #a855f7; margin: 0 0 8px; font-size: 20px; font-weight: 800;">${heading}</h2>
+    <p style="color: #94a3b8; margin: 0 0 20px; font-size: 14px;">${subtitle}</p>
     
     <div class="reference-box">
-      <div class="reference-label">Application Reference Code</div>
+      <div class="reference-label">${refLabel}</div>
       <div class="reference-code" style="color: #a855f7; border-color: rgba(168, 85, 247, 0.3);">${escapeHtml(readableRef)}</div>
       ${data.applicationId ? `<div class="reference-hint">Internal App UUID: #${escapeHtml(data.applicationId)}</div>` : ''}
     </div>
@@ -591,34 +662,85 @@ export function renderHRApplicationNotificationEmail(data: {
     ${data.phone ? `<div class="field"><div class="label">Phone Number</div><div class="value">${escapeHtml(data.phone)}</div></div>` : ''}
     ${data.cvUrl ? `<div class="field"><div class="label">Resume / CV Document</div><div class="value"><a href="${escapeHtml(data.cvUrl)}" style="color: #38bdf8; font-weight: bold; text-decoration: none;" target="_blank">📄 View Attached Resume</a></div></div>` : ''}
   `;
-  return getBaseEmailLayout('New Career Application - E3 Qatar', content);
+  return getBaseEmailLayout(replacePlaceholders(cfg.subject, vars), content, data.config);
 }
 
 export function renderApplicantConfirmationEmail(data: {
   name: string;
   jobTitle: string;
   applicationId: string;
+  config?: EmailTemplateConfig;
 }): string {
+  const cfg = data.config?.applicantConfirmation || DEFAULT_EMAIL_TEMPLATE_CONFIG.applicantConfirmation;
   const readableRef = formatReadableTicketId(data.applicationId, 'CAREERS');
+  
+  const vars = {
+    name: escapeHtml(data.name),
+    jobTitle: escapeHtml(data.jobTitle),
+    applicationId: escapeHtml(data.applicationId),
+    referenceCode: escapeHtml(readableRef),
+    year: new Date().getFullYear(),
+  };
+
+  const heading = replacePlaceholders(cfg.heading, vars);
+  const greeting = replacePlaceholders(cfg.greeting, vars);
+  const body = replacePlaceholders(cfg.body, vars);
+  const refLabel = replacePlaceholders(cfg.referenceLabel, vars);
+  const refHint = replacePlaceholders(cfg.referenceHint, vars);
+  const nextStepsTitle = replacePlaceholders(cfg.nextStepsTitle, vars);
+  const nextStepsBody = replacePlaceholders(cfg.nextStepsBody, vars);
+
   const content = `
-    <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 22px; font-weight: 800;">Application Received</h2>
-    <p style="color: #cbd5e1; font-size: 15px; margin: 0 0 20px;">Dear ${escapeHtml(data.name)},</p>
+    <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 22px; font-weight: 800;">${heading}</h2>
+    <p style="color: #cbd5e1; font-size: 15px; margin: 0 0 20px;">${greeting}</p>
     <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
-      Thank you for applying for the <strong>${escapeHtml(data.jobTitle)}</strong> position at E3 Qatar. We have safely received your application and resume credentials.
+      ${body}
     </p>
     
     <div class="reference-box">
-      <div class="reference-label">Your Application Reference Number</div>
+      <div class="reference-label">${refLabel}</div>
       <div class="reference-code" style="color: #a855f7; border-color: rgba(168, 85, 247, 0.3);">${escapeHtml(readableRef)}</div>
-      <div class="reference-hint">Keep this reference for status tracking with talent acquisition. (#${escapeHtml(data.applicationId)})</div>
+      <div class="reference-hint">${refHint}</div>
     </div>
     
     <div class="info-card">
-      <p style="margin: 0 0 6px; font-weight: 700; color: #a855f7;">📋 Next Steps</p>
-      <p style="margin: 0;">Our talent acquisition team reviews candidates on a rolling basis. If your profile aligns with our current operational requirements, an HR specialist will contact you directly.</p>
+      <p style="margin: 0 0 6px; font-weight: 700; color: #a855f7;">${nextStepsTitle}</p>
+      <p style="margin: 0;">${nextStepsBody}</p>
     </div>
   `;
-  return getBaseEmailLayout('Application Received - E3 Qatar Careers', content);
+  return getBaseEmailLayout(replacePlaceholders(cfg.subject, vars), content, data.config);
+}
+
+export function renderCustomCandidateReplyEmail(data: {
+  name: string;
+  jobTitle?: string;
+  subject?: string;
+  message: string;
+  nextSteps?: string;
+  config?: EmailTemplateConfig;
+}): string {
+  const safeName = escapeHtml(data.name);
+  const safeJob = data.jobTitle ? escapeHtml(data.jobTitle) : '';
+  const safeSubject = escapeHtml(data.subject || 'Application Update');
+
+  const content = `
+    <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 22px; font-weight: 800;">${safeSubject}</h2>
+    <p style="color: #cbd5e1; font-size: 15px; margin: 0 0 20px;">Dear ${safeName},</p>
+    ${safeJob ? `<p style="color: #a855f7; font-size: 13px; font-weight: 700; margin: 0 0 16px;">Regarding: ${safeJob}</p>` : ''}
+    
+    <div style="background-color: #13141c; padding: 18px 20px; border-radius: 12px; border: 1px solid #222533; color: #e4e4e7; font-size: 14px; line-height: 1.7; white-space: pre-wrap; margin-bottom: 24px;">
+${escapeHtml(data.message)}
+    </div>
+
+    ${data.nextSteps ? `
+      <div class="info-card">
+        <p style="margin: 0 0 6px; font-weight: 700; color: #a855f7;">📋 Next Steps & Instructions</p>
+        <p style="margin: 0; line-height: 1.5;">${escapeHtml(data.nextSteps)}</p>
+      </div>
+    ` : ''}
+  `;
+
+  return getBaseEmailLayout(data.subject || 'Update regarding your application - E3 Qatar', content, data.config);
 }
 
 export function renderPasswordResetEmail(data: {
