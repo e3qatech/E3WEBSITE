@@ -37,8 +37,25 @@ export async function rateLimit(
     }
     return { success: true };
   } catch (_error) {
-    // When Redis encounters an error or is unreachable, fallback to bounded in-memory rate limiting
-    // This ensures high availability and resilience without dropping legitimate traffic or uploads.
+    // Determine actual Vercel Production:
+    // MUST use process.env.VERCEL_ENV === "production" to identify actual Vercel Production.
+    // Do not use NODE_ENV === "production" because Next.js sets NODE_ENV="production" on both Preview and Production.
+    const isActualProduction = process.env.VERCEL_ENV === 'production';
+
+    if (isActualProduction && !failOpen) {
+      // In actual Production, remain fail-closed when Redis is unavailable
+      return {
+        success: false,
+        error: 'Rate limit service unavailable',
+        code: 'RATE_LIMIT_SERVICE_UNAVAILABLE',
+        isBackendUnavailable: true,
+        retryAfter: 30,
+      };
+    }
+
+    if (isActualProduction && failOpen) {
+      return { success: true };
+    }
 
     // In Vercel Preview (VERCEL_ENV === 'preview' | 'development'), local development, and test environments:
     // Use bounded in-memory per-IP / per-key limiter. Rate limiting is preserved, not disabled.

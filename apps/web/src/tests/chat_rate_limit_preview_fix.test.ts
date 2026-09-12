@@ -214,39 +214,51 @@ describe('Chat & Redis Rate Limiter VERCEL_ENV Preview Fix Suite', () => {
       mockRedisIncr.mockRejectedValue(new Error('Redis offline in preview'));
 
       const spamIp = `spam-preview-ip-${Date.now()}`;
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({
+          candidates: [{ content: { parts: [{ text: 'Mock response' }] } }],
+        }),
+      }) as any;
 
-      for (let i = 0; i < 15; i++) {
-        const req = new NextRequest('http://localhost/api/chat', {
+      try {
+        for (let i = 0; i < 15; i++) {
+          const req = new NextRequest('http://localhost/api/chat', {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+              'x-forwarded-for': spamIp,
+            },
+            body: JSON.stringify({
+              messages: [{ role: 'user', content: 'Hello' }],
+              locale: 'en',
+            }),
+          });
+          await postChat(req);
+        }
+
+        // 16th request should hit the 15 req/min in-memory limiter and return 429
+        const reqBlocked = new NextRequest('http://localhost/api/chat', {
           method: 'POST',
           headers: {
             'content-type': 'application/json',
             'x-forwarded-for': spamIp,
           },
           body: JSON.stringify({
-            messages: [{ role: 'user', content: 'Hello' }],
+            messages: [{ role: 'user', content: 'Hello again' }],
             locale: 'en',
           }),
         });
-        await postChat(req);
+
+        const resBlocked = await postChat(reqBlocked);
+        expect(resBlocked.status).toBe(429);
+        const json = await resBlocked.json();
+        expect(json.error).toContain('Too many requests');
+      } finally {
+        globalThis.fetch = originalFetch;
       }
-
-      // 16th request should hit the 15 req/min in-memory limiter and return 429
-      const reqBlocked = new NextRequest('http://localhost/api/chat', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'x-forwarded-for': spamIp,
-        },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: 'Hello again' }],
-          locale: 'en',
-        }),
-      });
-
-      const resBlocked = await postChat(reqBlocked);
-      expect(resBlocked.status).toBe(429);
-      const json = await resBlocked.json();
-      expect(json.error).toContain('Too many requests');
     });
   });
 
@@ -257,17 +269,19 @@ describe('Chat & Redis Rate Limiter VERCEL_ENV Preview Fix Suite', () => {
       expect(resolveGeminiTextModel('')).toBe('gemini-2.5-flash');
     });
 
-    it('rejects TTS, live, audio, image, embedding, and non-existent version models and falls back to gemini-2.5-flash', () => {
+    it('rejects TTS, live, audio, image, embedding, and non-text models and falls back to gemini-2.5-flash', () => {
       expect(resolveGeminiTextModel('gemini-2.5-flash-preview-tts')).toBe('gemini-2.5-flash');
       expect(resolveGeminiTextModel('gemini-2.5-flash-tts')).toBe('gemini-2.5-flash');
-      expect(resolveGeminiTextModel('gemini-3.6-flash')).toBe('gemini-2.5-flash');
+      expect(resolveGeminiTextModel('gemini-realtime-voice')).toBe('gemini-2.5-flash');
       expect(resolveGeminiTextModel('gemini-live-2.0')).toBe('gemini-2.5-flash');
       expect(resolveGeminiTextModel('gemini-audio-preview')).toBe('gemini-2.5-flash');
       expect(resolveGeminiTextModel('imagen-3.0-generate')).toBe('gemini-2.5-flash');
       expect(resolveGeminiTextModel('text-embedding-004')).toBe('gemini-2.5-flash');
     });
 
-    it('accepts clean standard models including gemini-2.5-flash and gemini-2.0-flash', () => {
+    it('accepts clean standard models including gemini-3.6-flash, gemini-3.5-flash, gemini-2.5-flash and gemini-2.0-flash', () => {
+      expect(resolveGeminiTextModel('gemini-3.6-flash')).toBe('gemini-3.6-flash');
+      expect(resolveGeminiTextModel('gemini-3.5-flash')).toBe('gemini-3.5-flash');
       expect(resolveGeminiTextModel('gemini-2.5-flash')).toBe('gemini-2.5-flash');
       expect(resolveGeminiTextModel('gemini-2.0-flash')).toBe('gemini-2.0-flash');
       expect(resolveGeminiTextModel('gemini-1.5-flash')).toBe('gemini-1.5-flash');
